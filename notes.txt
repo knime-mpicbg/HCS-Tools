@@ -1,0 +1,33 @@
+How to enable debugging
+add -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 to knime.ini in Contents/MacOs/
+
+
+
+rm-pros:
+- better model (separation of data and )
+- more flexible operators
+- better integrated views
+- better sub-process modeling and coding
+
+
+rm-cons
+- missing mac integrations
+- view-configuration are not persistent
+- ui not snappy
+- no macos-support (not yet, not planned)
+- (homegrown) plugin-API not ready for prime-time yet
+- only one project open at a time
+- impossible to instantiate spring-containers within plugin-bundles
+
+
+
+knime-pros:
+- fast
+- many plugins
+- very clean plugin-model
+- nice MVC-design for plugins
+- people know it
+
+knime-cons:
+- somehow inflexible operator-API (mandatory inputs)
+- duplication of properties

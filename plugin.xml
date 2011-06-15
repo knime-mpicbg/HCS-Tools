@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+    <extension point="org.knime.workbench.repository.nodes">
+
+        <!--normalization-->
+        <node category-path="/community/hcstools/normalization"
+              factory-class="de.mpicbg.tds.knime.hcstools.normalization.POCNormalizerFactory"
+              id="de.mpicbg.tds.knime.hcstools.normalization.POCNormalizerFactory"/>
+
+        <node category-path="/community/hcstools/normalization"
+              factory-class="de.mpicbg.tds.knime.hcstools.normalization.NPINormalizerFactory"
+              id="de.mpicbg.tds.knime.hcstools.normalization.NPINormalizerFactory"/>
+
+        <node category-path="/community/hcstools/normalization"
+              factory-class="de.mpicbg.tds.knime.hcstools.normalization.ZScoreNormalizerFactory"
+              id="de.mpicbg.tds.knime.hcstools.normalization.ZScoreNormalizerFactory"/>
+
+        <node category-path="/community/hcstools/normalization"
+              factory-class="de.mpicbg.tds.knime.hcstools.normalization.BScoreNormalizerFactory"
+              id="de.mpicbg.tds.knime.hcstools.normalization.BScoreNormalizerFactory"/>
+
+
+        <!--row normalization -->
+        <node category-path="/community/hcstools/normalization"
+              factory-class="de.mpicbg.tds.knime.hcstools.normalization.byrow.VectorLengthNormalizerFactory"
+              id="de.mpicbg.tds.knime.hcstools.normalization.byrow.VectorLengthNormalizerFactory"/>
+
+
+        <!--visualization-->
+        <node category-path="/community/hcstools/view"
+              factory-class="de.mpicbg.tds.knime.hcstools.visualization.ScreenExplorerFactory"
+              id="de.mpicbg.tds.knime.hcstools.visualization.ScreenExplorerFactory"/>
+
+
+        <!--quality control-->
+        <node category-path="/community/hcstools/qc"
+              factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesFactory"
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesFactory"/>
+
+        <node category-path="/community/hcstools/qc"
+              factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesNxMFactory"
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesNxMFactory"/>
+
+        <node category-path="/community/hcstools/qc"
+              factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.CVCalculatorFactory"
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.CVCalculatorFactory"/>
+
+        <node category-path="/community/hcstools/qc"
+              factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMDFactory"
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMDFactory"/>
+
+        <node category-path="/community/hcstools/qc"
+              factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMD_NxMFactory"
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMD_NxMFactory"/>
+
+        <node category-path="/community/hcstools/qc"
+              factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.MultivariateZPrimesFactory"
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.MultivariateZPrimesFactory"/>
+
+        <node category-path="/community/hcstools/qc"
+              factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.CorrelationFactory"
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.CorrelationFactory"/>
+
+
+        <!--screen mining-->
+        <node category-path="/community/hcstools/screenmining"
+              factory-class="de.mpicbg.tds.knime.hcstools.screenmining.EnrichmentAnalyzerFactory"
+              id="de.mpicbg.tds.knime.hcstools.screenmining.EnrichmentAnalyzerFactory"/>
+
+        <node category-path="/community/hcstools/screenmining"
+              factory-class="de.mpicbg.tds.knime.hcstools.screenmining.doseresponse.DoseResponseFactory"
+              id="de.mpicbg.tds.knime.hcstools.screenmining.doseresponse.DoseResponseFactory"/>
+
+
+        <!--utilities-->
+        <node category-path="/community/hcstools/util"
+              factory-class="de.mpicbg.tds.knime.hcstools.utils.ConvertPlateRowsFactory"
+              id="de.mpicbg.tds.knime.hcstools.utils.ConvertPlateRowsFactory"/>
+
+        <node category-path="/community/hcstools/util"
+              factory-class="de.mpicbg.tds.knime.hcstools.utils.ExpandWellPositionFactory"
+              id="de.mpicbg.tds.knime.hcstools.utils.ExpandWellPositionFactory"/>
+
+        <node category-path="/community/hcstools/util"
+              factory-class="de.mpicbg.tds.knime.hcstools.utils.LoadLayoutFactory"
+              id="de.mpicbg.tds.knime.hcstools.utils.LoadLayoutFactory"/>
+
+        <node category-path="/community/hcstools/util"
+              factory-class="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutFactory"
+              id="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutFactory"/>
+
+        <node category-path="/community/hcstools/util"
+              factory-class="de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcodeFactory"
+              id="de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcodeFactory"/>
+
+
+        <!--IO data reader-->
+        <node category-path="/community/hcstools/io"
+              factory-class="de.mpicbg.tds.knime.hcstools.reader.OperettaFileReaderFactory"
+              id="de.mpicbg.tds.knime.hcstools.reader.OperettaFileReaderFactory"/>
+
+        <node category-path="/community/hcstools/io"
+              factory-class="de.mpicbg.tds.knime.hcstools.reader.OperaFileReaderFactory"
+              id="de.mpicbg.tds.knime.hcstools.reader.OperaFileReaderFactory"/>
+
+        <node category-path="/community/hcstools/io"
+              factory-class="de.mpicbg.tds.knime.hcstools.reader.EnvisionFileReaderFactory"
+              id="de.mpicbg.tds.knime.hcstools.reader.EnvisionFileReaderFactory"/>
+
+        <node category-path="/community/hcstools/io"
+              factory-class="de.mpicbg.tds.knime.hcstools.reader.GeniusProFileReaderFactory"
+              id="de.mpicbg.tds.knime.hcstools.reader.GeniusProFileReaderFactory"/>
+
+        <node category-path="/community/hcstools/io"
+              factory-class="de.mpicbg.tds.knime.hcstools.reader.MotionTrackingFileReaderFactory"
+              id="de.mpicbg.tds.knime.hcstools.reader.MotionTrackingFileReaderFactory"/>
+
+        <node category-path="/community/hcstools/io"
+              factory-class="de.mpicbg.tds.knime.hcstools.reader.SectorImagerFileReaderFactory"
+              id="de.mpicbg.tds.knime.hcstools.reader.SectorImagerFileReaderFactory"/>
+
+        <node category-path="/community/hcstools/io"
+              factory-class="de.mpicbg.tds.knime.hcstools.reader.XMLFileReaderFactory"
+              id="de.mpicbg.tds.knime.hcstools.reader.XMLFileReaderFactory"/>
+
+
+        <node category-path="/community/hcstools/manipulation/column/split+combine"
+              factory-class="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterCellSplitterFactory"
+              id="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge..BetterCellSplitterFactory"/>
+
+        <node category-path="/community/hcstools/manipulation/column/split+combine"
+              factory-class="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterColumnCombinerFactory"
+              id="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterColumnCombinerFactory"/>
+
+    </extension>
+
+    <extension point="org.knime.workbench.repository.categories">
+        <category icon="resources/hcstoolsicon.png" level-id="hcstools" name="HCS Tools" path="/community"/>
+        <category level-id="qc" name="Quality Control" path="/community/hcstools"/>
+        <category level-id="normalization" name="Normalization" path="/community/hcstools"/>
+        <category level-id="screenmining" name="Screen Mining" path="/community/hcstools"/>
+        <category level-id="io" name="IO" path="/community/hcstools"/>
+        <category level-id="util" name="Utilities" path="/community/hcstools"/>
+        <category level-id="view" name="Data Views" path="/community/hcstools"/>
+        <category level-id="manipulation" name="Data Manipulation" path="/community/hcstools"/>
+        <category level-id="column" name="Column" path="/community/hcstools/manipulation"/>
+        <category level-id="row" name="Row" path="/community/hcstools/manipulation"/>
+        <category level-id="split+combine" name="Split &amp; Combine" path="/community/hcstools/manipulation/column"/>
+
+        <!--add the view components directly to the view-category -->
+        <!--<category level-id="screening" name="Screening" path="/view"/>-->
+    </extension>
+
+
+    <extension point="org.eclipse.core.runtime.preferences">
+        <initializer class="de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferenceInitializer"/>
+    </extension>
+
+    <extension point="org.eclipse.ui.preferencePages">
+        <page category="org.knime.workbench.ui.preferences"
+              class="de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferencePage"
+              id="de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferencePage"
+              name="HCS-Tool">
+        </page>
+    </extension>
+
+
+    <extension point="org.knime.product.splashExtension">
+        <splashExtension
+                icon="resources/hcstools_splash.png"
+                id="HCS-Tools"
+                tooltip="Some tools to ease HCS analysis">
+        </splashExtension>
+    </extension>
+
+</plugin>

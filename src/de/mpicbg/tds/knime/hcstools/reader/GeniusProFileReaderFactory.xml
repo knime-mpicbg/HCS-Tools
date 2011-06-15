@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+
+<knimeNode icon="./excelicon.png" type="Source">
+
+    <name>GeniusPro Reader</name>
+
+    <shortDescription>
+        Reads a list of GeniusPro result-files into Knime. Files are grouped according to their file names, which are
+        suppossed to follow the pattern: "$Barcode$.xls".
+    </shortDescription>
+
+    <fullDescription>
+
+        <intro>Reads a list of exported Envision result files into Knime.</intro>
+
+        <option name="Input Files">There are two modes of operation. Either you can choose a single directory in which
+            the nodes will search for GeniusPro files. The search is applied not only to the direct directory contents
+            but also to also its subfolders.
+
+            The second mode is to select a set of files (by keeping the apple/windows-key pressed while selecting
+            files).
+        </option>
+
+    </fullDescription>
+
+    <ports>
+        <outPort index="0" name="data-table">The imported GeniusPro-plates</outPort>
+    </ports>
+
+</knimeNode>

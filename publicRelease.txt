@@ -1,0 +1,7 @@
+this is what needs to be done
+1) remove the method connectToASDB in class ArrayScanKnimeUtils
+2) disable the annotate nodes in the plugin-xml
+3) create bin and src bundles
+
+Cleanup after bundles have been copied to output-folder
+4) revert the changes and redeploy

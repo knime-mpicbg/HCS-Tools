@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+
+<knimeNode icon="./excelicon.png" type="Source">
+
+    <name>MotionTracking Reader</name>
+
+    <shortDescription>
+        Reads a list of MotionTracking Reader '.csv'-export-files into Knime.
+    </shortDescription>
+
+    <fullDescription>
+
+        <intro>Reads a list of MotionTracking '.csv'-export-files into Knime. This is done by searching for csv-files
+            recursively within the specified directory or by selecting a list of files directly.
+        </intro>
+
+        <option name="Input Files">
+            <p>There are two modes of operation. Either you can choose a single directory in which
+                the nodes will search for MotionTracking files. The search is applied not only to the direct directory
+                contents but also to also its subfolders.
+                <br/>
+                The second mode is to select a set of files (by keeping the apple/windows-key pressed while selecting
+                files).
+                <br/>
+                In the advanced tab of the configuration dialog one can define the pattern and associate the keywords to
+                interpret the information of the file Paths contained in the first column. The default pattern is:
+                <br/>
+                <b>
+                    <![CDATA[
+                (?<barcode>.*)__(?<row>[0-9]{3})(?<column>[0-9]{3})[0-9]{3}_(?<timpoint>[0-9]{1})(?<wellfield>[0-9]{3})[.]mtf
+                ]]> </b>
+                <br/>
+
+                This pattern matches file paths from images acquired with the Opera (Perkin Elmer) and that are
+                converted
+                with motion tracking into mtf-files. Anything that is contained within () -> token, will be associated
+                with
+                the variable that is contained within. The rest of the syntax is normal regular expressions (see
+                java-doc).
+            </p>
+
+            <p>
+                The mandatory variables are
+                <br/>
+                <i>barcode</i>
+                <br/>
+                <i>row</i>
+                <br/>
+                <i>column</i>
+                <br/>
+            </p>
+
+            <p>The optional variables are:
+                <br/>
+                <i>timepoint</i>: time point between scans
+                <br/>
+                <i>wellfield</i>: field of view within one well
+                <br/>
+                <i>frame</i>: can be a time-frame of a movie or a z-slice of a z-stack (usually not used in HCS).
+            </p>
+            Thus another example for the same type of paths:
+            <br/>
+            <b>
+                <![CDATA[
+            (?<barcode>.*)__(?<row>[0-9]{3})(?<column>[0-9]{3})(?<frame>[0-9]{3})_(?<timpoint>[0-9]{1})(?<wellfield>[0-9]{3})[.]mtf
+            ]]>
+            </b>
+        </option>
+
+    </fullDescription>
+
+    <ports>
+        <outPort index="0" name="data-table">The imported MotionTracking-data</outPort>
+    </ports>
+
+</knimeNode>

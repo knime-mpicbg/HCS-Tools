@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+
+<knimeNode icon="./excelicon.png" type="Manipulator">
+    <name>Plate Row Converter</name>
+
+    <shortDescription>
+        Converts row characters to numbers and vice versa.
+    </shortDescription>
+
+    <fullDescription>
+        <intro>Converts row characters to numbers and vice versa. The node automatically detects the required direction
+            of conversion based on the type of the selected source columns.
+        </intro>
+
+    </fullDescription>
+
+    <ports>
+        <outPort index="0" name="data-table">The same table as before but with converted plate row characters.</outPort>
+    </ports>
+
+</knimeNode>

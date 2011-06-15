@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Source">
+    <name>Normalize Plates (Z-Score)</name>
+
+    <shortDescription>
+        Z-Normalizes by plate.
+    </shortDescription>
+
+    <fullDescription>
+        <intro>Mean/sd and median/mad are calculated for each plate independently. Only wells with the selected controls
+            (e.g. your negative control) are taken into account to calculate the statistics.
+
+            The normalization is applied to all wells (aka all rows in the knime-table) using the respective pair of
+            mean/sd.
+        </intro>
+
+
+        <option name="Replace existing values">If set the normalized entries will be overridden. Otherwise a new
+            attribute with the normalized values is being appended.
+        </option>
+        <option name="Reference sample">The reference sample that is used to calculate the normalization coefficients
+        </option>
+    </fullDescription>
+
+    <ports>
+        <inPort index="0" name="In-Port name">A screen</inPort>
+        <!-- possibly more input ports here-->
+        <outPort index="0" name="Out-Port name">The normalized screen</outPort>
+        <!-- possibly more output ports here-->
+    </ports>
+
+</knimeNode>

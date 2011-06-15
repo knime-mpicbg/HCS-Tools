@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Source">
+    <name>SSMD (PC x NC)</name>
+
+    <shortDescription>
+        Calculates SSMDs for all combinations of a selection of negative and a selection of positive
+        controls.
+    </shortDescription>
+
+    <fullDescription>
+        <intro>The output will be a new table that contains SSMDs per plate and selecteed readout for all combinations
+            of a selection of negative and a selection of positive controls.
+
+            A more detailed introduction into SSMDs and the use of robust statistics can be found in
+            "A New Method with Flexible and Balanced Control of False Negatives and False Positives for Hit Selection in
+            RNA Interference High-Throughput Screening Assays, Zhang, 2007, Journal of Biomolecular Screening; 12; 645".
+        </intro>
+
+
+        <option name="Readouts">Allows to select the readouts for which z-primes will be calcuated</option>
+        <option name="Reference sample">The reference sample that is used to calculate the normalization coefficients
+        </option>
+    </fullDescription>
+
+    <ports>
+        <inPort index="0" name="screen">input screen to be QC'ed</inPort>
+        <!-- possibly more input ports here-->
+        <outPort index="0" name="ssmd">A table containg a row for each plate with all SSMDs as attributes.
+        </outPort>
+        <!-- possibly more output ports here-->
+    </ports>
+
+    <!--<views>-->
+    <!--<view index="0" name="ScreenExplorer">A heatmap visualization tool</view>-->
+    <!--view index="1" name="name of second view">Description of second view...</view-->
+    <!--</views>-->
+
+</knimeNode>
