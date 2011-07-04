@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
+<!--
+  ~ Module Name: hcstools
+  ~ This module is a plugin for the KNIME platform <http://www.knime.org/>
+  ~
+  ~ Copyright (c) 2011.
+  ~ Max Planck Institute of Molecular Cell Biology and Genetics, Dresden
+  ~
+  ~     This program is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU Affero General Public License as
+  ~     published by the Free Software Foundation, either version 3 of the
+  ~     License, or (at your option) any later version.
+  ~
+  ~     This program is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU Affero General Public License for more details.
+  ~
+  ~     Detailed terms and conditions are described in the license.txt.
+  ~     also see <http://www.gnu.org/licenses/>.
+  -->
+
 <plugin>
 
     <extension point="org.knime.workbench.repository.nodes">
@@ -126,6 +147,7 @@
               id="de.mpicbg.tds.knime.hcstools.reader.XMLFileReaderFactory"/>
 
 
+        <!--Data manipulators-->
         <node category-path="/community/hcstools/manipulation/column/split+combine"
               factory-class="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterCellSplitterFactory"
               id="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge..BetterCellSplitterFactory"/>
@@ -133,6 +155,12 @@
         <node category-path="/community/hcstools/manipulation/column/split+combine"
               factory-class="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterColumnCombinerFactory"
               id="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterColumnCombinerFactory"/>
+
+
+        <!--Pre-prcessors-->
+        <node category-path="/community/hcstools/prepro"
+              factory-class="de.mpicbg.tds.knime.hcstools.preprocessing.OutlierRemovalFactory"
+              id="de.mpicbg.tds.knime.hcstools.preprocessing.OutlierRemovalFactory"/>
 
     </extension>
 
@@ -148,6 +176,7 @@
         <category level-id="column" name="Column" path="/community/hcstools/manipulation"/>
         <category level-id="row" name="Row" path="/community/hcstools/manipulation"/>
         <category level-id="split+combine" name="Split &amp; Combine" path="/community/hcstools/manipulation/column"/>
+        <category level-id="prepro" name="Pre-Processing" path="/community/hcstools/"/>
 
         <!--add the view components directly to the view-category -->
         <!--<category level-id="screening" name="Screening" path="/view"/>-->
