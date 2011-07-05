@@ -24,6 +24,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import java.util.*;
 
 import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel.*;
+import static de.mpicbg.tds.knime.hcstools.utils.Table2Matrix.extractMatrix;
 
 
 /**
@@ -82,7 +83,16 @@ public class MultivariateZPrimes extends AbstractNodeModel {
         }
 
         // get the parameter
-        List<String> readouts = propReadouts.getIncludeList();
+//        List<String> readouts = propReadouts.getIncludeList();
+        List<Attribute> readouts = new ArrayList<Attribute>();
+        for (String item : propReadouts.getIncludeList()) {
+            Attribute attribute = new InputTableAttribute(item, input);
+            if (attribute.getType().equals(DoubleCell.TYPE)) {
+                readouts.add(attribute);
+            } else {
+                logger.warn("The parameter '" + attribute.getName() + "' will not be considered for outlier removal, since it is not a DoubleCell type.");
+            }
+        }
 
         // get the grouping of the measurements
         Map<String, List<DataRow>> groups = AttributeUtils.splitRows(input, groupingAttribute);
@@ -110,27 +120,23 @@ public class MultivariateZPrimes extends AbstractNodeModel {
             List<DataRow> negCtrlWells = AttributeUtils.filterByAttributeValue(plate, treatmentAttribute, negativeControl);
 
             // assemble the matrices
-            RealMatrix posMatrix = getMatrix(posCtrlWells, readouts, input);
-            RealMatrix negMatrix = getMatrix(negCtrlWells, readouts, input);
-
-            // remove zero columns
-            int[] columnIndex = checkColumns(posMatrix, negMatrix);
-            int[] rowIndex = getRowIndices(posMatrix);
-            posMatrix.getSubMatrix(rowIndex, columnIndex);
-            rowIndex = getRowIndices(negMatrix);
-            negMatrix.getSubMatrix(rowIndex, columnIndex);
-
-            // bootstrapping
-
-            posMatrix = bootstrapMatrix(posMatrix);
-            negMatrix = bootstrapMatrix(negMatrix);
-            String posStatus = getSampilingStatus(posMatrix, posCtrlWells.size());
-            String negStatus = getSampilingStatus(negMatrix, negCtrlWells.size());
-
+            RealMatrix posMatrix = extractMatrix(posCtrlWells, readouts);
+            RealMatrix negMatrix = extractMatrix(negCtrlWells, readouts);
 
             Double zPrime = Double.NaN;
             Double classificationError = Double.NaN;
             if ((posMatrix != null) && (negMatrix != null)) {
+
+                // remove zero columns
+                int[] columnIndex = checkColumns(posMatrix, negMatrix);
+                int[] rowIndex = getRowIndices(posMatrix);
+                posMatrix.getSubMatrix(rowIndex, columnIndex);
+                rowIndex = getRowIndices(negMatrix);
+                negMatrix.getSubMatrix(rowIndex, columnIndex);
+
+                // bootstrapping
+                posMatrix = bootstrapMatrix(posMatrix);
+                negMatrix = bootstrapMatrix(negMatrix);
 
                 // mean vecotrs
                 RealVector posMeanVect = computeColumnMeans(posMatrix);
@@ -170,6 +176,9 @@ public class MultivariateZPrimes extends AbstractNodeModel {
                     zPrime = Double.NaN;
                 }
             }
+
+            String posStatus = getSampilingStatus(posMatrix, posCtrlWells.size());
+            String negStatus = getSampilingStatus(negMatrix, negCtrlWells.size());
 
             // parse the values in the ouput table.
             Attribute attribute;
@@ -272,31 +281,6 @@ public class MultivariateZPrimes extends AbstractNodeModel {
             meanVect[c] = StatUtils.mean(vect.getData());
         }
         return new ArrayRealVector(meanVect);
-    }
-
-
-    protected RealMatrix getMatrix(List<DataRow> wells, List<String> param, BufferedDataTable inputTable) {
-        double[][] matrix = new double[wells.size()][param.size()];
-        int m = 0;
-        for (DataRow row : wells) {
-            int n = 0;
-            for (String readout : param) {
-                Attribute readoutAttribute = new InputTableAttribute(readout, inputTable);
-                Double val = readoutAttribute.getDoubleAttribute(row);
-                if (isValidNumber(val)) {
-                    break;
-                }
-                matrix[m][n] = val;
-                n += 1;
-            }
-            if (n == param.size()) {
-                m += 1;
-            }
-        }
-        // remove the unused rows.
-        RealMatrix rmatrix = new Array2DRowRealMatrix(matrix);
-        rmatrix = rmatrix.getSubMatrix(0, m - 1, 0, param.size() - 1);
-        return rmatrix;
     }
 
 

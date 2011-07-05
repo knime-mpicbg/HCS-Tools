@@ -27,7 +27,6 @@ import de.mpicbg.tds.knime.knutils.Attribute;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.knutils.BufTableUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
-import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
 import org.apache.commons.math.stat.StatUtils;
@@ -47,6 +46,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static de.mpicbg.tds.knime.hcstools.utils.Table2Matrix.extractMatrix;
 
 
 /**
@@ -114,7 +115,7 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
             List<DataRow> rowSubset = subsets.get(key);
 
             // Get the valid values
-            RealMatrix data = getMatrix(rowSubset, parameter);
+            RealMatrix data = extractMatrix(rowSubset, parameter);
 
             int N = data.getColumnDimension();
             int M = data.getRowDimension();
@@ -197,31 +198,31 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
     }
 
 
-    protected RealMatrix getMatrix(List<DataRow> rows, List<Attribute> params) {
-        double[][] matrix = new double[rows.size()][params.size()];
-        int nbparams = params.size();
-        int m = 0;
-        for (DataRow row : rows) {
-            int n = 0;
-            for (Attribute readout : params) {
-                Double val = readout.getDoubleAttribute(row);
-                if ((val == null) || !isValidNumber(val)) {
-                    break;
-                }
-                matrix[m][n] = val;
-                n += 1;
-            }
-            if (n == nbparams) {
-                m += 1;
-            }
-        }
-        // remove the unused rows.
-        RealMatrix rmatrix = new Array2DRowRealMatrix(matrix);
-        if (m > 0) {
-            rmatrix = rmatrix.getSubMatrix(0, m - 1, 0, nbparams - 1);
-        }
-        return rmatrix;
-    }
+//    protected RealMatrix extractMatrix(List<DataRow> rows, List<Attribute> params) {
+//        double[][] matrix = new double[rows.size()][params.size()];
+//        int nbparams = params.size();
+//        int m = 0;
+//        for (DataRow row : rows) {
+//            int n = 0;
+//            for (Attribute readout : params) {
+//                Double val = readout.getDoubleAttribute(row);
+//                if ((val == null) || !isValidNumber(val)) {
+//                    break;
+//                }
+//                matrix[m][n] = val;
+//                n += 1;
+//            }
+//            if (n == nbparams) {
+//                m += 1;
+//            }
+//        }
+//        // remove the unused rows.
+//        RealMatrix rmatrix = new Array2DRowRealMatrix(matrix);
+//        if (m > 0) {
+//            rmatrix = rmatrix.getSubMatrix(0, m - 1, 0, nbparams - 1);
+//        }
+//        return rmatrix;
+//    }
 
 
     private boolean isValidNumber(double nb) {
