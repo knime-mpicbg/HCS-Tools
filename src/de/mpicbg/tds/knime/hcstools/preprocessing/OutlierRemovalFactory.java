@@ -21,9 +21,11 @@
 
 package de.mpicbg.tds.knime.hcstools.preprocessing;
 
+import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoDialog;
 import de.mpicbg.tds.knime.hcstools.utils.TdsNumbericFilter;
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
-import de.mpicbg.tds.knime.knutils.StringFilter;
+import org.knime.core.data.IntValue;
+import org.knime.core.data.StringValue;
+import org.knime.core.data.date.DateAndTimeValue;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
@@ -67,7 +69,7 @@ public class OutlierRemovalFactory extends NodeFactory<OutlierRemoval> {
 
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return new AbstractConfigDialog() {
+        return new AbstractScreenTrafoDialog() {
 
             @Override
             protected void createControls() {
@@ -76,7 +78,8 @@ public class OutlierRemovalFactory extends NodeFactory<OutlierRemoval> {
 
                 addDialogComponent(new DialogComponentNumberEdit(createFactor(), "Factor"));
 
-                addDialogComponent(new DialogComponentColumnFilter(createConstraintsSelection(), 0, true, new StringFilter()));
+                addDialogComponent(new DialogComponentColumnNameSelection(createGrouping(), "Group measurments by", 0,
+                        new Class[]{StringValue.class, IntValue.class, DateAndTimeValue.class}));
 
                 addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, true, new TdsNumbericFilter()));
 
@@ -105,7 +108,9 @@ public class OutlierRemovalFactory extends NodeFactory<OutlierRemoval> {
         return options;
     }
 
-    static SettingsModelFilterString createConstraintsSelection() {
-        return new SettingsModelFilterString("constraints");
+    public static SettingsModelString createGrouping() {
+        return new SettingsModelString("GroupingSetting", "Controls");
     }
+
+
 }

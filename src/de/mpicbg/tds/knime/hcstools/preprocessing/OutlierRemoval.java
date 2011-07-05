@@ -22,16 +22,16 @@
 package de.mpicbg.tds.knime.hcstools.preprocessing;
 
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
+import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel;
 import de.mpicbg.tds.knime.knutils.Attribute;
+import de.mpicbg.tds.knime.knutils.AttributeUtils;
+import de.mpicbg.tds.knime.knutils.BufTableUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
 import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.knime.core.data.DataCell;
-import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DoubleCell;
@@ -45,11 +45,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel.createPropReadoutSelection;
 
 
 /**
@@ -59,11 +56,11 @@ import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoMode
  */
 
 
-public class OutlierRemoval extends AbstractNodeModel {
+public class OutlierRemoval extends AbstractScreenTrafoModel {
 
 
     private SettingsModelString method = OutlierRemovalFactory.createMethodSelection();
-    private SettingsModelFilterString constrainingColumnNames = OutlierRemovalFactory.createConstraintsSelection();
+    public SettingsModelString groupingColumn = OutlierRemovalFactory.createGrouping();
     private SettingsModelFilterString parameterNames = createPropReadoutSelection();
     private SettingsModelDouble factor = OutlierRemovalFactory.createFactor();
     private SettingsModelBoolean rule = OutlierRemovalFactory.createRule();
@@ -73,7 +70,7 @@ public class OutlierRemoval extends AbstractNodeModel {
         addSetting(method);
         addSetting(rule);
         addSetting(factor);
-        addSetting(constrainingColumnNames);
+        addSetting(groupingColumn);
         addSetting(parameterNames);
     }
 
@@ -101,35 +98,35 @@ public class OutlierRemoval extends AbstractNodeModel {
             }
         }
 
-        // Get the groups defined by the serveral nominal columns.
-        List<String> constraintColumnNames = constrainingColumnNames.getIncludeList();
-        Map<String, ArrayList<String>> subsets = getNominalValues(input, constraintColumnNames);
+        // Get the groups defined by the nominal column.
+        Attribute groupingAttribute = new InputTableAttribute(this.groupingColumn.getStringValue(), input);
+        Map<Object, List<DataRow>> subsets = AttributeUtils.splitRowsGeneric(input, groupingAttribute);
 
         // Initialize
         BufferedDataContainer container = exec.createDataContainer(inputSpec);
         int S = subsets.size();
         int s = 1;
 
-
-        for (String key : subsets.keySet()) {
+        // Outlier analysis for each subset
+        for (Object key : subsets.keySet()) {
 
             // Get the subset having all constraints in common
-            List<DataRow> rowSubset = getTableSubset(exec, input, constraintColumnNames, subsets.get(key));
+            List<DataRow> rowSubset = subsets.get(key);
 
             // Get the valid values
             RealMatrix data = getMatrix(rowSubset, parameter);
 
-            // Determine upper and lower outlier bounds
             int N = data.getColumnDimension();
             int M = data.getRowDimension();
             if (M == 0) {
                 logger.warn("The group '" + key + "' has no valid values and will be removed entirely'");
             } else {
+
+                // Determine upper and lower outlier bounds
                 double[] lowerBound = new double[N];
                 double[] upperBound = new double[N];
-
                 if (method.getStringValue().equals("Boxplot")) {
-                    for (int c = 0; c < data.getColumnDimension(); ++c) {
+                    for (int c = 0; c < N; ++c) {
                         RealVector vect = data.getColumnVector(c);
                         DescriptiveStatistics stats = new DescriptiveStatistics();
                         for (double value : vect.getData()) {
@@ -142,7 +139,7 @@ public class OutlierRemoval extends AbstractNodeModel {
                         upperBound[c] = upperQuantile + whisker;
                     }
                 } else {
-                    for (int c = 0; c < data.getColumnDimension(); ++c) {
+                    for (int c = 0; c < N; ++c) {
                         RealVector vect = data.getColumnVector(c);
                         double mean = StatUtils.mean(vect.getData());
                         double sd = Math.sqrt(StatUtils.variance(vect.getData()));
@@ -151,13 +148,13 @@ public class OutlierRemoval extends AbstractNodeModel {
                     }
                 }
 
-
-                if (rule.getBooleanValue()) {   // The row is only discarted if the row is an outlier in all parameter.
+                // Remove The outlier
+                if (rule.getBooleanValue()) {    // The row is only discarted if the row is an outlier in all parameter.
                     for (DataRow row : rowSubset) {
                         int c = 0;
                         for (Attribute column : parameter) {
                             Double value = (Double) column.getValue(row);
-                            if ((lowerBound[c] < value) && (value < upperBound[c])) {
+                            if ((value != null) && (lowerBound[c] < value) && (value < upperBound[c])) {
                                 break;
                             } else {
                                 c++;
@@ -172,7 +169,7 @@ public class OutlierRemoval extends AbstractNodeModel {
                         int c = 0;
                         for (Attribute column : parameter) {
                             Double value = (Double) column.getValue(row);
-                            if ((lowerBound[c] < value) && (value < upperBound[c])) {
+                            if ((value != null) && (lowerBound[c] < value) && (value < upperBound[c])) {
                                 c++;
                             } else {
                                 break;
@@ -185,13 +182,18 @@ public class OutlierRemoval extends AbstractNodeModel {
                 }
             }
 
-            exec.checkCanceled();
-            exec.setProgress(s / S);
+            BufTableUtils.updateProgress(exec, s++, S);
 
         }
 
         container.close();
         return new BufferedDataTable[]{container.getTable()};
+    }
+
+
+    @Override
+    protected String getAppendSuffix() {
+        return "";
     }
 
 
@@ -203,7 +205,7 @@ public class OutlierRemoval extends AbstractNodeModel {
             int n = 0;
             for (Attribute readout : params) {
                 Double val = readout.getDoubleAttribute(row);
-                if (!isValidNumber(val)) {
+                if ((val == null) || !isValidNumber(val)) {
                     break;
                 }
                 matrix[m][n] = val;
@@ -219,51 +221,6 @@ public class OutlierRemoval extends AbstractNodeModel {
             rmatrix = rmatrix.getSubMatrix(0, m - 1, 0, nbparams - 1);
         }
         return rmatrix;
-    }
-
-
-    protected static List<DataRow> getTableSubset(ExecutionContext exec, BufferedDataTable table, List<String> conditionNames, List<String> conditionValues) {
-        DataTableSpec tableSpec = table.getDataTableSpec();
-        List<DataRow> subset = new ArrayList<DataRow>();
-        for (DataRow dataRow : table) {
-            // Check if the conditions match
-            boolean allMatched = true;
-            for (int i = 0; i < tableSpec.getNumColumns(); i++) {
-                DataColumnSpec columnSpec = tableSpec.getColumnSpec(i);
-                if (conditionNames.contains(columnSpec.getName())) {
-                    DataCell dataCell = dataRow.getCell(i);
-                    if (!conditionValues.contains(dataCell.toString())) {
-                        allMatched = false;
-                        break;
-                    }
-                }
-            }
-            if (allMatched) {
-                subset.add(dataRow);
-            }
-        }
-        return subset;
-    }
-
-
-    protected static Map<String, ArrayList<String>> getNominalValues(BufferedDataTable table, List<String> columns) {
-        Map<String, ArrayList<String>> groups = new HashMap<String, ArrayList<String>>();
-        DataTableSpec tableSpec = table.getDataTableSpec();
-        for (DataRow dataRow : table) {
-
-            String groupName = "";
-            ArrayList<String> groupValues = new ArrayList<String>();
-            for (int i = 0; i < tableSpec.getNumColumns(); i++) {
-                DataColumnSpec columnSpec = tableSpec.getColumnSpec(i);
-                if (columns.contains(columnSpec.getName())) {
-                    DataCell dataCell = dataRow.getCell(i);
-                    groupName += "_" + dataCell.toString();
-                    groupValues.add(dataCell.toString());
-                }
-            }
-            groups.put(groupName, groupValues);
-        }
-        return groups;
     }
 
 
