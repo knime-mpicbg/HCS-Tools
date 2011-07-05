@@ -45,7 +45,7 @@
  *  when such Node is propagated with or for interoperation with KNIME.
  * -------------------------------------------------------------------
  */
-package de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge;
+package de.mpicbg.tds.knime.hcstools.datamanip.column;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;

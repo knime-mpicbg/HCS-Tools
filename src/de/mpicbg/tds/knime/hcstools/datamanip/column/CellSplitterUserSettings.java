@@ -49,7 +49,7 @@
  *   Jun 19, 2007 (ohl): created
  *   Oct 06, 2008 (ohl): added missing value/empty cell option
  */
-package de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge;
+package de.mpicbg.tds.knime.hcstools.datamanip.column;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.StringValue;

@@ -1,4 +1,4 @@
-package de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge;
+package de.mpicbg.tds.knime.hcstools.datamanip.column;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;

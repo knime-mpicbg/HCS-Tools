@@ -48,7 +48,7 @@
  * History
  *   Jun 20, 2007 (ohl): created
  */
-package de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge;
+package de.mpicbg.tds.knime.hcstools.datamanip.column;
 
 import org.knime.core.data.DataType;
 import org.knime.core.node.InvalidSettingsException;

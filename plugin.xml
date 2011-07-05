@@ -149,14 +149,14 @@
 
         <!--Data manipulators-->
         <node category-path="/community/hcstools/manipulation/column/split+combine"
-              factory-class="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterCellSplitterFactory"
-              id="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge..BetterCellSplitterFactory"/>
+              factory-class="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterCellSplitterFactory"
+              id="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterCellSplitterFactory"/>
 
         <node category-path="/community/hcstools/manipulation/column/split+combine"
-              factory-class="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterColumnCombinerFactory"
-              id="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterColumnCombinerFactory"/>
+              factory-class="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterColumnCombinerFactory"
+              id="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterColumnCombinerFactory"/>
 
-        <node category-path="/community/hcstools/manipulation/row/filters"
+        <node category-path="/community/hcstools/manipulation/row/filter"
               factory-class="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterFactory"
               id="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterFactory"/>
 
@@ -179,7 +179,7 @@
         <category level-id="manipulation" name="Data Manipulation" path="/community/hcstools"/>
         <category level-id="column" name="Column" path="/community/hcstools/manipulation"/>
         <category level-id="row" name="Row" path="/community/hcstools/manipulation"/>
-        <category level-id="filters" name="Filters" path="/community/hcstools/manipulation/row"/>
+        <category level-id="filter" name="Filter" path="/community/hcstools/manipulation/row"/>
         <category level-id="split+combine" name="Split &amp; Combine" path="/community/hcstools/manipulation/column"/>
         <category level-id="prepro" name="Pre-Processing" path="/community/hcstools/"/>
 
