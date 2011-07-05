@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Module Name: hcstools
+  ~ This module is a plugin for the KNIME platform <http://www.knime.org/>
+  ~
+  ~ Copyright (c) 2011.
+  ~ Max Planck Institute of Molecular Cell Biology and Genetics, Dresden
+  ~
+  ~     This program is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU Affero General Public License as
+  ~     published by the Free Software Foundation, either version 3 of the
+  ~     License, or (at your option) any later version.
+  ~
+  ~     This program is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU Affero General Public License for more details.
+  ~
+  ~     Detailed terms and conditions are described in the license.txt.
+  ~     also see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Source">
+    <name>Range Filter</name>
+
+    <shortDescription>
+        Removes rows where certain parameter values are outside of a defined range.
+    </shortDescription>
+
+    <fullDescription>
+        <intro>This is a commodity node to batch filter columns of a normalized table.
+            Each parameter will be searched for values lying outside the defined bounds.
+        </intro>
+
+        <option name="Lower Bound">Number defining the lower limit of the possible parameter value range
+        </option>
+        <option name="Upper Bound">Number defining the upper limit of the possible parameter value range
+        </option>
+        <option name="Parameter">Column filter to select the paramters where the values are checked to lie inside the
+            defined range.
+        </option>
+        <option name="All Parameter">Per default unchecked. In this case an row is removed if it has value outside of
+            the range
+            for at least one parameter. If you tick this checkbox, the row is only removed if all the values for all
+            parameter are outside the range.
+        </option>
+    </fullDescription>
+
+    <ports>
+        <inPort index="0" name="input">data for outlier analysis</inPort>
+        <!-- possibly more input ports here-->
+        <outPort index="0" name="output">table with rows inside the range.</outPort>
+        <outPort index="1" name="output">table with rows outside the range.</outPort>
+        <!-- possibly more output ports here-->
+    </ports>
+
+    <!--<views>-->
+    <!--<view index="0" name="ScreenExplorer">A heatmap visualization tool</view>-->
+    <!--view index="1" name="name of second view">Description of second view...</view-->
+    <!--</views>-->
+
+</knimeNode>

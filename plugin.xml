@@ -156,6 +156,10 @@
               factory-class="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterColumnCombinerFactory"
               id="de.mpicbg.tds.knime.hcstools.utils.cellsplitmerge.BetterColumnCombinerFactory"/>
 
+        <node category-path="/community/hcstools/manipulation/row/filters"
+              factory-class="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterFactory"
+              id="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterFactory"/>
+
 
         <!--Pre-prcessors-->
         <node category-path="/community/hcstools/prepro"
@@ -175,6 +179,7 @@
         <category level-id="manipulation" name="Data Manipulation" path="/community/hcstools"/>
         <category level-id="column" name="Column" path="/community/hcstools/manipulation"/>
         <category level-id="row" name="Row" path="/community/hcstools/manipulation"/>
+        <category level-id="filters" name="Filters" path="/community/hcstools/manipulation/row"/>
         <category level-id="split+combine" name="Split &amp; Combine" path="/community/hcstools/manipulation/column"/>
         <category level-id="prepro" name="Pre-Processing" path="/community/hcstools/"/>
 
