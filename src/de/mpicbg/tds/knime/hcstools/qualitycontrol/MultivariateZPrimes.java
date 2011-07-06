@@ -138,42 +138,44 @@ public class MultivariateZPrimes extends AbstractNodeModel {
                 posMatrix = bootstrapMatrix(posMatrix);
                 negMatrix = bootstrapMatrix(negMatrix);
 
-                // mean vecotrs
-                RealVector posMeanVect = computeColumnMeans(posMatrix);
-                RealVector negMeanVect = computeColumnMeans(negMatrix);
+                if ((posMatrix != null) && (negMatrix != null)) {
+                    // mean vecotrs
+                    RealVector posMeanVect = computeColumnMeans(posMatrix);
+                    RealVector negMeanVect = computeColumnMeans(negMatrix);
 
-                // Covairiance within classes
-                Covariance posCov = new Covariance(posMatrix);
-                Covariance negCov = new Covariance(negMatrix);
+                    // Covairiance within classes
+                    Covariance posCov = new Covariance(posMatrix);
+                    Covariance negCov = new Covariance(negMatrix);
 
-                // compute the weights
-                RealVector meanVect = posMeanVect.subtract(negMeanVect);
-                RealMatrix cov = posCov.getCovarianceMatrix();
-                cov.add(negCov.getCovarianceMatrix());
+                    // compute the weights
+                    RealVector meanVect = posMeanVect.subtract(negMeanVect);
+                    RealMatrix cov = posCov.getCovarianceMatrix();
+                    cov.add(negCov.getCovarianceMatrix());
 
-                try {
-                    DecompositionSolver solver = new SingularValueDecompositionImpl(cov).getSolver();
-//                    boolean flag = solver.isNonSingular();
-                    RealMatrix inv = solver.getInverse();
-                    RealVector weights = inv.preMultiply(meanVect);
+                    try {
+                        DecompositionSolver solver = new SingularValueDecompositionImpl(cov).getSolver();
+                        //                    boolean flag = solver.isNonSingular();
+                        RealMatrix inv = solver.getInverse();
+                        RealVector weights = inv.preMultiply(meanVect);
 
-                    // calcualte the projected values
-                    double[] posProj = computeProjectedValues(posMatrix, weights);
-                    double[] negProj = computeProjectedValues(negMatrix, weights);
+                        // calcualte the projected values
+                        double[] posProj = computeProjectedValues(posMatrix, weights);
+                        double[] negProj = computeProjectedValues(negMatrix, weights);
 
-                    // calculate the missclassification
-                    classificationError = calculateClassificationError(weights, posMeanVect, negMeanVect, posProj, negProj);
+                        // calculate the missclassification
+                        classificationError = calculateClassificationError(weights, posMeanVect, negMeanVect, posProj, negProj);
 
-                    // calculate the z-prime factor for the current plate
-                    double posCtrlMean = StatUtils.mean(posProj);
-                    double posCtrlSD = Math.sqrt(StatUtils.variance(posProj));
-                    double negCtrlMean = StatUtils.mean(negProj);
-                    double negCtrlSD = Math.sqrt(StatUtils.variance(negProj));
-                    zPrime = 1 - 3 * ((posCtrlSD + negCtrlSD) / Math.abs(posCtrlMean - negCtrlMean));
+                        // calculate the z-prime factor for the current plate
+                        double posCtrlMean = StatUtils.mean(posProj);
+                        double posCtrlSD = Math.sqrt(StatUtils.variance(posProj));
+                        double negCtrlMean = StatUtils.mean(negProj);
+                        double negCtrlSD = Math.sqrt(StatUtils.variance(negProj));
+                        zPrime = 1 - 3 * ((posCtrlSD + negCtrlSD) / Math.abs(posCtrlMean - negCtrlMean));
 
-                } catch (InvalidMatrixException e) {
+                    } catch (InvalidMatrixException e) {
 
-                    zPrime = Double.NaN;
+                        zPrime = Double.NaN;
+                    }
                 }
             }
 
@@ -183,7 +185,7 @@ public class MultivariateZPrimes extends AbstractNodeModel {
             // parse the values in the ouput table.
             Attribute attribute;
             attribute = new Attribute(POSITIVE_CONTROL_DESC + "_Samples", DoubleCell.TYPE);
-            updateCache.add(dataRow, attribute, new DoubleCell(negCtrlWells.size()));
+            updateCache.add(dataRow, attribute, new DoubleCell(posCtrlWells.size()));
             attribute = new Attribute(POSITIVE_CONTROL_DESC + "_Status", StringCell.TYPE);
             updateCache.add(dataRow, attribute, new StringCell(posStatus));
             attribute = new Attribute(NEGATIVE_CONTROL_DESC + "_Samples", DoubleCell.TYPE);
@@ -286,30 +288,32 @@ public class MultivariateZPrimes extends AbstractNodeModel {
 
     protected RealMatrix bootstrapMatrix(RealMatrix mat) {
         double[][] bootstrap;
-        if (mat.getRowDimension() < mat.getColumnDimension()) {
-            if (mat.getRowDimension() < 3) {
-                bootstrap = null;
+        if ((mat.getRowDimension() < mat.getColumnDimension()) && (mat.getRowDimension() >= 3)) {
+//            if (mat.getRowDimension() < 3) {
+//                return mat;
+//            } else {
+            int Nboot;
+            if (mat.getRowDimension() < 100) {
+                Nboot = 100;
             } else {
-                int Nboot;
-                if (mat.getRowDimension() < 100) {
-                    Nboot = 100;
-                } else {
-                    Nboot = mat.getColumnDimension();
-                }
-                bootstrap = new double[Nboot][mat.getColumnDimension()];
-                int R;
-                RandomData rand = new RandomDataImpl();
-                for (int c = 0; c < mat.getColumnDimension(); ++c) {
-                    for (int r = 0; r < bootstrap.length; ++r) {
-                        R = rand.nextInt(0, mat.getRowDimension() - 1);
-                        bootstrap[r][c] = mat.getEntry(R, c);
-                    }
+                Nboot = mat.getColumnDimension();
+            }
+            bootstrap = new double[Nboot][mat.getColumnDimension()];
+            int R;
+            RandomData rand = new RandomDataImpl();
+            for (int c = 0; c < mat.getColumnDimension(); ++c) {
+                for (int r = 0; r < bootstrap.length; ++r) {
+                    R = rand.nextInt(0, mat.getRowDimension() - 1);
+                    bootstrap[r][c] = mat.getEntry(R, c);
                 }
             }
+//            }
+            return new Array2DRowRealMatrix(bootstrap);
         } else {
-            bootstrap = mat.getData();
+//            bootstrap = mat.getData();
+            return mat;
         }
-        return new Array2DRowRealMatrix(bootstrap);
+
     }
 
 

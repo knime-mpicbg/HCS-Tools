@@ -155,7 +155,7 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
                         int c = 0;
                         for (Attribute column : parameter) {
                             Double value = (Double) column.getValue(row);
-                            if ((value != null) && (lowerBound[c] < value) && (value < upperBound[c])) {
+                            if ((value != null) && (lowerBound[c] <= value) && (value <= upperBound[c])) {
                                 break;
                             } else {
                                 c++;
@@ -170,7 +170,7 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
                         int c = 0;
                         for (Attribute column : parameter) {
                             Double value = (Double) column.getValue(row);
-                            if ((value != null) && (lowerBound[c] < value) && (value < upperBound[c])) {
+                            if ((value != null) && (lowerBound[c] <= value) && (value <= upperBound[c])) {
                                 c++;
                             } else {
                                 break;
