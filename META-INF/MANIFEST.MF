@@ -43,4 +43,5 @@ Require-Bundle: org.eclipse.core.runtime,
 Eclipse-LazyStart: true
 Export-Package: de.mpicbg.tds.knime.hcstools,
  de.mpicbg.tds.knime.hcstools.utils
+Import-Package: org.apache.commons.logging
 
