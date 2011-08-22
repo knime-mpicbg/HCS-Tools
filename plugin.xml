@@ -170,6 +170,10 @@
               factory-class="de.mpicbg.tds.knime.hcstools.preprocessing.OutlierRemovalFactory"
               id="de.mpicbg.tds.knime.hcstools.preprocessing.OutlierRemovalFactory"/>
 
+        <node category-path="/community/hcstools/prepro"
+              factory-class="de.mpicbg.tds.knime.hcstools.preprocessing.ParameterMutualInformationFactory"
+              id="de.mpicbg.tds.knime.hcstools.preprocessing.ParameterMutualInformationFactory"/>
+
     </extension>
 
     <extension point="org.knime.workbench.repository.categories">
