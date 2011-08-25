@@ -68,6 +68,7 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
 
 
     public OutlierRemoval() {
+        super(1, 2);
         addSetting(method);
         addSetting(rule);
         addSetting(factor);
@@ -78,7 +79,7 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
 
     @Override
     protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        return inSpecs;
+        return new DataTableSpec[]{inSpecs[0], inSpecs[0]};
     }
 
 
@@ -104,7 +105,8 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
         Map<Object, List<DataRow>> subsets = AttributeUtils.splitRowsGeneric(input, groupingAttribute);
 
         // Initialize
-        BufferedDataContainer container = exec.createDataContainer(inputSpec);
+        BufferedDataContainer keepContainer = exec.createDataContainer(inputSpec);
+        BufferedDataContainer discartContainer = exec.createDataContainer(inputSpec);
         int S = subsets.size();
         int s = 1;
 
@@ -162,7 +164,9 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
                             }
                         }
                         if (c != N) {
-                            container.addRowToTable(row);
+                            keepContainer.addRowToTable(row);
+                        } else {
+                            discartContainer.addRowToTable(row);
                         }
                     }
                 } else {                         // The row is discarted if it has a outlier for at least one parameter.
@@ -177,7 +181,9 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
                             }
                         }
                         if (c == N) {
-                            container.addRowToTable(row);
+                            keepContainer.addRowToTable(row);
+                        } else {
+                            discartContainer.addRowToTable(row);
                         }
                     }
                 }
@@ -187,8 +193,9 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
 
         }
 
-        container.close();
-        return new BufferedDataTable[]{container.getTable()};
+        keepContainer.close();
+        discartContainer.close();
+        return new BufferedDataTable[]{keepContainer.getTable(), discartContainer.getTable()};
     }
 
 

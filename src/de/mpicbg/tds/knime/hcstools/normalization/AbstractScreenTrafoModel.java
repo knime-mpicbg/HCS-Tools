@@ -54,10 +54,16 @@ public abstract class AbstractScreenTrafoModel extends AbstractNodeModel {
     /**
      * Constructor for the node model.
      */
-    protected AbstractScreenTrafoModel() {
+    protected AbstractScreenTrafoModel(int inPorts, int outPorts) {
+        super(inPorts, outPorts);
         addSetting(propReplaceValues);
         addSetting(propReadouts);
         addSetting(groupBy);
+    }
+
+    protected AbstractScreenTrafoModel() {
+        this(1, 1);
+
     }
 
 
