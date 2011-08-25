@@ -118,15 +118,15 @@ public class ParameterMutualInformation extends AbstractNodeModel {
 
         // Load data.
         Double[][] table = new Double[N][input.getRowCount()];
-        int i = 0;
-        for (Attribute param : parameters) {
-            int j = 0;
-            for (DataRow row : input) {
+        int j = 0;
+        for (DataRow row : input) {
+            int i = 0;
+            for (Attribute param : parameters) {
                 table[i][j] = param.getDoubleAttribute(row);
-                j++;
+                i++;
             }
-            i++;
-            BufTableUtils.updateProgress(exec, i, N);
+            j++;
+            BufTableUtils.updateProgress(exec, j, N);
         }
 
         // Calculate mutual information
