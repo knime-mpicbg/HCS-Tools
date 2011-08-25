@@ -47,29 +47,30 @@ public class MutualInformation {
     public MutualInformation() {
     }
 
+    public MutualInformation(String method, int n, double logbase) {
+        this.set_binning(n);
+        this.set_method(method);
+        this.set_base(logbase);
+    }
+
     public MutualInformation(Double[] x, Double[] y) {
-        this.x = x;
-        this.y = y;
+        this.set_vectors(x, y);
         this.set_binning();
     }
 
     public MutualInformation(Double[] x, Double[] y, int n) {
-        this.x = x;
-        this.y = y;
+        this.set_vectors(x, y);
         this.set_binning(n);
     }
 
     public MutualInformation(Double[] x, Double[] y, int nx, int ny) {
-        this.x = x;
-        this.y = y;
+        this.set_vectors(x, y);
         this.set_binning(nx, ny);
     }
 
     public MutualInformation(Double[] x, Double[] y, String method) {
-        this.met = method;
-        this.x = x;
-        this.y = y;
-        this.set_binning();
+        this(x, y);
+        this.set_method(method);
     }
 
 
