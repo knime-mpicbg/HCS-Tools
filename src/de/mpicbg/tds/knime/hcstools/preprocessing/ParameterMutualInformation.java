@@ -57,16 +57,20 @@ import java.util.List;
 public class ParameterMutualInformation extends AbstractNodeModel {
 
 
-    private SettingsModelString method = ParameterMutualInformationFactory.createMethodSelection();
-    private SettingsModelFilterString parameterNames = ParameterMutualInformationFactory.createParameterFilterSetting();
-    private SettingsModelDouble logbase = ParameterMutualInformationFactory.createLogBase();
-    private SettingsModelDouble threshold = ParameterMutualInformationFactory.createLogBase();
-    private SettingsModelInteger binning = ParameterMutualInformationFactory.createBinning();
+    public static final SettingsModelString method = ParameterMutualInformationFactory.createMethodSelection();
+    public static final SettingsModelFilterString parameterNames = ParameterMutualInformationFactory.createParameterFilterSetting();
+    public static final SettingsModelDouble logbase = ParameterMutualInformationFactory.createLogBase();
+    public static final SettingsModelDouble threshold = ParameterMutualInformationFactory.createLogBase();
+    public static final SettingsModelInteger binning = ParameterMutualInformationFactory.createBinning();
 
 
     // Constructor
     public ParameterMutualInformation() {
-        super(1, 2);
+        this(1, 2);
+    }
+
+    public ParameterMutualInformation(int portIn, int portOut) {
+        super(portIn, portOut);
         addSetting(method);
         addSetting(logbase);
         addSetting(parameterNames);
@@ -90,18 +94,18 @@ public class ParameterMutualInformation extends AbstractNodeModel {
     protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 
         BufferedDataTable input = inData[0];
-        DataTableSpec inputSpec = input.getDataTableSpec();
+//        DataTableSpec inputSpec = input.getDataTableSpec();
 
         // Get the parameter and make sure there all double value columns
-        List<Attribute> parameters = new ArrayList<Attribute>();
-        for (String item : parameterNames.getIncludeList()) {
-            Attribute attribute = new InputTableAttribute(item, input);
-            if (attribute.getType().equals(DoubleCell.TYPE)) {
-                parameters.add(attribute);
-            } else {
-                logger.warn("The parameters '" + attribute.getName() + "' will not be considered for outlier removal, since it is not a DoubleCell type.");
-            }
-        }
+        List<Attribute> parameters = getParameterList(input);
+//        for (String item : parameterNames.getIncludeList()) {
+//            Attribute attribute = new InputTableAttribute(item, input);
+//            if (attribute.getType().equals(DoubleCell.TYPE)) {
+//                parameters.add(attribute);
+//            } else {
+//                logger.warn("The parameters '" + attribute.getName() + "' will not be considered for outlier removal, since it is not a DoubleCell type.");
+//            }
+//        }
 
         // Initialize
         int N = parameters.size();
@@ -219,6 +223,18 @@ public class ParameterMutualInformation extends AbstractNodeModel {
     }
 
 
+    public List<Attribute> getParameterList(BufferedDataTable table) {
+        List<Attribute> parameters = new ArrayList<Attribute>();
+        for (String item : parameterNames.getIncludeList()) {
+            Attribute attribute = new InputTableAttribute(item, table);
+            if (attribute.getType().equals(DoubleCell.TYPE)) {
+                parameters.add(attribute);
+            } else {
+                logger.warn("The parameters '" + attribute.getName() + "' will not be considered for outlier removal, since it is not a DoubleCell type.");
+            }
+        }
+        return parameters;
+    }
 //    private Double[] getColumnValues(BufferedDataTable table, Attribute column) {
 //        Double[] vect = new Double[table.getRowCount()];
 //        int n  = 0;
