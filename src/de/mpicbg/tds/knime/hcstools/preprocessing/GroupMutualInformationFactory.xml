@@ -68,8 +68,8 @@
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="input">data for outlier analysis</inPort>
-        <outPort index="0" name="output: list">parmater list table (aggregated stats)</outPort>
+        <inPort index="0" name="input">input table</inPort>
+        <outPort index="0" name="output: list">mutual information table</outPort>
     </ports>
 
     <!--<views>-->
