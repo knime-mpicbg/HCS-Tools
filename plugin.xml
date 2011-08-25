@@ -174,7 +174,7 @@
               factory-class="de.mpicbg.tds.knime.hcstools.preprocessing.ParameterMutualInformationFactory"
               id="de.mpicbg.tds.knime.hcstools.preprocessing.ParameterMutualInformationFactory"/>
 
-        <node category-path="/community/hcstools/"
+        <node category-path="/community/hcstools/prepro"
               factory-class="de.mpicbg.tds.knime.hcstools.preprocessing.GroupMutualInformationFactory"
               id="de.mpicbg.tds.knime.hcstools.preprocessing.GroupMutualInformationFactory"/>
 
