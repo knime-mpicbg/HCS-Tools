@@ -26,10 +26,14 @@ import de.mpicbg.tds.knime.hcstools.utils.TdsNumbericFilter;
 import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
-import org.knime.core.node.defaultnodesettings.*;
+import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumberEdit;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+
+import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel.SELECT_TREATMENT_ADVICE;
 
 
 /**
@@ -69,67 +73,38 @@ public class GroupMutualInformationFactory extends ParameterMutualInformationFac
 
             @Override
             protected void createControls() {
-//                addDialogComponent(new DialogComponentColumnNameSelection(HCSSettingsFactory.createGroupBy(), "Group by", 0, StringValue.class));
 
                 // Parameter for the mutual information algorithm
+                setHorizontalPlacement(true);
+                createNewGroup("Mutual information algorithm settings");
                 addDialogComponent(new DialogComponentStringSelection(createMethodSelection(), "Method", createMethodUsageOptions()));
                 addDialogComponent(new DialogComponentNumberEdit(createLogBase(), "Logarithmic base"));
                 addDialogComponent(new DialogComponentNumberEdit(createBinning(), "Binning"));
                 addDialogComponent(new DialogComponentNumberEdit(createThrehold(), "Threshold"));
 
                 // Group pselection
-                DialogComponentStringListSelection multiPosCtrlsProperty =
-                        new DialogComponentStringListSelection(createMultiCtls(de.mpicbg.tds.knime.hcstools.preprocessing.GroupMutualInformation.REFERENCE_SETTINGS_NAME), "Reference", new ArrayList<String>(), false, 1);
-                DialogComponentStringListSelection multiNegCtrlProperty =
-                        new DialogComponentStringListSelection(createMultiCtls(de.mpicbg.tds.knime.hcstools.preprocessing.GroupMutualInformation.LIBRARY_SETTINGS_NAME), "Library", new ArrayList<String>(), false, 1);
-                AbstractScreenTrafoDialog.setupControlAttributeSelector(this, Arrays.asList(multiPosCtrlsProperty, multiNegCtrlProperty));
-                addDialogComponent(multiPosCtrlsProperty);
-                addDialogComponent(multiNegCtrlProperty);
-
-//                addDialogComponent(new DialogComponentBoolean(createPropRobustStats(), ROBUST_STATS_PROPERTY_DESCS));
-//                addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, true, new TdsNumbericFilter()));
+                createNewGroup("Data grouping");
+                DialogComponentStringSelection referenceGroupName = new DialogComponentStringSelection(
+                        createGroupSelector(GroupMutualInformation.REFERENCE_SETTINGS_NAME), "Reference", Arrays.asList(SELECT_TREATMENT_ADVICE), true);
+                DialogComponentStringSelection libraryGroupName = new DialogComponentStringSelection(
+                        createGroupSelector(GroupMutualInformation.LIBRARY_SETTINGS_NAME), "Library", Arrays.asList(SELECT_TREATMENT_ADVICE), true);
+                AbstractScreenTrafoDialog.setupControlAttributeSelector(this, Arrays.asList(referenceGroupName, libraryGroupName));
+                addDialogComponent(referenceGroupName);
+                addDialogComponent(libraryGroupName);
 
                 // Parameter selection
+                setHorizontalPlacement(false);
+                createNewGroup("Paramter subset");
                 addDialogComponent(new DialogComponentColumnFilter(ParameterMutualInformationFactory.createParameterFilterSetting(), 0, true, new TdsNumbericFilter()));
 
             }
         };
     }
 
-//    static SettingsModelDouble createLogBase() {
-//        double factor = (double) 2;
-//        return new SettingsModelDouble("FactorSetting", factor);
-//    }
-//
-//    static SettingsModelDouble createThrehold() {
-//        double factor = (double) 2;
-//        return new SettingsModelDouble("ThresholdSetting", factor);
-//    }
-//
-//    static SettingsModelInteger createBinning() {
-//        int factor = 0;
-//        return new SettingsModelInteger("BinningSetting", factor);
-//    }
-//
-//    static SettingsModelString createMethodSelection() {
-//        return new SettingsModelString("MethodSetting", "unbiased");
-//    }
-//
-//    static Collection<String> createMethodUsageOptions() {
-//        Collection<String> options = new ArrayList<String>();
-//        options.add("unbiased");
-//        options.add("biased");
-//        options.add("mmse");
-//        return options;
-//    }
 
-//    static SettingsModelFilterString createParameterFilterSetting() {
-//        return new SettingsModelFilterString("ParameterSetting");
-//    }
-
-
-    static SettingsModelStringArray createMultiCtls(String propName) {
-        return new SettingsModelStringArray(propName, new String[8]);
+    public static SettingsModelString createGroupSelector(String setting) {
+        return new SettingsModelString(setting, "group id");
     }
+
 
 }

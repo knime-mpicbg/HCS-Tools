@@ -25,7 +25,7 @@
     <name>Group Mutual Information</name>
 
     <shortDescription>
-        Calculates mutual information between two groups for a subset of parameters.
+        Calculates mutual information between two groups.
     </shortDescription>
 
     <fullDescription>
@@ -50,7 +50,7 @@
         <option name="Logarithmic base">The logarithmic base to use for entropy calculation (default is 2).
         </option>
         <option name="Binning">Number of bins to discretize the data. the default is round(numberOfTableRows^1/3) and
-            is calculated if the input is 0.
+            will be calculated for each parameter if the input is 0.
         </option>
         <option name="Grouping column">Column containing the cathegorical variable to group the measurments.
         </option>

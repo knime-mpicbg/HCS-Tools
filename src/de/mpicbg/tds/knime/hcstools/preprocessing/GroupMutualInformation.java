@@ -31,6 +31,7 @@ import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 import org.knime.core.data.*;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -68,6 +69,7 @@ public class GroupMutualInformation extends ParameterMutualInformation {
         super(1, 1);
         addSetting(reference);
         addSetting(library);
+        addSetting(treatmentAttribute);
     }
 
 
@@ -92,18 +94,22 @@ public class GroupMutualInformation extends ParameterMutualInformation {
 
         // Get the parameter and make sure there all double value columns
         List<Attribute> parameters = getParameterList(input);
-        int progress = parameters.size();
-        BufTableUtils.updateProgress(exec, progress, progress / 2);
 
         // Split the columns according to groups contained in the condition column
         Map<String, List<DataRow>> groupedRows = AttributeUtils.splitRows(input, treatmentAttribute);
         List<DataRow> libraryRows = groupedRows.get(libraryName);
         List<DataRow> referenceRows = groupedRows.get(referenceName);
 
+        int progress = parameters.size();
+        BufTableUtils.updateProgress(exec, progress / 2, progress);
+
         // Initialize
         BufferedDataContainer container = exec.createDataContainer(new DataTableSpec(getListSpec()));
-        MutualInformation mutualinfo = new MutualInformation(method.getStringValue(), binning.getIntValue(), logbase.getDoubleValue());
-        DataCell[] cells = new DataCell[4];
+        MutualInformation mutualinfo = new MutualInformation();
+        mutualinfo.set_base(logbase.getDoubleValue());
+        mutualinfo.set_method(method.getStringValue());
+
+        DataCell[] cells = new DataCell[8];
         int p = 0;
 
         // Calculate mutual information
@@ -114,13 +120,26 @@ public class GroupMutualInformation extends ParameterMutualInformation {
             mutualinfo.set_vectors(x, y);
             Double[] res = mutualinfo.calculate();
 
+            if (binning.getIntValue() == 0) {
+                mutualinfo.set_binning();
+            } else {
+                mutualinfo.set_binning(binning.getIntValue());
+            }
+
+            int[] bins = mutualinfo.get_binning();
+
             cells[0] = new StringCell(parameter.getName());
             cells[1] = new DoubleCell(res[0]);
             cells[2] = new DoubleCell(res[1]);
             cells[3] = new DoubleCell(res[2]);
+            cells[4] = new IntCell(bins[0]);
+            cells[5] = new IntCell(bins[1]);
+            cells[6] = new DoubleCell(mutualinfo.get_logbase());
+            cells[7] = new StringCell(mutualinfo.get_method());
+
             container.addRowToTable(new DefaultRow("row" + p, cells));
 
-            BufTableUtils.updateProgress(exec, progress, (progress + p++) / 2);
+            BufTableUtils.updateProgress(exec, (progress + p++) / 2, progress);
             exec.checkCanceled();
         }
 
@@ -130,12 +149,16 @@ public class GroupMutualInformation extends ParameterMutualInformation {
 
 
     private DataColumnSpec[] getListSpec() {
-        DataColumnSpec[] listSpecs = new DataColumnSpec[4];
+        DataColumnSpec[] listSpecs = new DataColumnSpec[8];
         String columnName = "mutual info. " + reference.getStringValue() + " - " + library.getStringValue();
         listSpecs[0] = new DataColumnSpecCreator("Parameter name", StringCell.TYPE).createSpec();
         listSpecs[1] = new DataColumnSpecCreator(columnName, DoubleCell.TYPE).createSpec();
         listSpecs[2] = new DataColumnSpecCreator("sigma", DoubleCell.TYPE).createSpec();
-        listSpecs[3] = new DataColumnSpecCreator("bias", StringCell.TYPE).createSpec();
+        listSpecs[3] = new DataColumnSpecCreator("bias", DoubleCell.TYPE).createSpec();
+        listSpecs[4] = new DataColumnSpecCreator("N bins x", DoubleCell.TYPE).createSpec();
+        listSpecs[5] = new DataColumnSpecCreator("N bins y", DoubleCell.TYPE).createSpec();
+        listSpecs[6] = new DataColumnSpecCreator("log-base", DoubleCell.TYPE).createSpec();
+        listSpecs[7] = new DataColumnSpecCreator("method", StringCell.TYPE).createSpec();
         return listSpecs;
     }
 
@@ -145,6 +168,7 @@ public class GroupMutualInformation extends ParameterMutualInformation {
         int n = 0;
         for (DataRow row : rows) {
             vect[n] = param.getDoubleAttribute(row);
+            n++;
         }
         return vect;
     }
