@@ -94,22 +94,14 @@ public class ParameterMutualInformation extends AbstractNodeModel {
     protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 
         BufferedDataTable input = inData[0];
-//        DataTableSpec inputSpec = input.getDataTableSpec();
 
         // Get the parameter and make sure there all double value columns
         List<Attribute> parameters = getParameterList(input);
-//        for (String item : parameterNames.getIncludeList()) {
-//            Attribute attribute = new InputTableAttribute(item, input);
-//            if (attribute.getType().equals(DoubleCell.TYPE)) {
-//                parameters.add(attribute);
-//            } else {
-//                logger.warn("The parameters '" + attribute.getName() + "' will not be considered for outlier removal, since it is not a DoubleCell type.");
-//            }
-//        }
 
         // Initialize
-        int N = parameters.size();
-        double[][] matrix = new double[N][N];
+        int Np = parameters.size();
+        int iterations = Np * 2;
+        double[][] matrix = new double[Np][Np];
         MutualInformation mutualinfo = new MutualInformation();
         mutualinfo.set_base(logbase.getDoubleValue());
         mutualinfo.set_method(method.getStringValue());
@@ -117,7 +109,7 @@ public class ParameterMutualInformation extends AbstractNodeModel {
             mutualinfo.set_binning(binning.getIntValue());
 
         // Load data.
-        Double[][] table = new Double[N][input.getRowCount()];
+        Double[][] table = new Double[Np][input.getRowCount()];
         int j = 0;
         for (DataRow row : input) {
             int i = 0;
@@ -126,21 +118,15 @@ public class ParameterMutualInformation extends AbstractNodeModel {
                 i++;
             }
             j++;
-            BufTableUtils.updateProgress(exec, j, N);
+            exec.checkCanceled();
         }
+        BufTableUtils.updateProgress(exec, Np, iterations);
 
         // Calculate mutual information
-        for (int a = 0; a < N; a++) {
-
-            Attribute xattr = parameters.get(a);
-//            Double[] xvect = getColumnValues(input, xattr);
-//            mutualinfo.set_xvector(xvect);
+        for (int a = 0; a < Np; a++) {
             mutualinfo.set_xvector(table[a]);
 
-            for (int b = a; b < N; b++) {
-                Attribute yattr = parameters.get(b);
-//                Double[] yvect = getColumnValues(input, yattr);
-//                mutualinfo.set_yvector(yvect);
+            for (int b = a; b < Np; b++) {
                 mutualinfo.set_yvector(table[b]);
 
                 // Calculate the mutual info.
@@ -150,7 +136,7 @@ public class ParameterMutualInformation extends AbstractNodeModel {
                 matrix[a][b] = res[0];
                 matrix[b][a] = res[0];
             }
-//            BufTableUtils.updateProgress(exec, N+a, iterations);
+            BufTableUtils.updateProgress(exec, Np + a, iterations);
             exec.checkCanceled();
         }
 
@@ -160,16 +146,16 @@ public class ParameterMutualInformation extends AbstractNodeModel {
         double thresh = threshold.getDoubleValue();
         int numListCol = listContainer.getTableSpec().getNumColumns();
 
-        for (int a = 0; a < N; a++) {
+        for (int a = 0; a < Np; a++) {
 
             // Initialize
-            DataCell[] matrixCells = new DataCell[N];
+            DataCell[] matrixCells = new DataCell[Np];
             DataCell[] listCells = new DataCell[numListCol];
             String similars = "";
             DescriptiveStatistics stats = new DescriptiveStatistics();
 
             // Create matrix rows and collect values for statistics.
-            for (int b = 0; b < N; b++) {
+            for (int b = 0; b < Np; b++) {
                 matrixCells[b] = new DoubleCell(matrix[a][b]);
                 if (a != b) {
                     stats.addValue(matrix[a][b]);
@@ -191,7 +177,6 @@ public class ParameterMutualInformation extends AbstractNodeModel {
             DataRow listRow = new DefaultRow("RowKey_" + a, listCells);
             listContainer.addRowToTable(listRow);
 
-//            BufTableUtils.updateProgress(exec, N + a, iterations);
             exec.checkCanceled();
         }
 
@@ -235,15 +220,6 @@ public class ParameterMutualInformation extends AbstractNodeModel {
         }
         return parameters;
     }
-//    private Double[] getColumnValues(BufferedDataTable table, Attribute column) {
-//        Double[] vect = new Double[table.getRowCount()];
-//        int n  = 0;
-//        for (DataRow row : table) {
-//            vect[n] = column.getDoubleAttribute(row);
-//            n += 1;
-//        }
-//        return vect;
-//    }
 
 
 }

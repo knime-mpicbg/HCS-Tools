@@ -69,15 +69,14 @@ public class ParameterMutualInformationFactory extends NodeFactory<ParameterMutu
             @Override
             protected void createControls() {
 
+                createNewGroup("Mutual information algorithm settings");
                 addDialogComponent(new DialogComponentStringSelection(createMethodSelection(), "Method", createMethodUsageOptions()));
-
                 addDialogComponent(new DialogComponentNumberEdit(createLogBase(), "Logarithmic base"));
-
                 addDialogComponent(new DialogComponentNumberEdit(createBinning(), "Binning"));
-
                 addDialogComponent(new DialogComponentNumberEdit(createThrehold(), "Threshold"));
 
 //                addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, true, new TdsNumbericFilter()));
+                createNewGroup("Parameter subset");
                 addDialogComponent(new DialogComponentColumnFilter(createParameterFilterSetting(), 0, true, new TdsNumbericFilter()));
 
             }
