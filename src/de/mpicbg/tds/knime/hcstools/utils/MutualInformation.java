@@ -31,12 +31,16 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
  * Author: Felix Meyenhofer
  * Date: 8/19/11
  * Time: 1:35 PM
+ * <p/>
+ * Calss to calculate the mutual information between to random variables using the histogram based approach according to
+ * "Moddemeijer R., A statistic to estimate the variance of the histogram based mutual information
+ * estimator based on dependent pairs of observations , Signal Processing, 1999, vol. 75, nr. 1, pp. 51-63"
  */
 public class MutualInformation {
 
 
-    private Double base = 2.0; // logarithmic base
-    private String met = "unbiased";
+    private Double logbase = 2.0; // logarithmic logbase
+    private String method = "unbiased";
     private int Nx = 100;    // Number of bins for vector x
     private int Ny = 100;    // Number of bins for vector y
     private Double[] x;      // vector containing samples of variable X
@@ -76,20 +80,30 @@ public class MutualInformation {
 
     // Setter
     public void set_base(Double b) {
-        base = b;
+        if (!(b == 2 || b == Math.exp(1)))
+            System.out.println("The logbase is usually choosen to be 2 or e.");
+        if (b < 0)
+            throw new RuntimeException("The logbase has to be a positive Real number");
+        logbase = b;
     }
 
     public void set_binning() {
-        int bins = (int) Math.ceil(Math.pow(Math.max(x.length, y.length), 1 / 3));
+        int bins = (int) Math.ceil(Math.pow(Math.max(x.length, y.length), 1.0 / 3.0));
         set_binning(bins);
     }
 
     public void set_binning(int n) {
+        if (n < 1)
+            throw new RuntimeException("The number of bins of " + n + " is too small." +
+                    ". Probably there are too few samples, or consider setting the number of bins in the sintanciation.");
         Nx = n;
         Ny = n;
     }
 
     public void set_binning(int n1, int n2) {
+        if (n1 < 1 || n2 < 1)
+            throw new RuntimeException("The number of bins of " + n1 + "or " + n2 + " is too small." +
+                    "Probably there are too few samples, or consider setting the number of bins in the sintanciation.");
         Nx = n1;
         Ny = n2;
     }
@@ -108,21 +122,44 @@ public class MutualInformation {
     }
 
     public void set_method(String method) {
-        met = method;
+        this.method = method;
+    }
+
+    // Getter
+    public int[] get_binning() {
+        return new int[]{this.Nx, this.Ny};
+    }
+
+    public Double[] get_xvector() {
+        return this.x;
+    }
+
+    public Double[] get_yvector() {
+        return this.y;
+    }
+
+    public String get_method() {
+        return this.method;
+    }
+
+    public double get_logbase() {
+        return this.logbase;
     }
 
 
     // Methods
     public Double[] calculate() throws Exception {
+        if (x.length < 10 || y.length < 10)
+            throw new RuntimeException("Too few samples.");
         Double[] res;
-        if (met.contentEquals("unbiased")) {
+        if (method.contentEquals("unbiased")) {
             res = unbiased();
-        } else if (met.contentEquals("biased")) {
+        } else if (method.contentEquals("biased")) {
             res = biased();
-        } else if (met.contentEquals("mms_estimate")) {
+        } else if (method.contentEquals("mms_estimate")) {
             res = mms_estimate();
         } else {
-            throw new RuntimeException("The met '" + met + "' is unknown.");
+            throw new RuntimeException("The method '" + method + "' is unknown.");
         }
         return res;
     }
@@ -176,35 +213,34 @@ public class MutualInformation {
         sigma = Math.sqrt((sigma / count - Math.pow(mutualinfo, 2)) / (count - 1));
         mutualinfo += Math.log(count);
         Double bias = (double) (r - 1) * (c - 1) / (2 * count);
-        // Put the outputs into an array and do log-base transformations.
+        // Put the outputs into an array and do log-logbase transformations.
         Double[] out = new Double[]{mutualinfo, sigma, bias};
-        out = basetransform(out, base);
+        out = basetransform(out, logbase);
         return out;
     }
 
     private double[][] histogram2() {
-//        Double mi1 = StatUtils.min(x);
-//        Double ma1 = StatUtils.max(x);
         Double[] mima1 = minmax(x);
         Double de1 = (mima1[1] - mima1[0]) / (x.length - 1);
         Double lb1 = mima1[0] - de1 / 2;
         Double ub1 = mima1[1] + de1 / 2;
-//        Double mi2 = StatUtils.min(y);
-//        Double ma2 = StatUtils.max(y);
         Double[] mima2 = minmax(y);
         Double de2 = (mima2[1] - mima2[0]) / (y.length - 1);
         Double lb2 = mima2[0] - de2 / 2;
         Double ub2 = mima2[1] + de2 / 2;
+
         // Bring the vectors to the same length.
         if (x.length < y.length) {
+            System.out.println("Warning: the vector lenghts (currrent:" + x.length + "," + y.length + ") need to be equal. Bottstrapped x.");
             x = bootstrap(x, y.length);
         } else if (x.length > y.length) {
+            System.out.println("Warning: the vector lenghts (currrent:" + x.length + "," + y.length + ") need to be equal. Bottstrapped y.");
             y = bootstrap(y, x.length);
         }
         // Correct the binning.
         if ((Nx >= x.length) || (Ny >= y.length)) {
-            set_binning();
             System.out.println("Binning exceeded vector length and was set to" + Nx + ".");
+            set_binning();
         }
         // Compute the histogram/probability
         double[][] prob = new double[Nx][Ny];
@@ -262,12 +298,12 @@ public class MutualInformation {
         Double[] b = new Double[]{1.0, 2.0, 2.0, 2.0, 2.0, 1.0, 0.0, 2.0, 1.0, 0.0};
 
         MutualInformation mutinf = new MutualInformation(a, b, 3);
-        Double[] res = new Double[3];
+        Double[] res;
         res = mutinf.calculate();
-        System.err.println("mutual information (" + mutinf.met + ", log" + mutinf.base + "): " + res[0] + ", sigma: " + res[1] + ", bias: " + res[2]);
+        System.err.println("mutual information (" + mutinf.method + ", log" + mutinf.logbase + "): " + res[0] + ", sigma: " + res[1] + ", bias: " + res[2]);
         mutinf.set_method("biased");
         res = mutinf.calculate();
-        System.err.println("mutual information (" + mutinf.met + ", log" + mutinf.base + "): " + res[0] + ", sigma: " + res[1] + ", bias: " + res[2]);
+        System.err.println("mutual information (" + mutinf.method + ", log" + mutinf.logbase + "): " + res[0] + ", sigma: " + res[1] + ", bias: " + res[2]);
     }
 
 
