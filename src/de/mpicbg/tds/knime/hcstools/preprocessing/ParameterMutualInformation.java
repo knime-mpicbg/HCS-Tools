@@ -60,7 +60,7 @@ public class ParameterMutualInformation extends AbstractNodeModel {
     public static final SettingsModelString method = ParameterMutualInformationFactory.createMethodSelection();
     public static final SettingsModelFilterString parameterNames = ParameterMutualInformationFactory.createParameterFilterSetting();
     public static final SettingsModelDouble logbase = ParameterMutualInformationFactory.createLogBase();
-    public static final SettingsModelDouble threshold = ParameterMutualInformationFactory.createLogBase();
+    public static final SettingsModelDouble threshold = ParameterMutualInformationFactory.createThrehold();
     public static final SettingsModelInteger binning = ParameterMutualInformationFactory.createBinning();
 
 
