@@ -189,8 +189,8 @@ public class ParameterMutualInformation extends AbstractNodeModel {
     private DataColumnSpec[] getListSpec() {
         DataColumnSpec[] listSpecs = new DataColumnSpec[4];
         listSpecs[0] = new DataColumnSpecCreator("Parameter name", StringCell.TYPE).createSpec();
-        listSpecs[1] = new DataColumnSpecCreator("Max. mutual info.", DoubleCell.TYPE).createSpec();
-        listSpecs[2] = new DataColumnSpecCreator("Min. mutual info.", DoubleCell.TYPE).createSpec();
+        listSpecs[1] = new DataColumnSpecCreator("Min mutual info.", DoubleCell.TYPE).createSpec();
+        listSpecs[2] = new DataColumnSpecCreator("Max mutual info.", DoubleCell.TYPE).createSpec();
         listSpecs[3] = new DataColumnSpecCreator("Similar parameter", StringCell.TYPE).createSpec();
         return listSpecs;
     }
