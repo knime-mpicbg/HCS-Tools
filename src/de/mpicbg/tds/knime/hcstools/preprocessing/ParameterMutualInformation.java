@@ -100,7 +100,12 @@ public class ParameterMutualInformation extends AbstractNodeModel {
         // Initialize
         int Np = parameters.size();
         int iterations = Np * 2;
-        double[][] matrix = new double[Np][Np];
+        double[][] mutmatrix = new double[Np][Np];
+        double[][] sigmatrix = new double[Np][Np];
+        ;
+        double[][] biamatrix = new double[Np][Np];
+        ;
+
         MutualInformation mutualinfo = new MutualInformation();
         mutualinfo.set_base(logbase.getDoubleValue());
         mutualinfo.set_method(method.getStringValue());
@@ -133,8 +138,12 @@ public class ParameterMutualInformation extends AbstractNodeModel {
                 Double[] res = mutualinfo.calculate();
 
                 // Put it into the output matrix
-                matrix[a][b] = res[0];
-                matrix[b][a] = res[0];
+                mutmatrix[a][b] = res[0];
+                mutmatrix[b][a] = res[0];
+                sigmatrix[a][b] = res[1];
+                sigmatrix[b][a] = res[1];
+                biamatrix[a][b] = res[2];
+                biamatrix[b][a] = res[2];
             }
             BufTableUtils.updateProgress(exec, Np + a, iterations);
             exec.checkCanceled();
@@ -152,14 +161,20 @@ public class ParameterMutualInformation extends AbstractNodeModel {
             DataCell[] matrixCells = new DataCell[Np];
             DataCell[] listCells = new DataCell[numListCol];
             String similars = "";
-            DescriptiveStatistics stats = new DescriptiveStatistics();
+            DescriptiveStatistics mutstats = new DescriptiveStatistics();
+            DescriptiveStatistics sigstats = new DescriptiveStatistics();
+            ;
+            DescriptiveStatistics biastats = new DescriptiveStatistics();
+            ;
 
             // Create matrix rows and collect values for statistics.
             for (int b = 0; b < Np; b++) {
-                matrixCells[b] = new DoubleCell(matrix[a][b]);
+                matrixCells[b] = new DoubleCell(mutmatrix[a][b]);
                 if (a != b) {
-                    stats.addValue(matrix[a][b]);
-                    if (matrix[a][b] > thresh) {
+                    mutstats.addValue(mutmatrix[a][b]);
+                    sigstats.addValue(sigmatrix[a][b]);
+                    biastats.addValue(biamatrix[a][b]);
+                    if (mutmatrix[a][b] > thresh) {
                         similars += parameters.get(b).getName() + ",";
                     }
                 }
@@ -171,10 +186,13 @@ public class ParameterMutualInformation extends AbstractNodeModel {
 
             // Create list row
             listCells[0] = new StringCell(parameters.get(a).getName());
-            listCells[1] = new DoubleCell(stats.getMin());
-            listCells[2] = new DoubleCell(stats.getMax());
-            listCells[3] = new StringCell(similars);
-            DataRow listRow = new DefaultRow("RowKey_" + a, listCells);
+            listCells[1] = new DoubleCell(mutstats.getMin());
+            listCells[2] = new DoubleCell(mutstats.getMean());
+            listCells[3] = new DoubleCell(mutstats.getMax());
+            listCells[4] = new DoubleCell(sigstats.getGeometricMean());
+            listCells[5] = new DoubleCell(biastats.getMean());
+            listCells[6] = new StringCell(similars);
+            DataRow listRow = new DefaultRow("row" + a, listCells);
             listContainer.addRowToTable(listRow);
 
             exec.checkCanceled();
@@ -187,11 +205,14 @@ public class ParameterMutualInformation extends AbstractNodeModel {
 
 
     private DataColumnSpec[] getListSpec() {
-        DataColumnSpec[] listSpecs = new DataColumnSpec[4];
+        DataColumnSpec[] listSpecs = new DataColumnSpec[7];
         listSpecs[0] = new DataColumnSpecCreator("Parameter name", StringCell.TYPE).createSpec();
         listSpecs[1] = new DataColumnSpecCreator("Min mutual info.", DoubleCell.TYPE).createSpec();
-        listSpecs[2] = new DataColumnSpecCreator("Max mutual info.", DoubleCell.TYPE).createSpec();
-        listSpecs[3] = new DataColumnSpecCreator("Similar parameter", StringCell.TYPE).createSpec();
+        listSpecs[2] = new DataColumnSpecCreator("Mean mutual info.", DoubleCell.TYPE).createSpec();
+        listSpecs[3] = new DataColumnSpecCreator("Max mutual info.", DoubleCell.TYPE).createSpec();
+        listSpecs[4] = new DataColumnSpecCreator("Geo.mean sigma", DoubleCell.TYPE).createSpec();
+        listSpecs[5] = new DataColumnSpecCreator("Mean bias.", DoubleCell.TYPE).createSpec();
+        listSpecs[6] = new DataColumnSpecCreator("Similar parameter", StringCell.TYPE).createSpec();
         return listSpecs;
     }
 
