@@ -35,6 +35,8 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
  * Calss to calculate the mutual information between to random variables using the histogram based approach according to
  * "Moddemeijer R., A statistic to estimate the variance of the histogram based mutual information
  * estimator based on dependent pairs of observations , Signal Processing, 1999, vol. 75, nr. 1, pp. 51-63"
+ * <p/>
+ * TODO investigate if the bootstraping (which is not a nice solution) could be replaced with histogram normalization.
  */
 public class MutualInformation {
 
@@ -161,6 +163,7 @@ public class MutualInformation {
         } else {
             throw new RuntimeException("The method '" + method + "' is unknown.");
         }
+        res = basetransform(res, logbase);
         return res;
     }
 
@@ -213,10 +216,8 @@ public class MutualInformation {
         sigma = Math.sqrt((sigma / count - Math.pow(mutualinfo, 2)) / (count - 1));
         mutualinfo += Math.log(count);
         Double bias = (double) (r - 1) * (c - 1) / (2 * count);
-        // Put the outputs into an array and do log-logbase transformations.
-        Double[] out = new Double[]{mutualinfo, sigma, bias};
-        out = basetransform(out, logbase);
-        return out;
+
+        return new Double[]{mutualinfo, sigma, bias};
     }
 
     private double[][] histogram2() {
