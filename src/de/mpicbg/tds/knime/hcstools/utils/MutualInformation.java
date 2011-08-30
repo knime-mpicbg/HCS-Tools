@@ -42,7 +42,8 @@ public class MutualInformation {
 
 
     private Double logbase = 2.0; // logarithmic logbase
-    private String method = "unbiased";
+    private String method = "biased";
+    private boolean linkaxes = true; // calculate one single axe using the data for the combined data from x and y.
     private int Nx = 100;    // Number of bins for vector x
     private int Ny = 100;    // Number of bins for vector y
     private Double[] x;      // vector containing samples of variable X
@@ -125,6 +126,10 @@ public class MutualInformation {
 
     public void set_method(String method) {
         this.method = method;
+    }
+
+    public void set_axeslinking(boolean flag) {
+        this.linkaxes = flag;
     }
 
     // Getter
@@ -221,14 +226,25 @@ public class MutualInformation {
     }
 
     private double[][] histogram2() {
-        Double[] mima1 = minmax(x);
+        // Get min and max of the scale(s)
+        Double[] mima1;
+        Double[] mima2;
+        if (linkaxes) {
+            mima1 = minmax(x, y);
+            mima2 = mima1;
+        } else {
+            mima1 = minmax(x);
+            mima2 = minmax(y);
+        }
+        // Calculate upper and lower bounds
         Double de1 = (mima1[1] - mima1[0]) / (x.length - 1);
         Double lb1 = mima1[0] - de1 / 2;
         Double ub1 = mima1[1] + de1 / 2;
-        Double[] mima2 = minmax(y);
+        Double ra1 = (ub1 - lb1);
         Double de2 = (mima2[1] - mima2[0]) / (y.length - 1);
         Double lb2 = mima2[0] - de2 / 2;
         Double ub2 = mima2[1] + de2 / 2;
+        Double ra2 = (ub2 - lb2);
 
         // Bring the vectors to the same length.
         if (x.length < y.length) {
@@ -245,8 +261,6 @@ public class MutualInformation {
         }
         // Compute the histogram/probability
         double[][] prob = new double[Nx][Ny];
-        Double ra1 = (ub1 - lb1);
-        Double ra2 = (ub2 - lb2);
         for (int i = 0; i < x.length; i++) {
             int ind1 = (int) Math.round((x[i] - lb1) / ra1 * Nx + 0.5);
             int ind2 = (int) Math.round((y[i] - lb2) / ra2 * Ny + 0.5);
@@ -260,6 +274,17 @@ public class MutualInformation {
     private Double[] minmax(Double[] vect) {
         DescriptiveStatistics stats = new DescriptiveStatistics();
         for (Double value : vect) {
+            stats.addValue(value);
+        }
+        return new Double[]{stats.getMin(), stats.getMax()};
+    }
+
+    private Double[] minmax(Double[] vect1, Double[] vect2) {
+        DescriptiveStatistics stats = new DescriptiveStatistics();
+        for (Double value : vect1) {
+            stats.addValue(value);
+        }
+        for (Double value : vect2) {
             stats.addValue(value);
         }
         return new Double[]{stats.getMin(), stats.getMax()};
