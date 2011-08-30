@@ -110,7 +110,7 @@ public class GroupMutualInformation extends ParameterMutualInformation {
         mutualinfo.set_method(method.getStringValue());
         mutualinfo.set_axeslinking(linkaxes.getBooleanValue());
 
-        DataCell[] cells = new DataCell[8];
+        DataCell[] cells = new DataCell[container.getTableSpec().getNumColumns()];
         int p = 0;
 
         // Calculate mutual information
