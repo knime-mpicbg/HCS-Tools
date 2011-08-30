@@ -56,8 +56,8 @@ import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoMode
 
 public class GroupMutualInformation extends ParameterMutualInformation {
 
-    public static final String LIBRARY_SETTINGS_NAME = "pos.ctrl";
-    public static final String REFERENCE_SETTINGS_NAME = "neg.ctrl";
+    public static final String LIBRARY_SETTINGS_NAME = "ref.ctrl";
+    public static final String REFERENCE_SETTINGS_NAME = "lib.ctrl";
 
     private SettingsModelString library = createTreatmentSelector(LIBRARY_SETTINGS_NAME);
     private SettingsModelString reference = createTreatmentSelector(REFERENCE_SETTINGS_NAME);
@@ -108,6 +108,7 @@ public class GroupMutualInformation extends ParameterMutualInformation {
         MutualInformation mutualinfo = new MutualInformation();
         mutualinfo.set_base(logbase.getDoubleValue());
         mutualinfo.set_method(method.getStringValue());
+        mutualinfo.set_axeslinking(linkaxes.getBooleanValue());
 
         DataCell[] cells = new DataCell[8];
         int p = 0;

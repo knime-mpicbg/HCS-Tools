@@ -26,10 +26,7 @@ import de.mpicbg.tds.knime.hcstools.utils.TdsNumbericFilter;
 import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
-import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter;
-import org.knime.core.node.defaultnodesettings.DialogComponentNumberEdit;
-import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.defaultnodesettings.*;
 
 import java.util.Arrays;
 
@@ -81,6 +78,7 @@ public class GroupMutualInformationFactory extends ParameterMutualInformationFac
                 addDialogComponent(new DialogComponentNumberEdit(createLogBase(), "Logarithmic base"));
                 addDialogComponent(new DialogComponentNumberEdit(createBinning(), "Binning"));
                 addDialogComponent(new DialogComponentNumberEdit(createThrehold(), "Threshold"));
+                addDialogComponent(new DialogComponentBoolean(createAxesSettings(), "Axes linkage"));
 
                 // Group pselection
                 createNewGroup("Data grouping");

@@ -52,6 +52,11 @@
         <option name="Binning">Number of bins to discretize the data. the default is round(numberOfTableRows^1/3) and
             will be calculated for each parameter if the input is 0.
         </option>
+        <option name="Axes linkage">If true the lower and upper bounds are determined using the combined information
+            from
+            x and y vector. The unchecked box leads to seperate calculation of the lower and upper bound for each vector
+            seperatly.
+        </option>
         <option name="Grouping column">Column containing the cathegorical variable to group the measurments.
         </option>
         <option name="Reference">The Reference is one or a set of negative controls. ideally it contains the most
@@ -64,7 +69,6 @@
         <option name="Parameters">Numerical columns between which the mutuali information is calculated can be selected
             with the column filter.
         </option>
-
     </fullDescription>
 
     <ports>
