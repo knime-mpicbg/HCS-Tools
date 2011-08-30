@@ -118,15 +118,15 @@ public class GroupMutualInformation extends ParameterMutualInformation {
             Double[] x = getDataVec(libraryRows, parameter);
             Double[] y = getDataVec(referenceRows, parameter);
             mutualinfo.set_vectors(x, y);
-            Double[] res = mutualinfo.calculate();
 
             if (binning.getIntValue() == 0) {
                 mutualinfo.set_binning();
             } else {
                 mutualinfo.set_binning(binning.getIntValue());
             }
-
             int[] bins = mutualinfo.get_binning();
+
+            Double[] res = mutualinfo.calculate();
 
             cells[0] = new StringCell(parameter.getName());
             cells[1] = new DoubleCell(res[0]);
