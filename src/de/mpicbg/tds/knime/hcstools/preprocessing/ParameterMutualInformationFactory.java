@@ -69,19 +69,24 @@ public class ParameterMutualInformationFactory extends NodeFactory<ParameterMutu
             @Override
             protected void createControls() {
 
+                // Mutual informatoin algorithm settings
+                setHorizontalPlacement(true);
                 createNewGroup("Mutual information algorithm settings");
                 addDialogComponent(new DialogComponentStringSelection(createMethodSelection(), "Method", createMethodUsageOptions()));
                 addDialogComponent(new DialogComponentNumberEdit(createLogBase(), "Logarithmic base"));
                 addDialogComponent(new DialogComponentNumberEdit(createBinning(), "Binning"));
                 addDialogComponent(new DialogComponentNumberEdit(createThrehold(), "Threshold"));
+                addDialogComponent(new DialogComponentBoolean(createAxesSettings(), "Axes linkage"));
 
-//                addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, true, new TdsNumbericFilter()));
+                // Parameter selection
+                setHorizontalPlacement(false);
                 createNewGroup("Parameter subset");
                 addDialogComponent(new DialogComponentColumnFilter(createParameterFilterSetting(), 0, true, new TdsNumbericFilter()));
 
             }
         };
     }
+
 
     static SettingsModelDouble createLogBase() {
         double factor = (double) 2;
@@ -99,19 +104,23 @@ public class ParameterMutualInformationFactory extends NodeFactory<ParameterMutu
     }
 
     static SettingsModelString createMethodSelection() {
-        return new SettingsModelString("MethodSetting", "unbiased");
+        return new SettingsModelString("MethodSetting", "biased");
     }
 
     static Collection<String> createMethodUsageOptions() {
         Collection<String> options = new ArrayList<String>();
-        options.add("unbiased");
         options.add("biased");
+        options.add("unbiased");
         options.add("mmse");
         return options;
     }
 
     static SettingsModelFilterString createParameterFilterSetting() {
         return new SettingsModelFilterString("ParameterSetting");
+    }
+
+    static SettingsModelBoolean createAxesSettings() {
+        return new SettingsModelBoolean("axes-linkage", true);
     }
 
 

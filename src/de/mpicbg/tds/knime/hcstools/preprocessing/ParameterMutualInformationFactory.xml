@@ -49,6 +49,11 @@
         <option name="Binning">Number of bins to discretize the data. the default is round(numberOfTableRows^1/3) and
             is calculated for each parameter, if the input is 0.
         </option>
+        <option name="Axes linkage">If true the lower and upper bounds are determined using the combined information
+            from
+            x and y vector. The unchecked box leads to seperate calculation of the lower and upper bound for each vector
+            seperatly.
+        </option>
         <option name="Threshold">Threshold above which mutual information is considered to indicate similar parameter.
             This needs to be adjusted according to the binning.
         </option>

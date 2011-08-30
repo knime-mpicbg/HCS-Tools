@@ -36,10 +36,7 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
-import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
-import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.defaultnodesettings.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +59,7 @@ public class ParameterMutualInformation extends AbstractNodeModel {
     public static final SettingsModelDouble logbase = ParameterMutualInformationFactory.createLogBase();
     public static final SettingsModelDouble threshold = ParameterMutualInformationFactory.createThrehold();
     public static final SettingsModelInteger binning = ParameterMutualInformationFactory.createBinning();
+    public static final SettingsModelBoolean linkaxes = ParameterMutualInformationFactory.createAxesSettings();
 
 
     // Constructor
@@ -76,6 +74,7 @@ public class ParameterMutualInformation extends AbstractNodeModel {
         addSetting(parameterNames);
         addSetting(threshold);
         addSetting(binning);
+        addSetting(linkaxes);
     }
 
 
@@ -105,6 +104,7 @@ public class ParameterMutualInformation extends AbstractNodeModel {
         MutualInformation mutualinfo = new MutualInformation();
         mutualinfo.set_base(logbase.getDoubleValue());
         mutualinfo.set_method(method.getStringValue());
+        mutualinfo.set_axeslinking(linkaxes.getBooleanValue());
         if (binning.getIntValue() > 0)
             mutualinfo.set_binning(binning.getIntValue());
 
@@ -215,7 +215,7 @@ public class ParameterMutualInformation extends AbstractNodeModel {
             if (attribute.getType().equals(DoubleCell.TYPE)) {
                 parameters.add(attribute);
             } else {
-                logger.warn("The parameters '" + attribute.getName() + "' will not be considered for outlier removal, since it is not a DoubleCell type.");
+                logger.warn("The parameters '" + attribute.getName() + "' will not be considered, since it is not a DoubleCell type.");
             }
         }
         return parameters;
