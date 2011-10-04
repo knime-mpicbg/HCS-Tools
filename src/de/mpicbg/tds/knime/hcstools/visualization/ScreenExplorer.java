@@ -94,31 +94,38 @@ public class ScreenExplorer extends AbstractNodeModel {
 
     public List<Plate> parseIntoPlates(BufferedDataTable input) {
 
-        List<String> includeReadouts = propReadouts.getIncludeList();
+        // get chosen parameters to visualize
+        List<String> parameters = propReadouts.getIncludeList();
 
-        if (includeReadouts.contains(TdsUtils.SCREEN_MODEL_WELL_COLUMN))
-            includeReadouts.remove(TdsUtils.SCREEN_MODEL_WELL_COLUMN);
+        // remove plateRow / plateColumn columns
+        /*if (parameters.contains(TdsUtils.SCREEN_MODEL_WELL_COLUMN))
+            parameters.remove(TdsUtils.SCREEN_MODEL_WELL_COLUMN);
 
-        if (includeReadouts.contains(TdsUtils.SCREEN_MODEL_WELL_ROW))
-            includeReadouts.remove(TdsUtils.SCREEN_MODEL_WELL_ROW);
+        if (parameters.contains(TdsUtils.SCREEN_MODEL_WELL_ROW))
+            parameters.remove(TdsUtils.SCREEN_MODEL_WELL_ROW);*/
 
+        // grouping column
         Attribute<String> barcodeAttribute = new InputTableAttribute<String>(propGroupBy.getStringValue(), input);
+        // split input table by grouping column
         Map<String, List<DataRow>> splitScreen = AttributeUtils.splitRows(input, barcodeAttribute);
 
+        // retrieve table spec
         List<Attribute> attributeModel = AttributeUtils.convert(input.getDataTableSpec());
+
+        // get columns represent plateRow and plateColumn
 
         Attribute<String> plateRowAttribute = new InputTableAttribute<String>(propPlateRow.getStringValue(), input);
         Attribute<String> plateColAttribute = new InputTableAttribute<String>(propPlateCol.getStringValue(), input);
 
         // HACK for custom plate labels as requested by Martin
         Attribute customPlateNameAttr = null;
-        if (getFlowVariable("heatmap.label") != null) {
+        /*if (getFlowVariable("heatmap.label") != null) {
             customPlateNameAttr = new InputTableAttribute(getFlowVariable("heatmap.label"), input);
 
-        }
+        }*/
         // HACK for custom plate labels as requested by Martin
 
-        return parseIntoPlates(customPlateNameAttr, includeReadouts, propFactors.getIncludeList(), splitScreen, attributeModel, plateRowAttribute, plateColAttribute);
+        return parseIntoPlates(customPlateNameAttr, parameters, propFactors.getIncludeList(), splitScreen, attributeModel, plateRowAttribute, plateColAttribute);
     }
 
 
@@ -128,21 +135,17 @@ public class ScreenExplorer extends AbstractNodeModel {
 
         BarcodeParserFactory bpf = ExpandPlateBarcode.loadFactory();
 
-        for (Object groupByLevel : splitScreen.keySet()) {
-            String barcode = groupByLevel.toString();
+        for (String barcode : splitScreen.keySet()) {
             Plate curPlate = new Plate();
-            allPlates.add(curPlate);
             curPlate.setBarcode(barcode);
+
+            allPlates.add(curPlate);
 
             //try to parse the barcode
             try {
-//                AssayPlateBarcodeParser parser = new AssayPlateBarcodeParser(barcode);
                 BarcodeParser barcodeParser = bpf.getParser(barcode);
                 if (barcodeParser != null)
                     configurePlateByBarcode(curPlate, barcodeParser);
-
-//                curPlate.setLibraryPlateNumber(parser.getPlateNumber());
-//                curPlate.setLibraryCode(parser.getLibraryCode());
             } catch (Throwable t) {
                 NodeLogger.getLogger(ScreenExplorer.class).error(t);
             }
