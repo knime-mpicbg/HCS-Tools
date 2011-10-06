@@ -131,7 +131,7 @@ public class ScreenExplorer extends AbstractNodeModel {
 
     public static List<Plate> parseIntoPlates(Attribute customPlateNameAttr, List<String> readouts, List<String> factors, Map<String, List<DataRow>> splitScreen, List<Attribute> attributeModel, Attribute rowAttribute, Attribute colAttribute) {
         List<Plate> allPlates = new ArrayList<Plate>();
-        List<String> ignoreProps = Arrays.asList("barcode", "numrows", "numcolumns", "screenedat", "librarycode");
+        //List<String> ignoreProps = Arrays.asList("barcode", "numrows", "numcolumns", "screenedat", "librarycode");
 
         BarcodeParserFactory bpf = ExpandPlateBarcode.loadFactory();
 
@@ -154,7 +154,7 @@ public class ScreenExplorer extends AbstractNodeModel {
 
 
             // HACK for custom plate labels as requested by Martin
-            if (customPlateNameAttr != null) {
+            /*if (customPlateNameAttr != null) {
                 // collect all names
                 Set customPlateNames = new HashSet();
                 for (DataRow wellRow : wellRows) {
@@ -164,7 +164,7 @@ public class ScreenExplorer extends AbstractNodeModel {
                 // condense it into a new plate name
                 String customName = Arrays.toString(customPlateNames.toArray()).toString().replace("[", "").replace("]", "");
                 curPlate.setBarcode(customName);
-            }
+            }*/
             // HACK for custom plate labels as requested by Martin
 
             for (DataRow tableRow : wellRows) {
@@ -180,9 +180,9 @@ public class ScreenExplorer extends AbstractNodeModel {
                     String attributeName = attribute.getName();
 
 
-                    if (ignoreProps.contains(attributeName)) {
+                    /*if (ignoreProps.contains(attributeName)) {
                         continue;
-                    }
+                    }*/
 //
                     if (StringUtils.equalsIgnoreCase(SCREEN_MODEL_TREATMENT, attributeName)) {
                         well.setTreatment(attribute.getNominalAttribute(tableRow));
@@ -244,6 +244,7 @@ public class ScreenExplorer extends AbstractNodeModel {
 
             // Write object out to disk
             obj_out.writeObject(getPlates());
+            obj_out.flush();
             obj_out.close();
         }
 
