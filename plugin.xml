@@ -221,5 +221,14 @@
                 tooltip="Some tools to ease HCS analysis">
         </splashExtension>
     </extension>
+    
+    <!--
+    <extension
+          point="org.knime.base.AggregationOperator">
+          <AggregationOperator 
+          		AggregationOperator="de.mpicbg.tds.knime.utils.MADOperator">
+          </AggregationOperator>
+    </extension>
+    -->
 
 </plugin>

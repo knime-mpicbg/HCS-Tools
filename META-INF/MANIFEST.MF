@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HCS-Tools for KNIME
 Bundle-SymbolicName: de.mpicbg.tds.knime.hcstools; singleton:=true
-Bundle-Version: 1.1.1
+Bundle-Version: 1.1.1.qualifier
 Bundle-ClassPath: hcstools.jar,
  lib/avalon-framework-4.1.3.jar,
  lib/cdk-1.3-BETA.jar,
