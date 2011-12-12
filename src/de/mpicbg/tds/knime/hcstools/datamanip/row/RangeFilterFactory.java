@@ -21,7 +21,7 @@
 
 package de.mpicbg.tds.knime.hcstools.datamanip.row;
 
-import de.mpicbg.tds.knime.hcstools.utils.TdsNumbericFilter;
+import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
 import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
@@ -72,7 +72,7 @@ public class RangeFilterFactory extends NodeFactory<RangeFilter> {
 
                 addDialogComponent(new DialogComponentNumberEdit(createUpperBoundSetting(), "Upper Bound"));
 
-                addDialogComponent(new DialogComponentColumnFilter(createParameterFilterSetting(), 0, true, new TdsNumbericFilter()));
+                addDialogComponent(new DialogComponentColumnFilter(createParameterFilterSetting(), 0, true, new TdsNumericFilter()));
 
                 addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean("Rule", Boolean.FALSE), "All Parameter"));
             }

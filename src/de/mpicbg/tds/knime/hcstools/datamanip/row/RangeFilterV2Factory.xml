@@ -21,43 +21,44 @@
   -->
 
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./default.png" type="Source" deprecated="true">
+
+<knimeNode icon="./RangeFilterV2Icon.png" type="Manipulator">
     <name>Range Filter</name>
 
     <shortDescription>
-        Removes rows where certain parameter values are outside of a defined range.
+        Filters table rows by applying a range filter to one or multiple numeric columns
     </shortDescription>
 
     <fullDescription>
-        <intro>This is a commodity node to batch filter columns of a normalized table.
-            Each parameter will be searched for values lying outside the defined bounds.
+
+        <intro>The node filters the table rowwise by checking a set of numeric columns whether their values are within
+            or outside a given range.
         </intro>
 
         <option name="Lower Bound">Number defining the lower limit of the possible parameter value range
         </option>
         <option name="Upper Bound">Number defining the upper limit of the possible parameter value range
         </option>
-        <option name="Parameter">Column filter to select the paramters where the values are checked to lie inside the
+        <option name="Rows match if">
+            "values are in range for all columns": Rows will be kept where all values of the chosen columns are within
+            the given range.
+            "at least one value is in range": Rows will be kept where at least one value of the chosen columns is within
+            the given range.
+        </option>
+        <option name="Matching rows">"Include": Rows will be kept if they match the filter criteria.
+            "Exclude": Rows will be kept if they do not match the filter criteria.
+        </option>
+        <option name="Parameter">Column filter to select the parameters where the values are checked to lie inside the
             defined range.
         </option>
-        <option name="All Parameter">Per default unchecked. In this case an row is removed if it has value outside of
-            the range
-            for at least one parameter. If you tick this checkbox, the row is only removed if all the values for all
-            parameter are outside the range.
-        </option>
+
+
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="input">data for outlier analysis</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="output">table with rows inside the range.</outPort>
-        <outPort index="1" name="output">table with rows outside the range.</outPort>
-        <!-- possibly more output ports here-->
+        <inPort index="0" name="input">data table on which to apply the rangefilter</inPort>
+
+        <outPort index="0" name="filtered table">data table with rows meeting the specified criteria</outPort>
+        <!--<outPort index="1" name="discard">data table with rows meeting the specified criteria</outPort>     -->
     </ports>
-
-    <!--<views>-->
-    <!--<view index="0" name="ScreenExplorer">A heatmap visualization tool</view>-->
-    <!--view index="1" name="name of second view">Description of second view...</view-->
-    <!--</views>-->
-
 </knimeNode>

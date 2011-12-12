@@ -160,9 +160,17 @@
               factory-class="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterColumnCombinerFactory"
               id="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterColumnCombinerFactory"/>
 
-        <node category-path="/community/hcstools/manipulation/row/filter"
+        <!--<node category-path="/community/hcstools/manipulation/row/filter"
               factory-class="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterFactory"
-              id="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterFactory"/>
+              id="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterFactory"/>   -->
+
+        <node category-path="/community/hcstools/manipulation/row/filter"
+              factory-class="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterV2Factory"
+              id="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterV2Factory"/>
+
+        <node category-path="/community/hcstools/manipulation/row/filter"
+              factory-class="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeSplitterFactory"
+              id="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeSplitterFactory"/>
 
 
         <!--Pre-prcessors-->
@@ -221,12 +229,12 @@
                 tooltip="Some tools to ease HCS analysis">
         </splashExtension>
     </extension>
-    
+
     <!--
     <extension
           point="org.knime.base.AggregationOperator">
           <AggregationOperator 
-          		AggregationOperator="de.mpicbg.tds.knime.utils.MADOperator">
+                  AggregationOperator="de.mpicbg.tds.knime.utils.MADOperator">
           </AggregationOperator>
     </extension>
     -->
