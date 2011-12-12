@@ -22,7 +22,7 @@
 package de.mpicbg.tds.knime.hcstools.preprocessing;
 
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoDialog;
-import de.mpicbg.tds.knime.hcstools.utils.TdsNumbericFilter;
+import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
 import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeView;
@@ -93,7 +93,7 @@ public class GroupMutualInformationFactory extends ParameterMutualInformationFac
                 // Parameter selection
                 setHorizontalPlacement(false);
                 createNewGroup("Paramter subset");
-                addDialogComponent(new DialogComponentColumnFilter(ParameterMutualInformationFactory.createParameterFilterSetting(), 0, true, new TdsNumbericFilter()));
+                addDialogComponent(new DialogComponentColumnFilter(ParameterMutualInformationFactory.createParameterFilterSetting(), 0, true, new TdsNumericFilter()));
 
             }
         };

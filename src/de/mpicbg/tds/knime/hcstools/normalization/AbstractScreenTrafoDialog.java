@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.normalization;
 
 import de.mpicbg.tds.knime.HCSAttributeUtils;
-import de.mpicbg.tds.knime.hcstools.utils.TdsNumbericFilter;
+import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
 import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import org.knime.core.data.DataTableSpec;
@@ -36,7 +36,7 @@ public abstract class AbstractScreenTrafoDialog extends AbstractConfigDialog {
         addDialogComponent(new DialogComponentColumnNameSelection(createWellGroupingAttribute(), GROUP_WELLS_BY_DESC, 0, StringValue.class));
 
         readoutFilterString = createPropReadoutSelection();
-        DialogComponentColumnFilter readoutSelector = new DialogComponentColumnFilter(readoutFilterString, 0, true, new TdsNumbericFilter());
+        DialogComponentColumnFilter readoutSelector = new DialogComponentColumnFilter(readoutFilterString, 0, true, new TdsNumericFilter());
         readoutSelector.setIncludeTitle("Normalize");
         readoutSelector.setExcludeTitle(" Available column(s) ");
         addDialogComponent(readoutSelector);

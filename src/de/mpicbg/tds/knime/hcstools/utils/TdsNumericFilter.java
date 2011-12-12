@@ -10,7 +10,7 @@ import org.knime.core.data.DataColumnSpec;
  *
  * @author Holger Brandl
  */
-public class TdsNumbericFilter extends NumericFilter {
+public class TdsNumericFilter extends NumericFilter {
 
     @Override
     public boolean includeColumn(DataColumnSpec dataColumnSpec) {

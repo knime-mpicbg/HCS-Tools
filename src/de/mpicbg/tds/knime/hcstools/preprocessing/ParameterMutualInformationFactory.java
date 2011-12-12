@@ -21,7 +21,7 @@
 
 package de.mpicbg.tds.knime.hcstools.preprocessing;
 
-import de.mpicbg.tds.knime.hcstools.utils.TdsNumbericFilter;
+import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
 import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
@@ -81,7 +81,7 @@ public class ParameterMutualInformationFactory extends NodeFactory<ParameterMutu
                 // Parameter selection
                 setHorizontalPlacement(false);
                 createNewGroup("Parameter subset");
-                addDialogComponent(new DialogComponentColumnFilter(createParameterFilterSetting(), 0, true, new TdsNumbericFilter()));
+                addDialogComponent(new DialogComponentColumnFilter(createParameterFilterSetting(), 0, true, new TdsNumericFilter()));
 
             }
         };

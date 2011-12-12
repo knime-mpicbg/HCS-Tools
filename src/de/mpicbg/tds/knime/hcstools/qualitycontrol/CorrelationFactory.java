@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.qualitycontrol;
 
 import de.mpicbg.tds.knime.hcstools.HCSSettingsFactory;
-import de.mpicbg.tds.knime.hcstools.utils.TdsNumbericFilter;
+import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
 import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import de.mpicbg.tds.knime.knutils.StringFilter;
 import org.knime.core.data.StringValue;
@@ -61,7 +61,7 @@ public class CorrelationFactory extends NodeFactory<Correlation> {
 
                 addDialogComponent(new DialogComponentColumnFilter(createConstraintsSelection(), 0, true, new StringFilter()));
 
-                addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, true, new TdsNumbericFilter()));
+                addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, true, new TdsNumericFilter()));
             }
         };
     }

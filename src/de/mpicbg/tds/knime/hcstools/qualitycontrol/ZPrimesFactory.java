@@ -2,7 +2,7 @@ package de.mpicbg.tds.knime.hcstools.qualitycontrol;
 
 import de.mpicbg.tds.knime.hcstools.HCSSettingsFactory;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoDialog;
-import de.mpicbg.tds.knime.hcstools.utils.TdsNumbericFilter;
+import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
 import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.data.StringValue;
 import org.knime.core.node.NodeDialogPane;
@@ -68,7 +68,7 @@ public class ZPrimesFactory extends NodeFactory<ZPrimes> {
                 addDialogComponent(posCtrlProperty);
 
                 addDialogComponent(new DialogComponentBoolean(createPropRobustStats(), ROBUST_STATS_PROPERTY_DESCS));
-                addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, true, new TdsNumbericFilter()));
+                addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, true, new TdsNumericFilter()));
             }
         };
     }

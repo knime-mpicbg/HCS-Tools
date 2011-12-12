@@ -3,7 +3,7 @@ package de.mpicbg.tds.knime.hcstools.visualization;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.view.ScreenPanel;
 import de.mpicbg.tds.knime.hcstools.HCSSettingsFactory;
-import de.mpicbg.tds.knime.hcstools.utils.TdsNumbericFilter;
+import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
 import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import de.mpicbg.tds.knime.knutils.AbstractNodeView;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
@@ -110,7 +110,7 @@ public class ScreenExplorerFactory extends NodeFactory<ScreenExplorer> {
                 removeTab("Options");
 
                 createNewTab("Readouts");
-                addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, false, new TdsNumbericFilter()));
+                addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, false, new TdsNumericFilter()));
 //                addDialogComponent(new DialogComponentBoolean(createPropUseCompoundDB(), "Use compoundDB to annotate compounds"));
 
                 createNewTab("Factors");
