@@ -27,20 +27,24 @@ public abstract class AbstractScreenTrafoDialog extends AbstractConfigDialog {
 
     public SettingsModelFilterString readoutFilterString;
 
-
+    /**
+     * Method is called to create the configuration dialog (overridden by each subclass
+     */
     @Override
     protected void createControls() {
-        //        addDialogComponent(new DialogComponentColumnFilter(new SettingsModelFilterString(READOUT_SELECTION), 0, true, DoubleCell.class, IntCell.class));
 
         // add the group-by selector
         addDialogComponent(new DialogComponentColumnNameSelection(createWellGroupingAttribute(), GROUP_WELLS_BY_DESC, 0, StringValue.class));
 
+        // initialize column filter setting
         readoutFilterString = createPropReadoutSelection();
+        // column filter GUI
         DialogComponentColumnFilter readoutSelector = new DialogComponentColumnFilter(readoutFilterString, 0, true, new TdsNumericFilter());
         readoutSelector.setIncludeTitle("Normalize");
         readoutSelector.setExcludeTitle(" Available column(s) ");
         addDialogComponent(readoutSelector);
 
+        // checkbox wether replacing raw values
         addDialogComponent(new DialogComponentBoolean(createPropReplaceValues(), "Replace existing values"));
     }
 
@@ -71,20 +75,7 @@ public abstract class AbstractScreenTrafoDialog extends AbstractConfigDialog {
 
         attribute.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent changeEvent) {
-//                String selTreatAttribute = attribute.getStringValue();
-
                 updateDependentControls(configDialog.getSpecs(), attribute, treatmentControls);
-
-//
-//                if (configDialog.getSpecs() != null) {
-//                    for (DialogComponentStringSelection treatmentProperty : treatmentControls) {
-//                        HCSAttributeUtils.updateTreatmentControl(treatmentProperty, selTreatAttribute, configDialog.getSpecs());
-//                    }
-//                }
-//
-//                for (DialogComponentStringSelection treatmentControl : treatmentControls) {
-//                    ((SettingsModelString) treatmentControl.getModel()).setStringValue(SELECT_TREATMENT_ADVICE);
-//                }
             }
         });
 
@@ -112,9 +103,9 @@ public abstract class AbstractScreenTrafoDialog extends AbstractConfigDialog {
 
         for (DialogComponent dialogComponent : dependentControls) {
             if (dialogComponent instanceof DialogComponentStringSelection) {
-                ((SettingsModelString) ((DialogComponentStringSelection) dialogComponent).getModel()).setStringValue(SELECT_TREATMENT_ADVICE);
+                ((SettingsModelString) dialogComponent.getModel()).setStringValue(SELECT_TREATMENT_ADVICE);
             } else if (dialogComponent instanceof DialogComponentStringListSelection) {
-                ((SettingsModelStringArray) ((DialogComponentStringListSelection) dialogComponent).getModel()).setStringArrayValue(new String[0]);
+                ((SettingsModelStringArray) dialogComponent.getModel()).setStringArrayValue(new String[0]);
             }
 
             HCSAttributeUtils.updateTreatmentControl(dialogComponent, selTreatAttribute, tableSpecs);

@@ -14,9 +14,7 @@ import de.mpicbg.tds.knime.knutils.Attribute;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 import de.mpicbg.tds.knime.knutils.RangeRowFilter;
 import org.knime.base.node.preproc.filter.row.rowfilter.RowFilter;
-import org.knime.core.data.DataRow;
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.RowIterator;
+import org.knime.core.data.*;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataContainer;
@@ -62,7 +60,7 @@ public class RangeSplitterModel extends AbstractNodeModel {
         List<RowFilter> rangeFilterList = new ArrayList<RowFilter>();
         for (String item : parameterNames.getIncludeList()) {
             Attribute attribute = new InputTableAttribute(item, input);
-            if (attribute.getType().equals(DoubleCell.TYPE)) {
+            if (attribute.getType().isCompatible(DoubleValue.class)) {
                 parameter.add(attribute);
                 DoubleCell lowerBound = new DoubleCell(lowerBoundSetting.getDoubleValue());
                 DoubleCell upperBound = new DoubleCell(upperBoundSetting.getDoubleValue());
@@ -70,7 +68,7 @@ public class RangeSplitterModel extends AbstractNodeModel {
                 rowFilter.configure(inputSpec);
                 rangeFilterList.add(rowFilter);
             } else {
-                if (attribute.getType().equals(IntCell.TYPE)) {
+                if (attribute.getType().isCompatible(IntValue.class)) {
                     parameter.add(attribute);
                     IntCell lowerBound = new IntCell((int) Math.ceil(lowerBoundSetting.getDoubleValue()));
                     IntCell upperBound = new IntCell((int) Math.floor(upperBoundSetting.getDoubleValue()));

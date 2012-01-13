@@ -64,5 +64,4 @@ public class Table2Matrix {
         return rmatrix;
     }
 
-
 }

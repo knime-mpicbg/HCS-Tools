@@ -87,7 +87,7 @@ public class MultivariateZPrimes extends AbstractNodeModel {
         List<Attribute> readouts = new ArrayList<Attribute>();
         for (String item : propReadouts.getIncludeList()) {
             Attribute attribute = new InputTableAttribute(item, input);
-            if (attribute.getType().equals(DoubleCell.TYPE)) {
+            if (attribute.getType().isCompatible(DoubleValue.class)) {
                 readouts.add(attribute);
             } else {
                 logger.warn("The parameter '" + attribute.getName() + "' will not be considered for outlier removal, since it is not a DoubleCell type.");

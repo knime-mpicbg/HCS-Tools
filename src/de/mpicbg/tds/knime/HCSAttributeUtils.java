@@ -6,7 +6,7 @@ import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 import org.apache.commons.lang.StringUtils;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.StringCell;
+import org.knime.core.data.StringValue;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.defaultnodesettings.*;
@@ -26,7 +26,7 @@ public class HCSAttributeUtils {
 
     public static List<String> getTreatments(DataTableSpec inputModel, String treatmentAttrName) {
         DataColumnSpec spec = inputModel.getColumnSpec(treatmentAttrName);
-        if (spec == null || !spec.getType().equals(StringCell.TYPE)) {
+        if (spec == null || !spec.getType().isCompatible(StringValue.class)) {
             return null;
 //            throw new RuntimeException("no treatment column or invalid type!");
         }

@@ -233,7 +233,7 @@ public class ParameterMutualInformation extends AbstractNodeModel {
         List<Attribute> parameters = new ArrayList<Attribute>();
         for (String item : parameterNames.getIncludeList()) {
             Attribute attribute = new InputTableAttribute(item, table);
-            if (attribute.getType().equals(DoubleCell.TYPE)) {
+            if (attribute.getType().isCompatible(DoubleValue.class)) {
                 parameters.add(attribute);
             } else {
                 logger.warn("The parameters '" + attribute.getName() + "' will not be considered, since it is not a DoubleCell type.");

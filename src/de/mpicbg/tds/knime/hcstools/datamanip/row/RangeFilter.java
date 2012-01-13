@@ -28,7 +28,7 @@ import de.mpicbg.tds.knime.knutils.BufTableUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.DoubleValue;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
@@ -82,7 +82,7 @@ public class RangeFilter extends AbstractNodeModel {
         List<Attribute> parameter = new ArrayList<Attribute>();
         for (String item : parameterNames.getIncludeList()) {
             Attribute attribute = new InputTableAttribute(item, input);
-            if (attribute.getType().equals(DoubleCell.TYPE)) {
+            if (attribute.getType().isCompatible(DoubleValue.class)) {
                 parameter.add(attribute);
             } else {
                 logger.warn("The parameter '" + attribute.getName() + "' will not be considered for outlier removal, since it is not a DoubleCell type.");
