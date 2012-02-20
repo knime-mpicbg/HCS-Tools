@@ -3,8 +3,6 @@ package de.mpicbg.tds.knime.hcstools.utils;
 import de.mpicbg.tds.knime.hcstools.HCSToolsBundleActivator;
 import de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferenceInitializer;
 import de.mpicbg.tds.knime.knutils.Attribute;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math.stat.descriptive.rank.Median;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.knime.core.data.DataRow;
 import org.knime.core.node.NodeLogger;
@@ -21,17 +19,15 @@ public class AttributeStatistics {
 
     private static NodeLogger logger = NodeLogger.getLogger(AttributeStatistics.class);
 
-
     public static double median(List<DataRow> rows, Attribute attribute) {
-        DescriptiveStatistics statistics = accuStats(rows, attribute);
-        statistics.setMeanImpl(new Median());
+        ExtDescriptiveStats statistics = accuStats(rows, attribute);
 
-        return statistics.getMean();
+        return statistics.getMedian();
     }
 
 
     public static double mean(List<DataRow> rows, Attribute attribute) {
-        DescriptiveStatistics stats = accuStats(rows, attribute);
+        ExtDescriptiveStats stats = accuStats(rows, attribute);
 
         ensureMinMeanSamples(stats.getN(), attribute);
 
@@ -45,15 +41,12 @@ public class AttributeStatistics {
 
 
     public static double mad(List<DataRow> rows, Attribute attribute, double madScalingFactor) {
-        DescriptiveStatistics statistics = accuStats(rows, attribute);
-        statistics.setMeanImpl(new Median());
+        ExtDescriptiveStats statistics = accuStats(rows, attribute);
+        statistics.setMadImpl(new MadStatistic(madScalingFactor));
 
         ensureMinDispersionSamples(statistics.getN(), attribute);
 
-        double median = statistics.getMean();
-        statistics.setVarianceImpl(new MadStatistic(median));
-
-        return madScalingFactor * statistics.getVariance();
+        return statistics.getMad();
     }
 
 
@@ -63,7 +56,7 @@ public class AttributeStatistics {
 
 
         if (madScalingFactor <= 0) {
-            throw new RuntimeException();
+            logger.error("MAD scaling factor has to be greater than 0 (see preference settings)");
         }
 
         return madScalingFactor;
@@ -91,7 +84,7 @@ public class AttributeStatistics {
 
 
     public static double stdDev(List<DataRow> rows, Attribute attribute) {
-        DescriptiveStatistics statistics = accuStats(rows, attribute);
+        ExtDescriptiveStats statistics = accuStats(rows, attribute);
 
         ensureMinDispersionSamples(statistics.getN(), attribute);
 
@@ -100,7 +93,7 @@ public class AttributeStatistics {
 
 
     public static double getVariance(List<DataRow> rows, Attribute attribute) {
-        DescriptiveStatistics statistics = accuStats(rows, attribute);
+        ExtDescriptiveStats statistics = accuStats(rows, attribute);
 
         ensureMinDispersionSamples(statistics.getN(), attribute);
 
@@ -108,8 +101,8 @@ public class AttributeStatistics {
     }
 
 
-    public static DescriptiveStatistics accuStats(List<DataRow> rows, Attribute attribute) {
-        DescriptiveStatistics statistics = new DescriptiveStatistics();
+    public static ExtDescriptiveStats accuStats(List<DataRow> rows, Attribute attribute) {
+        ExtDescriptiveStats statistics = new ExtDescriptiveStats();
 
         for (DataRow row : rows) {
             Double doubleAttribute = attribute.getDoubleAttribute(row);

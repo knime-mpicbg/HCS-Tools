@@ -27,6 +27,7 @@ package de.mpicbg.tds.knime.hcstools.prefs;
 
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
 import de.mpicbg.tds.knime.hcstools.HCSToolsBundleActivator;
+import de.mpicbg.tds.knime.hcstools.utils.MadStatistic;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
@@ -46,7 +47,7 @@ public class HCSToolsPreferenceInitializer extends AbstractPreferenceInitializer
 
         store.setDefault(MIN_SAMPLE_NUMBER_FOR_MEANS, 5);
         store.setDefault(MIN_SAMPLE_NUMBER_FOR_DISPERSION, 8);
-        store.setDefault(MAD_SCALING_FACTOR, 1.4826);
+        store.setDefault(MAD_SCALING_FACTOR, MadStatistic.MAD_GAUSS_FACTOR);
 
         store.setDefault(BARCODE_PATTERNS, BarcodeParserFactory.ASSAY_PLATE_PATTERN + ";" + BarcodeParserFactory.LIB_PLATE_BARCODE_PATTERN + ";" + BarcodeParserFactory.ASSAY_PLATE_PATTERN_OLD);
     }
