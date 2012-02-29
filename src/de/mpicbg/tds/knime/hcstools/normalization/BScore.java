@@ -1,6 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.normalization;
 
 import de.mpicbg.tds.knime.hcstools.utils.ExtDescriptiveStats;
+import de.mpicbg.tds.knime.hcstools.utils.MadStatistic;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 
@@ -31,8 +32,8 @@ public class BScore {
     double resiudalMAD;
     double grandEffect;
 
-
-    public BScore(RealMatrix matrix) {
+    // TODO: add Mad-Factor as parameter
+    public BScore(RealMatrix matrix, double madFactor) {
         // initialize
         residualMatrix = matrix;
         original = matrix.copy();
@@ -43,15 +44,17 @@ public class BScore {
         // run the 2 way median polish
         medianPolish(3);
         // calculate the mad of the residuals
-        resiudalMAD = calcResidualMAD();
+        resiudalMAD = calcResidualMAD(madFactor);
     }
 
     /**
+     * @param madFactor
      * @return median absolute deviation of the residuals
      */
-    private double calcResidualMAD() {
+    private double calcResidualMAD(double madFactor) {
 
         ExtDescriptiveStats stats = new ExtDescriptiveStats();
+        stats.setMadImpl(new MadStatistic(madFactor));
 
         // create double array from residual matrix
         for (int row = 0; row < residualMatrix.getRowDimension(); row++) {
@@ -171,7 +174,7 @@ public class BScore {
         Array2DRowRealMatrix inMatrix = new Array2DRowRealMatrix(new double[][]{{99, 108, 105, 98, 100, 101},
                 {71, 79, 83, 70, 84, 80}, {100, 104, 92, 102, 99, 98}, {81, 75, 80, 82, 77, 78}});
 
-        BScore bScore = new BScore(inMatrix);
+        BScore bScore = new BScore(inMatrix, MadStatistic.MAD_GAUSS_FACTOR);
         System.err.println("value is " + bScore.get(1, 2));
         System.err.println("mpolish " + bScore.residualMatrix.toString());
     }

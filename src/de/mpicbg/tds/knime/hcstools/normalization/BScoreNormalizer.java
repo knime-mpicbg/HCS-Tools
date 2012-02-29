@@ -3,6 +3,7 @@ package de.mpicbg.tds.knime.hcstools.normalization;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.knime.HCSAttributeUtils;
+import de.mpicbg.tds.knime.hcstools.utils.AttributeStatistics;
 import de.mpicbg.tds.knime.hcstools.visualization.ScreenExplorer;
 import de.mpicbg.tds.knime.knutils.*;
 import org.apache.commons.math.linear.RealMatrix;
@@ -61,7 +62,8 @@ public class BScoreNormalizer extends AbstractScreenTrafoModel {
 
 
                 // run the median-polish
-                BScore bScore = new BScore(m);
+                double madFactor = AttributeStatistics.getMadScalingFromPrefs();
+                BScore bScore = new BScore(m, madFactor);
 
 
                 for (DataRow dataRow : plateWells) {

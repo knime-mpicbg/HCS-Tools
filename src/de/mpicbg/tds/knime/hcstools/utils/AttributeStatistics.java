@@ -50,7 +50,7 @@ public class AttributeStatistics {
     }
 
 
-    private static double getMadScalingFromPrefs() {
+    public static double getMadScalingFromPrefs() {
         IPreferenceStore prefStore = HCSToolsBundleActivator.getDefault().getPreferenceStore();
         double madScalingFactor = prefStore.getDouble(HCSToolsPreferenceInitializer.MAD_SCALING_FACTOR);
 
