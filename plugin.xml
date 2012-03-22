@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse version="3.0"?>
+
 <!--
   ~ Module Name: hcstools
   ~ This module is a plugin for the KNIME platform <http://www.knime.org/>
@@ -20,7 +21,6 @@
   ~     Detailed terms and conditions are described in the license.txt.
   ~     also see <http://www.gnu.org/licenses/>.
   -->
-
 <plugin>
 
     <extension point="org.knime.workbench.repository.nodes">
@@ -186,6 +186,9 @@
               factory-class="de.mpicbg.tds.knime.hcstools.preprocessing.GroupMutualInformationFactory"
               id="de.mpicbg.tds.knime.hcstools.preprocessing.GroupMutualInformationFactory"/>
 
+        <node category-path="/community/hcstools/populationanalysis"
+              factory-class="de.mpicbg.tds.knime.hcstools.populationanalysis.BinningAnalysisNodeFactory"
+              id="de.mpicbg.tds.knime.hcstools.populationanalysis.BinningAnalysisNodeFactory"/>
     </extension>
 
     <extension point="org.knime.workbench.repository.categories">
@@ -203,6 +206,7 @@
         <category level-id="filter" name="Filter" path="/community/hcstools/manipulation/row"/>
         <category level-id="split+combine" name="Split &amp; Combine" path="/community/hcstools/manipulation/column"/>
         <category level-id="prepro" name="Pre-Processing" path="/community/hcstools/"/>
+        <category level-id="populationanalysis" name="Population analysis" path="/community/hcstools/"/>
 
         <!--add the view components directly to the view-category -->
         <!--<category level-id="screening" name="Screening" path="/view"/>-->
@@ -216,17 +220,13 @@
     <extension point="org.eclipse.ui.preferencePages">
         <page category="org.knime.workbench.ui.preferences"
               class="de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferencePage"
-              id="de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferencePage"
-              name="HCS-Tool">
+              id="de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferencePage" name="HCS-Tool">
         </page>
     </extension>
 
 
     <extension point="org.knime.product.splashExtension">
-        <splashExtension
-                icon="resources/hcstools_splash.png"
-                id="HCS-Tools"
-                tooltip="Some tools to ease HCS analysis">
+        <splashExtension icon="resources/hcstools_splash.png" id="HCS-Tools" tooltip="Some tools to ease HCS analysis">
         </splashExtension>
     </extension>
 

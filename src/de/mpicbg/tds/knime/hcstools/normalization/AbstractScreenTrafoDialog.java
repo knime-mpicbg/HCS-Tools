@@ -75,7 +75,7 @@ public abstract class AbstractScreenTrafoDialog extends AbstractConfigDialog {
 
         attribute.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent changeEvent) {
-                updateDependentControls(configDialog.getSpecs(), attribute, treatmentControls);
+                updateDependentControls(configDialog.getFirstSpec(), attribute, treatmentControls);
             }
         });
 
@@ -83,7 +83,7 @@ public abstract class AbstractScreenTrafoDialog extends AbstractConfigDialog {
 
             @Override
             protected void updateComponent() {
-                configDialog.setTableSpecs((DataTableSpec) getLastTableSpec(0));
+                configDialog.setFirstTableSpecs((DataTableSpec) getLastTableSpec(0));
 
                 super.updateComponent();
 
