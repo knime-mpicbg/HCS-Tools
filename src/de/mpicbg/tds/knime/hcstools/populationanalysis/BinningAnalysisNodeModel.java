@@ -1,5 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.populationanalysis;
 
+import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.math.BinningAnalysis;
 import de.mpicbg.tds.core.math.BinningData;
 import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
@@ -28,8 +29,8 @@ import java.util.List;
 public class BinningAnalysisNodeModel extends AbstractNodeModel {
 
     public static final String CFG_AGGR = "groupBy";
-    //private static final String CFG_AGGR_DFT = TdsUtils.SCREEN_MODEL_WELL;  TODO: use this as soon asthe hcscore was compiled again
-    private static final String CFG_AGGR_DFT = "well";
+    private static final String CFG_AGGR_DFT = TdsUtils.SCREEN_MODEL_WELL;
+    //private static final String CFG_AGGR_DFT = "well";
 
     public static final String CFG_COLUMN = "selectedCols";
 
