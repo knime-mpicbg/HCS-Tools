@@ -11,7 +11,10 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.*;
-import org.knime.core.node.defaultnodesettings.*;
+import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
+import org.knime.core.node.defaultnodesettings.SettingsModelNumber;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,6 +76,7 @@ public class BinningAnalysisNodeModel extends AbstractNodeModel {
         DataTableSpec inSpec = inTable.getSpec();
 
         // read current settings
+        int nBins = ((SettingsModelIntegerBounded) getModelSetting(CFG_BIN)).getIntValue();
         String aggColumn = ((SettingsModelString) getModelSetting(CFG_AGGR)).getStringValue();
         List<String> selColumns = ((SettingsModelFilterString) getModelSetting(CFG_COLUMN)).getIncludeList();
         boolean hasRefColumn = true;
@@ -80,7 +84,6 @@ public class BinningAnalysisNodeModel extends AbstractNodeModel {
         if (refColumn == null) hasRefColumn = false;
         String refString = null;
         if (hasRefColumn) refString = ((SettingsModelString) getModelSetting(CFG_REFSTRING)).getStringValue();
-        int nBins = ((SettingsModelInteger) getModelSetting(CFG_BIN)).getIntValue();
 
         int aggIdx = inSpec.findColumnIndex(aggColumn);
         int refIdx = -1;
@@ -121,7 +124,8 @@ public class BinningAnalysisNodeModel extends AbstractNodeModel {
 
                 DataCell valueCell = row.getCell(colIdx);
                 Double value = null;
-                if (!valueCell.isMissing()) value = ((DoubleCell) valueCell).getDoubleValue();
+                // int cell represents numeric cell (can deliver int and double, double cell can be cast to int cell)
+                if (!valueCell.isMissing()) value = ((DoubleValue) valueCell).getDoubleValue();
 
                 // skip data row if
                 // - aggregation information is not available
@@ -160,14 +164,21 @@ public class BinningAnalysisNodeModel extends AbstractNodeModel {
             if (!hasRefColumn) {
                 refData = allData;
             }
-            // if the reference label does not contain any data (domain available though no data in the table
+            // warning if the reference label does not contain any data (domain available though no data in the table
+            // don't calculate the binning for this parameter
             if (refData.isEmpty()) {
-                setWarningMessage("there is no reference data available for " + col + " (" + countMissing + " rows were skipped because of missing values)");
+                setWarningMessage("there is no reference data available for " + col);
                 continue;
             }
 
+            // warning if missing values were filtered from the column
+            if (countMissing > 0) {
+                this.logger.info(col + ": " + countMissing + " values were skipped because of missing values");
+                //setWarningMessage( col + ": " + countMissing + " rows were skipped because of missing values");
+            }
+
             // do the binning analysis on the collected data
-            BinningAnalysis binAnalysis = new BinningAnalysis(refData, 10, col);
+            BinningAnalysis binAnalysis = new BinningAnalysis(refData, nBins, col);
             HashMap<Object, List<BinningData>> ret = binAnalysis.getZscore(allData);
 
             // fill binning data into the new table
