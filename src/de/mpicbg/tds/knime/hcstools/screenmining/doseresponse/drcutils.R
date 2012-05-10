@@ -195,6 +195,8 @@ visualizeDrModels <- function(plotdata, plotOpts) {
 #### compile the plot data-structure for a set of componud model for a single response variable
 compilePlotData <- function(cpmdModels, drdata, resVarName, concColIndex, cmpndColIndex){
 	
+	#browser()
+	
 	# 1) create the fit data
 	
 	# just select the subset which is of interest
@@ -214,7 +216,6 @@ compilePlotData <- function(cpmdModels, drdata, resVarName, concColIndex, cmpndC
 			return(NA)
 		}
 		drPrediction <- data.frame(conc = predictConcs, predictResVar = predict(drmodel, fitdata), compound = cmpndName)
-
 		return(drPrediction)
 	})
 	smoothFits <- do.call("rbind", smoothFitFunList)
@@ -248,13 +249,16 @@ compilePlotData <- function(cpmdModels, drdata, resVarName, concColIndex, cmpndC
 		errorDF <- cbind(errorDF, ret)
 		errorDF$compound <- cmpndName
 		errorDF <- transform(errorDF, compound = cmpndName, posY = concPredict + concRespSD, negY = concPredict - concRespSD)
+		
+		errorDF <- errorDF[complete.cases(errorDF),]
+		if(nrow(errorDF) == 0) return(NA)
 
 		return(errorDF)
 	})
 	
 	errorBarData <- do.call("rbind", errorBarDataList)
 	errorBarData <- errorBarData[complete.cases(errorBarData),] # drop rows with na values
-
+	
 	plotdata <- list(dataWithFit, smoothFits, errorBarData)
 	names(plotdata) <- c('rawdata', 'smoothfitfuns', 'errorbardata')
 
@@ -266,7 +270,7 @@ compilePlotData <- function(cpmdModels, drdata, resVarName, concColIndex, cmpndC
 # reshapes the data to create a list with one sublist for each readout. The sublist will contain 3 datastrucutres (datawithfit, smoothfitfuns, errorbardata). This can than be used to create some nice graphics with ggplot2
 compileDRData4Vis <- function(drmodels, drdata, concIndex, cmpndColIndex){
 	pivModels <- pivotModelTable(drmodels)
-
+	
 	plotdata <- lapply(names(pivModels), FUN <- function(resVarName){
 		return(compilePlotData(pivModels[[resVarName]], drdata, resVarName, concIndex, cmpndColIndex))
 	})
