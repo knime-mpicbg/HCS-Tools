@@ -11,6 +11,10 @@
         <intro>Caclulates and visualizes dose repsonse models. This is achieved by fitting several non-linear regression
             models to your data.
 
+            Measurements from a zero concentration are used to calculate the fit but are not displayed in the plot
+            because of
+            its logarithmic scale.
+
             For a conceptutal and technical overview have a look at "Bioassay Analysis using R", Ritz and Streibig,
             2005, 5:12, Journal of Statistical Software.
 

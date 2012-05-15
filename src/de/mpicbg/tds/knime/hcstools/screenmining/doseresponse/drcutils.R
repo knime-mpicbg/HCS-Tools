@@ -194,18 +194,26 @@ visualizeDrModels <- function(plotdata, plotOpts) {
 
 #### compile the plot data-structure for a set of componud model for a single response variable
 compilePlotData <- function(cpmdModels, drdata, resVarName, concColIndex, cmpndColIndex){
-	
+
 	#browser()
-	
+
 	# 1) create the fit data
-	
+
 	# just select the subset which is of interest
 	dataWithFit <- data.frame(conc = drdata[, concColIndex], resVar = drdata[, which(names(drdata) == resVarName)], compound = drdata[, cmpndColIndex])
 
 	# 2) create the smooth model funs
 
     # sample a set of evaluation points for the predicted function (do it in log-space to get an equal spacing in the visualization later on)
-	concRange <-log10(range(drdata[, concColIndex]))
+	# in case the smallest concentration value is zero, set it to 0 + very small value for log10 method. comment: plot looks weird as the zero is very far away from the other data pointd
+    #if(range[1] == 0) range[1] <- 0 + .Machine$double.eps
+
+    if(range(drdata[, concColIndex])[1] == 0) {
+    	drdata <- drdata[drdata[,concColIndex] != 0,]
+    }
+    range <- range(drdata[, concColIndex])
+
+	concRange <-log10(range)
 	predictConcs <- 10^(seq(concRange[1], concRange[2],  (concRange[2] - concRange[1])/100))
 	fitdata <-data.frame(conc = predictConcs)
 
@@ -225,23 +233,23 @@ compilePlotData <- function(cpmdModels, drdata, resVarName, concColIndex, cmpndC
 	#library(ggplot2)
 	#qplot(smoothFits, aes(x= conc, y= predictResVar, group=compound, color=compound), geom="line")
 	#qplot(conc, predictResVar, data=smoothFits,group=compound, color=compound, geom="line")
-	
+
 	#####
 	# 3) create the error bar data
 	errorBarDataList <- lapply(names(cpmdModels), FUN = function(cmpndName){
-	
+
 		drmodel <- cpmdModels[[cmpndName]]
 		if(!inherits(drmodel, 'drc')){
 			return(NA)
 		}
 
 		drConcs <- unique(drmodel$data$conc)
-		
+
 		errorDF <- data.frame(conc = drConcs)
 		errorDF$concPredict <- predict(drmodel, errorDF)
 
-		ret <- lapply(errorDF$conc, FUN = function(co) { 
-			subData <- drmodel$data$meas[which(drmodel$data$conc %in% co)] 
+		ret <- lapply(errorDF$conc, FUN = function(co) {
+			subData <- drmodel$data$meas[which(drmodel$data$conc %in% co)]
 			c(concRespMean = mean(subData), concRespSD = sd(subData))
 			})
 		ret <- do.call("rbind", ret)
@@ -249,16 +257,16 @@ compilePlotData <- function(cpmdModels, drdata, resVarName, concColIndex, cmpndC
 		errorDF <- cbind(errorDF, ret)
 		errorDF$compound <- cmpndName
 		errorDF <- transform(errorDF, compound = cmpndName, posY = concPredict + concRespSD, negY = concPredict - concRespSD)
-		
+
 		errorDF <- errorDF[complete.cases(errorDF),]
 		if(nrow(errorDF) == 0) return(NA)
 
 		return(errorDF)
 	})
-	
+
 	errorBarData <- do.call("rbind", errorBarDataList)
 	errorBarData <- errorBarData[complete.cases(errorBarData),] # drop rows with na values
-	
+
 	plotdata <- list(dataWithFit, smoothFits, errorBarData)
 	names(plotdata) <- c('rawdata', 'smoothfitfuns', 'errorbardata')
 
