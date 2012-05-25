@@ -64,10 +64,10 @@ public class ConvertRows extends AbstractNodeModel {
             String strinigfiedRowDesc = rowDescriptor.toString();
 
             if (letters2numbers) {
-                int convertedRow = TdsUtils.mapRowCharToIndex(strinigfiedRowDesc);
+                int convertedRow = TdsUtils.mapPlateRowStringToNumber(strinigfiedRowDesc);
                 updateCache.add(dataRow, targetAttribute, targetAttribute.createCell(convertedRow));
             } else {
-                String convertedRow = TdsUtils.mapIndexToPlateColumn((int) Double.parseDouble(strinigfiedRowDesc));
+                String convertedRow = TdsUtils.mapPlateRowNumberToString((int) Double.parseDouble(strinigfiedRowDesc));
                 updateCache.add(dataRow, targetAttribute, targetAttribute.createCell(convertedRow));
             }
         }

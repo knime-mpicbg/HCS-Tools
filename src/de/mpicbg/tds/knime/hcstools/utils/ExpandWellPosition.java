@@ -87,7 +87,7 @@ public class ExpandWellPosition extends AbstractNodeModel {
             }
 
             if (convertRowChars.getBooleanValue()) {
-                int plateRow = TdsUtils.mapRowCharToIndex(matcher.group(1));
+                int plateRow = TdsUtils.mapPlateRowStringToNumber(matcher.group(1));
                 updateCache.add(dataRow, plateRowAttribute, new IntCell(plateRow));
 
             } else {

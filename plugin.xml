@@ -117,6 +117,10 @@
               id="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutFactory"/>
 
         <node category-path="/community/hcstools/util"
+              factory-class="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutV2NodeFactory"
+              id="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutV2NodeFactory"/>
+
+        <node category-path="/community/hcstools/util"
               factory-class="de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcodeFactory"
               id="de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcodeFactory"/>
 
@@ -189,6 +193,8 @@
         <node category-path="/community/hcstools/populationanalysis"
               factory-class="de.mpicbg.tds.knime.hcstools.populationanalysis.BinningAnalysisNodeFactory"
               id="de.mpicbg.tds.knime.hcstools.populationanalysis.BinningAnalysisNodeFactory"/>
+        <node category-path="/" factory-class="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutV2NodeFactory"
+              id="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutV2NodeFactory"/>
     </extension>
 
     <extension point="org.knime.workbench.repository.categories">

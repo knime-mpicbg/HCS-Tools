@@ -59,7 +59,7 @@ public class ParseEMTData {
             Plate plate = barcode2Plate.get(barcode);
 
             // check if the well is there and create it if necessary
-            int plateRow = TdsUtils.mapRowCharToIndex(rowAttribute.getValue(dataRow));
+            int plateRow = TdsUtils.mapPlateRowStringToNumber(rowAttribute.getValue(dataRow));
             int plateCol = colAttribute.getIntAttribute(dataRow);
 
             // query the well from the plate or create if not yet present

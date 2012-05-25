@@ -65,10 +65,10 @@ public class ConvertPlateRows extends AbstractNodeModel {
                 String strinigfiedRowDesc = rowDescriptor.toString();
 
                 if (sourceAttribute.isNumerical()) {
-                    String convertedRow = TdsUtils.mapIndexToPlateColumn((int) Double.parseDouble(strinigfiedRowDesc));
+                    String convertedRow = TdsUtils.mapPlateRowNumberToString((int) Double.parseDouble(strinigfiedRowDesc));
                     updateCache.add(dataRow, targetAttribute, targetAttribute.createCell(convertedRow));
                 } else {
-                    int convertedRow = TdsUtils.mapRowCharToIndex(strinigfiedRowDesc);
+                    int convertedRow = TdsUtils.mapPlateRowStringToNumber(strinigfiedRowDesc);
                     updateCache.add(dataRow, targetAttribute, targetAttribute.createCell(convertedRow));
                 }
             }
