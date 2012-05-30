@@ -112,9 +112,9 @@
               factory-class="de.mpicbg.tds.knime.hcstools.utils.LoadLayoutFactory"
               id="de.mpicbg.tds.knime.hcstools.utils.LoadLayoutFactory"/>
 
-        <node category-path="/community/hcstools/util"
+        <!-- <node category-path="/community/hcstools/util"
               factory-class="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutFactory"
-              id="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutFactory"/>
+              id="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutFactory"/ -->
 
         <node category-path="/community/hcstools/util"
               factory-class="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutV2NodeFactory"
