@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./JoinLayout.png" type="Manipulator">
-    <name>Join Layout (new)</name>
+    <name>Join Layout</name>
 
     <shortDescription>
 
@@ -34,7 +34,7 @@
         </intro>
 
 
-        <option name="File">Excel file contain a sheet with the meta information / layout data</option>
+        <option name="File">Excel file containing a sheet with the meta information / layout data</option>
         <option name="Sheet name">Name of the sheet</option>
         <option name="Plate row">Numeric column containing the plate row identifier as whole number</option>
         <option name="Plate column">Numeric column containing the plate column identifier as whole number</option>

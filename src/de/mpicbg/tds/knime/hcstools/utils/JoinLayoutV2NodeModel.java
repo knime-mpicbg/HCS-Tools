@@ -15,6 +15,7 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.util.UniqueNameGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -82,27 +83,6 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
         ColumnRearranger columnRearranger = createColumnRearranger(inSpec);
 
         return columnRearranger.createSpec();
-
-        /*
-        List<DataColumnSpec> cSpecs = new ArrayList<DataColumnSpec>();
-
-        // collect all columns from the incoming table
-        for(DataColumnSpec curSpec : inSpec) cSpecs.add(curSpec);
-
-        // retrieve layout
-        LinkedHashMap<String, Class<?>> layoutLabel = excelLayout.getLabels();
-
-        // add all layout columns (later containing the layout data)
-        for(Map.Entry<String,Class<?>> curLayout : layoutLabel.entrySet()) {
-            Class curType = curLayout.getValue();
-            DataType dType = Utils.mapType(curType);
-            DataColumnSpecCreator dcsc = new DataColumnSpecCreator(curLayout.getKey(), dType);
-            cSpecs.add(dcsc.createSpec());
-        }
-
-        return new DataTableSpec(inSpec.getName(), (DataColumnSpec[]) cSpecs.toArray(new DataColumnSpec[cSpecs.size()]));    */
-
-
     }
 
     /**
@@ -120,11 +100,14 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
         // retrieve layout
         LinkedHashMap<String, Class<?>> layoutLabel = excelLayout.getLabels();
 
+        UniqueNameGenerator uniqueNames = new UniqueNameGenerator(inSpec);
+
         // add all layout columns (later containing the layout data)
         for (Map.Entry<String, Class<?>> curLayout : layoutLabel.entrySet()) {
             Class curType = curLayout.getValue();
             DataType dType = Utils.mapType(curType);
-            DataColumnSpecCreator dcsc = new DataColumnSpecCreator(curLayout.getKey(), dType);
+            // to ensure unique names
+            DataColumnSpecCreator dcsc = uniqueNames.newCreator(curLayout.getKey(), dType);
             cSpecs.add(dcsc.createSpec());
         }
 
@@ -145,56 +128,6 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
         // input table + specs
         BufferedDataTable inTable = inData[0];
         DataTableSpec inSpec = inTable.getDataTableSpec();
-        /*
-        // TODO: read current settings
-        int plateRowIdx = inSpec.findColumnIndex(((SettingsModelString) getModelSetting(CFG_COL)).getStringValue());
-        int plateColumnIdx = inSpec.findColumnIndex(((SettingsModelString) getModelSetting(CFG_ROW)).getStringValue());
-        // reload excel file if it has been changed
-        validateExcelFile();
-
-        BufferedDataContainer con = exec.createDataContainer(createOutSpec(inSpec));
-
-        LinkedHashMap<String, Class<?>> labels = excelLayout.getLabels();
-
-        int rowCount = 1;
-        int nRows = inTable.getRowCount();
-
-        for(DataRow curRow : inTable) {
-            //set progress and check execution canceled
-            exec.checkCanceled();
-            exec.setProgress(rowCount / nRows);
-            rowCount++;
-
-            // retrieve well position cells
-            DataCell plateRowCell = curRow.getCell(plateRowIdx);
-            DataCell plateColumnCell = curRow.getCell(plateColumnIdx);
-
-            // do not skip the rows with missing well identifier, but create missing layout cells instead
-            double plateRow = -1;
-            double plateColumn = -1;
-            if(!(plateRowCell.isMissing() || plateColumnCell.isMissing())) {
-                // retrieve well position
-                plateRow = ((DoubleValue)plateRowCell).getDoubleValue();
-                plateColumn = ((DoubleValue)plateColumnCell).getDoubleValue();
-            }
-
-            // check whether plateRow and plateColumn have integer values
-            if(Math.floor(plateColumn) != plateColumn)
-                throw new Exception("Plate column identifier in table row" + curRow.getKey().getString() + "(" + plateColumn + ") is not whole-number.");
-            if(Math.floor(plateRow) != plateRow)
-                throw new Exception("Plate row identifier in table row" + curRow.getKey().getString() + "(" + plateRow + ") is not whole-number.");
-
-            // retrieve the layout values for this position
-            DataRow extendRow = curRow;
-            for(Map.Entry<String,Class<?>> label : labels.entrySet()) {
-                extendRow = addLayoutValue(label, plateRow, plateColumn, extendRow);
-            }
-
-            con.addRowToTable(extendRow);
-        }
-
-        con.close();
-        return new BufferedDataTable[]{con.getTable()};    */
 
         plateRowIdx = inSpec.findColumnIndex(((SettingsModelString) getModelSetting(CFG_COL)).getStringValue());
         plateColumnIdx = inSpec.findColumnIndex(((SettingsModelString) getModelSetting(CFG_ROW)).getStringValue());
@@ -220,40 +153,6 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
     }
 
     /**
-     * adds a layout cell to the given row
-     * @param label
-     * @param plateRow
-     * @param plateColumn
-     * @param row
-     * @return
-     */
-    /*private DataRow addLayoutValue(Map.Entry<String, Class<?>> label, double plateRow, double plateColumn, DataRow row) {
-
-        // get data type
-        Class curType = label.getValue();
-        DataType dType = Utils.mapType(curType);
-
-        // retrieve the value of this position (or null otherwise)
-        String value = excelLayout.getLayoutValue(label.getKey(), (int)plateRow, (int)plateColumn);
-        DataCell cell = null;
-
-        // create a new data cell with appropriate data type
-        // casts should work as each value already has been testet if it fits to this data type
-        if(dType.equals(StringCell.TYPE)) {
-            cell = (value != null) ? new StringCell(value) : DataType.getMissingCell();
-        } else {
-            if(value == null) cell = DataType.getMissingCell();
-            else {
-                double numericValue = Double.valueOf(value);
-                if(dType.equals(DoubleCell.TYPE))cell = new DoubleCell(numericValue);
-                if(dType.equals(IntCell.TYPE)) cell = new IntCell((int)numericValue);
-            }
-        }
-
-        return new AppendedColumnRow(row, cell);
-    } */
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -272,7 +171,7 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
         DataTableSpec inspec = inSpecs[0];
 
         // check if the table contains numeric columns which can describe plateRow and plate Column
-        if (!inspec.containsCompatibleType(IntValue.class))
+        if (!inspec.containsCompatibleType(DoubleValue.class))
             throw new InvalidSettingsException("Input table requires at least one column with integer values");
 
         // no autguessing needed
@@ -322,10 +221,15 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
         // super method
         super.validateSettings(settings);
 
+        // check whether the columns containing plate row and plate column identifier are different
+        if (settings.containsKey(CFG_ROW) && settings.containsKey(CFG_COL)) {
+            if (settings.getString(CFG_ROW).equals(settings.getString(CFG_COL)))
+                throw new InvalidSettingsException("Plate row and plate column identifier cannot be in the same column");
+        }
+
         // test if filename and sheet name are set and can be loaded without errors
         if (settings.containsKey(CFG_FILE) && settings.containsKey(CFG_SHEET)) {
             String filename = settings.getString(CFG_FILE);
-            ;
             String sheet = settings.getString(CFG_SHEET);
 
             loadExcelSheet(filename, sheet);
