@@ -25,7 +25,6 @@ import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoDialog;
 import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
-import org.knime.core.data.date.DateAndTimeValue;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
@@ -79,7 +78,7 @@ public class OutlierRemovalFactory extends NodeFactory<OutlierRemoval> {
                 addDialogComponent(new DialogComponentNumberEdit(createFactor(), "Factor"));
 
                 addDialogComponent(new DialogComponentColumnNameSelection(createGrouping(), "Group measurments by", 0,
-                        new Class[]{StringValue.class, IntValue.class, DateAndTimeValue.class}));
+                        new Class[]{StringValue.class, IntValue.class}));
 
                 addDialogComponent(new DialogComponentColumnFilter(createPropReadoutSelection(), 0, true, new TdsNumericFilter()));
 

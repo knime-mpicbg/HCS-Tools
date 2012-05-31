@@ -31,9 +31,10 @@ import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
 import org.apache.commons.math.stat.StatUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.DoubleValue;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
@@ -93,10 +94,10 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
         List<Attribute> parameter = new ArrayList<Attribute>();
         for (String item : parameterNames.getIncludeList()) {
             Attribute attribute = new InputTableAttribute(item, input);
-            if (attribute.getType().equals(DoubleCell.TYPE)) {
+            if (attribute.getType().isCompatible(DoubleValue.class)) {
                 parameter.add(attribute);
             } else {
-                logger.warn("The parameter '" + attribute.getName() + "' will not be considered for outlier removal, since it is not a DoubleCell type.");
+                logger.warn("The parameter '" + attribute.getName() + "' will not be considered for outlier removal, since it is not compatible to double.");
             }
         }
 
@@ -156,7 +157,15 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
                     for (DataRow row : rowSubset) {
                         int c = 0;
                         for (Attribute column : parameter) {
-                            Double value = (Double) column.getValue(row);
+
+                            DataCell valueCell = row.getCell(((InputTableAttribute) column).getColumnIndex());
+
+                            // a missing value will be treated as data point inside the bounds
+                            if (valueCell.isMissing()) {
+                                continue;
+                            }
+
+                            Double value = ((DoubleValue) valueCell).getDoubleValue();
                             if ((value != null) && (lowerBound[c] <= value) && (value <= upperBound[c])) {
                                 break;
                             } else {
@@ -173,7 +182,16 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
                     for (DataRow row : rowSubset) {
                         int c = 0;
                         for (Attribute column : parameter) {
-                            Double value = (Double) column.getValue(row);
+
+                            DataCell valueCell = row.getCell(((InputTableAttribute) column).getColumnIndex());
+
+                            // a missing value will be treated as data point inside the bounds
+                            if (valueCell.isMissing()) {
+                                c++;
+                                continue;
+                            }
+
+                            Double value = ((DoubleValue) valueCell).getDoubleValue();
                             if ((value != null) && (lowerBound[c] <= value) && (value <= upperBound[c])) {
                                 c++;
                             } else {
