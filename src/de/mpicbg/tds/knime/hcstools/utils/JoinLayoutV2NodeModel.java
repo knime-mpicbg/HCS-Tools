@@ -263,7 +263,7 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
         if (dType.equals(StringCell.TYPE)) {
             cell = (value != null) ? new StringCell(value) : DataType.getMissingCell();
         } else {
-            if (value == null) cell = DataType.getMissingCell();
+            if (value == null || value == "") cell = DataType.getMissingCell();
             else {
                 double numericValue = Double.valueOf(value);
                 if (dType.equals(DoubleCell.TYPE)) cell = new DoubleCell(numericValue);
