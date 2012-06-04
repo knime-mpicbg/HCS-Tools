@@ -1,27 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 
-<knimeNode icon="./excelicon.png" type="Source">
-
+<knimeNode icon="./ExpandPlateBarcode.png" type="Manipulator">
     <name>Expand Barcode</name>
 
     <shortDescription>
-        Expands a barcode columns into its constituents.
+        Expands a barcode column into several columns containing barcode-coded meta information.
     </shortDescription>
 
     <fullDescription>
 
-        <intro>Expands a barcode columns into its constituents (library-code, library-plate-number, project, assay,
-            etc.). It assumes that the input has a text-attribute names 'barcode'.
-
-            For the expansion the node assumes to
+        <intro>
+            <p>
+                This nodes takes a string column and appends the information content of the barcode into several new
+                columns (e.g. library code, library plate number, project code, assay, date, replicate).
+            </p>
+            <p>
+                The node uses a regular expression that tries to match the barcode column. To change the regular
+                expression go to:
+                <br/>
+                KNIME->Preferences->KNIME->HCS-Tools->Barcode patterns
+                <br/>
+                Several regular expressions separated by semicolon can be entered. This is an example:
+                <br/>
+                (?&lt;libplatenumber&gt;[0-9]{3})(?&lt;projectcode&gt;[A-z]{2})(?&lt;date&gt;[0-9]{6})(?&lt;replicate&gt;[A-z]{1})-(?&lt;libcode&gt;[_A-z\d]{3})(?&lt;assay&gt;[-_+\s\w\d]*)
+            </p>
         </intro>
+
+        <option name="Barcode Column">The string column containing barcodes.
+        </option>
 
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="screen">A table with a 'barcode'-attribute.</inPort>
-        <outPort index="0" name="screen">The input with additional columns for the barcode properties.</outPort>
+        <inPort index="0" name="In-Port name">Input table
+        </inPort>
+        <outPort index="0" name="Out-Port name">Input table with additional columns for the barcode properties.
+        </outPort>
     </ports>
 
 </knimeNode>

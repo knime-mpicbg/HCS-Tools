@@ -6,7 +6,7 @@
     <group>
 
         # a) Select thereadout of interest
-        readoutNames =c(<panellistbox label="Respone Variables" items="$$$NUM_ATTRIBUTES$$$" span="full"/>)
+        readoutNames =c(<panellistbox label="Parameters of interest" items="$$$NUM_ATTRIBUTES$$$" span="full"/>)
         readoutIndices = which(names(kIn) %in% readoutNames)
 
         # b) select the grouping attibute for replicates

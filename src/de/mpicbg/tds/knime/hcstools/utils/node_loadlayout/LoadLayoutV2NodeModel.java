@@ -67,12 +67,12 @@ public class LoadLayoutV2NodeModel extends AbstractNodeModel {
 
         LinkedHashMap<String, Class<?>> layoutLabel = excelLayout.getLabels();
 
-        HashMap<Integer, HashMap<Integer, HashMap<String, String>>> layoutMap = excelLayout.getLayout();
+        LinkedHashMap<Integer, LinkedHashMap<Integer, HashMap<String, String>>> layoutMap = excelLayout.getLayout();
 
         int rowIdx = 0;
 
         for (Integer curRow : layoutMap.keySet()) {
-            for (Integer curCol : layoutMap.keySet()) {
+            for (Integer curCol : layoutMap.get(curRow).keySet()) {
                 DataCell[] rowCells = new DataCell[layoutLabel.size() + 2];
 
                 rowCells[0] = new IntCell(curRow);

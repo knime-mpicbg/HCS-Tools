@@ -1,28 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./percent.png" type="Source">
+<knimeNode icon="./default.png" type="Manipulator">
     <name>Normalize Plates (NPI)</name>
 
     <shortDescription>
-        Normalizes by plate using NPI (negative percent inhibition)
+        The node performs a normalized-percent-of-inhibition(NPI)-normalization based on two subsets of the data
+        (positive and negative control).
     </shortDescription>
 
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>
+            <p>
+                Groups of data (e.g. wells of a plates) are normalized relative to two subsets (e.g. some wells within
+                that plate, e.g. some negative
+                control wells and some positive controls wells).
+                For each group the mean (or median) is calculated for the two selected subsets.
+                Based on these estimates, all data points of each group are normalized by applying this formula:
+            </p>
+            <p>
+                x.npi = (x - mean(x[subset{negative}])) / (mean(x[subset{positive}]) - mean(x[subset{negative}])) * 100
+                <br/>
+                or
+                <br/>
+                x.npi = (x - median(x[subset{negative}])) / (median(x[subset{positive}]) - median(x[subset{negative}]))
+                * 100
+            </p>
+            <p>
+                Literature: Malo et al., Nat. Biotechnol. 24, 167-179 (2006)
+                <!--<br/> 
+               <br/>
+               It is possible to normalize without grouping (e.g. normalization of the whole screen based on all negative and positive
+               controls available).-->
+            </p>
+        </intro>
 
-
-        <option name="Replace existing values">If set the normalized entries will be overridden. Otherwise a new
-            attribute with the normalized values is being appended.
+        <option name="Group wells by">Select the column to define the groups (e.g. "barcode" for plate-wise
+            normalization).
         </option>
-        <option name="Positive Control">The positive control to normalize against</option>
-        <option name="Negative Control">The negative control to normalize against</option>
+        <option name="Normalize">Select the columns with data to be normalized.
+        </option>
+        <option name="Subset column / well annotation column">Column with well annotations (e.g. treatment)
+        </option>
+        <option name="Subset / Positive Control">Select a subset that is used to calculate means (medians) of positive
+            controls for each group.
+        </option>
+        <option name="Subset / Negative Control">Select a subset that is used to calculate means (medians) of negative
+            controls for each group.
+        </option>
+        <option name="Use robust statistics">Median will be calculated instead of mean.
+        </option>
+        <option name="Replace existing values">If checked the raw values will be replaced by the normalized values.
+            Otherwise columns with the normalized values will be appended (.npi).
+        </option>
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="In-Port name">A screen</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">The normalized screen</outPort>
-        <!-- possibly more output ports here-->
+        <!-- input -->
+        <inPort index="0" name="In-Port name">Input table</inPort>
+        <!-- output -->
+        <outPort index="0" name="Out-Port name">Table with normalized values</outPort>
     </ports>
 
 </knimeNode>

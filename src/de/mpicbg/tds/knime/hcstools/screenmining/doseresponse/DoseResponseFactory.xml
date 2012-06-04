@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode type="Learner" icon="./ricon.jpg">
+<knimeNode type="Learner" icon="./DoseResponse.png">
     <name>Dose Response</name>
 
     <shortDescription>
@@ -8,31 +8,37 @@
     </shortDescription>
 
     <fullDescription>
-        <intro>Caclulates and visualizes dose repsonse models. This is achieved by fitting several non-linear regression
-            models to your data.
-
-            Measurements from a zero concentration are used to calculate the fit but are not displayed in the plot
-            because of
-            its logarithmic scale.
-
-            For a conceptutal and technical overview have a look at "Bioassay Analysis using R", Ritz and Streibig,
-            2005, 5:12, Journal of Statistical Software.
-
-            As this node is using R as backend, make sure that Rserve is running somewhere, and Knime is accordingly
-            configured (Knime->Preferences).
+        <intro>
+            <p>Caclulates and visualizes dose repsonse curves. This is achieved by fitting several non-linear regression
+                models to your data.
+                <br/>
+                Measurements from a zero concentration are used to calculate the fit but are not displayed in the plot
+                because of its logarithmic scale.
+                <br/>
+                For a conceptutal and technical overview have a look at "Bioassay Analysis using R", Ritz and Streibig,
+                2005, 5:12, Journal of Statistical Software.
+            </p>
+            <p>
+                IMPORTANT :
+                <br/>
+                This node is using R as backend, make sure that Rserve is running somewhere, and Knime is accordingly
+                configured (Knime->Preferences).
+                <a href="https://github.com/knime-mpicbg/knime-scripting/wiki/R-server-for-knime">HCS-Tools Wiki</a>
+            </p>
         </intro>
 
 
-        <!--<option name="short name of first option (like in the dialog)">description of first option</option>-->
-        <!--<option name="short name of second option (like in the dialog)">description of second option</option>-->
-        <option name="Assay parameter of interest">The parameter fow which a dose response anaylis should be carried
+        <option name="Parameters of interest">The assay parameters for which a dose response analysis should be carried
             out.
         </option>
-        <option name="Compound">A grouping attribute to group wells according to replicate or compound</option>
-        <option name="Concentration">The column which contains the concentrations</option>
-        <option name="Plot title">Adds a custom main title to the plot</option>
+        <option name="Compound">A grouping attribute to group wells according to replicate or compound
+        </option>
+        <option name="Concentration">The column which contains the concentrations
+        </option>
+        <option name="Plot title">Adds a custom main title to the plot
+        </option>
 
-        <option name="Regression Model">The folloing models (referrerd to by their abbreviation in the configurioatn
+        <option name="Regression Model">The folloing models (referrerd to their abbreviation in the configuration
             dialog) are supported:
             <ol>
                 <li>LL.3 : Three-parameter logistic</li>
@@ -56,17 +62,18 @@
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="dose response data">A table with dose response data</inPort>
+        <inPort index="0" name="dose response data">A table with dose response data
+        </inPort>
         <outPort index="0" name="parameter table">A table which contains ic50s, model parameters, and error estimates
         </outPort>
-        <outPort index="1" name="model">The model for further analysis</outPort>
+        <outPort index="1" name="model">The model for further analysis
+        </outPort>
 
-        <!--<inPort index="1" name="in2">Another table which should be pushed to R.</inPort>-->
-        <!--<inPort index="2" name="in3">Another table which should be pushed to R.</inPort>-->
     </ports>
 
     <views>
-        <view index="0" name="R-Plot">R-Plot</view>
+        <view index="0" name="R-Plot">R-Plot with dose response curve
+        </view>
     </views>
 
 </knimeNode>

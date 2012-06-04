@@ -108,9 +108,9 @@
               factory-class="de.mpicbg.tds.knime.hcstools.utils.ExpandWellPositionFactory"
               id="de.mpicbg.tds.knime.hcstools.utils.ExpandWellPositionFactory"/>
 
-        <node category-path="/community/hcstools/util"
+        <!-- <node category-path="/community/hcstools/util"
               factory-class="de.mpicbg.tds.knime.hcstools.utils.LoadLayoutFactory"
-              id="de.mpicbg.tds.knime.hcstools.utils.LoadLayoutFactory"/>
+              id="de.mpicbg.tds.knime.hcstools.utils.LoadLayoutFactory"/> -->
 
         <node category-path="/community/hcstools/util"
               factory-class="de.mpicbg.tds.knime.hcstools.utils.node_loadlayout.LoadLayoutV2NodeFactory"

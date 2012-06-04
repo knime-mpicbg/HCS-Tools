@@ -1,28 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./default.png" type="Source">
+
+<knimeNode icon="./LoadLayout.png" type="Manipulator">
     <name>Load Layout</name>
 
     <shortDescription>
-
+        Reads an Excel file containing a plate layout
     </shortDescription>
 
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>
+            <p>
+                The node is dedicated to ease the processing of microscope or plate reader data. It loades meta
+                information
+                and/or layout data from a sheet of an Excel file which follows a specific formatting.
+                The sheet can contain different layers of information (e.g. compound name, compound concentration, ...).
+            </p>
+            <p>
+                The first layer has to start at C5 in the Excel sheet. This position contains the layer name (used as
+                column names in the output
+                table). The next row (starting at D6) contains the plate column numbers (1,2,3,...), while column 5
+                (starting at C7) contains the
+                plate row identifier (A,B,C,... or 1,2,3,...). The dimensions are limited to 1536 well format (32 rows,
+                48 columns).
+                Dimensions have to be the same for all layers. Within the area defined by plate row and column
+                identifiers cells can contain
+                metainformation of different data types (string, double, integer) or left empty.
+                <br/>
+                The next layer starts again with its name in column C with a gap of 2 rows to the previous layer.
+                Each layer will result in a new column of the output table.
+                <br/>
+                <br/>
+                For a screen shot and a download of an example file look here:
+                <a href="https://github.com/knime-mpicbg/HCS-Tools/wiki">HCS-Tools Wiki</a>
+                <br/>
+            </p>
+        </intro>
 
-
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
+        <option name="File">Excel file containing a sheet with the meta information / layout data
+        </option>
+        <option name="Sheet name">Select the name of the sheet
+        </option>
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <outPort index="0" name="plate layout">Plate layout with a certain number of meta data columns
+        </outPort>
     </ports>
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
 </knimeNode>
+

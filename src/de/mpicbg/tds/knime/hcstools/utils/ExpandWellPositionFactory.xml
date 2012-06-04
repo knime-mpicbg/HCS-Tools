@@ -1,33 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 
-<knimeNode icon="./excelicon.png" type="Manipulator">
+<knimeNode icon="./default.png" type="Manipulator">
     <name>Expand Well Position</name>
 
     <shortDescription>
-        Expands a well position column (containing entries like AC14, B3) into two columns named 'plateRow' and
-        'platecolumn'.
+        Expands a well position column (containing entries like B3 or C14) into two columns named 'plateRow' and
+        'plateColumn'.
     </shortDescription>
 
     <fullDescription>
-        <intro>Expands a well position column (containing entries like C12, B3) into two columns named 'plateRow' and
-            'plateColumn'. Additional splitting characters (comma, colons, semicolons, underscore) between the letter
-            and the column number will be ignored.
+        <intro>
+            <p>
+                This node takes a string column containing well positions (like B3 or C14) and appends two integer
+                columns named 'plateRow' and
+                'plateColumn' containing two integer coordinates of the wells (link 2 and 3 or 3 and 14). It handles
+                well positions up to 1536 plate format.
+            </p>
+            <p>
+                Additional splitting characters (comma, colons, semicolons, underscore) between the row letter and the
+                column number will be ignored.
+            </p>
         </intro>
 
-
-        <option name="Well Position">The column which contains well positions encoded as c12, B3</option>
-        <option name="Convert Row Characters">If enabled, the row character (e.g. C) will be converted automatically
-            into a row number (e.g. 3)
+        <option name="Well Position">The column which contains well positions encoded as B3 oc C14
         </option>
-        <option name="Delete Source Column">If enabled, the selected column will be removed and just the expansion
-            columns (plateRow and plateColumn) will be kept.
+        <option name="Convert Row Characters">If enabled, the row character (e.g. B or C) will be converted
+            automatically
+            into a row number (e.g. 2 or 3)
+        </option>
+        <option name="Delete Source Column">If enabled, the selected column will be removed.
         </option>
 
     </fullDescription>
 
     <ports>
-        <outPort index="0" name="data-table">The same table as before but with an expanded well position.</outPort>
+        <inPort index="0" name="In-Port name">Input table with well column
+        </inPort>
+        <outPort index="0" name="Out-Port name">Input table with expanded well position.
+        </outPort>
     </ports>
 
 </knimeNode>

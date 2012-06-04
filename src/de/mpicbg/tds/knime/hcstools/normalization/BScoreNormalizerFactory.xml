@@ -1,28 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./default.png" type="Source">
+<knimeNode icon="./default.png" type="Manipulator">
     <name>Normalize Plates (B-Score)</name>
 
     <shortDescription>
-        Applies B-score normalization to each plate in the input screen.
+        The node performs a B-score normalization.
     </shortDescription>
 
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>
+            <p>
+                Each group will be normalized by applying the B score. The B score algorithm uses an iterative 'median
+                polish' procedure.
+            </p>
+            <p>
+                In brief, the algorithm uses robust plate, row and column estimates to eliminate plate, row and column
+                position biases that result
+                e.g. from egde effects.
+            </p>
+            <p>
+                Literature: Brideau et al., J Biomol Screen 2003; 8; 634, Tukey JW, Exploratory Data Analysis. Reading
+                (MA): Addison-Wesley, 1977.
+            </p>
+            <p>
+                It is possible to normalize without grouping (e.g. normalization of the whole screen based on all
+                negative
+                controls available).
+                Note: The node expects the presence of integer columns named 'plateRow' and 'plateColumn' containing the
+                well position.
+            </p>
+        </intro>
 
-
-        <option name="Replace existing values">If set the normalized entries will be overridden. Otherwise a new
-            attribute with the normalized values is being appended.
+        <option name="Group wells by">Select the column to define the groups (e.g. "barcode" for plate-wise
+            normalization).
         </option>
-        <option name="Reference sample">The reference sample that is used to calculate the normalization coefficients
+        <option name="Normalize">Select the columns with data to be normalized.
+        </option>
+        <option name="Replace existing values">If checked the raw values will be replaced by the normalized values.
+            Otherwise columns with the normalized values will be appended (.bscore).
         </option>
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="In-Port name">A screen</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">The normalized screen</outPort>
-        <!-- possibly more output ports here-->
+        <!-- input -->
+        <inPort index="0" name="In-Port name">Input table</inPort>
+        <!-- output -->
+        <outPort index="0" name="Out-Port name">Table with normalized values</outPort>
     </ports>
 
 </knimeNode>

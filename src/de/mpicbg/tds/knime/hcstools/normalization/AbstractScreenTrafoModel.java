@@ -27,9 +27,9 @@ public abstract class AbstractScreenTrafoModel extends AbstractNodeModel {
     public static final String GROUP_WELLS_BY_DESC = "Group wells by";
 
 
-    public static final String TREATMENT = "Treatment";
-    public static final String TREATMENT_ATTRIBUTE_DESC = "Treatment attribute";
-    public static final String SELECT_TREATMENT_ADVICE = "Select a treatment!";
+    public static final String TREATMENT = "Choose subset(s)";
+    public static final String TREATMENT_ATTRIBUTE_DESC = "Select subset column";
+    public static final String SELECT_TREATMENT_ADVICE = "Select a subset!";
     public static final String TREATMENT_ATTRIBTUTE = "treatment.attribute";
 
     public static final String TREATMENT_LIBRARY = "library";

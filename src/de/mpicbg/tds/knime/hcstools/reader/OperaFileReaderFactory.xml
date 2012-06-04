@@ -1,32 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 
-<knimeNode icon="./excelicon.png" type="Source">
-
+<knimeNode icon="./PerkinElmerLogo.png" type="Source">
     <name>Opera Reader</name>
 
     <shortDescription>
-        Reads a list of Opera '.res'-files into Knime.
+        Reads result files from the Opera
     </shortDescription>
 
     <fullDescription>
 
-        <intro>Reads a list of Opera '.res'-files into Knime. This is done by searching for res-files
-            recursively within the specified directory or by selecting a list of files directly.
+        <intro>
+            <p>
+                This node reads one or multiple result files (.res) of the Opera (PerkinElmer). This is done by
+                searching for '.res'-files
+                recursively within the specified directory or by selecting a list of files directly.
+            </p>
         </intro>
 
-        <option name="Input Files">There are two modes of operation. Either you can choose a single directory in which
-            the nodes will search for Opera files. The search is applied not only to the direct directory contents
-            but also to also its subfolders.
-
-            The second mode is to select a set of files (by keeping the apple/windows-key pressed while selecting
-            files).
+        <option name="Input Files">Select either several files within a directory or
+            a single directory that contains Opera files (subfolders will be used as well).
         </option>
 
     </fullDescription>
 
     <ports>
-        <outPort index="0" name="data-table">The imported opera-plates</outPort>
+        <outPort index="0" name="Opera data">Results from Opera</outPort>
     </ports>
 
 </knimeNode>
