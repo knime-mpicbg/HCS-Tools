@@ -30,6 +30,7 @@ import java.util.Map;
  * The IC50 is a measure of the effectiveness of a compound in inhibiting biological or biochemical function
  *
  * @author Holger Brandl (MPI-CBG)
+ * @deprecated
  */
 public class OldDoseResponseFactory extends HardwiredGenericRPlotNodeFactory {
 

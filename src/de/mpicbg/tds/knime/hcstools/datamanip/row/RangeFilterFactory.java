@@ -31,6 +31,7 @@ import org.knime.core.node.defaultnodesettings.*;
 
 /**
  * @author Felix Meyenhofer (MPI-CBG)
+ * @deprecated
  */
 
 

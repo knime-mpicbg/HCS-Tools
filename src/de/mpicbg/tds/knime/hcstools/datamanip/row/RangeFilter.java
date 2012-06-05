@@ -45,6 +45,7 @@ import java.util.List;
  * Removes outlier rows from a table.
  *
  * @author Felix Meyenhofer
+ * @deprecated
  */
 
 

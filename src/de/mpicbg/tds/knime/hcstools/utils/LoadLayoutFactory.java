@@ -12,6 +12,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
  * @author Holger Brandl (MPI-CBG)
+ * @deprecated
  */
 public class LoadLayoutFactory extends NodeFactory<LoadLayout> {
 

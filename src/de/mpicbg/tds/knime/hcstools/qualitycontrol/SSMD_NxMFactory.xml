@@ -1,39 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./default.png" type="Source">
+<knimeNode icon="./default.png" type="Manipulator">
     <name>SSMD (PC x NC)</name>
 
     <shortDescription>
-        Calculates SSMDs for all combinations of a selection of negative and a selection of positive
+        Calculates SSMDs (strictly standardized mean difference) for all combinations of a selection of negative and a
+        selection of positive
         controls.
     </shortDescription>
 
     <fullDescription>
-        <intro>The output will be a new table that contains SSMDs per plate and selecteed readout for all combinations
-            of a selection of negative and a selection of positive controls.
-
-            A more detailed introduction into SSMDs and the use of robust statistics can be found in
-            "A New Method with Flexible and Balanced Control of False Negatives and False Positives for Hit Selection in
-            RNA Interference High-Throughput Screening Assays, Zhang, 2007, Journal of Biomolecular Screening; 12; 645".
+        <intro>
+            <p>
+                The SSMD (strictly standardized mean difference) is a statistical parameter that describes the quality
+                of an assay or a screening plate.
+                It takes into account the separation and the variabilities of two controls (e.g. positive and negative
+                control wells) and ranges from plus to minus infinity.
+                The SSMD as an alternative to the Z-Prime factor is a bit easier to interpret because it behaves similar
+                as the Z score.
+            </p>
+            <p>
+                For groups of data (e.g. wells of plates) SSMDs are calculated for two selected subsets (e.g. positive
+                and negative control wells of a plate).
+                Multiple positive and negative controls can be selected as subsets and the SSMDs will be calculated for
+                all combinations of these.
+                For each group mean and standard deviation (or median and mad) are calculated for the selected subsets.
+            </p>
+            <p>
+                SSMD = (mean(x[subset{positive}]) - mean(x[subset{negative}])) / sqrt(sd(x[subset{positive}])² +
+                sd(x[subset{negative}])²)
+                <br/>
+                or
+                <br/>
+                SSMD = (median(x[subset{positive}]) - median(x[subset{negative}])) / sqrt(mad(x[subset{positive}])² +
+                mad(x[subset{negative}])²)
+            </p>
+            <p>
+                Literature: Zhang, X., Genomics 89 (2007) 552–561
+                <br/>
+                <a href="http://en.wikipedia.org/wiki/SSMD">Wikipedia: SSMD</a>
+            </p>
         </intro>
 
-
-        <option name="Readouts">Allows to select the readouts for which z-primes will be calcuated</option>
-        <option name="Reference sample">The reference sample that is used to calculate the normalization coefficients
+        <option name="Group wells by">Select the column to define the groups (e.g. "barcode" for plate-wise SSMDs).
+        </option>
+        <option name="Subset column / well annotation column">Column with well annotations (e.g. treatment)
+        </option>
+        <option name="Subset / Positive Control">Select subsets as positive controls for which means and sd (medians and
+            mads) are calculated for each group.
+        </option>
+        <option name="Subset / Negative Control">Select subsets as negative controls for which means and sd (medians and
+            mads) are calculated for each group.
+        </option>
+        <option name="Use robust statistics">Median and mad will be calculated instead of mean and sd.
+        </option>
+        <option name="Include">Select the columns for which SSDMs will be calculated.
         </option>
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="screen">input screen to be QC'ed</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="ssmd">A table containg a row for each plate with all SSMDs as attributes.
-        </outPort>
-        <!-- possibly more output ports here-->
+        <!-- input -->
+        <inPort index="0" name="In-Port name">Input table</inPort>
+        <!-- output -->
+        <outPort index="0" name="Out-Port name">Table with SSMDs</outPort>
     </ports>
-
-    <!--<views>-->
-    <!--<view index="0" name="ScreenExplorer">A heatmap visualization tool</view>-->
-    <!--view index="1" name="name of second view">Description of second view...</view-->
-    <!--</views>-->
 
 </knimeNode>

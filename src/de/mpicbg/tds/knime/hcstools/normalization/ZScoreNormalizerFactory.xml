@@ -1,49 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./ZScoreNormalizer.png" type="Source">
+<knimeNode icon="./ZScoreNormalizer.png" type="Manipulator">
     <name>Normalize Plates (Z-Score)</name>
 
     <shortDescription>
-        The node performs a zscore-normalization.
+        Performs a Z-score normalization based on a subset of the data.
     </shortDescription>
 
     <fullDescription>
         <intro>
-            Groups of data (plates) are normalized relative to a subgroup (some wells within that plate, e.g. negative
-            control).
-            For each group independetly, mean and standard deviation (or median and mad) are calculated from this
-            subgroup.
-            Based on this estimates, all data points (wells) of this group are normalized by applying this formula:
-            <br/>
-            <br/>
-            x.zscore = (x – mean(x[subgroup]))/sd(x[subgroup])
-            <br/>
-            or
-            <br/>
-            x.zscore = (x – median(x[subgroup]))/mad(x[subgroup])
-            <br/>
-            <br/>
-            Literature: Malo et al., Nat. Biotechnol. 24, 167-179 (2006)<br/> 
-            <br/>
-            It's possible to normalize without grouping (e.g. normalization of the whole screen based on all negative
-            controls available).
-            <br/>
-            It's possible to normalize without the selection of a subgroup (e.g. normalization of each plate with the
-            estimates (mean, ...) taken from all wells of this plate.
+            <p>
+                Groups of data (e.g. wells of a plates) are normalized relative to a subset (e.g. some wells within that
+                plate, e.g. negative
+                control).
+                For each group mean and standard deviation (or median and mad) are calculated for the selected subset.
+                Based on these estimates, all data points of a group are normalized by applying this formula:
+            </p>
+            <p>
+                x.zscore = (x – mean(x[subset]))/sd(x[subset])
+                <br/>
+                or
+                <br/>
+                x.zscore = (x – median(x[subset]))/mad(x[subset])
+            </p>
+            <p>
+                Literature: Malo et al., Nat. Biotechnol. 24, 167-179 (2006)
+                <br/>
+                <a href="http://en.wikipedia.org/wiki/Zscore">Wikipedia: Z-score / Standard score</a>
+                <br/>
+                <br/>
+                It is possible to normalize without grouping (e.g. normalization of the whole screen based on all
+                negative
+                controls available).
+            </p>
         </intro>
 
-        <option name="Group by">Select the column according to which the groups are created. (e.g. "barcode" for plate
-            wise normalization). If "No grouping" is selected all rows are used.
+        <option name="Group wells by">Select the column to define the groups (e.g. "barcode" for plate-wise
+            normalization).
         </option>
-        <option name="Normalize">This list contains the column names whose values will be normalized (e.g.
-            measurements)
+        <option name="Normalize">Select the columns with data to be normalized.
         </option>
-        <option name="Subgroup / Well annotation column">Column with well annotations (e.g. treatment)</option>
-        <option name="Subgroup / Selected annotation">All wells with the selected annotation (subgroup) will be used to
-            calculate statistics for each group (e.g. "negative control"). If "No selection" is selected all rows of
-            each group are used to calculate statistics.
+        <option name="Subset column / well annotation column">Column with well annotations (e.g. treatment)
         </option>
-        <option name="Use robust statistics">Median and mad will be calculated instead of mean and sd.</option>
+        <option name="Subset / well annotation">Select a subset that is used to calculate mean and sd (median and mad)
+            for each group (e.g. "negative control").
+        </option>
+        <option name="Use robust statistics">Median and mad will be calculated instead of mean and sd.
+        </option>
         <option name="Replace existing values">If checked the raw values will be replaced by the normalized values.
             Otherwise columns with the normalized values will be appended (.zscore).
         </option>
@@ -51,10 +54,10 @@
 
     <ports>
         <!-- input -->
-        <inPort index="0" name="In-Port name">table (e.g. screen data)</inPort>
+        <inPort index="0" name="In-Port name">Input table</inPort>
         <!-- output -->
-        <outPort index="0" name="Out-Port name">table with normalized values</outPort>
-
+        <outPort index="0" name="Out-Port name">Table with normalized values</outPort>
     </ports>
 
 </knimeNode>
+

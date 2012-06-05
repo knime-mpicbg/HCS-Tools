@@ -1,38 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./default.png" type="Source">
+<knimeNode icon="./default.png" type="Manipulator">
     <name>Z-Primes (PC x NC)</name>
 
     <shortDescription>
-        Calculates z-prime coefficients for all combinations of a selection of negative and a selection of positive
-        controls.
+        The node calculates Z-Prime factors (Z') for all combinations of selected positive and negative controls.
     </shortDescription>
 
     <fullDescription>
-        <intro>The output will be a new table that contains z-primes per plate and selecteed readout.
-
-            A more detailed introduction into Z'-primes and the use of robust statistics can be found in
-            "High-Throughput
-            screening in drug discovery, Hueser, 2006, Wiley".
+        <intro>
+            <p>
+                The Z-Prime factor is a commonly used statistical parameter that describes the quality of an assay or a
+                screening plate.
+                It takes into account the separation and the variabilities of two controls (e.g. positive and negative
+                control wells) and ranges from minus infinity to 1.
+            </p>
+            <p>
+                For groups of data (e.g. wells of plates) Z-Prime factors are calculated for two selected subsets (e.g.
+                positive and negative control wells of a plate).
+                Multiple positive and negative controls can be selected as subsets and the Z-Prime factors will be
+                calculated for all combinations of these.
+                For each group mean and standard deviation (or median and mad) are calculated for the selected subsets.
+            </p>
+            <p>
+                Z' = 1 - 3 * (sd(x[subset{positive}]) + sd(x[subset{negative}])) / |mean(x[subset{positive}]) -
+                mean(x[subset{negative}])|
+                <br/>
+                or
+                <br/>
+                Z' = 1 - 3 * (mad(x[subset{positive}]) + mad(x[subset{negative}])) / |median(x[subset{positive}]) -
+                median(x[subset{negative}])|
+            </p>
+            <p>
+                Literature: Zhang, J. et al., J Biomol Screen 1999; 4; 67
+                <br/>
+                <a href="http://en.wikipedia.org/wiki/Z-factor">Wikipedia: Z-factor</a>
+            </p>
         </intro>
 
-
-        <option name="Readouts">Allows to select the readouts for which z-primes will be calcuated</option>
-        <option name="Reference sample">The reference sample that is used to calculate the normalization coefficients
+        <option name="Group wells by">Select the column to define the groups (e.g. "barcode" for plate-wise Z-Prime
+            factor).
         </option>
+        <option name="Subset column / well annotation column">Column with well annotations (e.g. treatment)
+        </option>
+        <option name="Subset / Positive Control">Select subsets as positive controls for which means and sd (medians and
+            mads) are calculated for each group.
+        </option>
+        <option name="Subset / Negative Control">Select subsets as negative controls for which means and sd (medians and
+            mads) are calculated for each group.
+        </option>
+        <option name="Use robust statistics">Median and mad will be calculated instead of mean and sd.
+        </option>
+        <option name="Include">Select the columns for which Z-Prime factors will be calculated.
+        </option>
+
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="screen">input screen to be QC'ed</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="z-primes">A table containg a row for each plate with all z-primes as attributes.
-        </outPort>
-        <!-- possibly more output ports here-->
+        <!-- input -->
+        <inPort index="0" name="In-Port name">Input table</inPort>
+        <!-- output -->
+        <outPort index="0" name="Out-Port name">Table with Z-Prime factors</outPort>
     </ports>
-
-    <!--<views>-->
-    <!--<view index="0" name="ScreenExplorer">A heatmap visualization tool</view>-->
-    <!--view index="1" name="name of second view">Description of second view...</view-->
-    <!--</views>-->
 
 </knimeNode>

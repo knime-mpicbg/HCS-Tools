@@ -20,6 +20,7 @@ import java.util.Map;
  * This is the model implementation of ExcelWriter.
  *
  * @author Holger Brandl (MPI-CBG)
+ * @deprecated
  */
 public class JoinLayout extends LoadLayout {
 

@@ -17,6 +17,7 @@ import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoMode
 
 /**
  * @author Holger Brandl (MPI-CBG)
+ * @deprecated
  */
 public class ZPrimesFactory extends NodeFactory<ZPrimes> {
 

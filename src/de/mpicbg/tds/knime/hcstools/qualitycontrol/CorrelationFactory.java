@@ -18,6 +18,7 @@ import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoMode
 
 /**
  * @author Felix Meyenhofer (MPI-CBG)
+ * @deprecated
  */
 public class CorrelationFactory extends NodeFactory<Correlation> {
 

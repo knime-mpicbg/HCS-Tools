@@ -31,6 +31,7 @@ import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoMode
  * @author Felix Meyenhofer
  *         <p/>
  *         initial set.
+ * @deprecated
  */
 
 public class Correlation extends AbstractNodeModel {

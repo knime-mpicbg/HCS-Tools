@@ -10,6 +10,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentString;
 
 /**
  * @author Holger Brandl (MPI-CBG)
+ * @deprecated
  */
 public class JoinLayoutFactory extends NodeFactory<JoinLayout> {
 

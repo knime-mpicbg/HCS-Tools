@@ -60,9 +60,9 @@
 
 
         <!--quality control-->
-        <node category-path="/community/hcstools/qc"
+        <!-- <node category-path="/community/hcstools/qc"
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesFactory"
-              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesFactory"/>
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesFactory"/> -->
 
         <node category-path="/community/hcstools/qc"
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesNxMFactory"
@@ -72,9 +72,9 @@
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.CVCalculatorFactory"
               id="de.mpicbg.tds.knime.hcstools.qualitycontrol.CVCalculatorFactory"/>
 
-        <node category-path="/community/hcstools/qc"
+        <!-- <node category-path="/community/hcstools/qc"
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMDFactory"
-              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMDFactory"/>
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMDFactory"/> -->
 
         <node category-path="/community/hcstools/qc"
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMD_NxMFactory"
@@ -84,9 +84,9 @@
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.MultivariateZPrimesFactory"
               id="de.mpicbg.tds.knime.hcstools.qualitycontrol.MultivariateZPrimesFactory"/>
 
-        <node category-path="/community/hcstools/qc"
+        <!-- <node category-path="/community/hcstools/qc"
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.CorrelationFactory"
-              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.CorrelationFactory"/>
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.CorrelationFactory"/> -->
 
 
         <!--screen mining-->
