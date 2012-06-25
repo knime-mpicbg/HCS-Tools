@@ -129,8 +129,8 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
         BufferedDataTable inTable = inData[0];
         DataTableSpec inSpec = inTable.getDataTableSpec();
 
-        plateRowIdx = inSpec.findColumnIndex(((SettingsModelString) getModelSetting(CFG_COL)).getStringValue());
-        plateColumnIdx = inSpec.findColumnIndex(((SettingsModelString) getModelSetting(CFG_ROW)).getStringValue());
+        plateRowIdx = inSpec.findColumnIndex(((SettingsModelString) getModelSetting(CFG_ROW)).getStringValue());
+        plateColumnIdx = inSpec.findColumnIndex(((SettingsModelString) getModelSetting(CFG_COL)).getStringValue());
 
         validateExcelFile();
 
