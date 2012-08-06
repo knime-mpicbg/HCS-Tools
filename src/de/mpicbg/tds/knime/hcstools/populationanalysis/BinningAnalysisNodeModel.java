@@ -119,7 +119,7 @@ public class BinningAnalysisNodeModel extends AbstractNodeModel {
                 String label = null;
                 if (hasRefColumn) {
                     DataCell labelCell = row.getCell(refIdx);
-                    if (!aggCell.isMissing()) label = ((StringCell) labelCell).getStringValue();
+                    if (!labelCell.isMissing()) label = ((StringCell) labelCell).getStringValue();
                 }
 
                 DataCell valueCell = row.getCell(colIdx);
