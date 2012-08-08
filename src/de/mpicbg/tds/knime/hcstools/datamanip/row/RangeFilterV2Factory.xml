@@ -48,6 +48,10 @@
         <option name="Matching rows">"Include": Rows will be kept if they match the filter criteria.
             "Exclude": Rows will be kept if they do not match the filter criteria.
         </option>
+        <option name="Do missing values match?">"Yes": Missing values will be handled like values within the given
+            range.
+            "No": Missing values will be handled like values outside the given range.
+        </option>
         <option name="Parameter">Column filter to select the parameters where the values are checked to lie inside the
             defined range.
         </option>

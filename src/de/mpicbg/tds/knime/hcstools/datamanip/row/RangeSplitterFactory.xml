@@ -45,6 +45,10 @@
             "at least one value is in range": Rows will be kept where at least one value of the chosen columns is within
             the given range.
         </option>
+        <option name="Do missing values match?">"Yes": Missing values will be handled like values within the given
+            range.
+            "No": Missing values will be handled like values outside the given range.
+        </option>
         <option name="Parameter">Column filter to select the parameters where the values are checked to lie inside the
             defined range.
         </option>
