@@ -19,6 +19,8 @@ import org.apache.commons.math.linear.RealMatrix;
  * <p/>
  * BScore:
  * Bscore(ij) = residual(ij) / mad(residuals(plate))
+ * <p/>
+ * TODO: remove exception from constructor, try to throw at a later timepoint
  *
  * @author Holger Brandl, Antje Niederlein
  */
@@ -33,7 +35,7 @@ public class BScore {
     double grandEffect;
 
     // TODO: add Mad-Factor as parameter
-    public BScore(RealMatrix matrix, double madFactor) {
+    public BScore(RealMatrix matrix, double madFactor) throws MadStatistic.IllegalMadFactorException {
         // initialize
         residualMatrix = matrix;
         original = matrix.copy();
@@ -51,7 +53,7 @@ public class BScore {
      * @param madFactor
      * @return median absolute deviation of the residuals
      */
-    private double calcResidualMAD(double madFactor) {
+    private double calcResidualMAD(double madFactor) throws MadStatistic.IllegalMadFactorException {
 
         ExtDescriptiveStats stats = new ExtDescriptiveStats();
         stats.setMadImpl(new MadStatistic(madFactor));
@@ -174,7 +176,12 @@ public class BScore {
         Array2DRowRealMatrix inMatrix = new Array2DRowRealMatrix(new double[][]{{99, 108, 105, 98, 100, 101},
                 {71, 79, 83, 70, 84, 80}, {100, 104, 92, 102, 99, 98}, {81, 75, 80, 82, 77, 78}});
 
-        BScore bScore = new BScore(inMatrix, MadStatistic.MAD_GAUSS_FACTOR);
+        BScore bScore = null;
+        try {
+            bScore = new BScore(inMatrix, MadStatistic.MAD_GAUSS_FACTOR);
+        } catch (MadStatistic.IllegalMadFactorException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
         System.err.println("value is " + bScore.get(1, 2));
         System.err.println("mpolish " + bScore.residualMatrix.toString());
     }

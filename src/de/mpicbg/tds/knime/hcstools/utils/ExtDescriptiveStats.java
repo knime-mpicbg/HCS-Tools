@@ -20,6 +20,9 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class ExtDescriptiveStats extends DescriptiveStatistics {
 
+    public static final String WARN_NOT_ENOUGH_MEAN_SAMPLES = "too few samples for mean / median estimation";
+    public static final String WARN_NOT_ENOUGH_SD_SAMPLES = "too few samples for sd / mad estimation";
+
     /**
      * Median absolute deviation implementation - can be reset by setter.
      */
@@ -51,11 +54,12 @@ public class ExtDescriptiveStats extends DescriptiveStatistics {
     /**
      * @return median absolute deviation; dependent on PercentileImpl and MadImpl
      */
-    public double getMad() {
+    public double getMad() throws MadStatistic.IllegalMadFactorException {
         //calculate the median and set the value for the MAD calculation
         double median = getPercentile(50);
         if (madImpl instanceof MadStatistic) {
             ((MadStatistic) madImpl).setMedian(median);
+            ((MadStatistic) madImpl).checkMadFactor();
         } else {
             try {
                 madImpl.getClass().getMethod("setMedian", new Class[]{Double.TYPE}).invoke(madImpl,
@@ -87,7 +91,12 @@ public class ExtDescriptiveStats extends DescriptiveStatistics {
             stats.addValue(vec[i]);
 
         double median = stats.getMedian();
-        double mad = stats.getMad();
+        double mad = 0;
+        try {
+            mad = stats.getMad();
+        } catch (MadStatistic.IllegalMadFactorException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         System.out.println("Median: " + median);
         System.out.println("Mad: " + mad);

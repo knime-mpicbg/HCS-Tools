@@ -25,6 +25,11 @@
 
     <extension point="org.knime.workbench.repository.nodes">
 
+        <!-- experimental -->
+        <node category-path="/community/hcstools/experimental"
+              factory-class="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_zscore.ZScoreNormalizerNodeFactory"
+              id="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_zscore.ZScoreNormalizerNodeFactory"/>
+
         <!--normalization-->
         <node category-path="/community/hcstools/normalization"
               factory-class="de.mpicbg.tds.knime.hcstools.normalization.POCNormalizerFactory"
@@ -203,6 +208,7 @@
         <category icon="resources/hcstoolsicon.png" level-id="hcstools" name="HCS Tools" path="/community"/>
         <category level-id="qc" name="Quality Control" path="/community/hcstools"/>
         <category level-id="normalization" name="Normalization" path="/community/hcstools"/>
+        <category level-id="experimental" name="Experimental" path="/community/hcstools"/>
         <!--<category level-id="transformation" name="Transformation" path="/community/hcstools"/>  -->
         <category level-id="screenmining" name="Screen Mining" path="/community/hcstools"/>
         <category level-id="io" name="IO" path="/community/hcstools"/>

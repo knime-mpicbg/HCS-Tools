@@ -35,28 +35,38 @@
             </p>
         </intro>
 
-        <option name="Group wells by">Select the column to define the groups (e.g. "barcode" for plate-wise
+        <option name="Aggregate object data by">Select the column to define the groups (e.g. "barcode" for plate-wise
             normalization).
         </option>
         <option name="Normalize">Select the columns with data to be normalized.
         </option>
-        <option name="Subset column / well annotation column">Column with well annotations (e.g. treatment)
+        <option name="Column with reference label">Select the column which contains the label defining the reference
+            subset (e.g. treatment)
         </option>
-        <option name="Subset / well annotation">Select a subset that is used to calculate mean and sd (median and mad)
+        <option name="Subset / well annotation">Select a subset label that is used to calculate mean and sd (median and
+            mad)
             for each group (e.g. "negative control").
+        </option>
+        <option name="Replace existing values">If checked the raw values will be replaced by the normalized values.
+            Otherwise columns with the normalized values will be appended - ".(zscore)"
         </option>
         <option name="Use robust statistics">Median and mad will be calculated instead of mean and sd.
         </option>
-        <option name="Replace existing values">If checked the raw values will be replaced by the normalized values.
-            Otherwise columns with the normalized values will be appended (.zscore).
+        <option name="Column suffix">The default column suffix ".(zscore)" can be changed</option>
+        <option name="Load a limited number of columns">If big data tables create memory problems, the number of columns
+            read in memory
+            (subset data) can be restricted. Then, statistic calculation will be done sequential for each set with the
+            given number of columns.
         </option>
+
     </fullDescription>
 
     <ports>
         <!-- input -->
-        <inPort index="0" name="In-Port name">Input table</inPort>
+        <inPort index="0" name="Raw data">Input table</inPort>
         <!-- output -->
-        <outPort index="0" name="Out-Port name">Table with normalized values</outPort>
+        <outPort index="0" name="Normalized data">Table with normalized values</outPort>
+        <outPort index="1" name="Statistic">Table with statistics used for normalization</outPort>
     </ports>
 
 </knimeNode>

@@ -46,7 +46,12 @@ public class AttributeStatistics {
 
         ensureMinDispersionSamples(statistics.getN(), attribute);
 
-        return statistics.getMad();
+        try {
+            return statistics.getMad();
+        } catch (MadStatistic.IllegalMadFactorException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return Double.NaN;
     }
 
 

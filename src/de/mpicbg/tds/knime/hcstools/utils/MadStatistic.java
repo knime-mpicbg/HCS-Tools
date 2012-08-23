@@ -105,6 +105,11 @@ public class MadStatistic implements UnivariateStatistic {
         this.median = median;
     }
 
+    public void checkMadFactor() throws IllegalMadFactorException {
+        if (m_madFactor <= 0)
+            throw new IllegalMadFactorException("MAD scaling factor has to be greater than 0 (see preference settings)");
+    }
+
 
     public static void main(String[] args) {
         double values[] = {0.63365672, 0.73697871, 0.59948635, 0.99698017, 0.18938888,
@@ -118,10 +123,20 @@ public class MadStatistic implements UnivariateStatistic {
         for (int i = 0; i < values.length; i++)
             stats.addValue(values[i]);
 
-        double mad = stats.getMad();
+        double mad = 0;
+        try {
+            mad = stats.getMad();
+        } catch (IllegalMadFactorException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
         System.out.println("Mad: " + mad);
     }
 
 
+    public class IllegalMadFactorException extends Exception {
+        public IllegalMadFactorException(String e) {
+            super(e);
+        }
+    }
 }
