@@ -35,9 +35,11 @@
             outside a given range.
         </intro>
 
-        <option name="Lower Bound">Number defining the lower limit of the possible parameter value range
+        <option name="Lower Bound">Number defining the lower limit of the possible parameter value range.
+            If the checkbox is unchecked, -Infinity is used as lower bound.
         </option>
-        <option name="Upper Bound">Number defining the upper limit of the possible parameter value range
+        <option name="Upper Bound">Number defining the upper limit of the possible parameter value range.
+            If the checkbox is unchecked, +Infinity is used as upper bound.
         </option>
         <option name="Rows match if">
             "values are in range for all columns": Rows will be kept where all values of the chosen columns are within

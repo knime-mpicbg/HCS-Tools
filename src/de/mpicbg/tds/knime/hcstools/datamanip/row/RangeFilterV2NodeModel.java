@@ -14,10 +14,7 @@ import de.mpicbg.tds.knime.knutils.RangeRowFilter;
 import de.mpicbg.tds.knime.knutils.RowMultiFilterIterator;
 import org.knime.base.node.preproc.filter.row.RowFilterIterator;
 import org.knime.base.node.preproc.filter.row.rowfilter.RowFilter;
-import org.knime.core.data.DataCell;
-import org.knime.core.data.DataRow;
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
+import org.knime.core.data.*;
 import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -29,6 +26,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class RangeFilterV2NodeModel extends AbstractNodeModel {
@@ -57,20 +55,32 @@ public class RangeFilterV2NodeModel extends AbstractNodeModel {
 
     public RangeFilterV2NodeModel(int outPorts) {
         super(1, outPorts, true);
-        initializeSettings();
+        initializeSettings(outPorts);
     }
 
-    private void initializeSettings() {
+    private void initializeSettings(int outPorts) {
         this.addModelSetting(CFG_PARAMS, createParameterFilterSetting());
         this.addModelSetting(CFG_LOWER, createLowerBoundSetting());
         this.addModelSetting(CFG_UPPER, createUpperBoundSetting());
         this.addModelSetting(CFG_MATCH, createFilterRuleMatchSetting());
-        this.addModelSetting(CFG_INCLUDE, createFilterRuleIncludeSetting());
+        // only add this setting for the range filter but not for the range splitter
+        if (outPorts == 1) this.addModelSetting(CFG_INCLUDE, createFilterRuleIncludeSetting());
         this.addModelSetting(CFG_MISSING, createFilterRuleMissingSetting());
     }
 
     @Override
     protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
+        //check whether there are any numeric columns available (boolean columns are not allowed)
+        boolean numericColumns = false;
+        Iterator i = inSpecs[0].iterator();
+        while (!numericColumns && i.hasNext()) {
+            DataColumnSpec cspec = (DataColumnSpec) i.next();
+            DataType type = cspec.getType();
+            if (type.isCompatible(DoubleValue.class) && !type.isCompatible(BooleanValue.class)) numericColumns = true;
+        }
+        if (!numericColumns)
+            throw new InvalidSettingsException("input table requires at least one numeric column (Double or Integer)");
+
         return new DataTableSpec[]{inSpecs[0]};
     }
 
@@ -107,8 +117,10 @@ public class RangeFilterV2NodeModel extends AbstractNodeModel {
         String missing = ((SettingsModelString) getModelSetting(CFG_MISSING)).getStringValue();
         boolean missingValuesMatch = missing.equals(FILTER_RULE_MISSING[0]);
         List<String> selColumns = ((SettingsModelFilterString) getModelSetting(CFG_PARAMS)).getIncludeList();
+
         Double minRange = ((SettingsModelDouble) getModelSetting(CFG_LOWER)).getDoubleValue();
         Double maxRange = ((SettingsModelDouble) getModelSetting(CFG_UPPER)).getDoubleValue();
+
 
         // initialize range filters
         List<RowFilter> rangeFilterList = initRangeFilters(inputSpec, selColumns, minRange, maxRange, missingValuesMatch);
