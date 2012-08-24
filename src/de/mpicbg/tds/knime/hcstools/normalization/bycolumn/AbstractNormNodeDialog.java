@@ -2,7 +2,6 @@ package de.mpicbg.tds.knime.hcstools.normalization.bycolumn;
 
 import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.data.*;
-import org.knime.core.data.StringValue;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -46,7 +45,7 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
     protected void createControls() {
         refStringSM = AbstractNormNodeModel.createRefStringSM();
         refStringDC = getRefStringDC();
-        refColumnDC = getRefColumnDC(0, true, true);
+        refColumnDC = getRefColumnDC(0, false, true);
 
         procOptSM = null;
         useProcOptSM = null;
@@ -72,8 +71,8 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
         if (!inSpec.containsCompatibleType(DoubleValue.class))
             throw new NotConfigurableException("input table requires at least one numeric column (Double or Integer)");
         // TODO: string columns are not needed?
-        if (!inSpec.containsCompatibleType(StringValue.class))
-            throw new NotConfigurableException("input table requires at least one column with nominal values (String)");
+        // if (!inSpec.containsCompatibleType(StringValue.class))
+        //    throw new NotConfigurableException("input table requires at least one column with nominal values (String)");
 
         try {
             String refColumn;

@@ -1,4 +1,4 @@
-package de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_zscore;
+package de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_poc;
 
 import de.mpicbg.tds.knime.hcstools.HCSToolsBundleActivator;
 import de.mpicbg.tds.knime.hcstools.normalization.bycolumn.AbstractNormNodeModel;
@@ -32,14 +32,14 @@ import java.util.*;
  * Date: 8/8/12
  * Time: 11:39 AM
  */
-public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
+public class PocNormalizerNodeModel extends AbstractNormNodeModel {
 
     /**
      * constructor with two ouput ports
      */
-    public ZScoreNormalizerNodeModel() {
+    public PocNormalizerNodeModel() {
         super(2);
-        CFG_SUFFIX_DFT = ".(z-score)";
+        CFG_SUFFIX_DFT = ".(poc)";
         initializeSettings();
     }
 
@@ -87,20 +87,21 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
 
         columnSpecList.add(uniqueNames.newCreator("column name", StringCell.TYPE).createSpec());
         columnSpecList.add(uniqueNames.newCreator(useRobustStats ? "median" : "mean", DoubleCell.TYPE).createSpec());
-        columnSpecList.add(uniqueNames.newCreator(useRobustStats ? "median absolute deviation" : "standard deviation", DoubleCell.TYPE).createSpec());
+
         columnSpecList.add(uniqueNames.newCreator("n", IntCell.TYPE).createSpec());
         columnSpecList.add(uniqueNames.newCreator("n missing", IntCell.TYPE).createSpec());
 
         DataColumnSpec[] columnSpecArray = new DataColumnSpec[columnSpecList.size()];
         columnSpecArray = columnSpecList.toArray(columnSpecArray);
 
-        return new DataTableSpec("Z-score Statistics", columnSpecArray);
+        return new DataTableSpec("POC Statistics", columnSpecArray);
     }
 
     /**
      * @param inSpecs
      * @return
-     * @throws InvalidSettingsException
+     * @throws org.knime.core.node.InvalidSettingsException
+     *
      */
     @Override
     protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
@@ -108,7 +109,7 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
 
         checkForNumericColumns(inSpec);
         //TODO: neccessary?
-        //checkForNominalColumns(inSpec);
+        // checkForNominalColumns(inSpec);
 
         runAutoGuessing(inSpec);
 
@@ -184,11 +185,12 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
 
         BufferedDataContainer statContainer = createNodeStatisticTable(exec, inSpec, refString, hasAggColumn, hasRefColumn);
 
+
         // create KNIME table with normalized values
         ColumnRearranger columnRearranger = createColumnRearranger(inSpec);
-        BufferedDataTable zScoreTable = exec.createColumnRearrangeTable(inTable, columnRearranger, exec);
+        BufferedDataTable pocTable = exec.createColumnRearrangeTable(inTable, columnRearranger, exec);
 
-        return new BufferedDataTable[]{zScoreTable, statContainer.getTable()};
+        return new BufferedDataTable[]{pocTable, statContainer.getTable()};
     }
 
     /**
@@ -196,7 +198,7 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
      *
      * @param data
      * @param useRobustStats
-     * @throws MadStatistic.IllegalMadFactorException
+     * @throws de.mpicbg.tds.knime.hcstools.utils.MadStatistic.IllegalMadFactorException
      *
      */
     private void calculateStatistics(HashMap<String, HashMap<String, List<Double>>> data, boolean useRobustStats) throws MadStatistic.IllegalMadFactorException {
@@ -204,12 +206,10 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
         // get preference data
         IPreferenceStore prefStore = HCSToolsBundleActivator.getDefault().getPreferenceStore();
         int minSamplesMean = prefStore.getInt(HCSToolsPreferenceInitializer.MIN_SAMPLE_NUMBER_FOR_MEANS);
-        int minSamplesSd = prefStore.getInt(HCSToolsPreferenceInitializer.MIN_SAMPLE_NUMBER_FOR_DISPERSION);
         double madScalingFactor = prefStore.getDouble(HCSToolsPreferenceInitializer.MAD_SCALING_FACTOR);
 
         // group, list of warnings
         HashMap<String, StringBuilder> meanWarnings = new HashMap<String, StringBuilder>();
-        HashMap<String, StringBuilder> sdWarnings = new HashMap<String, StringBuilder>();
 
         //iterate over groups
         for (String curGroup : data.keySet()) {
@@ -229,11 +229,6 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
                         meanWarnings.put(curGroup, new StringBuilder(curColumn + "(" + n + ")"));
                     else meanWarnings.get(curGroup).append(", " + curColumn + "(" + n + ")");
                 }
-                if (!stats.hasEnoughSamples(minSamplesSd)) {
-                    if (!sdWarnings.containsKey(curGroup))
-                        sdWarnings.put(curGroup, new StringBuilder(curColumn + "(" + n + ")"));
-                    else sdWarnings.get(curGroup).append(", " + curColumn + "(" + n + ")");
-                }
 
                 statisticTable.get(curGroup).put(curColumn, stats);
             }
@@ -241,27 +236,27 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
             // throw warnings
             if (meanWarnings.containsKey(curGroup))
                 createWarning(curGroup, ExtDescriptiveStats.WARN_NOT_ENOUGH_MEAN_SAMPLES, meanWarnings.get(curGroup), minSamplesMean, n);
-            if (sdWarnings.containsKey(curGroup))
-                createWarning(curGroup, ExtDescriptiveStats.WARN_NOT_ENOUGH_SD_SAMPLES, sdWarnings.get(curGroup), minSamplesSd, n);
         }
     }
 
+
     /**
-     * calculate the z-score by using the previously calculated statistic
+     * calculate the poc by using the previously calculated statistic
      *
      * @param value
      * @param aggString
      * @param column
-     * @return zscore
+     * @return poc
      */
+    @Override
     protected double evaluate(Double value, String aggString, String column) {
-        double zscore = Double.NaN;
+        double poc = Double.NaN;
         if (statisticTable.containsKey(aggString))
             if (statisticTable.get(aggString).containsKey(column)) {
                 NormalizationStats stats = statisticTable.get(aggString).get(column);
-                zscore = (value - stats.getMean_median()) / stats.getSd_mad();
+                poc = value / stats.getMean_median() * 100.0;
             }
-        return zscore;
+        return poc;
     }
 
     @Override
@@ -286,10 +281,6 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
                 if (Double.isNaN(mean)) cellList.add(DataType.getMissingCell());
                 else cellList.add(new DoubleCell(mean));
 
-                double sd = stat.get(curColumn).getSd_mad();
-                if (Double.isNaN(sd)) cellList.add(DataType.getMissingCell());
-                else cellList.add(new DoubleCell(stat.get(curColumn).getSd_mad()));
-
                 cellList.add(new IntCell(stat.get(curColumn).getnSamples()));
 
                 cellList.add(new IntCell(stat.get(curColumn).getnMissing()));
@@ -302,6 +293,4 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
         statContainer.close();
         return statContainer;
     }
-
-
 }

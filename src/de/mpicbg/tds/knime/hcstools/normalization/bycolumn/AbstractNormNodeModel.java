@@ -4,9 +4,12 @@ import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
 import org.knime.core.data.*;
 import org.knime.core.data.StringValue;
+import org.knime.core.data.container.AbstractCellFactory;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.StringCell;
+import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
@@ -14,6 +17,7 @@ import org.knime.core.node.defaultnodesettings.*;
 import org.knime.core.util.UniqueNameGenerator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,6 +57,20 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
 
     // model setting default which is set in each implementation class
     protected static String CFG_SUFFIX_DFT;
+
+
+    /**
+     * stores statistik for each group; <group, <parameter, statistic>>
+     */
+    protected HashMap<String, HashMap<String, NormalizationStats>> statisticTable;
+
+    // index of aggregation column and reference column
+    protected int aggIdx;
+    protected int refIdx;
+    /**
+     * list of parameter sets (see processing options) and their column index
+     */
+    protected List<HashMap<String, Integer>> columnList;
 
     /**
      * constructor (allows one input port but multiple ouput ports)
@@ -103,6 +121,8 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
      */
     protected abstract DataTableSpec createOutSpecStats(DataTableSpec inSpec);
 
+    protected abstract double evaluate(Double value, String aggString, String column);
+
     /**
      * checks, if input specs do contain numeric columns (all columns compatible to double except boolean
      *
@@ -140,20 +160,45 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
      * @param inSpec
      */
     protected void autoGuessAggreagtionColumn(DataTableSpec inSpec) {
-        // auto guess aggregation column if default not available
-        SettingsModelString aggColumn = ((SettingsModelString) getModelSetting(CFG_AGGR));
-        if (aggColumn.getStringValue() != null && !inSpec.containsName(aggColumn.getStringValue())) {
-            Iterator<DataColumnSpec> it = inSpec.iterator();
-            while (it.hasNext()) {
-                DataColumnSpec cSpec = it.next();
-                if (cSpec.getType().isCompatible(StringValue.class)) {
-                    aggColumn.setStringValue(cSpec.getName());
-                    addModelSetting(CFG_AGGR, aggColumn);
-                    setWarningMessage("Auto-Guessing aggregation column. Please check configuration settings before execution");
-                    return;
-                }
+
+        SettingsModelString aggColumnSM = ((SettingsModelString) getModelSetting(CFG_AGGR));
+        String aggColumn = aggColumnSM.getStringValue();
+
+        // no autoguessing ... if no aggregation column has been selected
+        if (aggColumn == null) return;
+        if (inSpec.containsName(aggColumn)) {
+            // ... if aggregation column exists and is of type nominal
+            if (inSpec.getColumnSpec(aggColumn).getType().isCompatible(NominalValue.class)) return;
+        }
+
+        // autoguess
+        Iterator<DataColumnSpec> it = inSpec.iterator();
+        String guessedColumn = null;
+        while (it.hasNext() && guessedColumn == null) {
+            DataColumnSpec cSpec = it.next();
+            if (cSpec.getType().isCompatible(NominalValue.class)) {
+                guessedColumn = cSpec.getName();
             }
         }
+
+        aggColumnSM.setStringValue(guessedColumn);
+        addModelSetting(CFG_AGGR, aggColumnSM);
+        setWarningMessage("Auto-Guessing aggregation column. Please check configuration settings before execution");
+
+        // auto guess aggregation column if default or previously selected not available
+//        SettingsModelString aggColumn = ((SettingsModelString) getModelSetting(CFG_AGGR));
+//        if (aggColumn.getStringValue() != null && !inSpec.containsName(aggColumn.getStringValue())) {
+//            Iterator<DataColumnSpec> it = inSpec.iterator();
+//            while (it.hasNext()) {
+//                DataColumnSpec cSpec = it.next();
+//                if (cSpec.getType().isCompatible(StringValue.class)) {
+//                    aggColumn.setStringValue(cSpec.getName());
+//                    addModelSetting(CFG_AGGR, aggColumn);
+//                    setWarningMessage("Auto-Guessing aggregation column. Please check configuration settings before execution");
+//                    return;
+//                }
+//            }
+//        }
     }
 
     /**
@@ -245,6 +290,20 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
     }
 
     /**
+     * throws a warning if the number of data points is less then required for statistics calculation (set in HCSTools preferences)
+     *
+     * @param group
+     * @param message
+     * @param columns
+     * @param minSamples
+     * @param n
+     */
+    protected void createWarning(String group, String message, StringBuilder columns, int minSamples, long n) {
+        //logger.warn("Group \"" + group + "\" (Columns - " + columns + ")\n " + message + " (required: " + minSamples + ")");
+        logger.warn("Group \"" + group + "\": " + message + "\nrequired: " + minSamples + ", available: " + columns);
+    }
+
+    /**
      * @return settings model for replacing values
      */
     public static SettingsModelBoolean createReplaceValuesSM() {
@@ -305,5 +364,128 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
      */
     public static SettingsModelBoolean createUseProcessingOptionsSM() {
         return new SettingsModelBoolean(CFG_USEOPT, CFG_USEOPT_DFT);
+    }
+
+    protected void createColumnList(DataTableSpec inSpec, List<String> inclColumns, boolean useOpt, int procOpt) {
+        //put parameters and their index to process at once into a list of hashmaps
+        columnList = new ArrayList<HashMap<String, Integer>>();
+        HashMap<String, Integer> subList = new HashMap<String, Integer>();
+        if (useOpt) {
+            for (int i = 0; i < inclColumns.size(); i++) {
+                String col = inclColumns.get(i);
+                int colIdx = inSpec.findColumnIndex(col);
+                if (i % procOpt == 0 && i > 0) {
+                    columnList.add(subList);
+                    subList = new HashMap<String, Integer>();
+                    subList.put(col, colIdx);
+                } else {
+                    subList.put(col, colIdx);
+                }
+            }
+            columnList.add(subList); // add last list (might contain less entries)
+        } else {
+            for (String col : inclColumns) {
+                subList.put(col, inSpec.findColumnIndex(col));
+            }
+            columnList.add(subList);
+        }
+    }
+
+    protected abstract BufferedDataContainer createNodeStatisticTable(ExecutionContext exec, DataTableSpec inSpec, String refString, boolean hasAggColumn, boolean hasRefColumn);
+
+    protected HashMap<String, HashMap<String, List<Double>>> extractReferenceData(BufferedDataTable inTable, String refString, boolean hasAggColumn, boolean hasRefColumn, HashMap<String, Integer> curList) {
+        // reference data: group, parameter, values
+        HashMap<String, HashMap<String, List<Double>>> refData = new HashMap<String, HashMap<String, List<Double>>>();
+
+        // iterate over the table
+        for (DataRow row : inTable) {
+            DataCell aggCell = null;
+            DataCell refCell = null;
+
+            //current group string
+            String curGroup = null;
+            boolean isReference = false;
+
+            if (hasAggColumn) {
+                aggCell = row.getCell(aggIdx);
+                curGroup = (aggCell.isMissing()) ? null : ((StringCell) aggCell).getStringValue();
+            }
+            if (hasRefColumn) {
+                refCell = row.getCell(refIdx);
+                isReference = (!refCell.isMissing() && ((StringValue) refCell).getStringValue().equals(refString));
+            }
+
+            // iterate over columns
+            for (String curColumn : curList.keySet()) {
+
+                if (!refData.containsKey(curGroup)) {
+                    HashMap<String, List<Double>> subData = new HashMap<String, List<Double>>();
+                    refData.put(curGroup, subData);
+                }
+                if (!refData.get(curGroup).containsKey(curColumn)) {
+                    List<Double> doubleList = new ArrayList<Double>();
+                    refData.get(curGroup).put(curColumn, doubleList);
+                }
+
+                DataCell valueCell = row.getCell(curList.get(curColumn));
+                if (hasRefColumn && isReference || !hasRefColumn) {
+                    Double value = valueCell.isMissing() ? Double.NaN : ((DoubleValue) valueCell).getDoubleValue();
+                    refData.get(curGroup).get(curColumn).add(value);
+                }
+
+            }
+        } // finish iteration over the table
+        return refData;
+    }
+
+    /**
+     * cell factory class for table with normalized values
+     */
+    protected class NormalizerCellFactory extends AbstractCellFactory {
+        public NormalizerCellFactory(DataColumnSpec[] cSpecArray) {
+            super(cSpecArray);
+        }
+
+        @Override
+        public DataCell[] getCells(DataRow dataRow) {
+
+            // get settings
+            List<String> inclColumns = ((SettingsModelFilterString) getModelSetting(CFG_COLUMN_SELECTION)).getIncludeList();
+            boolean hasAggColumn = (aggIdx >= 0);
+
+            List<DataCell> cellList = new ArrayList<DataCell>();
+
+            // create a single column map from list of column maps
+            HashMap<String, Integer> colList = new HashMap<String, Integer>();
+            for (HashMap<String, Integer> subList : columnList) {
+                colList.putAll(subList);
+            }
+
+            // iterate over columns
+            for (String curColumn : inclColumns) {
+                // get the value cell and the aggregation cell (if set)
+                DataCell valueCell = dataRow.getCell(colList.get(curColumn));
+                DataCell aggCell = null;
+                // if value cell is missing, then the normalized value is also missing
+                if (valueCell.isMissing()) cellList.add(DataType.getMissingCell());
+                else {
+                    String aggString = null;
+                    if (hasAggColumn) {
+                        aggCell = dataRow.getCell(aggIdx);
+                        if (!aggCell.isMissing()) aggString = ((StringValue) aggCell).getStringValue();
+                    }
+                    Double value = ((DoubleValue) valueCell).getDoubleValue();
+                    Double normValue = evaluate(value, aggString, curColumn);
+                    // return a missing value if the normalization returned NaN (sd = 0 or n(ref) = 0)
+                    if (normValue.isNaN()) cellList.add(DataType.getMissingCell());
+                    else cellList.add(new DoubleCell(normValue));
+                }
+            }
+
+            DataCell[] cellArray = new DataCell[cellList.size()];
+            cellArray = cellList.toArray(cellArray);
+
+            return cellArray;
+        }
     }
 }
