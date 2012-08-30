@@ -1,6 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_zscore;
 
 import de.mpicbg.tds.knime.hcstools.normalization.bycolumn.AbstractNormNodeDialog;
+import de.mpicbg.tds.knime.hcstools.normalization.bycolumn.AbstractNormNodeModel;
 
 /**
  * Node dialog class for ZScore Normalization node
@@ -25,7 +26,7 @@ public class ZScoreNormalizerNodeDialog extends AbstractNormNodeDialog {
         createNewGroup("");
 
         addDialogComponent(refColumnDC);
-        addDialogComponent(refStringDC);
+        addDialogComponent(refStringDCList.get(AbstractNormNodeModel.CFG_REFSTRING));
         closeCurrentGroup();
 
         createNewGroup("");

@@ -39,7 +39,7 @@ public class PocNormalizerNodeModel extends AbstractNormNodeModel {
      */
     public PocNormalizerNodeModel() {
         super(2);
-        CFG_SUFFIX_DFT = ".(poc)";
+        CFG_SUFFIX_DFT = ".poc";
         initializeSettings();
     }
 
@@ -51,7 +51,7 @@ public class PocNormalizerNodeModel extends AbstractNormNodeModel {
         addModelSetting(AbstractNormNodeModel.CFG_AGGR, AbstractNormNodeModel.createAggregationSM());
         addModelSetting(AbstractNormNodeModel.CFG_COLUMN_SELECTION, AbstractNormNodeModel.createColumnFilterSM());
         addModelSetting(AbstractNormNodeModel.CFG_REFCOLUMN, AbstractNormNodeModel.createRefColumnSM());
-        addModelSetting(AbstractNormNodeModel.CFG_REFSTRING, AbstractNormNodeModel.createRefStringSM());
+        addModelSetting(AbstractNormNodeModel.CFG_REFSTRING, AbstractNormNodeModel.createRefStringSM(CFG_REFSTRING));
         addModelSetting(AbstractNormNodeModel.CFG_REPLACE_VALUES, AbstractNormNodeModel.createReplaceValuesSM());
         addModelSetting(AbstractNormNodeModel.CFG_ROBUST_STATS, AbstractNormNodeModel.createRobustStatsSM());
         addModelSetting(AbstractNormNodeModel.CFG_SUFFIX, AbstractNormNodeModel.createSuffixSM());
@@ -183,7 +183,7 @@ public class PocNormalizerNodeModel extends AbstractNormNodeModel {
             calculateStatistics(refData, useRobustStats);
         }
 
-        BufferedDataContainer statContainer = createNodeStatisticTable(exec, inSpec, refString, hasAggColumn, hasRefColumn);
+        BufferedDataContainer statContainer = createNodeStatisticTable(exec, inSpec, hasAggColumn, hasRefColumn);
 
 
         // create KNIME table with normalized values
@@ -260,8 +260,9 @@ public class PocNormalizerNodeModel extends AbstractNormNodeModel {
     }
 
     @Override
-    protected BufferedDataContainer createNodeStatisticTable(ExecutionContext exec, DataTableSpec inSpec, String refString, boolean hasAggColumn, boolean hasRefColumn) {
+    protected BufferedDataContainer createNodeStatisticTable(ExecutionContext exec, DataTableSpec inSpec, boolean hasAggColumn, boolean hasRefColumn) {
         // create KNIME table of statistics
+        String refString = ((SettingsModelString) getModelSetting(CFG_REFSTRING)).getStringValue();
         BufferedDataContainer statContainer = exec.createDataContainer(createOutSpecStats(inSpec), true);
         int curRowIdx = 1;
         for (String curGroup : statisticTable.keySet()) {

@@ -11,10 +11,7 @@ import org.knime.core.node.util.ColumnFilter;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Abstract class provides methods to create the node dialog for normalization nodes
@@ -26,12 +23,15 @@ import java.util.Set;
  */
 public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
     // Combobox which shows the domain values of a selected reference column
-    protected DialogComponentStringSelection refStringDC;
+    //protected DialogComponentStringSelection refStringDC;
     // Combobox which offers the selection of the reference column
     protected DialogComponentColumnNameSelection refColumnDC;
 
     // settings model of the reference string
-    protected SettingsModelString refStringSM;
+    //protected SettingsModelString refStringSM;
+
+    protected HashMap<String, DialogComponentStringSelection> refStringDCList;
+    protected HashMap<String, SettingsModelString> refStringSMList;
 
     // settings model of number of columns to process at once
     private static SettingsModelNumber procOptSM;
@@ -43,13 +43,37 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
      */
     @Override
     protected void createControls() {
-        refStringSM = AbstractNormNodeModel.createRefStringSM();
-        refStringDC = getRefStringDC();
-        refColumnDC = getRefColumnDC(0, false, true);
+        init("subset by:", false, true);
+    }
+
+    protected void createControls(String refLabel, boolean refColumnRequired, boolean refColumnNone) {
+        init(refLabel, refColumnRequired, refColumnNone);
+    }
+
+    private void init(String refLabel, boolean refColumnrequired, boolean refColumnNone) {
+
+        refStringDCList = new HashMap<String, DialogComponentStringSelection>();
+        refStringSMList = new HashMap<String, SettingsModelString>();
+
+        //refStringSM = AbstractNormNodeModel.createRefStringSM(AbstractNormNodeModel.CFG_REFSTRING);
+        addRefStringSM(AbstractNormNodeModel.CFG_REFSTRING, AbstractNormNodeModel.createRefStringSM(AbstractNormNodeModel.CFG_REFSTRING));
+        //refStringDC = getRefStringDC(refStringSM, refLabel);
+        addRefStringDC(AbstractNormNodeModel.CFG_REFSTRING, getRefStringDC(refStringSMList.get(AbstractNormNodeModel.CFG_REFSTRING), refLabel));
+
+        refColumnDC = getRefColumnDC(0, refColumnrequired, refColumnNone);
 
         procOptSM = null;
         useProcOptSM = null;
     }
+
+    protected void addRefStringDC(String key, DialogComponentStringSelection refStringDC) {
+        refStringDCList.put(key, refStringDC);
+    }
+
+    protected void addRefStringSM(String key, SettingsModelString refStringSM) {
+        refStringSMList.put(key, refStringSM);
+    }
+
 
     /**
      * creates the tab to enable processing options
@@ -81,10 +105,16 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
                 refColumn = settings.getString(AbstractNormNodeModel.CFG_REFCOLUMN);
                 this.setFirstTableSpecs(specs[0]);
                 updateSubsetSelector(refColumn);
-                boolean componentEnables = refStringSM.isEnabled();
+
+                for (String key : refStringDCList.keySet()) {
+                    boolean componentEnables = refStringSMList.get(key).isEnabled();
+                    refStringDCList.get(key).loadSettingsFrom(settings, specs);
+                    refStringSMList.get(key).setEnabled(componentEnables);
+                }
+                //boolean componentEnables = refStringSM.isEnabled();
                 // reload the setting of the component and restore enabled/disabled property
-                refStringDC.loadSettingsFrom(settings, specs);
-                refStringSM.setEnabled(componentEnables);
+                //refStringDC.loadSettingsFrom(settings, specs);
+                //refStringSM.setEnabled(componentEnables);
             }
         } catch (InvalidSettingsException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -112,14 +142,22 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
                             domainList.add(((StringCell) value).getStringValue());
                         }
                         Collections.sort(domainList);
-                        refStringDC.replaceListItems(domainList, domainList.get(0));
-                        refStringSM.setEnabled(true);
+                        for (String key : refStringDCList.keySet()) {
+                            refStringDCList.get(key).replaceListItems(domainList, domainList.get(0));
+                            refStringSMList.get(key).setEnabled(true);
+                        }
+                        //refStringDC.replaceListItems(domainList, domainList.get(0));
+                        //refStringSM.setEnabled(true);
                     }
                 }
             } else {
                 domainList.add("");
-                refStringDC.replaceListItems(domainList, domainList.get(0));
-                refStringSM.setEnabled(false);
+                for (String key : refStringDCList.keySet()) {
+                    refStringDCList.get(key).replaceListItems(domainList, domainList.get(0));
+                    refStringSMList.get(key).setEnabled(false);
+                }
+                //refStringDC.replaceListItems(domainList, domainList.get(0));
+                //refStringSM.setEnabled(false);
             }
         }
     }
@@ -172,7 +210,7 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
      */
     @SuppressWarnings("unchecked")
     protected static DialogComponentColumnNameSelection getAggregationDC(int specIndex, boolean isRequired, boolean addNoneCol) {
-        return new DialogComponentColumnNameSelection(AbstractNormNodeModel.createAggregationSM(), "Aggregate object data by", specIndex,
+        return new DialogComponentColumnNameSelection(AbstractNormNodeModel.createAggregationSM(), "Aggregate data by", specIndex,
                 isRequired, addNoneCol, new Class[]{org.knime.core.data.StringValue.class});
     }
 
@@ -209,8 +247,8 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
      * @return dialog component for reference population string
      */
     @SuppressWarnings("unchecked")
-    protected DialogComponentStringSelection getRefStringDC() {
-        return new DialogComponentStringSelection(refStringSM, "subset by:", "");
+    protected DialogComponentStringSelection getRefStringDC(SettingsModelString settingsModel, String label) {
+        return new DialogComponentStringSelection(settingsModel, label, "");
     }
 
     /**

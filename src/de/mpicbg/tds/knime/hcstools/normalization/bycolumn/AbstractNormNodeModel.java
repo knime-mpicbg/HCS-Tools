@@ -142,17 +142,6 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
             throw new InvalidSettingsException("input table requires at least one numeric column (Double or Integer)");
     }
 
-    /**
-     * checks if input specs do contain nominal value columns
-     *
-     * @param inSpec
-     * @throws InvalidSettingsException
-     */
-    protected void checkForNominalColumns(DataTableSpec inSpec) throws InvalidSettingsException {
-        if (!inSpec.containsCompatibleType(NominalValue.class))
-            throw new InvalidSettingsException("input table requires " +
-                    "at least one column with nominal values (String)");
-    }
 
     /**
      * if no valid model setting value is available for the aggregation, it will be guessed from spec and setting will be updated
@@ -341,8 +330,8 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
     /**
      * @return settings model for reference population string
      */
-    public static SettingsModelString createRefStringSM() {
-        return new SettingsModelString(CFG_REFSTRING, null);
+    public static SettingsModelString createRefStringSM(String key) {
+        return new SettingsModelString(key, null);
     }
 
     /**
@@ -391,7 +380,7 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
         }
     }
 
-    protected abstract BufferedDataContainer createNodeStatisticTable(ExecutionContext exec, DataTableSpec inSpec, String refString, boolean hasAggColumn, boolean hasRefColumn);
+    protected abstract BufferedDataContainer createNodeStatisticTable(ExecutionContext exec, DataTableSpec inSpec, boolean hasAggColumn, boolean hasRefColumn);
 
     protected HashMap<String, HashMap<String, List<Double>>> extractReferenceData(BufferedDataTable inTable, String refString, boolean hasAggColumn, boolean hasRefColumn, HashMap<String, Integer> curList) {
         // reference data: group, parameter, values

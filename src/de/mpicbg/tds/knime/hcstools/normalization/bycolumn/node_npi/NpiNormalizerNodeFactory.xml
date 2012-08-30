@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./NpiNormalizer.png" type="Manipulator">
+    <name>Normalize Plates (NPI)</name>
+
+    <shortDescription>
+        The node performs a percent-of-control(POC)-normalization based on a subset of the data.
+    </shortDescription>
+
+    <fullDescription>
+        <intro>
+            <p>
+                Groups of data (e.g. wells of a plates) are normalized relative to a subset (e.g. some wells within that
+                plate, e.g. negative
+                control).
+                For each group the mean (or median) is calculated for the selected subset.
+                Based on this estimate, all data points of each group are normalized by applying this formula:
+            </p>
+            <p>
+                x.poc = x / mean(x[subset]) * 100
+                <br/>
+                or
+                <br/>
+                x.poc = x / median(x[subset]) * 100
+            </p>
+            <p>
+                Literature: Malo et al., Nat. Biotechnol. 24, 167-179 (2006)
+                <!--<br/> 
+              <br/>
+              It is possible to normalize without grouping (e.g. normalization of the whole screen based on all negative
+              controls available). -->
+            </p>
+        </intro>
+
+        <option name="Aggregate object data by">Select the column to define the groups (e.g. "barcode" for plate-wise
+            normalization).
+        </option>
+        <option name="Normalize">Select the columns with data to be normalized.
+        </option>
+        <option name="Column with reference label">Select the column which contains the label defining the reference
+            subset (e.g. treatment)
+        </option>
+        <option name="Subset / well annotation">Select a subset that is used to calculate mean (median) for each group
+            (e.g. "negative control").
+        </option>
+        <option name="Replace existing values">If checked the raw values will be replaced by the normalized values.
+            Otherwise columns with the normalized values will be appended - ".(poc)"
+        </option>
+        <option name="Use robust statistics">Median will be calculated instead of mean.
+        </option>
+        <option name="Column suffix">The default column suffix ".(poc)" can be changed</option>
+        <option name="Load a limited number of columns">If big data tables create memory problems, the number of columns
+            read in memory
+            (subset data) can be restricted. Then, statistic calculation will be done sequential for each set with the
+            given number of columns.
+        </option>
+
+    </fullDescription>
+
+    <ports>
+        <!-- input -->
+        <inPort index="0" name="Raw data">Input table</inPort>
+        <!-- output -->
+        <outPort index="0" name="Normalized data">Table with normalized values</outPort>
+        <outPort index="1" name="Statistic">Table with statistics used for normalization</outPort>
+    </ports>
+
+</knimeNode>
+

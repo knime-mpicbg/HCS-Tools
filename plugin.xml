@@ -30,6 +30,14 @@
               factory-class="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_zscore.ZScoreNormalizerNodeFactory"
               id="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_zscore.ZScoreNormalizerNodeFactory"/>
 
+        <node category-path="/community/hcstools/experimental"
+              factory-class="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_poc.PocNormalizerNodeFactory"
+              id="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_poc.PocNormalizerNodeFactory"/>
+
+        <node category-path="/community/hcstools/experimental"
+              factory-class="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_npi.NpiNormalizerNodeFactory"
+              id="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_npi.NpiNormalizerNodeFactory"/>
+
         <!--normalization-->
         <node category-path="/community/hcstools/normalization"
               factory-class="de.mpicbg.tds.knime.hcstools.normalization.POCNormalizerFactory"
@@ -206,21 +214,73 @@
 
     <extension point="org.knime.workbench.repository.categories">
         <category icon="resources/hcstoolsicon.png" level-id="hcstools" name="HCS Tools" path="/community"/>
-        <category level-id="qc" name="Quality Control" path="/community/hcstools"/>
-        <category level-id="normalization" name="Normalization" path="/community/hcstools"/>
+        <category
+                icon="resources/category_qc.png"
+                level-id="qc"
+                name="Quality Control"
+                path="/community/hcstools"/>
+        <category
+                icon="resources/category_normalization.png"
+                level-id="normalization"
+                name="Normalization"
+                path="/community/hcstools"/>
         <category level-id="experimental" name="Experimental" path="/community/hcstools"/>
         <!--<category level-id="transformation" name="Transformation" path="/community/hcstools"/>  -->
-        <category level-id="screenmining" name="Screen Mining" path="/community/hcstools"/>
-        <category level-id="io" name="IO" path="/community/hcstools"/>
-        <category level-id="util" name="Utilities" path="/community/hcstools"/>
-        <category level-id="view" name="Data Views" path="/community/hcstools"/>
-        <category level-id="manipulation" name="Data Manipulation" path="/community/hcstools"/>
-        <category level-id="column" name="Column" path="/community/hcstools/manipulation"/>
-        <category level-id="row" name="Row" path="/community/hcstools/manipulation"/>
-        <category level-id="filter" name="Filter" path="/community/hcstools/manipulation/row"/>
-        <category level-id="split+combine" name="Split &amp; Combine" path="/community/hcstools/manipulation/column"/>
-        <category level-id="prepro" name="Pre-Processing" path="/community/hcstools/"/>
-        <category level-id="populationanalysis" name="Population analysis" path="/community/hcstools/"/>
+        <category
+                icon="resources/category_learner.gif"
+                level-id="screenmining"
+                name="Screen Mining"
+                path="/community/hcstools"/>
+        <category
+                icon="resources/category_io.png"
+                level-id="io"
+                name="IO"
+                path="/community/hcstools"/>
+        <category
+                icon="resources/category_utils.png"
+                level-id="util"
+                name="Utilities"
+                path="/community/hcstools"/>
+        <category
+                icon="resources/categtory_views.png"
+                level-id="view"
+                name="Data Views"
+                path="/community/hcstools"/>
+        <category
+                icon="resources/category_transform.gif"
+                level-id="manipulation"
+                name="Data Manipulation"
+                path="/community/hcstools"/>
+        <category
+                icon="resources/category_column.png"
+                level-id="column"
+                name="Column"
+                path="/community/hcstools/manipulation"/>
+        <category
+                icon="resources/category_row.png"
+                level-id="row"
+                name="Row"
+                path="/community/hcstools/manipulation"/>
+        <category
+                icon="resources/category_filter.png"
+                level-id="filter"
+                name="Filter"
+                path="/community/hcstools/manipulation/row"/>
+        <category
+                icon="resources/category_Split_combine.png"
+                level-id="split+combine"
+                name="Split &amp; Combine"
+                path="/community/hcstools/manipulation/column"/>
+        <category
+                icon="resources/category_preprocessing.png"
+                level-id="prepro"
+                name="Pre-Processing"
+                path="/community/hcstools/"/>
+        <category
+                icon="resources/category_population_analysis.png"
+                level-id="populationanalysis"
+                name="Population analysis"
+                path="/community/hcstools/"/>
 
         <!--add the view components directly to the view-category -->
         <!--<category level-id="screening" name="Screening" path="/view"/>-->
