@@ -34,23 +34,32 @@
             </p>
         </intro>
 
-        <option name="Group wells by">Select the column to define the groups (e.g. "barcode" for plate-wise
+        <option name="Aggregate object data by">Select the column to define the groups (e.g. "barcode" for plate-wise
             normalization).
         </option>
         <option name="Normalize">Select the columns with data to be normalized.
         </option>
-        <option name="Subset column / well annotation column">Column with well annotations (e.g. treatment)
+        <option name="Column with reference label">Select the column which contains the label defining the reference
+            subsets (e.g. treatment)
         </option>
-        <option name="Subset / Positive Control">Select a subset that is used to calculate means (medians) of positive
-            controls for each group.
+        <option name="Positive control">Select a subset label as positive control that is used to calculate mean and sd
+            (median and
+            mad) for each group.
         </option>
-        <option name="Subset / Negative Control">Select a subset that is used to calculate means (medians) of negative
-            controls for each group.
-        </option>
-        <option name="Use robust statistics">Median will be calculated instead of mean.
+        <option name="Negative control">Select a subset label as negative control that is used to calculate mean and sd
+            (median and
+            mad) for each group.
         </option>
         <option name="Replace existing values">If checked the raw values will be replaced by the normalized values.
-            Otherwise columns with the normalized values will be appended (.npi).
+            Otherwise columns with the normalized values will be appended - ".npi"
+        </option>
+        <option name="Use robust statistics">Median and mad will be calculated instead of mean and sd.
+        </option>
+        <option name="Column suffix">The default column suffix ".(zscore)" can be changed</option>
+        <option name="Load a limited number of columns">If big data tables create memory problems, the number of columns
+            read in memory
+            (subset data) can be restricted. Then, statistic calculation will be done sequential for each set with the
+            given number of columns.
         </option>
     </fullDescription>
 

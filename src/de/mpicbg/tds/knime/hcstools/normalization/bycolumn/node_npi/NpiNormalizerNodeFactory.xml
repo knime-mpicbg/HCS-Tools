@@ -4,31 +4,33 @@
     <name>Normalize Plates (NPI)</name>
 
     <shortDescription>
-        The node performs a percent-of-control(POC)-normalization based on a subset of the data.
+        The node performs a normalized-percent-of-inhibition(NPI)-normalization based on two subsets of the data
+        (positive and negative control).
     </shortDescription>
 
     <fullDescription>
         <intro>
             <p>
-                Groups of data (e.g. wells of a plates) are normalized relative to a subset (e.g. some wells within that
-                plate, e.g. negative
-                control).
-                For each group the mean (or median) is calculated for the selected subset.
-                Based on this estimate, all data points of each group are normalized by applying this formula:
+                Groups of data (e.g. wells of a plates) are normalized relative to two subsets (e.g. some wells within
+                that plate, e.g. some negative
+                control wells and some positive controls wells).
+                For each group the mean (or median) is calculated for the two selected subsets.
+                Based on these estimates, all data points of each group are normalized by applying this formula:
             </p>
             <p>
-                x.poc = x / mean(x[subset]) * 100
+                x.npi = (mean(x[subset{positive}]) - x) / (mean(x[subset{positive}]) - mean(x[subset{negative}]))
                 <br/>
                 or
                 <br/>
-                x.poc = x / median(x[subset]) * 100
+                x.npi = (median(x[subset{positive}]) - x) / (median(x[subset{positive}]) - median(x[subset{negative}]))
             </p>
             <p>
                 Literature: Malo et al., Nat. Biotechnol. 24, 167-179 (2006)
-                <!--<br/> 
-              <br/>
-              It is possible to normalize without grouping (e.g. normalization of the whole screen based on all negative
-              controls available). -->
+                <br/> 
+                <br/>
+                It is possible to normalize without grouping (e.g. normalization of the whole screen based on all
+                negative and positive
+                controls available).
             </p>
         </intro>
 
@@ -48,7 +50,7 @@
         </option>
         <option name="Use robust statistics">Median will be calculated instead of mean.
         </option>
-        <option name="Column suffix">The default column suffix ".(poc)" can be changed</option>
+        <option name="Column suffix">The default column suffix ".npi" can be changed</option>
         <option name="Load a limited number of columns">If big data tables create memory problems, the number of columns
             read in memory
             (subset data) can be restricted. Then, statistic calculation will be done sequential for each set with the

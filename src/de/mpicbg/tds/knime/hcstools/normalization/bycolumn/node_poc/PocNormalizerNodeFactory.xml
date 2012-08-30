@@ -44,11 +44,11 @@
             (e.g. "negative control").
         </option>
         <option name="Replace existing values">If checked the raw values will be replaced by the normalized values.
-            Otherwise columns with the normalized values will be appended - ".(poc)"
+            Otherwise columns with the normalized values will be appended - ".poc"
         </option>
         <option name="Use robust statistics">Median will be calculated instead of mean.
         </option>
-        <option name="Column suffix">The default column suffix ".(poc)" can be changed</option>
+        <option name="Column suffix">The default column suffix ".poc" can be changed</option>
         <option name="Load a limited number of columns">If big data tables create memory problems, the number of columns
             read in memory
             (subset data) can be restricted. Then, statistic calculation will be done sequential for each set with the

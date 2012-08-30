@@ -48,11 +48,11 @@
             for each group (e.g. "negative control").
         </option>
         <option name="Replace existing values">If checked the raw values will be replaced by the normalized values.
-            Otherwise columns with the normalized values will be appended - ".(zscore)"
+            Otherwise columns with the normalized values will be appended - ".zscore"
         </option>
         <option name="Use robust statistics">Median and mad will be calculated instead of mean and sd.
         </option>
-        <option name="Column suffix">The default column suffix ".(zscore)" can be changed</option>
+        <option name="Column suffix">The default column suffix ".zscore" can be changed</option>
         <option name="Load a limited number of columns">If big data tables create memory problems, the number of columns
             read in memory
             (subset data) can be restricted. Then, statistic calculation will be done sequential for each set with the
