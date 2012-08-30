@@ -53,12 +53,7 @@
 
         <node category-path="/community/hcstools/normalization"
               factory-class="de.mpicbg.tds.knime.hcstools.normalization.BScoreNormalizerFactory"
-              id="de.mpicbg.tds.knime.hcstools.normalization.BScoreNormalizerFactory"/>
-
-        <!--transformation-->
-        <!--<node category-path="/community/hcstools/transformation"
-              factory-class="de.mpicbg.tds.knime.hcstools.transformation.BoxCoxTransformFactory"
-              id="de.mpicbg.tds.knime.hcstools.transformation.BoxCoxTransformFactory"/> -->
+              id="de.mpicbg.tds.knime.hcstools.normalization.BScoreNormalizerFactory"/
 
         <!--row normalization -->
         <node category-path="/community/hcstools/normalization"
@@ -72,11 +67,6 @@
               id="de.mpicbg.tds.knime.hcstools.visualization.ScreenExplorerFactory"/>
 
 
-        <!--quality control-->
-        <!-- <node category-path="/community/hcstools/qc"
-              factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesFactory"
-              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesFactory"/> -->
-
         <node category-path="/community/hcstools/qc"
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesNxMFactory"
               id="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesNxMFactory"/>
@@ -85,10 +75,6 @@
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.CVCalculatorFactory"
               id="de.mpicbg.tds.knime.hcstools.qualitycontrol.CVCalculatorFactory"/>
 
-        <!-- <node category-path="/community/hcstools/qc"
-              factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMDFactory"
-              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMDFactory"/> -->
-
         <node category-path="/community/hcstools/qc"
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMD_NxMFactory"
               id="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMD_NxMFactory"/>
@@ -96,10 +82,6 @@
         <node category-path="/community/hcstools/qc"
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.MultivariateZPrimesFactory"
               id="de.mpicbg.tds.knime.hcstools.qualitycontrol.MultivariateZPrimesFactory"/>
-
-        <!-- <node category-path="/community/hcstools/qc"
-              factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.CorrelationFactory"
-              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.CorrelationFactory"/> -->
 
 
         <!--screen mining-->
@@ -121,17 +103,9 @@
               factory-class="de.mpicbg.tds.knime.hcstools.utils.ExpandWellPositionFactory"
               id="de.mpicbg.tds.knime.hcstools.utils.ExpandWellPositionFactory"/>
 
-        <!-- <node category-path="/community/hcstools/util"
-              factory-class="de.mpicbg.tds.knime.hcstools.utils.LoadLayoutFactory"
-              id="de.mpicbg.tds.knime.hcstools.utils.LoadLayoutFactory"/> -->
-
         <node category-path="/community/hcstools/util"
               factory-class="de.mpicbg.tds.knime.hcstools.utils.node_loadlayout.LoadLayoutV2NodeFactory"
               id="de.mpicbg.tds.knime.hcstools.utils.node_loadlayout.LoadLayoutV2NodeFactory"/>
-
-        <!-- <node category-path="/community/hcstools/util"
-              factory-class="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutFactory"
-              id="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutFactory"/ -->
 
         <node category-path="/community/hcstools/util"
               factory-class="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutV2NodeFactory"
@@ -181,10 +155,6 @@
               factory-class="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterColumnCombinerFactory"
               id="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterColumnCombinerFactory"/>
 
-        <!--<node category-path="/community/hcstools/manipulation/row/filter"
-              factory-class="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterFactory"
-              id="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterFactory"/>   -->
-
         <node category-path="/community/hcstools/manipulation/row/filter"
               factory-class="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterV2Factory"
               id="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterV2Factory"/>
@@ -225,7 +195,6 @@
                 name="Normalization"
                 path="/community/hcstools"/>
         <category level-id="experimental" name="Experimental" path="/community/hcstools"/>
-        <!--<category level-id="transformation" name="Transformation" path="/community/hcstools"/>  -->
         <category
                 icon="resources/category_learner.gif"
                 level-id="screenmining"
