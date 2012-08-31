@@ -121,6 +121,13 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
                     "at least one column with nominal values (String) and a domain of at least two values");
     }
 
+    /**
+     * search in the table specs for a nominal column with at least two domain values, which is different from the given column
+     *
+     * @param inSpec
+     * @param columnName
+     * @return
+     */
     private String getPossibleReferenceColumn(DataTableSpec inSpec, String columnName) {
         Iterator<DataColumnSpec> iterator = inSpec.iterator();
         String nominalColumn = null;
@@ -189,6 +196,12 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
         autoGuessColumnSelection(inSpec);
     }
 
+    /**
+     * try to find a reference column (nominal with at least two domain values different from the aggregation column)
+     * autoguess and update the selected reference strings
+     *
+     * @param inSpec
+     */
     private void autoGuessReferenceColumnNoNone(DataTableSpec inSpec) {
         SettingsModelString refColumnSM = ((SettingsModelString) getModelSetting(CFG_REFCOLUMN));
         String refColumn = refColumnSM.getStringValue();
@@ -347,11 +360,20 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
                 NormalizationStats statsPos = statisticTablePos.get(aggString).get(column);
                 double diff = (statsPos.getMean_median() - stats.getMean_median());
                 if (diff != 0)
-                    npi = (statsPos.getMean_median() - value) / diff;
+                    npi = (statsPos.getMean_median() - value) / diff * 100.0;
             }
         return npi;
     }
 
+    /**
+     * creates the statistic output table of the node
+     *
+     * @param exec
+     * @param inSpec
+     * @param hasAggColumn
+     * @param hasRefColumn
+     * @return
+     */
     @Override
     protected BufferedDataContainer createNodeStatisticTable(ExecutionContext exec, DataTableSpec inSpec, boolean hasAggColumn, boolean hasRefColumn) {
         // create KNIME table of statistics
@@ -366,6 +388,17 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
         return statContainer;
     }
 
+    /**
+     * statistic table is filled with the statistic of the given statisticTable
+     *
+     * @param refString
+     * @param hasAggColumn
+     * @param hasRefColumn
+     * @param statContainer
+     * @param curRowIdx
+     * @param statTable
+     * @return
+     */
     private int fillContainer(String refString, boolean hasAggColumn, boolean hasRefColumn, BufferedDataContainer statContainer, int curRowIdx, HashMap<String, HashMap<String, NormalizationStats>> statTable) {
         for (String curGroup : statTable.keySet()) {
             HashMap<String, NormalizationStats> stat = statTable.get(curGroup);

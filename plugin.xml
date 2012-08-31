@@ -26,19 +26,21 @@
     <extension point="org.knime.workbench.repository.nodes">
 
         <!-- experimental -->
-        <node category-path="/community/hcstools/experimental"
+
+        <!--normalization-->
+        <node category-path="/community/hcstools/normalization"
               factory-class="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_zscore.ZScoreNormalizerNodeFactory"
               id="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_zscore.ZScoreNormalizerNodeFactory"/>
 
-        <node category-path="/community/hcstools/experimental"
+        <node category-path="/community/hcstools/normalization"
               factory-class="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_poc.PocNormalizerNodeFactory"
               id="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_poc.PocNormalizerNodeFactory"/>
 
-        <node category-path="/community/hcstools/experimental"
+        <node category-path="/community/hcstools/normalization"
               factory-class="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_npi.NpiNormalizerNodeFactory"
               id="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_npi.NpiNormalizerNodeFactory"/>
 
-        <!--normalization-->
+        <!--
         <node category-path="/community/hcstools/normalization"
               factory-class="de.mpicbg.tds.knime.hcstools.normalization.POCNormalizerFactory"
               id="de.mpicbg.tds.knime.hcstools.normalization.POCNormalizerFactory"/>
@@ -50,10 +52,11 @@
         <node category-path="/community/hcstools/normalization"
               factory-class="de.mpicbg.tds.knime.hcstools.normalization.ZScoreNormalizerFactory"
               id="de.mpicbg.tds.knime.hcstools.normalization.ZScoreNormalizerFactory"/>
+        -->
 
         <node category-path="/community/hcstools/normalization"
               factory-class="de.mpicbg.tds.knime.hcstools.normalization.BScoreNormalizerFactory"
-              id="de.mpicbg.tds.knime.hcstools.normalization.BScoreNormalizerFactory"/
+              id="de.mpicbg.tds.knime.hcstools.normalization.BScoreNormalizerFactory"/>
 
         <!--row normalization -->
         <node category-path="/community/hcstools/normalization"

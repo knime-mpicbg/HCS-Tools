@@ -46,18 +46,30 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
         init("subset by:", false, true);
     }
 
+    /**
+     * allows to create node dialog with a different setup for the reference column dialog component
+     *
+     * @param refLabel
+     * @param refColumnRequired
+     * @param refColumnNone
+     */
     protected void createControls(String refLabel, boolean refColumnRequired, boolean refColumnNone) {
         init(refLabel, refColumnRequired, refColumnNone);
     }
 
+    /**
+     * initialize some dialog components
+     *
+     * @param refLabel
+     * @param refColumnrequired
+     * @param refColumnNone
+     */
     private void init(String refLabel, boolean refColumnrequired, boolean refColumnNone) {
 
         refStringDCList = new HashMap<String, DialogComponentStringSelection>();
         refStringSMList = new HashMap<String, SettingsModelString>();
 
-        //refStringSM = AbstractNormNodeModel.createRefStringSM(AbstractNormNodeModel.CFG_REFSTRING);
         addRefStringSM(AbstractNormNodeModel.CFG_REFSTRING, AbstractNormNodeModel.createRefStringSM(AbstractNormNodeModel.CFG_REFSTRING));
-        //refStringDC = getRefStringDC(refStringSM, refLabel);
         addRefStringDC(AbstractNormNodeModel.CFG_REFSTRING, getRefStringDC(refStringSMList.get(AbstractNormNodeModel.CFG_REFSTRING), refLabel));
 
         refColumnDC = getRefColumnDC(0, refColumnrequired, refColumnNone);
@@ -66,10 +78,22 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
         useProcOptSM = null;
     }
 
+    /**
+     * a new reference column dialog component is added
+     *
+     * @param key
+     * @param refStringDC
+     */
     protected void addRefStringDC(String key, DialogComponentStringSelection refStringDC) {
         refStringDCList.put(key, refStringDC);
     }
 
+    /**
+     * a new reference column setting model is added
+     *
+     * @param key
+     * @param refStringSM
+     */
     protected void addRefStringSM(String key, SettingsModelString refStringSM) {
         refStringSMList.put(key, refStringSM);
     }
@@ -94,9 +118,7 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
         DataTableSpec inSpec = specs[0];
         if (!inSpec.containsCompatibleType(DoubleValue.class))
             throw new NotConfigurableException("input table requires at least one numeric column (Double or Integer)");
-        // TODO: string columns are not needed?
-        // if (!inSpec.containsCompatibleType(StringValue.class))
-        //    throw new NotConfigurableException("input table requires at least one column with nominal values (String)");
+
 
         try {
             String refColumn;
@@ -111,10 +133,6 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
                     refStringDCList.get(key).loadSettingsFrom(settings, specs);
                     refStringSMList.get(key).setEnabled(componentEnables);
                 }
-                //boolean componentEnables = refStringSM.isEnabled();
-                // reload the setting of the component and restore enabled/disabled property
-                //refStringDC.loadSettingsFrom(settings, specs);
-                //refStringSM.setEnabled(componentEnables);
             }
         } catch (InvalidSettingsException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -210,7 +228,7 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
      */
     @SuppressWarnings("unchecked")
     protected static DialogComponentColumnNameSelection getAggregationDC(int specIndex, boolean isRequired, boolean addNoneCol) {
-        return new DialogComponentColumnNameSelection(AbstractNormNodeModel.createAggregationSM(), "Aggregate data by", specIndex,
+        return new DialogComponentColumnNameSelection(AbstractNormNodeModel.createAggregationSM(), "Group data by", specIndex,
                 isRequired, addNoneCol, new Class[]{org.knime.core.data.StringValue.class});
     }
 

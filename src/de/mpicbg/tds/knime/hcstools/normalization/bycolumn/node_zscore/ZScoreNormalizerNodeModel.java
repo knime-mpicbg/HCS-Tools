@@ -107,8 +107,6 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
         DataTableSpec inSpec = inSpecs[0];
 
         checkForNumericColumns(inSpec);
-        //TODO: neccessary?
-        //checkForNominalColumns(inSpec);
 
         runAutoGuessing(inSpec);
 
@@ -264,6 +262,15 @@ public class ZScoreNormalizerNodeModel extends AbstractNormNodeModel {
         return zscore;
     }
 
+    /**
+     * creates the statistic output table of the node
+     *
+     * @param exec
+     * @param inSpec
+     * @param hasAggColumn
+     * @param hasRefColumn
+     * @return container for statistic table
+     */
     @Override
     protected BufferedDataContainer createNodeStatisticTable(ExecutionContext exec, DataTableSpec inSpec, boolean hasAggColumn, boolean hasRefColumn) {
         // create KNIME table of statistics

@@ -108,8 +108,6 @@ public class PocNormalizerNodeModel extends AbstractNormNodeModel {
         DataTableSpec inSpec = inSpecs[0];
 
         checkForNumericColumns(inSpec);
-        //TODO: neccessary?
-        // checkForNominalColumns(inSpec);
 
         runAutoGuessing(inSpec);
 
@@ -259,6 +257,15 @@ public class PocNormalizerNodeModel extends AbstractNormNodeModel {
         return poc;
     }
 
+    /**
+     * creates the statistic output table of the node
+     *
+     * @param exec
+     * @param inSpec
+     * @param hasAggColumn
+     * @param hasRefColumn
+     * @return
+     */
     @Override
     protected BufferedDataContainer createNodeStatisticTable(ExecutionContext exec, DataTableSpec inSpec, boolean hasAggColumn, boolean hasRefColumn) {
         // create KNIME table of statistics

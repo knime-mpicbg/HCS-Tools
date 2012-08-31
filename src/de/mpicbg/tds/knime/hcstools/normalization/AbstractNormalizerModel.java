@@ -46,7 +46,6 @@ public abstract class AbstractNormalizerModel extends AbstractNodeModel {
 //    public static final String NEGATIVE_CONTROL_DESC = "Negative Control";
 
     public AbstractNormalizerModel() {
-        //TODO: adapt numer of in and out ports
         super(1, 1);
     }
 

@@ -32,7 +32,7 @@
             </p>
         </intro>
 
-        <option name="Aggregate object data by">Select the column to define the groups (e.g. "barcode" for plate-wise
+        <option name="Group data by">Select the column to define the groups (e.g. "barcode" for plate-wise
             normalization).
         </option>
         <option name="Normalize">Select the columns with data to be normalized.

@@ -355,6 +355,15 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
         return new SettingsModelBoolean(CFG_USEOPT, CFG_USEOPT_DFT);
     }
 
+    /**
+     * populates the columnLists (selected columns and their position within the given table)
+     * each list is a set of columns (not more than given in the processing options, if they are used)
+     *
+     * @param inSpec
+     * @param inclColumns
+     * @param useOpt
+     * @param procOpt
+     */
     protected void createColumnList(DataTableSpec inSpec, List<String> inclColumns, boolean useOpt, int procOpt) {
         //put parameters and their index to process at once into a list of hashmaps
         columnList = new ArrayList<HashMap<String, Integer>>();
@@ -382,6 +391,16 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
 
     protected abstract BufferedDataContainer createNodeStatisticTable(ExecutionContext exec, DataTableSpec inSpec, boolean hasAggColumn, boolean hasRefColumn);
 
+    /**
+     * retrieve reference data from the input table
+     *
+     * @param inTable
+     * @param refString
+     * @param hasAggColumn
+     * @param hasRefColumn
+     * @param curList
+     * @return Hashmap with Key 'group' and entry another Hashmap with key 'parameter' and a list of double values as entry
+     */
     protected HashMap<String, HashMap<String, List<Double>>> extractReferenceData(BufferedDataTable inTable, String refString, boolean hasAggColumn, boolean hasRefColumn, HashMap<String, Integer> curList) {
         // reference data: group, parameter, values
         HashMap<String, HashMap<String, List<Double>>> refData = new HashMap<String, HashMap<String, List<Double>>>();
