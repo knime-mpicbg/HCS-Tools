@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./NpiNormalizerNode.png" type="Manipulator">
+<knimeNode icon="./NPI.png" type="Manipulator">
     <name>Normalize Plates (NPI)</name>
 
     <shortDescription>
@@ -35,16 +35,13 @@
 
             <p>
                 Literature: Malo et al., Nat. Biotechnol. 24, 167-179 (2006)
-                <br/> 
-                <br/>
-                It is possible to normalize without grouping (e.g. normalization of the whole screen based on all
-                negative and positive
-                controls available).
             </p>
         </intro>
 
-        <option name="Group data by">Select the column to define the groups (e.g. "barcode" for plate-wise
-            normalization).
+        <option name="Group data by">
+            Select the column to define the groups (e.g. "barcode" for plate-wise normalization).
+            Select &gt;none&lt; for no grouping (e.g. normalization of the whole screen based on all negative controls
+            available).
         </option>
         <option name="Normalize">Select the columns with data to be normalized.
         </option>

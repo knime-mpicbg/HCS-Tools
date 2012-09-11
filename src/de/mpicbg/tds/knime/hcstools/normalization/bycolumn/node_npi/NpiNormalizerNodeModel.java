@@ -271,6 +271,8 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
         boolean hasAggColumn = (aggColumn != null);
         boolean hasRefColumn = (refColumn != null);
 
+        hasReferenceData = false;
+
         createColumnList(inSpec, inclColumns, useOpt, procOpt);
 
         // collect statistic data
@@ -283,6 +285,7 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
             HashMap<String, HashMap<String, List<Double>>> refDataPos = extractReferenceData(inTable, refStringPos, hasAggColumn, hasRefColumn, curList);
             calculateStatistics(refData, useRobustStats, statisticTable);
             calculateStatistics(refDataPos, useRobustStats, statisticTablePos);
+            exec.checkCanceled();
         }
 
         BufferedDataContainer statContainer = createNodeStatisticTable(exec, inSpec, hasAggColumn, hasRefColumn);
@@ -291,6 +294,9 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
         // create KNIME table with normalized values
         ColumnRearranger columnRearranger = createColumnRearranger(inSpec);
         BufferedDataTable npiTable = exec.createColumnRearrangeTable(inTable, columnRearranger, exec);
+
+        if (!hasReferenceData)
+            logger.error("input table does not contain any reference data or reference data contains missing values only.");
 
         return new BufferedDataTable[]{npiTable, statContainer.getTable()};
     }

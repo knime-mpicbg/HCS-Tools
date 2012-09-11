@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./ZScoreNormalizer.png" type="Manipulator">
+<knimeNode icon="./POCNormalizer.png" type="Manipulator">
     <name>Normalize Plates (POC)</name>
 
     <shortDescription>
@@ -34,6 +34,8 @@
 
         <option name="Group data by">Select the column to define the groups (e.g. "barcode" for plate-wise
             normalization).
+            Select &gt;none&lt; for no grouping (e.g. normalization of the whole screen based on all negative controls
+            available).
         </option>
         <option name="Normalize">Select the columns with data to be normalized.
         </option>

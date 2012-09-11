@@ -9,10 +9,7 @@ import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.node.BufferedDataContainer;
-import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.*;
 import org.knime.core.node.defaultnodesettings.*;
 import org.knime.core.util.UniqueNameGenerator;
 
@@ -58,6 +55,7 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
     // model setting default which is set in each implementation class
     protected static String CFG_SUFFIX_DFT;
 
+    protected boolean hasReferenceData;
 
     /**
      * stores statistik for each group; <group, <parameter, statistic>>
@@ -143,6 +141,26 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
     }
 
 
+    @Override
+    protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
+        //super.validateSettings(settings);
+        // check that at least one numeric column has been selected
+        if (settings.containsKey(CFG_COLUMN_SELECTION)) {
+            String[] selectedColumns = settings.getNodeSettings(CFG_COLUMN_SELECTION).getStringArray("InclList");
+            if (selectedColumns.length < 1)
+                throw new InvalidSettingsException("at least one numeric column has to be selected");
+        }
+        // check reference string (should be available if a reference column has been selected)
+        if (settings.containsKey(CFG_REFCOLUMN)) {
+            if (settings.getString(CFG_REFCOLUMN) != null) {
+                if (!settings.containsKey(CFG_REFSTRING))
+                    throw new InvalidSettingsException("cannot find any reference string setting for selected reference column");
+                if (settings.getString(CFG_REFSTRING) == null)
+                    throw new InvalidSettingsException("reference string is required if reference column is set");
+            }
+        }
+    }
+
     /**
      * if no valid model setting value is available for the aggregation, it will be guessed from spec and setting will be updated
      *
@@ -173,21 +191,6 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
         aggColumnSM.setStringValue(guessedColumn);
         addModelSetting(CFG_AGGR, aggColumnSM);
         setWarningMessage("Auto-Guessing aggregation column. Please check configuration settings before execution");
-
-        // auto guess aggregation column if default or previously selected not available
-//        SettingsModelString aggColumn = ((SettingsModelString) getModelSetting(CFG_AGGR));
-//        if (aggColumn.getStringValue() != null && !inSpec.containsName(aggColumn.getStringValue())) {
-//            Iterator<DataColumnSpec> it = inSpec.iterator();
-//            while (it.hasNext()) {
-//                DataColumnSpec cSpec = it.next();
-//                if (cSpec.getType().isCompatible(StringValue.class)) {
-//                    aggColumn.setStringValue(cSpec.getName());
-//                    addModelSetting(CFG_AGGR, aggColumn);
-//                    setWarningMessage("Auto-Guessing aggregation column. Please check configuration settings before execution");
-//                    return;
-//                }
-//            }
-//        }
     }
 
     /**
@@ -201,11 +204,12 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
         if (refColumn != null) {
             if (inSpec.containsName(refColumn)) {
                 DataColumnSpec cSpec = inSpec.getColumnSpec(refColumn);
-                if (cSpec.getType().isCompatible(NominalValue.class) && cSpec.getDomain().hasValues()) return;
+                if (cSpec.getType().isCompatible(NominalValue.class)) return;
+                // if column type is not a nominal column, reset the reference column to <none>
+                refColumnSM.setStringValue(null);
+                addModelSetting(CFG_REFCOLUMN, refColumnSM);
+                setWarningMessage("Auto-Guessing reference column. Please check configuration settings before execution");
             }
-            refColumnSM.setStringValue(null);
-            addModelSetting(CFG_REFCOLUMN, refColumnSM);
-            setWarningMessage("Auto-Guessing reference column. Please check configuration settings before execution");
         }
     }
 
@@ -249,7 +253,10 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
         List<DataColumnSpec> cSpecs = new ArrayList<DataColumnSpec>();
 
         List<String> inclColumns = ((SettingsModelFilterString) getModelSetting(CFG_COLUMN_SELECTION)).getIncludeList();
-        String suffix = ((SettingsModelOptionalString) getModelSetting(CFG_SUFFIX)).getStringValue();
+
+        SettingsModelOptionalString suffixSM = ((SettingsModelOptionalString) getModelSetting(CFG_SUFFIX));
+        String suffix = CFG_SUFFIX_DFT;
+        if (suffixSM.isActive()) suffix = suffixSM.getStringValue();
         boolean replaceValues = ((SettingsModelBoolean) getModelSetting(CFG_REPLACE_VALUES)).getBooleanValue();
 
         UniqueNameGenerator uniqueNames = new UniqueNameGenerator(inSpec);
@@ -439,6 +446,9 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
                 if (hasRefColumn && isReference || !hasRefColumn) {
                     Double value = valueCell.isMissing() ? Double.NaN : ((DoubleValue) valueCell).getDoubleValue();
                     refData.get(curGroup).get(curColumn).add(value);
+
+                    //set flag that at least one row with reference data has been detected
+                    if (!Double.isNaN(value)) hasReferenceData = true;
                 }
 
             }

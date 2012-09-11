@@ -27,16 +27,13 @@
                 Literature: Malo et al., Nat. Biotechnol. 24, 167-179 (2006)
                 <br/>
                 <a href="http://en.wikipedia.org/wiki/Zscore">Wikipedia: Z-score / Standard score</a>
-                <br/>
-                <br/>
-                It is possible to normalize without grouping (e.g. normalization of the whole screen based on all
-                negative
-                controls available).
             </p>
         </intro>
 
-        <option name="Group data by">Select the column to define the groups (e.g. "barcode" for plate-wise
-            normalization).
+        <option name="Group data by">
+            Select the column to define the groups (e.g. "barcode" for plate-wise normalization).
+            Select &gt;none&lt; for no grouping (e.g. normalization of the whole screen based on all negative controls
+            available).
         </option>
         <option name="Normalize">Select the columns with data to be normalized.
         </option>

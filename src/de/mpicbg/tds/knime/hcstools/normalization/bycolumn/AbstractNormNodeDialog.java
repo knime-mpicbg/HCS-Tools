@@ -147,6 +147,7 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
     private void updateSubsetSelector(String refColumnName) {
         DataTableSpec currentSpec = this.getFirstSpec();
         List<String> domainList = new ArrayList<String>();
+        boolean enableList = false;
         if (currentSpec != null) {
             // get the reference column
             int colIdx = currentSpec.findColumnIndex(refColumnName);
@@ -159,23 +160,24 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
                         for (DataCell value : domainValues) {
                             domainList.add(((StringCell) value).getStringValue());
                         }
-                        Collections.sort(domainList);
-                        for (String key : refStringDCList.keySet()) {
-                            refStringDCList.get(key).replaceListItems(domainList, domainList.get(0));
-                            refStringSMList.get(key).setEnabled(true);
-                        }
-                        //refStringDC.replaceListItems(domainList, domainList.get(0));
-                        //refStringSM.setEnabled(true);
                     }
+                }
+                if (!domainList.isEmpty()) {
+                    enableList = true;
+                } else {
+                    domainList.add("");
+
                 }
             } else {
                 domainList.add("");
-                for (String key : refStringDCList.keySet()) {
-                    refStringDCList.get(key).replaceListItems(domainList, domainList.get(0));
-                    refStringSMList.get(key).setEnabled(false);
-                }
-                //refStringDC.replaceListItems(domainList, domainList.get(0));
-                //refStringSM.setEnabled(false);
+            }
+
+            Collections.sort(domainList);
+            for (String key : refStringDCList.keySet()) {
+                refStringDCList.get(key).replaceListItems(domainList, domainList.get(0));
+                refStringSMList.get(key).setEnabled(enableList);
+                if (!enableList)
+                    refStringSMList.get(key).setStringValue(null);
             }
         }
     }
@@ -245,7 +247,7 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
                 updateSubsetSelector(((SettingsModelString) changeEvent.getSource()).getStringValue());
             }
         });
-        ColumnFilter filterNominalColumn = new ColumnFilter() {
+        /*ColumnFilter filterNominalColumn = new ColumnFilter() {
             @Override
             public boolean includeColumn(DataColumnSpec dataColumnSpec) {
                 return dataColumnSpec.getType().isCompatible(NominalValue.class) && dataColumnSpec.getDomain().hasValues();
@@ -255,10 +257,10 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
             public String allFilteredMsg() {
                 return "No nominal column with domain values available.";
             }
-        };
+        };*/
 
         return new DialogComponentColumnNameSelection(refColumnSM, "Column with reference label", specIndex,
-                isRequired, addNoneCol, filterNominalColumn);
+                isRequired, addNoneCol, new Class[]{NominalValue.class});
     }
 
     /**
@@ -266,7 +268,8 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
      */
     @SuppressWarnings("unchecked")
     protected DialogComponentStringSelection getRefStringDC(SettingsModelString settingsModel, String label) {
-        return new DialogComponentStringSelection(settingsModel, label, "");
+        // combobox has to be editable to provide
+        return new DialogComponentStringSelection(settingsModel, label, Arrays.asList(""), true);
     }
 
     /**
