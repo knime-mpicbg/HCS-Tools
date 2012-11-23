@@ -369,11 +369,11 @@ public class HeatMapViewerMenu extends JPanel {
 		// reconfigure the selectors
 		List<String> annotTypes = TdsUtils.flattenAnnotationTypes(subScreen);
 		annotTypes.add(0, "");
-		overlaySelector.configure(annotTypes, heatMapModel, this, SelectorType.ANNOATION);
+		overlaySelector.configure(annotTypes, heatMapModel, SelectorType.ANNOATION);
 
 
 		List<String> readoutNames = TdsUtils.flattenReadoutNames(subScreen);
-		readoutSelector.configure(readoutNames, heatMapModel, this, SelectorType.READOUT);
+		readoutSelector.configure(readoutNames, heatMapModel, SelectorType.READOUT);
 
 		boolean isMinMaxStrategy = heatMapModel.getRescaleStrategy() instanceof GlobalMinMaxStrategy;
 		colorScaleOriginalRadioButton.setSelected(isMinMaxStrategy);

@@ -19,7 +19,7 @@ public class WellPropertySelector extends JComboBox {
 	private JPanel parent;
 
 
-	public void configure(List<String> options, final HeatMapModel heatMapModel, JPanel parent, final SelectorType selType) {
+	public void configure(List<String> options, final HeatMapModel heatMapModel, final SelectorType selType) {
 		this.heatMapModel = heatMapModel;
 		this.parent = parent;
 
