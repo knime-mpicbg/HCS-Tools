@@ -26,6 +26,7 @@ import java.util.List;
 /**
  * @author Holger Brandl
  */
+@Deprecated
 public class HeatMapViewerMenu extends JPanel {
 
 	private HeatMapModel heatMapModel;

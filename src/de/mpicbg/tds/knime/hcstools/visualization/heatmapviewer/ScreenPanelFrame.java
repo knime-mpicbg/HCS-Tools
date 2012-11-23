@@ -13,6 +13,7 @@ import java.util.List;
  *
  * @author Holger Brandl
  */
+@Deprecated
 public class ScreenPanelFrame extends JFrame {
 
     public de.mpicbg.tds.core.view.ScreenPanel screenPanel;
