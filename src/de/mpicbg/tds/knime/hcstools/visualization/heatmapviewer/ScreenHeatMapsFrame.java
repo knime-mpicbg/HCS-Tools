@@ -1,9 +1,11 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ColorBar;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * User: Felix Meyenhofer
@@ -12,24 +14,31 @@ import javax.swing.*;
  * To change this template use File | Settings | File Templates.
  */
 
-public class ScreenHeatMapsFrame implements HiLiteListener{
+public class ScreenHeatMapsFrame extends JFrame implements HiLiteListener{
 
-    private JPanel panel;
+    private ScreenPanel screenPanel;
     private HeatMapMenu menus;
     private HeatMapToolbar toolbar;
+    private ColorBar colorbar;
 
+
+    // Constructor
     public ScreenHeatMapsFrame(){
-        JFrame frame = new JFrame("HCS Heat-map Viewer");
+        setTitle("HCS Heat-map Viewer");
         menus = new HeatMapMenu();
-        panel = new JPanel();
+        screenPanel = new ScreenPanel();
         toolbar = new HeatMapToolbar();
-        frame.setJMenuBar(menus);
-        frame.setContentPane(panel);
-        frame.setContentPane(toolbar);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
+        colorbar = new ColorBar();
+        setJMenuBar(menus);
+        add(screenPanel, BorderLayout.CENTER);
+        add(toolbar, BorderLayout.NORTH);
+        add(colorbar, BorderLayout.SOUTH);
+        setBounds(150, 150, 800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setVisible(true);
     }
+
 
     // HiLiteListener methods.
     public void hiLite(final KeyEvent event) {
