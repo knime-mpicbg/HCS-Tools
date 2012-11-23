@@ -15,7 +15,7 @@ import java.awt.event.*;
  * (existing in java.awt.event and org.knime.core.node.property.hilite)
  */
 
-public class HeatMapMenu implements ActionListener, ItemListener{
+public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListener {
 
     //////////////////////////////////////
     // Creation of the GUI components
@@ -37,13 +37,18 @@ public class HeatMapMenu implements ActionListener, ItemListener{
     private String HILITE_SHOW_HILITE= "Show HiLite Only";
     private String HILITE_SHOW_UNHILITE= "Show UnHiLite Only";
 
-    protected JMenuBar createJMenuBar() {
-        JMenuBar menubar = new JMenuBar();
-        menubar.add(createHiLiteMenu());
-        menubar.add(initialize());
-        menubar.add(createTrellisMenu());
-        return menubar;
+    private JMenu hilite;
+    private JMenu view;
+    private JMenu trellis;
+
+
+    //Constructor
+    public HeatMapMenu() {
+        add(createHiLiteMenu());
+        add(createViewMenu());
+        add(createTrellisMenu());
     }
+
 
     private ImageIcon createImageIcon(String path, String description) {
         java.net.URL imgURL = getClass().getResource(path);
@@ -53,6 +58,20 @@ public class HeatMapMenu implements ActionListener, ItemListener{
             System.err.println("Couldn't find file: " + path);
             return null;
         }
+    }
+
+    private JMenu createViewMenu() {
+        JMenu menu = new JMenu("View");
+        JCheckBoxMenuItem alwaysontop = new JCheckBoxMenuItem(ALWAYS_ON_TOP);
+        alwaysontop.addItemListener(this);
+        menu.add(alwaysontop);
+        JCheckBoxMenuItem markseleciton = new JCheckBoxMenuItem(MARK_SELECTION);
+        markseleciton.addItemListener(this);
+        menu.add(markseleciton);
+        JMenuItem legend = menu.add(SHOW_LEGEND);
+        legend.addActionListener(this);
+//        HeatMapMenu test = new HeatMapMenu();
+        return menu;
     }
 
     private JMenu createTrellisMenu() {
@@ -66,9 +85,9 @@ public class HeatMapMenu implements ActionListener, ItemListener{
         items[3] = menu.add(SORT_PLATES);
         items[3].addActionListener(this);
 
-        for (int i = 0; i < items.length; i++) {
-            menu.add(items[i]);
-            items[i].addActionListener(this);
+        for (JMenuItem item : items) {
+            menu.add(item);
+            item.addActionListener(this);
         }
 
         menu.add(createColorMapMenu());
@@ -91,9 +110,9 @@ public class HeatMapMenu implements ActionListener, ItemListener{
         item[1] = new JRadioButtonMenuItem(HILITE_SHOW_HILITE);
         item[2] = new JRadioButtonMenuItem(HILITE_SHOW_UNHILITE);
 
-        for (int i = 0; i < item.length; i++) {
-            menu.add(item[i]);
-            item[i].addItemListener(this);
+        for (JRadioButtonMenuItem anItem : item) {
+            menu.add(anItem);
+            anItem.addItemListener(this);
         }
 
         return menu;
@@ -122,6 +141,7 @@ public class HeatMapMenu implements ActionListener, ItemListener{
 
         return lut;
     }
+
 
     //////////////////////////////////////
     // Actions
@@ -163,26 +183,27 @@ public class HeatMapMenu implements ActionListener, ItemListener{
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-
-    //////////////////////////////////////
-    // Utility methods
-    //////////////////////////////////////
-    public JMenu initialize() {
-        JMenu menu = new JMenu("View");
-        JCheckBoxMenuItem alwaysontop = new JCheckBoxMenuItem(ALWAYS_ON_TOP);
-        alwaysontop.addItemListener(this);
-        menu.add(alwaysontop);
-        JCheckBoxMenuItem markseleciton = new JCheckBoxMenuItem(MARK_SELECTION);
-        markseleciton.addItemListener(this);
-        menu.add(markseleciton);
-        JMenuItem legend = menu.add(SHOW_LEGEND);
-        legend.addActionListener(this);
-        HeatMapMenu test = new HeatMapMenu();
-        return menu;
-    }
-
     @Override
     public void itemStateChanged(ItemEvent itemEvent) {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+
+    //////////////////////////////////////
+    // Testing
+    //////////////////////////////////////
+    public static void main(String[] args) {
+        JFrame frame = new JFrame();
+        JPanel panel = new JPanel();
+        JTextArea text = new JTextArea("This is some text");
+        text.setEnabled(true);
+        text.setEditable(false);
+        panel.add(text);
+        frame.setContentPane(panel);
+        frame.setJMenuBar(new HeatMapMenu());
+        frame.pack();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        System.exit(0);
     }
 }
