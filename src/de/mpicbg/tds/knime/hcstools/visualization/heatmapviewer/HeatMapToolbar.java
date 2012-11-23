@@ -13,6 +13,7 @@ import de.mpicbg.tds.core.model.Plate;
  * Time: 21:17
  * To change this template use File | Settings | File Templates.
  */
+
 public class HeatMapToolbar extends JToolBar {
 
     private HeatMapModel heatMapModel;
@@ -58,7 +59,6 @@ public class HeatMapToolbar extends JToolBar {
         java.util.List<String> annotTypes = TdsUtils.flattenAnnotationTypes(subScreen);
         annotTypes.add(0, "");
         overlaySelector.configure(annotTypes, heatMapModel, SelectorType.ANNOATION);
-
         java.util.List<String> readoutNames = TdsUtils.flattenReadoutNames(subScreen);
         readoutSelector.configure(readoutNames, heatMapModel, SelectorType.READOUT);
     }
@@ -67,6 +67,7 @@ public class HeatMapToolbar extends JToolBar {
     public static void main(String[] args) {
         JFrame frame = new JFrame("HeatMapToolbar Test");
         JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         JTextArea text = new JTextArea("Just some text");
         text.setEnabled(true);
         text.setEditable(false);
@@ -77,6 +78,5 @@ public class HeatMapToolbar extends JToolBar {
         frame.pack();
         frame.setVisible(true);
     }
-
 
 }
