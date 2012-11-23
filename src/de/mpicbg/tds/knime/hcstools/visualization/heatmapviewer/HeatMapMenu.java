@@ -3,6 +3,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 
 /**
@@ -17,29 +18,32 @@ import java.awt.event.*;
 
 public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListener {
 
-    //////////////////////////////////////
-    // Creation of the GUI components
-    //////////////////////////////////////
     private String SORT_PLATES = "Sort Plates";
     private String ZOOM_IN = "Zoom in";
     private String ZOOM_OUT = "Zoom out";
     private String MAP_HSV = "hsv";
-    private String MAP_DARK= "dark";
-    private String MAP_GB= "gb";
-    private String MAP_GBR= "gbr";
-    private String MAP_JET= "jet";
-    private String MAP_CUSTOM= "Custom";
-    private String ROWS_COLUMNS= "Rows/Columns";
-    private String ALWAYS_ON_TOP= "Always on Top";
-    private String MARK_SELECTION= "Mark Selection";
+    private String MAP_DARK = "dark";
+    private String MAP_GB = "gb";
+    private String MAP_GBR = "gbr";
+    private String MAP_JET = "jet";
+    private String MAP_CUSTOM = "Custom";
+    private String ROWS_COLUMNS = "Rows/Columns";
+    private String ALWAYS_ON_TOP = "Always on Top";
+    private String MARK_SELECTION = "Mark Selection";
     private String SHOW_LEGEND = "Show Legend";
     private String HILITE_SHOW_ALL = "Show All";
-    private String HILITE_SHOW_HILITE= "Show HiLite Only";
-    private String HILITE_SHOW_UNHILITE= "Show UnHiLite Only";
+    private String HILITE_SHOW_HILITE = "Show HiLite Only";
+    private String HILITE_SHOW_UNHILITE = "Show UnHiLite Only";
 
-    private JMenu hilite;
-    private JMenu view;
-    private JMenu trellis;
+    JCheckBoxMenuItem alwaysontop;
+    JCheckBoxMenuItem markseleciton;
+    JMenuItem overlaylegend;
+    JMenuItem zoomin;
+    JMenuItem zoomout;
+    JMenuItem rowscolumns;
+    JMenuItem sortplates;
+
+    HeatMapModel heatMapModel;
 
 
     //Constructor
@@ -50,6 +54,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     }
 
 
+    // Methods for menu creation
     private ImageIcon createImageIcon(String path, String description) {
         java.net.URL imgURL = getClass().getResource(path);
         if (imgURL != null) {
@@ -62,33 +67,75 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
     private JMenu createViewMenu() {
         JMenu menu = new JMenu("View");
-        JCheckBoxMenuItem alwaysontop = new JCheckBoxMenuItem(ALWAYS_ON_TOP);
-        alwaysontop.addItemListener(this);
+
+        alwaysontop = new JCheckBoxMenuItem(ALWAYS_ON_TOP);
+        alwaysontop.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                alwaysOnTopAction();
+            }
+        });
         menu.add(alwaysontop);
-        JCheckBoxMenuItem markseleciton = new JCheckBoxMenuItem(MARK_SELECTION);
-        markseleciton.addItemListener(this);
+
+        markseleciton = new JCheckBoxMenuItem(MARK_SELECTION);
+        markseleciton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                markSelectionAction();
+            }
+        });
         menu.add(markseleciton);
-        JMenuItem legend = menu.add(SHOW_LEGEND);
-        legend.addActionListener(this);
-//        HeatMapMenu test = new HeatMapMenu();
+
+        overlaylegend = menu.add(SHOW_LEGEND);
+        overlaylegend.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                showOverlayLegendAction();
+            }
+        });
+
         return menu;
     }
 
     private JMenu createTrellisMenu() {
         JMenu menu = new JMenu("Trellis");
-        JMenuItem[] items = new JMenuItem[4];
-        items[0] = new JMenuItem(ZOOM_IN, KeyEvent.VK_T);
-        items[0].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP, ActionEvent.ALT_MASK));
-        items[1] = new JMenuItem(ZOOM_OUT);
-        items[1].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, ActionEvent.ALT_MASK));
-        items[2] = new JMenuItem(ROWS_COLUMNS);
-        items[3] = menu.add(SORT_PLATES);
-        items[3].addActionListener(this);
+        
+        zoomin = new JMenuItem(ZOOM_IN, KeyEvent.VK_T);
+        zoomin.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP, ActionEvent.ALT_MASK));
+        zoomin.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                zoomInAction();
+            }
+        });
+        menu.add(zoomin);
+        
+        zoomout = new JMenuItem(ZOOM_OUT);
+        zoomout.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, ActionEvent.ALT_MASK));
+        zoomout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                zoomOutAction();
+            }
+        });
+        menu.add(zoomout);
+        
+        rowscolumns = new JMenuItem(ROWS_COLUMNS);
+        rowscolumns.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                rowsColumnsAction();
+            }
+        });
+        menu.add(rowscolumns);
 
-        for (JMenuItem item : items) {
-            menu.add(item);
-            item.addActionListener(this);
-        }
+        sortplates = menu.add(SORT_PLATES);
+        sortplates.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                sortPlatesAction();
+            }
+        });
+        menu.add(sortplates);
 
         menu.add(createColorMapMenu());
         return menu;
@@ -135,33 +182,68 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         lut.add(new JSeparator());
         item[5] = lut.add(MAP_CUSTOM);
 
-        for (int i = 0; i < item.length; i++) {
-            item[i].addActionListener(this);
+        for (JMenuItem anItem : item) {
+            anItem.addActionListener(this);
         }
 
         return lut;
     }
 
-
     //////////////////////////////////////
     // Actions
     //////////////////////////////////////
     @Override
+    public void itemStateChanged(ItemEvent itemEvent) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    private void showOverlayLegendAction() {
+        Container parentContainer = HeatWellPanel.getParentContainer(this);
+
+        OverlayLegendDialog overlayLegendDialog;
+        if (parentContainer instanceof Dialog) {
+            overlayLegendDialog = new OverlayLegendDialog((Dialog) parentContainer);
+        } else {
+            overlayLegendDialog = new OverlayLegendDialog((Frame) parentContainer);
+        }
+
+        overlayLegendDialog.setModel(heatMapModel);
+        overlayLegendDialog.setModal(false);
+        overlayLegendDialog.setVisible(true);
+    }
+
+    private void markSelectionAction() {
+        heatMapModel.setShowSelection(markseleciton.isSelected());
+    }
+
+    private void alwaysOnTopAction() {
+        //To change body of created methods use File | Settings | File Templates.
+    }
+
+    private void sortPlatesAction() {
+        WellPropertyDialog dialog = new WellPropertyDialog();
+        dialog.pack();
+        dialog.setVisible(true);
+    }
+
+    private void rowsColumnsAction() {
+        RowColumnDialog dialog = new RowColumnDialog();
+        dialog.pack();
+        dialog.setVisible(true);
+    }
+
+    private void zoomOutAction() {
+        //To change body of created methods use File | Settings | File Templates.
+    }
+
+    private void zoomInAction() {
+    }
+
+    // The somewhat particular color submenu.
+    @Override
     public void actionPerformed(ActionEvent actionEvent) {
         JMenuItem source = (JMenuItem)actionEvent.getSource();
-        if (source.getText().equals(SORT_PLATES)) {
-            WellPropertyDialog dialog = new WellPropertyDialog();
-            dialog.pack();
-            dialog.setVisible(true);
-        } else if (source.getText().equals(ZOOM_IN)) {
-
-        } else if (source.getText().equals(ZOOM_OUT)) {
-
-        } else if (source.getText().equals(ROWS_COLUMNS)) {
-            RowColumnDialog dialog = new RowColumnDialog();
-            dialog.pack();
-            dialog.setVisible(true);
-        } else if (source.getText().equals(MAP_DARK)) {
+        if (source.getText().equals(MAP_DARK)) {
 
         } else if (source.getText().equals(MAP_HSV)) {
 
@@ -178,17 +260,9 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         } else if (source.getText().equals(SHOW_LEGEND)) {
 
         }
-
-
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    @Override
-    public void itemStateChanged(ItemEvent itemEvent) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-
+    
     //////////////////////////////////////
     // Testing
     //////////////////////////////////////
