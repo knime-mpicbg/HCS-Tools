@@ -25,7 +25,7 @@ public class ScreenHeatMapsFrame implements HiLiteListener{
         toolbar = new HeatMapToolbar();
         frame.setJMenuBar(menus);
         frame.setContentPane(panel);
-        frame.setContentPane(toolbar.createJToolBar());
+        frame.setContentPane(toolbar);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
