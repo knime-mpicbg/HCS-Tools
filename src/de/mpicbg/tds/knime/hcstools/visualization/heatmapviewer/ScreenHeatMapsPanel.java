@@ -9,7 +9,6 @@ import de.mpicbg.tds.core.Utils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.core.util.PanelImageExporter;
-//import de.mpicbg.tds.core.view.PlateOverviewHeatMap;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ColorBar;
 import info.clearthought.layout.TableLayout;
 
@@ -27,14 +26,15 @@ import java.io.ObjectInputStream;
 import java.util.*;
 import java.util.List;
 
+//import de.mpicbg.tds.core.view.PlateOverviewHeatMap;
+
 
 /**
  * A panel that shows plate-heatmaps in a grid view.
  *
  * @author Holger Brandl
  */
-@Deprecated
-public class ScreenPanel extends JPanel implements HeatMapModelChangeListener {
+public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeListener {
 
     private HeatMapModel heatMapModel = new HeatMapModel();
 
@@ -42,7 +42,7 @@ public class ScreenPanel extends JPanel implements HeatMapModelChangeListener {
     public List<PlateOverviewHeatMap> heatmaps;
 
 
-    public ScreenPanel() {
+    public ScreenHeatMapsPanel() {
         initComponents();
 
         heatMapModel.addChangeListener(this);
@@ -50,7 +50,7 @@ public class ScreenPanel extends JPanel implements HeatMapModelChangeListener {
     }
 
 
-    public ScreenPanel(List<Plate> plates) {
+    public ScreenHeatMapsPanel(List<Plate> plates) {
         this();
 
         ToolTipManager.sharedInstance().setDismissDelay(7500);
