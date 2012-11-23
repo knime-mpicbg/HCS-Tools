@@ -1,7 +1,11 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import javax.swing.*;
 import java.awt.*;
+import java.util.*;
+import javax.swing.*;
+
+import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.tds.core.model.Plate;
 
 /**
  * User: Felix Meyenhofer
@@ -9,53 +13,66 @@ import java.awt.*;
  * Time: 21:17
  * To change this template use File | Settings | File Templates.
  */
-public class HeatMapToolbar {
+public class HeatMapToolbar extends JToolBar {
 
-    private JToolBar toolBar;
-    private de.mpicbg.tds.core.view.WellPropertySelector readoutSelector;
-    private de.mpicbg.tds.core.view.WellPropertySelector overlaySelector;
-    private de.mpicbg.tds.core.view.WellPropertySelector filterSelector;
+    private HeatMapModel heatMapModel;
+    private WellPropertySelector readoutSelector;
+    private WellPropertySelector overlaySelector;
+    private WellPropertySelector filterSelector;
     private JFormattedTextField filterString;
-    private JLabel label1;
-    private JLabel label2;
-    private JLabel label3;
 
-    public JToolBar createJToolBar() {
-        toolBar = new JToolBar();
-        toolBar.setPreferredSize(new Dimension(600,30));
-        label1 = new JLabel();
-        label1.setText("Readout:");
-        toolBar.add(label1);
-        readoutSelector = new de.mpicbg.tds.core.view.WellPropertySelector();
+
+    // Constructor
+    public HeatMapToolbar() {
+        setPreferredSize(new Dimension(600, 30));
+
+        add(new JLabel("Readout:"));
+        readoutSelector = new WellPropertySelector();
         readoutSelector.setPreferredSize(new Dimension(150, -1));
-        toolBar.add(readoutSelector);
-        toolBar.addSeparator();
-        label2 = new JLabel();
-        label2.setText("Overlay:");
-        toolBar.add(label2);
-        overlaySelector = new de.mpicbg.tds.core.view.WellPropertySelector();
+        add(readoutSelector);
+        addSeparator();
+
+        add(new JLabel("Overlay:"));
+        overlaySelector = new WellPropertySelector();
         overlaySelector.setPreferredSize(new Dimension(150, -1));
-        toolBar.add(overlaySelector);
-        toolBar.addSeparator();
-        label3 = new JLabel("Filter Plates by:");
-        toolBar.add(label3);
-        filterSelector = new de.mpicbg.tds.core.view.WellPropertySelector();
+        add(overlaySelector);
+        addSeparator();
+
+        add(new JLabel("Filter Plates by:"));
+        filterSelector = new WellPropertySelector();
         filterSelector.setPreferredSize(new Dimension(150, -1));
-        toolBar.add(filterSelector);
+        add(filterSelector);
         filterString = new JFormattedTextField();
         filterString.setPreferredSize(new Dimension(100, 20));
-        toolBar.add(filterString);
-        return toolBar;
+        add(filterString);
     }
 
 
+    protected void configure(HeatMapModel heatMapModel) {
+        this.heatMapModel = heatMapModel;
+
+        // populate the overlay menu based on the first plate
+        java.util.List<Plate> subScreen = Arrays.asList(heatMapModel.getScreen().get(0));
+
+        // reconfigure the selectors
+        java.util.List<String> annotTypes = TdsUtils.flattenAnnotationTypes(subScreen);
+        annotTypes.add(0, "");
+        overlaySelector.configure(annotTypes, heatMapModel, SelectorType.ANNOATION);
+
+        java.util.List<String> readoutNames = TdsUtils.flattenReadoutNames(subScreen);
+        readoutSelector.configure(readoutNames, heatMapModel, SelectorType.READOUT);
+    }
 
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("HeatMapToolbar");
-        frame.setContentPane(new JPanel());
-        HeatMapToolbar thisclass = new HeatMapToolbar();
-        frame.setContentPane(thisclass.createJToolBar());
+        JFrame frame = new JFrame("HeatMapToolbar Test");
+        JPanel panel = new JPanel();
+        JTextArea text = new JTextArea("Just some text");
+        text.setEnabled(true);
+        text.setEditable(false);
+        panel.add(text);
+        panel.add(new HeatMapToolbar());
+        frame.setContentPane(panel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
