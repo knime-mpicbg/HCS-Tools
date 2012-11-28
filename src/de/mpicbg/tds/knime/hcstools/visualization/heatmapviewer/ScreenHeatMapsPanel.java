@@ -28,18 +28,20 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
     private HeatMapModel heatMapModel = new HeatMapModel();
     public List<PlateOverviewHeatMap> heatmaps;
     private int MIN_HEATMAP_WIDTH = 200;
+    private int PREFERRED_WITH = 600;
+    private int PREFERRED_HEIGHT = 350;
 
-    private JScrollPane heatMapScrollPane;
+    private HeatMapMenu menu;
     private HeatMapToolbar toolbar;
     private JPanel heatMapsContainer;
     private ColorBar colorbar;
-
-    private HeatMapMenu menu;
 
 
     // Constructors
     public ScreenHeatMapsPanel(HeatMapMenu heatMapMenu) {
         initialize();
+        setMinimumSize(new Dimension(PREFERRED_WITH, PREFERRED_HEIGHT));
+        setPreferredSize(new Dimension(PREFERRED_WITH, PREFERRED_HEIGHT));
         menu = heatMapMenu;
         heatMapModel.addChangeListener(this);
         new PanelImageExporter(this, true);
@@ -63,8 +65,6 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         });
 
         heatMapsContainer.setDoubleBuffered(true);
-        setMinimumSize(new Dimension(500, 400));
-        setPreferredSize(new Dimension(500, 400));
     }
 
 
@@ -73,17 +73,24 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         toolbar = new HeatMapToolbar();
 
         heatMapsContainer = new JPanel();
+        heatMapsContainer.setPreferredSize(new Dimension(PREFERRED_WITH-10,PREFERRED_HEIGHT-10));
         heatMapsContainer.setLayout(new TableLayout(new double[][]{{TableLayout.PREFERRED}, {TableLayout.PREFERRED}}));
         TableLayout layout = (TableLayout) heatMapsContainer.getLayout();
         layout.setHGap(5);
         layout.setVGap(5);
 
+        JTextArea text = new JTextArea("heatmap container panel");
+        text.setEditable(false);
+        heatMapsContainer.add(text, "0, 0");
+
         colorbar = new ColorBar();
 
-        heatMapScrollPane = new JScrollPane();
+        JScrollPane heatMapScrollPane = new JScrollPane();
         heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        heatMapScrollPane.add(heatMapsContainer);
+        heatMapScrollPane.setViewportView(heatMapsContainer);
+        heatMapScrollPane.setBackground(Color.BLACK);  //TODO: This is just to better distinguish the components. Should be removed before deployment.
 
+        setLayout(new BorderLayout());
         add(toolbar, BorderLayout.NORTH);
         add(heatMapScrollPane, BorderLayout.CENTER);
         add(colorbar, BorderLayout.SOUTH);
@@ -99,6 +106,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         heatMapModel.setScreen(plates);
         parsePlateBarCodes();
         colorbar.configure(heatMapModel);
+        toolbar.configure(heatMapModel);
 //        heatMapViewerMenu.configure(heatMapModel);
     }
 
@@ -251,6 +259,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
 
     public static void main(String[] args) {
         JFrame frame = new JFrame();
+        frame.setSize(new Dimension(200, 500));
         frame.add(new ScreenHeatMapsPanel(null));
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

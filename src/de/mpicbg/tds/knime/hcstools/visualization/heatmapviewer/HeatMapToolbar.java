@@ -59,6 +59,7 @@ public class HeatMapToolbar extends JToolBar {
         java.util.List<String> annotTypes = TdsUtils.flattenAnnotationTypes(subScreen);
         annotTypes.add(0, "");
         overlaySelector.configure(annotTypes, heatMapModel, SelectorType.ANNOATION);
+        filterSelector.configure(annotTypes, heatMapModel, SelectorType.ANNOATION);
         java.util.List<String> readoutNames = TdsUtils.flattenReadoutNames(subScreen);
         readoutSelector.configure(readoutNames, heatMapModel, SelectorType.READOUT);
     }
