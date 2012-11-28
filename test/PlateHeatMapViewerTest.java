@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.ScreenPanelFrame;
 import org.apache.commons.lang.StringUtils;
 
 import org.knime.core.data.DataRow;
@@ -218,6 +219,7 @@ public class PlateHeatMapViewerTest {
         DataTable table = test.loadTable();
         List<Plate> plates = test.parseIntoPlates(table);
         new ScreenHeatMapsFrame(plates);
+        new ScreenPanelFrame(plates);
     }
 
 }
