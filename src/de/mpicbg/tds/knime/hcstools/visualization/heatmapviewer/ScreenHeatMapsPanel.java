@@ -38,15 +38,15 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
 
 
     // Constructors
-    public ScreenHeatMapsPanel() {
+    public ScreenHeatMapsPanel(HeatMapMenu heatMapMenu) {
         initialize();
-        getMenu();
+        menu = heatMapMenu;
         heatMapModel.addChangeListener(this);
         new PanelImageExporter(this, true);
     }
 
-    public ScreenHeatMapsPanel(List<Plate> plates) {
-        this();
+    public ScreenHeatMapsPanel(HeatMapMenu heatMapMenu, List<Plate> plates) {
+        this(heatMapMenu);
 
         ToolTipManager.sharedInstance().setDismissDelay(7500);
         ToolTipManager.sharedInstance().setInitialDelay(500);
@@ -87,17 +87,6 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         add(toolbar, BorderLayout.NORTH);
         add(heatMapScrollPane, BorderLayout.CENTER);
         add(colorbar, BorderLayout.SOUTH);
-    }
-
-    private void getMenu() {
-        try {
-            ScreenHeatMapsFrame frame = (ScreenHeatMapsFrame) this.getParent();
-            menu =  frame.menus;
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Probably thhere is no parent frame to get the menu from.");
-//            e.printStackTrace();
-        }
     }
 
     public void setPlates(List<Plate> plates) {
@@ -262,7 +251,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
 
     public static void main(String[] args) {
         JFrame frame = new JFrame();
-        frame.add(new ScreenHeatMapsPanel());
+        frame.add(new ScreenHeatMapsPanel(null));
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
