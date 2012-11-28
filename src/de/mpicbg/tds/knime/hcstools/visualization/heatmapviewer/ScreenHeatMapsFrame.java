@@ -20,7 +20,7 @@ import java.util.List;
 public class ScreenHeatMapsFrame extends JFrame implements HiLiteListener{
 
     private ScreenPanel screenPanel;
-    private HeatMapMenu menus;
+    protected HeatMapMenu menus;
     private HeatMapToolbar toolbar;
     private ColorBar colorbar;
 
