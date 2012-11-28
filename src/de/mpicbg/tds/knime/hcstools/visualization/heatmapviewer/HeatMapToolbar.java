@@ -29,19 +29,19 @@ public class HeatMapToolbar extends JToolBar {
 
         add(new JLabel("Readout:"));
         readoutSelector = new WellPropertySelector();
-        readoutSelector.setPreferredSize(new Dimension(150, -1));
+        readoutSelector.setPreferredSize(new Dimension(250, -1));
         add(readoutSelector);
         addSeparator();
 
         add(new JLabel("Overlay:"));
         overlaySelector = new WellPropertySelector();
-        overlaySelector.setPreferredSize(new Dimension(150, -1));
+        overlaySelector.setPreferredSize(new Dimension(100, -1));
         add(overlaySelector);
         addSeparator();
 
         add(new JLabel("Filter Plates by:"));
         filterSelector = new WellPropertySelector();
-        filterSelector.setPreferredSize(new Dimension(150, -1));
+        filterSelector.setPreferredSize(new Dimension(100, -1));
         add(filterSelector);
         filterString = new JFormattedTextField();
         filterString.setPreferredSize(new Dimension(100, 20));
@@ -49,6 +49,7 @@ public class HeatMapToolbar extends JToolBar {
     }
 
 
+    // Configure the gui components with the menu items.
     protected void configure(HeatMapModel heatMapModel) {
         this.heatMapModel = heatMapModel;
 
@@ -65,6 +66,7 @@ public class HeatMapToolbar extends JToolBar {
     }
 
 
+    // Reveal yourself!
     public static void main(String[] args) {
         JFrame frame = new JFrame("HeatMapToolbar Test");
         JPanel panel = new JPanel();
