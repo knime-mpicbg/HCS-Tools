@@ -251,10 +251,12 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     //////////////////////////////////////
     @Override
     public void itemStateChanged(ItemEvent itemEvent) {
+        System.err.println("There's an ItemEvent I don't care about!!!");
     }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
+        System.err.println("There's an ActionEvent I don't care about!!!");
     }
 
     private void toggleColorMapAction(ActionEvent actionEvent) {
