@@ -21,8 +21,6 @@ public class ScreenHeatMapsFrame extends JFrame implements HiLiteListener{
 
     private ScreenPanel screenPanel;
     protected HeatMapMenu menus;
-    private HeatMapToolbar toolbar;
-    private ColorBar colorbar;
 
 
     // Constructor
@@ -30,12 +28,8 @@ public class ScreenHeatMapsFrame extends JFrame implements HiLiteListener{
         setTitle("HCS Heat-map Viewer");
         menus = new HeatMapMenu();
         screenPanel = new ScreenPanel();
-        toolbar = new HeatMapToolbar();
-        colorbar = new ColorBar();
         setJMenuBar(menus);
-        add(screenPanel, BorderLayout.CENTER);
-        add(toolbar, BorderLayout.NORTH);
-        add(colorbar, BorderLayout.SOUTH);
+        add(screenPanel);
         setBounds(150, 150, 800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
@@ -43,19 +37,9 @@ public class ScreenHeatMapsFrame extends JFrame implements HiLiteListener{
     }
 
     public ScreenHeatMapsFrame(List<Plate> plates) {
-        setTitle("HCS Heat-map Viewer");
-        menus = new HeatMapMenu();
-        screenPanel = new ScreenPanel(plates);
-        toolbar = new HeatMapToolbar();
-        colorbar = new ColorBar();
-        setJMenuBar(menus);
-        add(screenPanel, BorderLayout.CENTER);
-        add(toolbar, BorderLayout.NORTH);
-        add(colorbar, BorderLayout.SOUTH);
-        setBounds(150, 150, 800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this();
+        screenPanel.setPlates(plates);
         pack();
-        setVisible(true);
     }
 
 
