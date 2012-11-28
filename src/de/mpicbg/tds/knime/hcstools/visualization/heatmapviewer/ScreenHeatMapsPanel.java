@@ -84,6 +84,8 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         heatMapsContainer.add(text, "0, 0");
 
         colorbar = new ColorBar();
+        JToolBar colortoolbar = new JToolBar();
+        colortoolbar.add(colorbar);
 
         JScrollPane heatMapScrollPane = new JScrollPane();
         heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -93,7 +95,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         setLayout(new BorderLayout());
         add(toolbar, BorderLayout.NORTH);
         add(heatMapScrollPane, BorderLayout.CENTER);
-        add(colorbar, BorderLayout.SOUTH);
+        add(colortoolbar, BorderLayout.SOUTH);
     }
 
     public void setPlates(List<Plate> plates) {
