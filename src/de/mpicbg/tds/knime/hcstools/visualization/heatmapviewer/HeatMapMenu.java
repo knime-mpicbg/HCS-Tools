@@ -10,7 +10,6 @@ import java.awt.event.*;
  * User: Felix Meyenhofer
  * Date: 10/11/12
  * Time: 20:45
- * To change this template use File | Settings | File Templates.
  *
  * This Class was created to solve the name problem of the KeyEvent class
  * (existing in java.awt.event and org.knime.core.node.property.hilite)
@@ -44,6 +43,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     JMenuItem sortplates;
 
     HeatMapModel heatMapModel;
+    ScreenHeatMapsPanel heatMapsPanel;
 
 
     //Constructor
@@ -51,6 +51,11 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         add(createHiLiteMenu());
         add(createViewMenu());
         add(createTrellisMenu());
+    }
+
+    public HeatMapMenu(ScreenHeatMapsPanel actOn) {
+        this();
+        heatMapsPanel = actOn;
     }
 
 
@@ -233,10 +238,11 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     }
 
     private void zoomOutAction() {
-        //To change body of created methods use File | Settings | File Templates.
+        heatMapsPanel.zoom(0.75);
     }
 
     private void zoomInAction() {
+        heatMapsPanel.zoom(1.25);
     }
 
     // The somewhat particular color submenu.

@@ -110,7 +110,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
 //        heatMapViewerMenu.configure(heatMapModel);
     }
 
-    private void zoom(double zoomFactor) {
+    protected void zoom(double zoomFactor) {
         MIN_HEATMAP_WIDTH *= zoomFactor;
         repopulatePlateGrid();
     }
