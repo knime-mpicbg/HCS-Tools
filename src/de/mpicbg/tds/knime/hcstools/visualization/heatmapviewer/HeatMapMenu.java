@@ -1,5 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
+import de.mpicbg.tds.core.view.color.GlobalMinMaxStrategy;
+import de.mpicbg.tds.core.view.color.QuantileSmoothedStrategy;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
@@ -20,16 +22,21 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     private String SORT_PLATES = "Sort Plates";
     private String ZOOM_IN = "Zoom in";
     private String ZOOM_OUT = "Zoom out";
-    private String MAP_HSV = "hsv";
-    private String MAP_DARK = "dark";
-    private String MAP_GB = "gb";
-    private String MAP_GBR = "gbr";
-    private String MAP_JET = "jet";
+    private String MAP_HSV = "HSV";
+    private String MAP_DARK = "Dark";
+    private String MAP_GB = "GB";
+    private String MAP_GBR = "GBR";
+    private String MAP_JET = "Jet";
     private String MAP_CUSTOM = "Custom";
     private String ROWS_COLUMNS = "Rows/Columns";
     private String ALWAYS_ON_TOP = "Always on Top";
     private String MARK_SELECTION = "Mark Selection";
-    private String SHOW_LEGEND = "Show Legend";
+    private String OUTLIER_HANDLING = "Outlier Handling";
+    private String OUTLIER_HANDLING_ORIGINAL = "Original";
+    private String OUTLIER_HANDLING_SMOOTHED = "Smooth";
+    private String OVERLAY = "Overlay";
+    private String OVERLAY_SHOW_LEGEND = "Show Legend";
+    private String OVERLAY_HIDE_MOST_FREQUENT = "Hide Most Frequent";
     private String HILITE_SHOW_ALL = "Show All";
     private String HILITE_SHOW_HILITE = "Show HiLite Only";
     private String HILITE_SHOW_UNHILITE = "Show UnHiLite Only";
@@ -37,6 +44,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     JCheckBoxMenuItem alwaysontop;
     JCheckBoxMenuItem markseleciton;
     JMenuItem overlaylegend;
+    JCheckBoxMenuItem overlayhider;
     JMenuItem zoomin;
     JMenuItem zoomout;
     JMenuItem rowscolumns;
@@ -90,13 +98,53 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         });
         menu.add(markseleciton);
 
-        overlaylegend = menu.add(SHOW_LEGEND);
+        menu.add(createOverlaySubMenu());
+
+        menu.add(createOutlierSubMenu());
+
+        return menu;
+    }
+
+    private JMenu createOverlaySubMenu() {
+        JMenu menu = new JMenu(OVERLAY);
+
+        overlaylegend = menu.add(OVERLAY_SHOW_LEGEND);
         overlaylegend.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 showOverlayLegendAction();
             }
         });
+
+        overlayhider = new JCheckBoxMenuItem(OVERLAY_HIDE_MOST_FREQUENT);
+        overlayhider.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                hideOverlayAction();
+            }
+        });
+        menu.add(overlayhider);
+
+        return menu;
+    }
+
+    private JMenu createOutlierSubMenu() {
+        JMenu menu = new JMenu(OUTLIER_HANDLING);
+        ButtonGroup group = new ButtonGroup();
+        String[] list = {OUTLIER_HANDLING_ORIGINAL, OUTLIER_HANDLING_SMOOTHED};
+
+        for (String name : list) {
+            JRadioButtonMenuItem item = new JRadioButtonMenuItem(name);
+            group.add(item);
+            menu.add(item);
+            item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    outlierHandlingAction(actionEvent);
+                }
+            });
+        }
+        menu.getItem(0).setSelected(true);
 
         return menu;
     }
@@ -157,13 +205,16 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
     private JMenu createHiLiteFilterMenu() {
         JMenu menu = new JMenu("Filter");
+        ButtonGroup group = new ButtonGroup();
         JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[3];
         item[0] = new JRadioButtonMenuItem(HILITE_SHOW_ALL);
+        item[0].setSelected(true);
         item[1] = new JRadioButtonMenuItem(HILITE_SHOW_HILITE);
         item[2] = new JRadioButtonMenuItem(HILITE_SHOW_UNHILITE);
 
         for (JRadioButtonMenuItem anItem : item) {
             menu.add(anItem);
+            group.add(anItem);
             anItem.addItemListener(this);
         }
 
@@ -172,34 +223,57 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
     private JMenu createColorMapMenu() {
         JMenu lut = new JMenu("Colormap");
-        ImageIcon icon;
-        JMenuItem[] item = new JMenuItem[6];
-        icon = createImageIcon("icons/"+ MAP_GB +".gif", MAP_GB +"color map");
-        item[0] = lut.add(new JMenuItem(MAP_GB, icon));
-        icon = createImageIcon("icons/"+ MAP_GBR +".gif", MAP_GBR +"color map");
-        item[1] = lut.add(new JMenuItem(MAP_GBR, icon));
-        icon = createImageIcon("icons/"+ MAP_DARK +".gif", MAP_DARK +"color map");
-        item[2] = lut.add(new JMenuItem(MAP_DARK, icon));
-        icon = createImageIcon("icons/"+ MAP_JET +".gif", MAP_JET +"color map");
-        item[3] = lut.add(new JMenuItem(MAP_JET, icon));
-        icon = createImageIcon("icons/"+ MAP_HSV +".gif", MAP_HSV +"color map");
-        item[4] = lut.add(new JMenuItem(MAP_HSV, icon));
-        lut.add(new JSeparator());
-        item[5] = lut.add(MAP_CUSTOM);
+        ButtonGroup group = new ButtonGroup();
+        String[] names = {MAP_GB, MAP_GBR, MAP_HSV, MAP_JET, MAP_DARK, MAP_CUSTOM};
+        JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[names.length];
 
-        for (JMenuItem anItem : item) {
-            anItem.addActionListener(this);
+        for (int i = 0; i < names.length; i++) {
+            ImageIcon icon = createImageIcon("icons/" + names[i] + ".gif", names[i] + "color map");
+            item[i] = new JRadioButtonMenuItem(names[i],icon);
+            group.add(item[i]);
+            lut.add(item[i]);
+            item[i].addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    toggleColorMapAction(actionEvent);
+                }
+            });
         }
+        item[0].setSelected(true);
 
         return lut;
     }
+
+
 
     //////////////////////////////////////
     // Actions
     //////////////////////////////////////
     @Override
     public void itemStateChanged(ItemEvent itemEvent) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+    }
+
+    private void toggleColorMapAction(ActionEvent actionEvent) {
+        JMenuItem source = (JMenuItem)actionEvent.getSource();
+        if (source.getText().equals(MAP_DARK)) {
+
+        } else if (source.getText().equals(MAP_HSV)) {
+
+        } else if (source.getText().equals(MAP_JET)) {
+
+        } else if (source.getText().equals(MAP_GB)) {
+
+        } else if (source.getText().equals(MAP_GBR)) {
+
+        } else if (source.getText().equals(MAP_CUSTOM)) {
+            ColorGradientDialog dialog = new ColorGradientDialog();
+            dialog.pack();
+            dialog.setVisible(true);
+        }
     }
 
     private void showOverlayLegendAction() {
@@ -215,6 +289,23 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         overlayLegendDialog.setModel(heatMapModel);
         overlayLegendDialog.setModal(false);
         overlayLegendDialog.setVisible(true);
+    }
+
+    private void hideOverlayAction() {
+        heatMapModel.setHideMostFreqOverlay(overlayhider.isSelected());
+    }
+
+    private void outlierHandlingAction(ActionEvent event) {
+        JRadioButtonMenuItem menuItem = (JRadioButtonMenuItem) event.getSource();
+        if ( !menuItem.isSelected() ) {
+            if ( menuItem.getName().equals(OUTLIER_HANDLING_ORIGINAL) ) {
+                heatMapModel.setReadoutRescaleStrategy(new GlobalMinMaxStrategy());
+            } else if ( menuItem.getName().equals(OUTLIER_HANDLING_SMOOTHED) ) {
+                heatMapModel.setReadoutRescaleStrategy(new QuantileSmoothedStrategy());
+            } else {
+                System.err.println("Don't know the option " + menuItem.getName() + ".");
+            }
+        }
     }
 
     private void markSelectionAction() {
@@ -245,30 +336,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         heatMapsPanel.zoom(1.25);
     }
 
-    // The somewhat particular color submenu.
-    @Override
-    public void actionPerformed(ActionEvent actionEvent) {
-        JMenuItem source = (JMenuItem)actionEvent.getSource();
-        if (source.getText().equals(MAP_DARK)) {
 
-        } else if (source.getText().equals(MAP_HSV)) {
-
-        } else if (source.getText().equals(MAP_JET)) {
-
-        } else if (source.getText().equals(MAP_GB)) {
-
-        } else if (source.getText().equals(MAP_GBR)) {
-
-        } else if (source.getText().equals(MAP_CUSTOM)) {
-            ColorGradientDialog dialog = new ColorGradientDialog();
-            dialog.pack();
-            dialog.setVisible(true);
-        } else if (source.getText().equals(SHOW_LEGEND)) {
-
-        }
-    }
-
-    
     //////////////////////////////////////
     // Testing
     //////////////////////////////////////
@@ -286,4 +354,6 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //        System.exit(0);
     }
+
+
 }
