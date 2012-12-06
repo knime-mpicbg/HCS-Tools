@@ -50,15 +50,14 @@ public class HeatMapToolbar extends JToolBar {
         filterString.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                filterPlates(actionEvent);
+                filterPlatesAction(actionEvent);
             }
         });
         add(filterString);
     }
 
 
-    private void filterPlates(ActionEvent event) {
-//        JFormattedTextField textField = (JFormattedTextField) event.getSource();
+    private void filterPlatesAction(ActionEvent event) {
         String filterString = event.getActionCommand();
         String filterAnnotation = (String) filterSelector.getSelectedItem();
         heatMapModel.filterPlates(filterString, filterAnnotation);
