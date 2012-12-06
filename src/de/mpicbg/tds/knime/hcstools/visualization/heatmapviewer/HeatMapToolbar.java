@@ -50,19 +50,19 @@ public class HeatMapToolbar extends JToolBar {
 
 
     // Configure the gui components with the menu items.
-    protected void configure(HeatMapModel heatMapModel) {
-        this.heatMapModel = heatMapModel;
+    protected void configure(HeatMapModel hmm) {
+        heatMapModel = hmm;
 
         // populate the overlay menu based on the first plate
-        java.util.List<Plate> subScreen = Arrays.asList(heatMapModel.getScreen().get(0));
+        java.util.List<Plate> subScreen = Arrays.asList(hmm.getScreen().get(0));
 
         // reconfigure the selectors
-        java.util.List<String> annotTypes = TdsUtils.flattenAnnotationTypes(subScreen);
-        annotTypes.add(0, "");
-        overlaySelector.configure(annotTypes, heatMapModel, SelectorType.ANNOATION);
-        filterSelector.configure(annotTypes, heatMapModel, SelectorType.ANNOATION);
-        java.util.List<String> readoutNames = TdsUtils.flattenReadoutNames(subScreen);
-        readoutSelector.configure(readoutNames, heatMapModel, SelectorType.READOUT);
+        java.util.List<String> annotations = TdsUtils.flattenAnnotationTypes(subScreen);
+        annotations.add(0, "");
+        overlaySelector.configure(annotations, heatMapModel, SelectorType.ANNOATION);
+        filterSelector.configure(annotations, heatMapModel, SelectorType.ANNOATION);
+        java.util.List<String> readouts = TdsUtils.flattenReadoutNames(subScreen);
+        readoutSelector.configure(readouts, heatMapModel, SelectorType.READOUT);
     }
 
 
