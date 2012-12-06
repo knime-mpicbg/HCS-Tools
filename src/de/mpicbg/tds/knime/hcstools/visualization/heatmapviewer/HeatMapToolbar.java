@@ -19,7 +19,7 @@ public class HeatMapToolbar extends JToolBar {
     private HeatMapModel heatMapModel;
     private WellPropertySelector readoutSelector;
     private WellPropertySelector overlaySelector;
-    private WellPropertySelector filterSelector;
+    private PlatePropertySelector filterSelector;
     private JFormattedTextField filterString;
 
 
@@ -40,7 +40,7 @@ public class HeatMapToolbar extends JToolBar {
         addSeparator();
 
         add(new JLabel("Filter Plates by:"));
-        filterSelector = new WellPropertySelector();
+        filterSelector = new PlatePropertySelector();
         filterSelector.setPreferredSize(new Dimension(100, -1));
         add(filterSelector);
         filterString = new JFormattedTextField();
@@ -60,7 +60,7 @@ public class HeatMapToolbar extends JToolBar {
         java.util.List<String> annotations = TdsUtils.flattenAnnotationTypes(subScreen);
         annotations.add(0, "");
         overlaySelector.configure(annotations, heatMapModel, SelectorType.OVERLAY_ANNOTATION);
-        filterSelector.configure(annotations, heatMapModel, SelectorType.OVERLAY_ANNOTATION);
+        filterSelector.configure(subScreen);
         java.util.List<String> readouts = TdsUtils.flattenReadoutNames(subScreen);
         readoutSelector.configure(readouts, heatMapModel, SelectorType.READOUT);
     }
