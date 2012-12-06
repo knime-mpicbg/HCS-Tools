@@ -19,6 +19,7 @@ import java.util.List;
  *
  * @author Holger Brandl
  */
+
 public class HeatMapModel {
 
     ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();
@@ -44,6 +45,8 @@ public class HeatMapModel {
 
     private boolean hideMostFrequentOverlay = false;
     private String overlay = "";
+    private String plateFilterString = "";
+    private String plateFilterAttribute = "barcode";
 
     public static final String OVERLAY_COLOR_CACHE = "overlay_col_cache";
 
@@ -66,21 +69,71 @@ public class HeatMapModel {
         updateMaxOverlayFreqs(screen);
     }
 
-    public void filterPlates(String plateFilterText) {
+    public void filterPlates(String pfs) {
+        setPlateFilterString(pfs);
 
         // no filter selected
-        if(plateFilterText.isEmpty()) {
+        if(plateFilterString.isEmpty()) {
             for(Plate p : plateFiltered.keySet()) {
                 plateFiltered.put(p,true);
             }
         }
 
-        for(Plate p : plateFiltered.keySet()) {
-            if(p.getBarcode().contains(plateFilterText)) { plateFiltered.put(p,true); }
-            else  plateFiltered.put(p,false);
+        if (plateFilterAttribute.equals("barcode")){
+            for(Plate p : plateFiltered.keySet()) {
+                if(p.getBarcode().contains(plateFilterString)) { plateFiltered.put(p,true); }
+                else  plateFiltered.put(p,false);
+            }
+        } else if (plateFilterAttribute.equals("screenedAt")){
+            for(Plate p : plateFiltered.keySet()) {
+                if(p.getScreenedAt().equals(new Date(plateFilterString))) { plateFiltered.put(p,true); }
+                else  plateFiltered.put(p,false);
+            }
+        } else if (plateFilterAttribute.equals("batchName")){
+            for(Plate p : plateFiltered.keySet()) {
+                if(p.getBatchName().contains(plateFilterString)) { plateFiltered.put(p,true); }
+                else  plateFiltered.put(p,false);
+            }
+        } else if (plateFilterAttribute.equals("libraryCode")){
+            for(Plate p : plateFiltered.keySet()) {
+                if(p.getLibraryCode().contains(plateFilterString)) { plateFiltered.put(p,true); }
+                else  plateFiltered.put(p,false);
+            }
+        } else if (plateFilterAttribute.equals("libraryPlateNumber")){
+            for(Plate p : plateFiltered.keySet()) {
+                if(p.getLibraryPlateNumber().equals(Integer.parseInt(plateFilterString))) { plateFiltered.put(p,true); }
+                else  plateFiltered.put(p,false);
+            }
+        } else if (plateFilterAttribute.equals("assay")){
+            for(Plate p : plateFiltered.keySet()) {
+                if(p.getAssay().contains(plateFilterString)) { plateFiltered.put(p,true); }
+                else  plateFiltered.put(p,false);
+            }
+        } else if (plateFilterAttribute.equals("replicate")){
+            for(Plate p : plateFiltered.keySet()) {
+                if(p.getReplicate().contains(plateFilterString)) { plateFiltered.put(p,true); }
+                else  plateFiltered.put(p,false);
+            }
+        } else if (plateFilterAttribute.equals("description")){
+            for(Plate p : plateFiltered.keySet()) {
+                if(p.getDescription().contains(plateFilterString)) { plateFiltered.put(p,true); }
+                else  plateFiltered.put(p,false);
+            }
+        } else if (plateFilterAttribute.equals("id")){
+            for(Plate p : plateFiltered.keySet()) {
+                if(p.getId().contains(plateFilterString)) { plateFiltered.put(p,true); }
+                else  plateFiltered.put(p,false);
+            }
+        } else {
+            System.err.println("Can't filter the plate attribute " + plateFilterAttribute + ".");
         }
 
         fireModelChanged();
+    }
+
+    public void filterPlates(String pfs, String pfa) {
+        setPlateFilterAttribute(pfa);
+        filterPlates(pfs);
     }
 
     public boolean isSelected(Plate p){
@@ -323,6 +376,16 @@ public class HeatMapModel {
 
     public String getOverlayValue(Well well) {
         return well.getAnnotation(getOverlay());
+    }
+
+
+    public void setPlateFilterString(String fs) {
+        this.plateFilterString = fs;
+    }
+
+
+    public void setPlateFilterAttribute(String fa) {
+        this.plateFilterAttribute = fa;
     }
 
 

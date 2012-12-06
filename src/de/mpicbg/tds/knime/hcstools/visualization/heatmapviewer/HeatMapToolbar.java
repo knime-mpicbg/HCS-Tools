@@ -1,6 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.*;
 import javax.swing.*;
 
@@ -45,7 +47,21 @@ public class HeatMapToolbar extends JToolBar {
         add(filterSelector);
         filterString = new JFormattedTextField();
         filterString.setPreferredSize(new Dimension(100, 20));
+        filterString.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                filterPlates(actionEvent);
+            }
+        });
         add(filterString);
+    }
+
+
+    private void filterPlates(ActionEvent event) {
+//        JFormattedTextField textField = (JFormattedTextField) event.getSource();
+        String filterString = event.getActionCommand();
+        String filterAnnotation = (String) filterSelector.getSelectedItem();
+        heatMapModel.filterPlates(filterString, filterAnnotation);
     }
 
 
