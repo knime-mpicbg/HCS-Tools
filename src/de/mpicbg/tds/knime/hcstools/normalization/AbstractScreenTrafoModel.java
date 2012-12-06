@@ -21,7 +21,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 public abstract class AbstractScreenTrafoModel extends AbstractNodeModel {
 
 
-    public static final String SCREEN_MODEL_BARCODE = "barcode";
+    public static final String SCREEN_MODEL_BARCODE = "barcode";        // TODO this should not be here, rather in in TdsUtils (keep the SCREEN_MODEL variables at one place)
     public static final String GROUP_WELLS_BY_DEFAULT = "barcode";
     public static final String GROUP_WELLS_BY_PROPERTY = "group.wells.by";
     public static final String GROUP_WELLS_BY_DESC = "Group wells by";
