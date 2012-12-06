@@ -37,7 +37,7 @@ public class WellPropertySelector extends JComboBox {
 					heatMapModel.setCurrentReadout((String) getSelectedItem());
 				}
 				break;
-			case ANNOATION:
+			case OVERLAY_ANNOTATION:
 				if (heatMapModel.getOverlay() != null) {
 					setSelectedItem(heatMapModel.getOverlay());
 				} else {
@@ -57,7 +57,7 @@ public class WellPropertySelector extends JComboBox {
 					case READOUT:
 						mapModel.setCurrentReadout((String) getModel().getSelectedItem());
 						break;
-					case ANNOATION:
+					case OVERLAY_ANNOTATION:
 						mapModel.setOverlay((String) getModel().getSelectedItem());
 						break;
 				}
@@ -100,5 +100,5 @@ public class WellPropertySelector extends JComboBox {
 
 enum SelectorType {
 
-	READOUT, ANNOATION
+	READOUT, OVERLAY_ANNOTATION
 }

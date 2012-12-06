@@ -370,7 +370,7 @@ public class HeatMapViewerMenu extends JPanel {
 		// reconfigure the selectors
 		List<String> annotTypes = TdsUtils.flattenAnnotationTypes(subScreen);
 		annotTypes.add(0, "");
-		overlaySelector.configure(annotTypes, heatMapModel, SelectorType.ANNOATION);
+		overlaySelector.configure(annotTypes, heatMapModel, SelectorType.OVERLAY_ANNOTATION);
 
 
 		List<String> readoutNames = TdsUtils.flattenReadoutNames(subScreen);
