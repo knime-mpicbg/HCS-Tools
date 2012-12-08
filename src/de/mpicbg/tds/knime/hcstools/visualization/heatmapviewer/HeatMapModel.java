@@ -23,6 +23,7 @@ import java.util.List;
 public class HeatMapModel {
 
     ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();
+    LinearGradientPaint colorGradient;
 
     private String currentReadout;
 
@@ -238,6 +239,14 @@ public class HeatMapModel {
 
     public ScreenColorScheme getColorScheme() {
         return colorScheme;
+    }
+
+    public LinearGradientPaint getColorGradient() {
+        return colorGradient;
+    }
+
+    public void setColorGradient(LinearGradientPaint gradient) {
+        colorGradient = gradient;
     }
 
 
