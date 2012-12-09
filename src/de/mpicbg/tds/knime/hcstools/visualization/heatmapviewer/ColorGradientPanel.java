@@ -15,7 +15,7 @@ import java.awt.geom.Point2D;
 public class ColorGradientPanel extends JPanel{
 
     private LinearGradientPaint gradientPaint;
-    private static final Dimension dimension = new Dimension(400, 50);
+    private static final Dimension dimension = new Dimension(400, 30);
 
 
     // Constructors
