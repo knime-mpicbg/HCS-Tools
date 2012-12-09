@@ -15,7 +15,13 @@ import java.awt.geom.Point2D;
 public class ColorGradientPanel extends JPanel{
 
     private LinearGradientPaint gradientPaint;
+
+    // Defaults
     private static final Dimension dimension = new Dimension(400, 30);
+    private static final Color[] defaultColors = {new Color(0,255,0),
+                                                  new Color(0,0,0),
+                                                  new Color(255, 0,0)};
+    private static final float[] defaultPositions = new float[] {0, (float) 0.5, 1};
 
 
     // Constructors
@@ -31,6 +37,10 @@ public class ColorGradientPanel extends JPanel{
 
     // Utilities
     private void initialize() {
+        gradientPaint = new LinearGradientPaint(new Point2D.Double(0,0),
+                                                new Point2D.Double(dimension.getWidth(), 0),
+                                                defaultPositions,
+                                                defaultColors);
         setMinimumSize(dimension);
     }
 
@@ -69,16 +79,10 @@ public class ColorGradientPanel extends JPanel{
 
 
     public static void main(String[] args) {
-        ColorGradientDialog dialog = new ColorGradientDialog();
-        dialog.setVisible(true);
+        ColorGradientPanel bar = new ColorGradientPanel();
         JFrame frame = new JFrame("ColorGradientToolBar Test");
         frame.setSize(dimension);
-        if (dialog.getGradientPainter() == null) {
-            frame.add(new JLabel("Well, from nothing comes nothing."));
-        } else {
-            ColorGradientPanel bar = new ColorGradientPanel(dialog.getGradientPainter());
-            frame.add(bar);
-        }
+        frame.add(bar);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
