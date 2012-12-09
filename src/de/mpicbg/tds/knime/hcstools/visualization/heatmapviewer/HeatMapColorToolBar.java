@@ -1,10 +1,10 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.core.view.color.ReadoutRescaleStrategy;
-
 import javax.swing.*;
 import java.awt.*;
 import java.text.DecimalFormat;
+
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRescaleStrategy;
 
 /**
  * User: Felix Meyenhofer
@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
  * Time: 1:35
  *
  * Colorbar to integrate in a heatmap frame.
+ * TODO: When changing the orientation of the toolbar, the layout should be changed and the colorgradient rotated.
  */
 
 public class HeatMapColorToolBar extends JToolBar {
@@ -81,9 +82,15 @@ public class HeatMapColorToolBar extends JToolBar {
         add(missPanel, constraints);
     }
 
-    private void configure(HeatMapModel model) {
+    protected void configure(HeatMapModel model) {
         heatMapModel = model;
-        colorPanel.configure(model.colorGradient);
+        if ( model.colorGradient == null ) {
+            model.colorGradient = colorPanel.getGradientPainter();
+            System.err.println("The HeatMapModels colorGradient attribute is not set, taking the default from ColorGradientPanel.");
+        } else {
+            colorPanel.configure(model.colorGradient);
+        }
+
         ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getRescaleStrategy();
         if ( heatMapModel.getSelectedReadOut() == null ) {
             System.err.println("No Readout is selected, can't calculate the minimum and maximum value of the color bar.");
@@ -108,13 +115,9 @@ public class HeatMapColorToolBar extends JToolBar {
 
 
     public static void main(String[] args) {
-        HeatMapModel model = new HeatMapModel();
-        ColorGradientDialog dialog = new ColorGradientDialog();
-        dialog.setVisible(true);
-        model.setColorGradient(dialog.getGradientPainter());
-        HeatMapColorToolBar toolBar = new HeatMapColorToolBar(model);
+        HeatMapColorToolBar toolBar = new HeatMapColorToolBar();
         JFrame frame = new JFrame();
-        frame.setSize(toolBar.colorPanel.getWidth(), toolBar.colorPanel.getHeight());
+        frame.setSize(500, 100);
         frame.add(toolBar);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
