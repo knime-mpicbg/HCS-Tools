@@ -14,7 +14,7 @@ import java.awt.geom.Point2D;
 
 public class ColorGradientPanel extends JPanel{
 
-    private LinearGradientPaint gradientPaint;
+    private LinearGradientPaint gradientPainter;
 
     // Defaults
     private static final Dimension dimension = new Dimension(400, 30);
@@ -37,7 +37,7 @@ public class ColorGradientPanel extends JPanel{
 
     // Utilities
     private void initialize() {
-        gradientPaint = new LinearGradientPaint(new Point2D.Double(0,0),
+        gradientPainter = new LinearGradientPaint(new Point2D.Double(0,0),
                                                 new Point2D.Double(dimension.getWidth(), 0),
                                                 defaultPositions,
                                                 defaultColors);
@@ -45,15 +45,15 @@ public class ColorGradientPanel extends JPanel{
     }
 
     public void configure(LinearGradientPaint painter) {
-        setGradientPaint(painter);
+        setGradientPainter(painter);
     }
 
-    public void setGradientPaint(LinearGradientPaint painter) {
-        gradientPaint = painter;
+    public void setGradientPainter(LinearGradientPaint painter) {
+        gradientPainter = painter;
     }
 
-    public LinearGradientPaint getGradientPaint() {
-        return gradientPaint;
+    public LinearGradientPaint getGradientPainter() {
+        return gradientPainter;
     }
 
     // Overwrite the JPanel renderer
@@ -65,8 +65,8 @@ public class ColorGradientPanel extends JPanel{
         // Create a new gradient painter with the current panel width.
         Point2D sta = new Point2D.Double(0, 0);
         Point2D sto = new Point2D.Double(getWidth(), 0);
-        float[] pos = gradientPaint.getFractions();
-        Color[] col = gradientPaint.getColors();
+        float[] pos = gradientPainter.getFractions();
+        Color[] col = gradientPainter.getColors();
         LinearGradientPaint gradient = new LinearGradientPaint(sta, sto, pos, col);
 
         // Render the graphics
