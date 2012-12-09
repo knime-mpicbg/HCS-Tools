@@ -33,7 +33,7 @@ public class ScreenHeatMapsFrame extends JFrame implements HiLiteListener{
         add(screenPanel);
         setBounds(150, 150, 800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        pack();
+//        pack();
         setVisible(true);
     }
 
@@ -45,9 +45,8 @@ public class ScreenHeatMapsFrame extends JFrame implements HiLiteListener{
         add(screenPanel);
         setBounds(150, 150, 800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        pack();
+//        pack();
         setVisible(true);
-
     }
 
 
