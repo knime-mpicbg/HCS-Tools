@@ -6,14 +6,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
-//import de.mpicbg.tds.core.view.HeatMapModel;
-//import de.mpicbg.tds.core.view.HeatWellPanel;
-//import de.mpicbg.tds.core.view.OverlayLegendDialog;
-//import de.mpicbg.tds.core.view.WellPropertySelector;
-import de.mpicbg.tds.core.view.color.BlackGreenColorScale;
-import de.mpicbg.tds.core.view.color.GlobalMinMaxStrategy;
-import de.mpicbg.tds.core.view.color.GreenBlackRedColorScale;
-import de.mpicbg.tds.core.view.color.QuantileSmoothedStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.*;
 
 import javax.swing.*;
 import java.awt.*;

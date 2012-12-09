@@ -3,7 +3,6 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
-import de.mpicbg.tds.core.view.color.ReadoutRescaleStrategy;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import java.util.ArrayList;

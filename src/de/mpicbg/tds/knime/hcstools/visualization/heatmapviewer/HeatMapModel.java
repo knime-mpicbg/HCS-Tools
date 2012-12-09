@@ -5,14 +5,12 @@ import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.PlateSortByDate;
 import de.mpicbg.tds.core.model.PlateSortByPlateNumber;
 import de.mpicbg.tds.core.model.Well;
-//import de.mpicbg.tds.core.view.HeatMapModelChangeListener;
-import de.mpicbg.tds.core.view.color.*;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.*;
 import org.apache.commons.math.stat.Frequency;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-
 
 /**
  * Document me!

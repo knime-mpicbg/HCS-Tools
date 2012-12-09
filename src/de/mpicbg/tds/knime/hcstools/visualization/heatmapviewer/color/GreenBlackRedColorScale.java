@@ -1,8 +1,5 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color;
 
-import de.mpicbg.tds.core.view.color.ColorMap;
-import de.mpicbg.tds.core.view.color.ColorScale;
-
 import java.awt.*;
 
 /**
@@ -10,11 +7,10 @@ import java.awt.*;
  *
  * @author Holger Brandl
  */
+
 public class GreenBlackRedColorScale implements ColorScale {
 
-
 	public Color mapReadout2Color(Double displayNormReadOut) {
-
 		double v = -0.5 + displayNormReadOut;
 		if (v > 0.0)
 			return (ColorMap.colorRedToBlack[(int) (255.0 - 255.0 * (2 * v))]);

@@ -15,7 +15,6 @@ import de.mpicbg.tds.core.Utils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.core.util.PanelImageExporter;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ColorBar;
 
 /**
  * User: Felix Meyenhofer
@@ -34,7 +33,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
     private HeatMapMenu menu;
     private HeatMapToolbar toolbar;
     private JPanel heatMapsContainer;
-    private ColorBar colorbar;
+    private HeatMapColorToolBar colorbar;
 
 
     // Constructors
@@ -83,9 +82,9 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         text.setEditable(false);
         heatMapsContainer.add(text, "0, 0");
 
-        colorbar = new ColorBar();
-        JToolBar colortoolbar = new JToolBar();
-        colortoolbar.add(colorbar);
+        colorbar = new HeatMapColorToolBar();
+//        JToolBar colortoolbar = new JToolBar();
+//        colortoolbar.add(colorbar);
 
         JScrollPane heatMapScrollPane = new JScrollPane();
         heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -95,7 +94,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         setLayout(new BorderLayout());
         add(toolbar, BorderLayout.NORTH);
         add(heatMapScrollPane, BorderLayout.CENTER);
-        add(colortoolbar, BorderLayout.SOUTH);
+        add(colorbar, BorderLayout.SOUTH);
     }
 
     public void setPlates(List<Plate> plates) {

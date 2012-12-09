@@ -14,20 +14,20 @@ import java.util.List;
  *
  * @author Holger Brandl
  */
-public class ScreenColorScheme {
 
+public class ScreenColorScheme {
 
     private Map<String, Map<String, Color>> colorCache = new HashMap<String, Map<String, Color>>();
     private Random r = new Random(4711);   // use seed here, to keep colors consistent between different runs
 
 //    private ScreenControlServiceImpl controlService;
 
-    private static de.mpicbg.tds.core.view.color.ScreenColorScheme instance;
+    private static ScreenColorScheme instance;
 
 
-    public static de.mpicbg.tds.core.view.color.ScreenColorScheme getInstance() {
+    public static ScreenColorScheme getInstance() {
         if (instance == null)
-            instance = new de.mpicbg.tds.core.view.color.ScreenColorScheme();
+            instance = new ScreenColorScheme();
 
         return instance;
     }

@@ -3,16 +3,15 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
-import de.mpicbg.tds.core.view.color.ReadoutRescaleStrategy;
 
 import java.util.*;
-
 
 /**
  * Document me!
  *
  * @author Holger Brandl
  */
+
 public class GlobalMinMaxStrategy implements ReadoutRescaleStrategy {
 
     Map<String, Double> minMap = new HashMap<String, Double>();

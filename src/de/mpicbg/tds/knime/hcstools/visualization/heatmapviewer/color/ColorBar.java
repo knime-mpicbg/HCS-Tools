@@ -3,7 +3,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color;
 import de.mpicbg.tds.core.util.ImageClipper;
 import de.mpicbg.tds.core.util.PanelImageExporter;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
-import de.mpicbg.tds.core.view.color.ReadoutRescaleStrategy;
+//import de.mpicbg.tds.core.view.color.ReadoutRescaleStrategy;
 
 import javax.swing.*;
 import java.awt.*;

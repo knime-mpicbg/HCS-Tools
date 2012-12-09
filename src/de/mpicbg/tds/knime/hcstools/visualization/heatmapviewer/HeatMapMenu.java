@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.core.view.color.GlobalMinMaxStrategy;
-import de.mpicbg.tds.core.view.color.QuantileSmoothedStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinMaxStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileSmoothedStrategy;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
