@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
  *
  * @author Holger Brandl
  */
+@Deprecated
 public class NumFormatingTests {
 
 	public static void main(String[] args) {

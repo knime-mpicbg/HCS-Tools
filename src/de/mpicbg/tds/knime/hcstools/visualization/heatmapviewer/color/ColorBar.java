@@ -17,6 +17,7 @@ import java.text.DecimalFormat;
  *
  * @author Holger Brandl
  */
+@Deprecated
 public class ColorBar extends JPanel {
 
 	public final int NUM_INC_STEPS = 20;

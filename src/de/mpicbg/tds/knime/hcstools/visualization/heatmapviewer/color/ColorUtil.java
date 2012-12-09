@@ -27,7 +27,7 @@ import de.mpicbg.tds.core.view.color.ColorMap;
 
 import java.awt.*;
 
-
+@Deprecated
 public abstract class ColorUtil {
 
 

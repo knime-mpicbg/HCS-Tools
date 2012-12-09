@@ -27,7 +27,7 @@ import de.mpicbg.tds.core.view.color.ColorMap;
 
 import java.awt.*;
 
-
+@Deprecated
 public class ColorMapper {
 
     private double min = 0.0;

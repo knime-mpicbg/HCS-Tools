@@ -7,6 +7,7 @@ import java.awt.*;
  *
  * @author Holger Brandl
  */
+@Deprecated
 public interface ColorScale {
 	Color mapReadout2Color(Double displayNormReadOut);
 }
