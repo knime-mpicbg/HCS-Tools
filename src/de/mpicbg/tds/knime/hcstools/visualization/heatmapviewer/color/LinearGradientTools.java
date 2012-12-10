@@ -56,30 +56,30 @@ public abstract class LinearGradientTools {
         return interpolateColor(colors[lowerIndex], colors[upperIndex], rescaled);
     }
 
-    private static java.awt.Color interpolateColor(final Color COLOR1, final Color COLOR2, final float FRACTION) {
-        assert(Float.compare(FRACTION, 0f) >= 0 && Float.compare(FRACTION, 1f) <= 0);
+    public static Color interpolateColor(final Color color1, final Color color2, final float fraction) {
+        assert(Float.compare(fraction, 0f) >= 0 && Float.compare(fraction, 1f) <= 0);
 
         final float INT_TO_FLOAT_CONST = 1f / 255f;
 
-        final float RED1 = COLOR1.getRed() * INT_TO_FLOAT_CONST;
-        final float GREEN1 = COLOR1.getGreen() * INT_TO_FLOAT_CONST;
-        final float BLUE1 = COLOR1.getBlue() * INT_TO_FLOAT_CONST;
-        final float ALPHA1 = COLOR1.getAlpha() * INT_TO_FLOAT_CONST;
+        final float RED1 = color1.getRed() * INT_TO_FLOAT_CONST;
+        final float GREEN1 = color1.getGreen() * INT_TO_FLOAT_CONST;
+        final float BLUE1 = color1.getBlue() * INT_TO_FLOAT_CONST;
+        final float ALPHA1 = color1.getAlpha() * INT_TO_FLOAT_CONST;
 
-        final float RED2 = COLOR2.getRed() * INT_TO_FLOAT_CONST;
-        final float GREEN2 = COLOR2.getGreen() * INT_TO_FLOAT_CONST;
-        final float BLUE2 = COLOR2.getBlue() * INT_TO_FLOAT_CONST;
-        final float ALPHA2 = COLOR2.getAlpha() * INT_TO_FLOAT_CONST;
+        final float RED2 = color2.getRed() * INT_TO_FLOAT_CONST;
+        final float GREEN2 = color2.getGreen() * INT_TO_FLOAT_CONST;
+        final float BLUE2 = color2.getBlue() * INT_TO_FLOAT_CONST;
+        final float ALPHA2 = color2.getAlpha() * INT_TO_FLOAT_CONST;
 
         final float DELTA_RED = RED2 - RED1;
         final float DELTA_GREEN = GREEN2 - GREEN1;
         final float DELTA_BLUE = BLUE2 - BLUE1;
         final float DELTA_ALPHA = ALPHA2 - ALPHA1;
 
-        float red = RED1 + (DELTA_RED * FRACTION);
-        float green = GREEN1 + (DELTA_GREEN * FRACTION);
-        float blue = BLUE1 + (DELTA_BLUE * FRACTION);
-        float alpha = ALPHA1 + (DELTA_ALPHA * FRACTION);
+        float red = RED1 + (DELTA_RED * fraction);
+        float green = GREEN1 + (DELTA_GREEN * fraction);
+        float blue = BLUE1 + (DELTA_BLUE * fraction);
+        float alpha = ALPHA1 + (DELTA_ALPHA * fraction);
 
         red = red < 0f ? 0f : red;
         red = red > 1f ? 1f : red;
@@ -106,8 +106,8 @@ public abstract class LinearGradientTools {
                                                new Point2D.Double(100, 0),
                                                new float[] {0f,0.5f,1f},
                                                new Color[] {new Color(0,0,0),
-                                                             new Color(255, 0, 0),
-                                                             new Color(255, 255, 0)});
+                                                            new Color(255, 0, 0),
+                                                            new Color(255, 255, 0)});
         } else if (Arrays.asList(MAP_HSV).contains(str)) {
             gradient = new LinearGradientPaint(new Point2D.Double(0,0),
                                                new Point2D.Double(100, 0),
