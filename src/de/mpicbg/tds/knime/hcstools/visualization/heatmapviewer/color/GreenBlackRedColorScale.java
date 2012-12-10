@@ -7,7 +7,7 @@ import java.awt.*;
  *
  * @author Holger Brandl
  */
-
+@Deprecated
 public class GreenBlackRedColorScale implements ColorScale {
 
 	public Color mapReadout2Color(Double displayNormReadOut) {

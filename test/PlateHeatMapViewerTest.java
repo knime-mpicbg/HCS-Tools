@@ -218,8 +218,8 @@ public class PlateHeatMapViewerTest {
         PlateHeatMapViewerTest test = new PlateHeatMapViewerTest();
         DataTable table = test.loadTable();
         List<Plate> plates = test.parseIntoPlates(table);
-        new ScreenHeatMapsFrame(plates);
-//        new ScreenPanelFrame(plates);
+//        new ScreenHeatMapsFrame(plates);
+        new ScreenPanelFrame(plates);
     }
 
 }

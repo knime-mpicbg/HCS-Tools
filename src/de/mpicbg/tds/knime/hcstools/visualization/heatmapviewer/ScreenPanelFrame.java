@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.view.ScreenPanel;
+//import de.mpicbg.tds.core.view.ScreenPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,13 +16,13 @@ import java.util.List;
 @Deprecated                        // Replaced by ScreenHeatMapsFrame
 public class ScreenPanelFrame extends JFrame {
 
-    public de.mpicbg.tds.core.view.ScreenPanel screenPanel;
+    public ScreenPanel screenPanel;
 
 
     public ScreenPanelFrame(List<Plate> plates) {
         setLayout(new BorderLayout());
 
-        screenPanel = new de.mpicbg.tds.core.view.ScreenPanel(plates);
+        screenPanel = new ScreenPanel(plates);
         add(screenPanel, BorderLayout.CENTER);
 //        add(new JLabel("test123"), BorderLayout.CENTER);
 
