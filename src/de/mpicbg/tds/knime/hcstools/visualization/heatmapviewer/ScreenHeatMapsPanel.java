@@ -20,6 +20,9 @@ import de.mpicbg.tds.core.util.PanelImageExporter;
  * User: Felix Meyenhofer
  * Date: 11/27/12
  * Time: 16:43
+ *
+ * A panel to create a trellis of plate heat-maps, a toolbar to select what readout to display and another toolbar
+ * containing the color-bar.
  */
 
 public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeListener {
@@ -53,7 +56,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         ToolTipManager.sharedInstance().setInitialDelay(500);
         setPlates(plates);
 
-        // relayout the app when the window size changes
+        // re-layout the app when the window size changes
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent componentEvent) {
@@ -83,8 +86,6 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         heatMapsContainer.add(text, "0, 0");
 
         colorbar = new HeatMapColorToolBar();
-//        JToolBar colortoolbar = new JToolBar();
-//        colortoolbar.add(colorbar);
 
         JScrollPane heatMapScrollPane = new JScrollPane();
         heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -106,9 +107,8 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         // pre-configure the heatmap configuration model
         heatMapModel.setScreen(plates);
         parsePlateBarCodes();
-        colorbar.configure(heatMapModel);
         toolbar.configure(heatMapModel);
-//        heatMapViewerMenu.configure(heatMapModel);
+        colorbar.configure(heatMapModel); // Careful the toolbar has to be configured first, since the colorbar needs the readout for its configuration.
     }
 
     protected void zoom(double zoomFactor) {
@@ -238,17 +238,17 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         heatMapModel.setWellSelection(wellSelection);
         repaint();
 
-//        heatMapModel.setWellSelection(wellSelection);
-//        for (Well well : wellSelection) {
-//            plateWells.get(well.getPlate()).add(well);
-//        }
-//
-//        // propagate the selection to the different panels
-//        for (ScreenHeatMapsTrellis heatmap : heatmaps) {
-//            Collection<Well> plateSelection = plateWells.get(heatmap.getPlate());
-//
-//            heatmap.setSelection(plateSelection);
-//        }
+        heatMapModel.setWellSelection(wellSelection);
+        for (Well well : wellSelection) {
+            plateWells.get(well.getPlate()).add(well);
+        }
+
+        // propagate the selection to the different panels
+        for (ScreenHeatMapsTrellis heatmap : heatmaps) {
+            Collection<Well> plateSelection = plateWells.get(heatmap.getPlate());
+
+            heatmap.setSelection(plateSelection);
+        }
     }
 
     public void modelChanged() {

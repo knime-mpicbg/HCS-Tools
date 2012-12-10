@@ -39,6 +39,28 @@ public class HeatMapColorToolBar extends JToolBar {
     }
 
 
+    @Override
+    protected void paintComponent(Graphics graphics) {
+        if ( heatMapModel.colorGradient == null ) {
+            heatMapModel.colorGradient = colorPanel.getGradientPainter();
+            System.err.println("The HeatMapModels colorGradient attribute is not set, taking the default from ColorGradientPanel.");
+        } else {
+            colorPanel.configure(heatMapModel.colorGradient);
+        }
+
+        ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getRescaleStrategy();
+        if ( heatMapModel.getSelectedReadOut() == null ) {
+            System.err.println("No Readout is selected, can't calculate the minimum and maximum value of the color bar.");
+        } else {
+            Double minValue = displayNormStrategy.getMinValue(heatMapModel.getSelectedReadOut());
+            Double maxValue = displayNormStrategy.getMaxValue(heatMapModel.getSelectedReadOut());
+            assert minValue < maxValue : "maximal readout value does not differ from minimal one";
+            minLabel.setText(format(minValue));
+            medLabel.setText(format((maxValue+minValue)/2));
+            maxLabel.setText(format(maxValue));
+        }
+    }
+
     private void initialize() {
         setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -84,24 +106,6 @@ public class HeatMapColorToolBar extends JToolBar {
 
     protected void configure(HeatMapModel2 model) {
         heatMapModel = model;
-        if ( model.colorGradient == null ) {
-            model.colorGradient = colorPanel.getGradientPainter();
-            System.err.println("The HeatMapModels colorGradient attribute is not set, taking the default from ColorGradientPanel.");
-        } else {
-            colorPanel.configure(model.colorGradient);
-        }
-
-        ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getRescaleStrategy();
-        if ( heatMapModel.getSelectedReadOut() == null ) {
-            System.err.println("No Readout is selected, can't calculate the minimum and maximum value of the color bar.");
-        } else {
-            Double minValue = displayNormStrategy.getMinValue(heatMapModel.getSelectedReadOut());
-            Double maxValue = displayNormStrategy.getMaxValue(heatMapModel.getSelectedReadOut());
-            assert minValue < maxValue : "maximal readout value does not differ from minimal one";
-            minLabel.setText(format(minValue));
-            medLabel.setText(format((maxValue+minValue)/2));
-            maxLabel.setText(format(maxValue));
-        }
     }
 
     public static String format(double value) {
