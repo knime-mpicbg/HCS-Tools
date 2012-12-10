@@ -1,12 +1,5 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
-//import de.mpicbg.tds.core.view.HeatMapModel;
-//import de.mpicbg.tds.core.view.HeatWellPanel;
-import info.clearthought.layout.TableLayout;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -15,23 +8,28 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.tds.core.model.Well;
+
+import info.clearthought.layout.TableLayout;
 
 /**
  * Implements a more details view for a single plate which also includes compounds, concentration, etc.
  *
  * @author Holger Brandl
  */
-@Deprecated //Replaced by PlateHeatMap
-public class PlateDetailsHeatMap extends JPanel {
+
+public class PlateHeatMap extends JPanel {
 
     private Plate plate;
 
-    private HeatMapModel heatmapModel;
+    private HeatMapModel2 heatmapModel;
 
-    Map<Well, HeatWellPanel> wellPanelGrid = new HashMap<Well, HeatWellPanel>();
+    Map<Well, PlateHeatMapPanel> wellPanelGrid = new HashMap<Well, PlateHeatMapPanel>();
 
 
-    public PlateDetailsHeatMap(Plate plate, HeatMapModel heatmapModel) {
+    public PlateHeatMap(Plate plate, HeatMapModel2 heatmapModel) {
 
         this.plate = plate;
         this.heatmapModel = heatmapModel;
@@ -89,7 +87,7 @@ public class PlateDetailsHeatMap extends JPanel {
         // 3) actual well renderers (by iterating over the plate as it's much more efficient compared to using the service)
         for (Well well : plate.getWells()) {
             String insertPosition = (well.getPlateColumn()) + ", " + (well.getPlateRow());
-            HeatWellPanel heatWellPanel = new HeatWellPanel(well, heatmapModel);
+            PlateHeatMapPanel heatWellPanel = new PlateHeatMapPanel(well, heatmapModel);
 
             heatWellPanel.addMouseListener(selectionController);
 
@@ -108,7 +106,7 @@ public class PlateDetailsHeatMap extends JPanel {
 
 
     public void showGrid(boolean doShowGrid) {
-        for (HeatWellPanel heatWellPanel : wellPanelGrid.values()) {
+        for (PlateHeatMapPanel heatWellPanel : wellPanelGrid.values()) {
             heatWellPanel.setShowGrid(doShowGrid);
         }
     }
@@ -160,7 +158,7 @@ public class PlateDetailsHeatMap extends JPanel {
                         }
                     }
 
-                    PlateDetailsHeatMap.this.repaint();
+                    PlateHeatMap.this.repaint();
                 }
             }
 
@@ -211,7 +209,7 @@ public class PlateDetailsHeatMap extends JPanel {
                 invertSelection(wellPanel.getWell());
             }
 
-            PlateDetailsHeatMap.this.repaint();
+            PlateHeatMap.this.repaint();
         }
 
 

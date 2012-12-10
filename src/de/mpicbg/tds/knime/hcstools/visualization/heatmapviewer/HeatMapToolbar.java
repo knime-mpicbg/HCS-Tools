@@ -18,10 +18,10 @@ import de.mpicbg.tds.core.model.Plate;
 
 public class HeatMapToolbar extends JToolBar {
 
-    private HeatMapModel heatMapModel;
-    private WellPropertySelector readoutSelector;
-    private WellPropertySelector overlaySelector;
-    private PlatePropertySelector filterSelector;
+    private HeatMapModel2 heatMapModel;
+    private WellAttributeComboBox readoutSelector;
+    private WellAttributeComboBox overlaySelector;
+    private PlateAttributeComboBox filterSelector;
     private JFormattedTextField filterString;
 
 
@@ -30,19 +30,19 @@ public class HeatMapToolbar extends JToolBar {
         setPreferredSize(new Dimension(600, 30));
 
         add(new JLabel("Readout:"));
-        readoutSelector = new WellPropertySelector();
+        readoutSelector = new WellAttributeComboBox();
         readoutSelector.setPreferredSize(new Dimension(250, -1));
         add(readoutSelector);
         addSeparator();
 
         add(new JLabel("Overlay:"));
-        overlaySelector = new WellPropertySelector();
+        overlaySelector = new WellAttributeComboBox();
         overlaySelector.setPreferredSize(new Dimension(100, -1));
         add(overlaySelector);
         addSeparator();
 
         add(new JLabel("Filter Plates by:"));
-        filterSelector = new PlatePropertySelector();
+        filterSelector = new PlateAttributeComboBox();
         filterSelector.setPreferredSize(new Dimension(100, -1));
         add(filterSelector);
         filterString = new JFormattedTextField();
@@ -65,7 +65,7 @@ public class HeatMapToolbar extends JToolBar {
 
 
     // Configure the gui components with the menu items.
-    protected void configure(HeatMapModel hmm) {
+    protected void configure(HeatMapModel2 hmm) {
         heatMapModel = hmm;
 
         // populate the overlay menu based on the first plate

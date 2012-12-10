@@ -16,14 +16,14 @@ import java.awt.*;
 /**
  * @author Holger Brandl
  */
-@Deprecated // Replaced by OverlayLegendFrame
-public class OverlayLegendDialog extends JDialog implements HeatMapModelChangeListener {
+
+public class OverlayLegendFrame extends JDialog implements HeatMapModelChangeListener {
 
 	private HeatMapModel heatMapModel;
 	public OverlayLegendPanel legendPanel;
 
 
-	public OverlayLegendDialog(Frame owner) {
+	public OverlayLegendFrame(Frame owner) {
 		super(owner);
 		initComponents();
 
@@ -34,7 +34,7 @@ public class OverlayLegendDialog extends JDialog implements HeatMapModelChangeLi
 	}
 
 
-	public OverlayLegendDialog(Dialog owner) {
+	public OverlayLegendFrame(Dialog owner) {
 		super(owner);
 		initComponents();
 
@@ -48,7 +48,7 @@ public class OverlayLegendDialog extends JDialog implements HeatMapModelChangeLi
 	}
 
 
-	private void initComponents() {
+	private void initComponents() {             //TODO: do this without JFormDesigner
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		// Generated using JFormDesigner Open Source Project license - Sphinx-4 (cmusphinx.sourceforge.net/sphinx4/)
 		scrollPane1 = new JScrollPane();

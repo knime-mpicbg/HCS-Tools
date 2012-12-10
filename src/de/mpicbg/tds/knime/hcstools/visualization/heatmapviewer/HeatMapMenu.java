@@ -50,7 +50,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     JMenuItem rowscolumns;
     JMenuItem sortplates;
 
-    HeatMapModel heatMapModel;
+    HeatMapModel2 heatMapModel;
     ScreenHeatMapsPanel heatMapsPanel;
 
 
@@ -288,7 +288,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
             overlayLegendDialog = new OverlayLegendDialog((Frame) parentContainer);
         }
 
-        overlayLegendDialog.setModel(heatMapModel);
+//        overlayLegendDialog.setModel(heatMapModel);        //TODO Create a new overlay legend that uses the heatmapmodel2
         overlayLegendDialog.setModal(false);
         overlayLegendDialog.setVisible(true);
     }
@@ -319,7 +319,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     }
 
     private void sortPlatesAction() {
-        WellPropertyDialog dialog = new WellPropertyDialog();
+        WellAttributeDialog dialog = new WellAttributeDialog();
         dialog.pack();
         dialog.setVisible(true);
     }

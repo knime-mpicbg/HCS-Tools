@@ -1,15 +1,16 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.Utils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
-
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
+import javax.swing.*;
 import java.util.Collection;
+
+import de.mpicbg.tds.core.Utils;
+import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.core.model.Plate;
+
 
 
 /**
@@ -17,15 +18,15 @@ import java.util.Collection;
  *
  * @author Holger Brandl
  */
-@Deprecated //replaced by ScreenHeatMapTrellis
-public class PlateOverviewHeatMap extends JPanel {
+
+public class ScreenHeatMapsTrellis extends JPanel {
 
     private Plate plate;
 
-    private HeatMapModel heatMapModel;
+    private HeatMapModel2 heatMapModel;
 
 
-    public PlateOverviewHeatMap(final Plate plate, HeatMapModel heatMapModel) {
+    public ScreenHeatMapsTrellis(final Plate plate, HeatMapModel2 heatMapModel) {
         this.plate = plate;
 
         this.heatMapModel = heatMapModel;
@@ -63,17 +64,17 @@ public class PlateOverviewHeatMap extends JPanel {
 
                 // todo if we want to use a global color scale also in the single plate view we ave to use te next line
 //                plateHeatMapModel.setScreen(PlateOverviewHeatMap.this.heatMapModel.getScreen());
-                plateHeatMapModel.setCurrentReadout(PlateOverviewHeatMap.this.heatMapModel.getSelectedReadOut());
-                plateHeatMapModel.setOverlay(PlateOverviewHeatMap.this.heatMapModel.getOverlay());
-                plateHeatMapModel.setReadoutRescaleStrategy(PlateOverviewHeatMap.this.heatMapModel.getRescaleStrategy());
-                plateHeatMapModel.setColorScheme(PlateOverviewHeatMap.this.heatMapModel.getColorScheme());
-                plateHeatMapModel.setHideMostFreqOverlay(PlateOverviewHeatMap.this.heatMapModel.doHideMostFreqOverlay());
+                plateHeatMapModel.setCurrentReadout(ScreenHeatMapsTrellis.this.heatMapModel.getSelectedReadOut());
+                plateHeatMapModel.setOverlay(ScreenHeatMapsTrellis.this.heatMapModel.getOverlay());
+                plateHeatMapModel.setReadoutRescaleStrategy(ScreenHeatMapsTrellis.this.heatMapModel.getRescaleStrategy());
+                plateHeatMapModel.setColorScheme(ScreenHeatMapsTrellis.this.heatMapModel.getColorScheme());
+                plateHeatMapModel.setHideMostFreqOverlay(ScreenHeatMapsTrellis.this.heatMapModel.doHideMostFreqOverlay());
 
-                if (PlateOverviewHeatMap.this.heatMapModel.getWellSelection().size() > 0) {
-                    plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(PlateOverviewHeatMap.this.heatMapModel.getWellSelection()).get(plate));
+                if (ScreenHeatMapsTrellis.this.heatMapModel.getWellSelection().size() > 0) {
+                    plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(ScreenHeatMapsTrellis.this.heatMapModel.getWellSelection()).get(plate));
                 }
 
-                Window ownerWindow = Utils.getOwnerDialog(PlateOverviewHeatMap.this);
+                Window ownerWindow = Utils.getOwnerDialog(ScreenHeatMapsTrellis.this);
                 PlatePanel.createPanelDialog(plate, plateHeatMapModel, ownerWindow);
             }
         });

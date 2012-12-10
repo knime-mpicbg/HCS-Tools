@@ -1,8 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.core.model.Well;
-//import de.mpicbg.tds.core.view.HeatMapModel;
-//import de.mpicbg.tds.core.view.WellDetailPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +9,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.Random;
 
+//import de.mpicbg.tds.core.view.HeatMapModel;
+//import de.mpicbg.tds.core.view.WellDetailPanel;
+
 
 /**
  * A JPanel which renders a detailed view on a single well within a heat-map.
@@ -18,14 +19,13 @@ import java.util.Random;
  * @author Holger Brandl
  * @see de.mpicbg.tds.core.view.PlateDetailsHeatMap
  */
-@Deprecated // Replaced by PlateHeatMapPanel
-public class HeatWellPanel extends JPanel {
+public class PlateHeatMapPanel extends JPanel {
 
 
 //    private final Border border = BorderFactory.createLineBorder(Color.blue, 2);
 
     private Well well;
-    private HeatMapModel heatMapModel;
+    private HeatMapModel2 heatMapModel;
 
     public static int STROKE_WIDTH = 3;
     public static BasicStroke overlayStroke = new BasicStroke(STROKE_WIDTH);
@@ -34,7 +34,7 @@ public class HeatWellPanel extends JPanel {
     private boolean showGrid = false;
 
 
-    public HeatWellPanel(final Well well, HeatMapModel heatMapModel) {
+    public PlateHeatMapPanel(final Well well, HeatMapModel2 heatMapModel) {
         super();
 
         this.well = well;
@@ -46,7 +46,7 @@ public class HeatWellPanel extends JPanel {
                 if (mouseEvent.getClickCount() == 2) {
 
 
-                    JDialog jDialog = new JDialog(getParentDialog(HeatWellPanel.this), false);
+                    JDialog jDialog = new JDialog(getParentDialog(PlateHeatMapPanel.this), false);
                     jDialog.add(new WellDetailPanel(well));
 
                     Random random = new Random();

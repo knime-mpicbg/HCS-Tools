@@ -17,7 +17,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRes
 
 public class HeatMapColorToolBar extends JToolBar {
 
-    private HeatMapModel heatMapModel;
+    private HeatMapModel2 heatMapModel;
     private ColorGradientPanel colorPanel;
     private JLabel minLabel = new JLabel("min");
     private JLabel medLabel = new JLabel("middle");
@@ -33,7 +33,7 @@ public class HeatMapColorToolBar extends JToolBar {
         initialize();
     }
 
-    public HeatMapColorToolBar(HeatMapModel model) {
+    public HeatMapColorToolBar(HeatMapModel2 model) {
         this();
         configure(model);
     }
@@ -82,7 +82,7 @@ public class HeatMapColorToolBar extends JToolBar {
         add(missPanel, constraints);
     }
 
-    protected void configure(HeatMapModel model) {
+    protected void configure(HeatMapModel2 model) {
         heatMapModel = model;
         if ( model.colorGradient == null ) {
             model.colorGradient = colorPanel.getGradientPainter();

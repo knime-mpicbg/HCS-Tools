@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @author Holger Brandl
  */
-@Deprecated
+@Deprecated      // Replaced by ScreenHeatMapsPanel
 public class ScreenPanel extends JPanel implements HeatMapModelChangeListener {
 
     private HeatMapModel heatMapModel = new HeatMapModel();

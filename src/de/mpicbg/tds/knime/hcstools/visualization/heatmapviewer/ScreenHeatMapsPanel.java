@@ -24,8 +24,8 @@ import de.mpicbg.tds.core.util.PanelImageExporter;
 
 public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeListener {
 
-    private HeatMapModel heatMapModel = new HeatMapModel();
-    public List<PlateOverviewHeatMap> heatmaps;
+    private HeatMapModel2 heatMapModel = new HeatMapModel2();
+    public List<ScreenHeatMapsTrellis> heatmaps;
     private int MIN_HEATMAP_WIDTH = 200;
     private int PREFERRED_WITH = 600;
     private int PREFERRED_HEIGHT = 350;
@@ -98,9 +98,9 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
     }
 
     public void setPlates(List<Plate> plates) {
-        heatmaps = new ArrayList<PlateOverviewHeatMap>();
+        heatmaps = new ArrayList<ScreenHeatMapsTrellis>();
         for (Plate plate : plates) {
-            heatmaps.add(new PlateOverviewHeatMap(plate, heatMapModel));
+            heatmaps.add(new ScreenHeatMapsTrellis(plate, heatMapModel));
         }
 
         // pre-configure the heatmap configuration model
@@ -118,7 +118,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
 
     private void repopulatePlateGrid() {
         sortHeatmaps();
-        List<PlateOverviewHeatMap> heatmapSelection = getFilteredHeatMap();
+        List<ScreenHeatMapsTrellis> heatmapSelection = getFilteredHeatMap();
 
         int numColumns = (int) Math.floor(getWidth() / MIN_HEATMAP_WIDTH);
 
@@ -159,7 +159,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         Font barcodeFont = new Font("Serif", Font.PLAIN, plateNameFontSize);
 
         for (int i = 0; i < heatmapSelection.size(); i++) {
-            PlateOverviewHeatMap heatMapPanel = heatmapSelection.get(i);
+            ScreenHeatMapsTrellis heatMapPanel = heatmapSelection.get(i);
             Plate plate = heatMapPanel.getPlate();
 
             int rowIndex = i / numColumns;
@@ -193,14 +193,14 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
     private void sortHeatmaps() {
         heatmaps.clear();
         List<Plate> plates = heatMapModel.getScreen();
-        heatmaps = new ArrayList<PlateOverviewHeatMap>();
+        heatmaps = new ArrayList<ScreenHeatMapsTrellis>();
         for (Plate plate : plates) {
-            heatmaps.add(new PlateOverviewHeatMap(plate, heatMapModel));
+            heatmaps.add(new ScreenHeatMapsTrellis(plate, heatMapModel));
         }
     }
 
     private void parsePlateBarCodes() {
-        for (PlateOverviewHeatMap heatmap : heatmaps) {
+        for (ScreenHeatMapsTrellis heatmap : heatmaps) {
             Plate plate = heatmap.getPlate();
             if (plate.getScreenedAt() != null) {
                 continue;
@@ -215,10 +215,10 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         }
     }
 
-    public List<PlateOverviewHeatMap> getFilteredHeatMap() {
+    public List<ScreenHeatMapsTrellis> getFilteredHeatMap() {
 
-        List<PlateOverviewHeatMap> heatMapSelection = new ArrayList<PlateOverviewHeatMap>();
-        for (PlateOverviewHeatMap heatmap : heatmaps) {
+        List<ScreenHeatMapsTrellis> heatMapSelection = new ArrayList<ScreenHeatMapsTrellis>();
+        for (ScreenHeatMapsTrellis heatmap : heatmaps) {
             Plate plate = heatmap.getPlate();
             if(heatMapModel.isSelected(plate)) {
                 heatMapSelection.add(heatmap);
@@ -231,7 +231,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
         // sort the selected wells according to plate
 
         Map<Plate, Collection<Well>> plateWells = new HashMap<Plate, Collection<Well>>();
-        for (PlateOverviewHeatMap heatmap : heatmaps) {
+        for (ScreenHeatMapsTrellis heatmap : heatmaps) {
             plateWells.put(heatmap.getPlate(), new ArrayList<Well>());
         }
 
@@ -244,7 +244,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
 //        }
 //
 //        // propagate the selection to the different panels
-//        for (PlateOverviewHeatMap heatmap : heatmaps) {
+//        for (ScreenHeatMapsTrellis heatmap : heatmaps) {
 //            Collection<Well> plateSelection = plateWells.get(heatmap.getPlate());
 //
 //            heatmap.setSelection(plateSelection);

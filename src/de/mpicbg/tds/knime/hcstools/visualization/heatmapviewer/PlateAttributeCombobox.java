@@ -17,7 +17,7 @@ import java.util.List;
  * Property selector combobox to select plate attributes.
  */
 
-public class PlatePropertySelector extends JComboBox{
+public class PlateAttributeComboBox extends JComboBox{
 
 
     public  void configure(List<Plate> plates) {

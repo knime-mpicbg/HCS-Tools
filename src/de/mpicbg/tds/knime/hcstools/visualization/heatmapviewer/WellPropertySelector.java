@@ -13,6 +13,7 @@ import java.util.List;
  *
  * @author Holger Brandl
  */
+@Deprecated           // Replaced by WellAttributeComboBox
 public class WellPropertySelector extends JComboBox {
 
 	private HeatMapModel heatMapModel;
@@ -97,7 +98,7 @@ public class WellPropertySelector extends JComboBox {
 	}
 }
 
-
+@Deprecated
 enum SelectorType {
 
 	READOUT, OVERLAY_ANNOTATION

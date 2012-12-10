@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author Holger Brandl
  */
-@Deprecated
+@Deprecated                        // Replaced by ScreenHeatMapsFrame
 public class ScreenPanelFrame extends JFrame {
 
     public de.mpicbg.tds.core.view.ScreenPanel screenPanel;

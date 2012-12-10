@@ -6,14 +6,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class WellPropertyDialog extends JDialog {
+public class WellAttributeDialog extends JDialog {
     private JPanel contentPane, buttonPanel;
     private JButton buttonOK;
     private JButton buttonCancel;
     private WellPropertySelector propertySelector;
     private JList parameterList;
 
-    public WellPropertyDialog() {
+    public WellAttributeDialog() {
         this.initialize();
         setContentPane(contentPane);
         setModal(true);
@@ -76,7 +76,7 @@ public class WellPropertyDialog extends JDialog {
 
 
     public static void main(String[] args) {
-        WellPropertyDialog dialog = new WellPropertyDialog();
+        WellAttributeDialog dialog = new WellAttributeDialog();
         dialog.pack();
         dialog.setVisible(true);
         System.exit(0);
