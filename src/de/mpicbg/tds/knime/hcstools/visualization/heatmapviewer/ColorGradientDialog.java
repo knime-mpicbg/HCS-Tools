@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 
 import com.bric.swing.GradientSlider;
 import com.bric.swing.MultiThumbSlider;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 
 
 public class ColorGradientDialog extends JDialog {
@@ -25,6 +26,13 @@ public class ColorGradientDialog extends JDialog {
     public ColorGradientDialog(String title) {
         this();
         setTitle(title);
+    }
+
+    public ColorGradientDialog(LinearGradientPaint gradient) {
+        currentGradient = gradient;
+        setContentPane(initialize());
+        setSize(new Dimension(500, 200));
+        setModal(true);
     }
 
 
@@ -54,10 +62,10 @@ public class ColorGradientDialog extends JDialog {
 
         // Create the Gradient slider
         slider = new GradientSlider(MultiThumbSlider.HORIZONTAL);
-        Color leftColor = new Color(0,255,0);
-        Color middleColor = new Color(0,0,0);
-        Color rightColor = new Color(255, 0,0);
-        slider.setValues(new float[] {0, (float) 0.5, 1}, new Color[] { leftColor, middleColor, rightColor});
+        if (currentGradient == null) {
+            currentGradient = LinearGradientTools.getStandardGradient("GB");
+        }
+        slider.setValues(currentGradient.getFractions(), currentGradient.getColors());
         slider.setPaintTicks(true);
         slider.setBorder(BorderFactory.createEtchedBorder());
         slider.putClientProperty("MultiThumbSlider.indicateComponent", "false");

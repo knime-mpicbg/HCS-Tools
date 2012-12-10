@@ -1,6 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinMaxStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileSmoothedStrategy;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
@@ -54,7 +55,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     ScreenHeatMapsPanel heatMapsPanel;
 
 
-    //Constructor
+    //Constructors
     public HeatMapMenu() {
         add(createHiLiteMenu());
         add(createViewMenu());
@@ -64,6 +65,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     public HeatMapMenu(ScreenHeatMapsPanel actOn) {
         this();
         heatMapsPanel = actOn;
+        heatMapModel = actOn.heatMapModel;
     }
 
 
@@ -261,21 +263,15 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
     private void toggleColorMapAction(ActionEvent actionEvent) {
         JMenuItem source = (JMenuItem)actionEvent.getSource();
-        if (source.getText().equals(MAP_DARK)) {
-
-        } else if (source.getText().equals(MAP_HSV)) {
-
-        } else if (source.getText().equals(MAP_JET)) {
-
-        } else if (source.getText().equals(MAP_GB)) {
-
-        } else if (source.getText().equals(MAP_GBR)) {
-
-        } else if (source.getText().equals(MAP_CUSTOM)) {
-            ColorGradientDialog dialog = new ColorGradientDialog();
-            dialog.pack();
+        LinearGradientPaint newGradient;
+        if (source.getText().equals(MAP_CUSTOM)) {
+            ColorGradientDialog dialog = new ColorGradientDialog(heatMapModel.colorGradient);
             dialog.setVisible(true);
+            newGradient = dialog.getGradientPainter();
+        } else {
+            newGradient = LinearGradientTools.getStandardGradient(source.getText());
         }
+        heatMapModel.setColorGradient(newGradient);
     }
 
     private void showOverlayLegendAction() {

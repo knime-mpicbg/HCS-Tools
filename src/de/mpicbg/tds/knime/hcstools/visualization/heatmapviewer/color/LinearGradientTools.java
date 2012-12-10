@@ -1,6 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
+import java.util.Arrays;
 
 /**
  * User: Felix Meyenhofer
@@ -12,7 +14,14 @@ import java.awt.*;
 
 public abstract class LinearGradientTools {
 
-    public static final Color getColorAt(LinearGradientPaint painter, float input) {
+    public static final String[] MAP_GB = {"GB", "green-black"};
+    public static final String[] MAP_HSV = {"HSV", "hsv"};
+    public static final String[] MAP_GBR = {"GBR", "green-black-red"};
+    public static final String[] MAP_JET = {"Jet", "jet"};
+    public static final String[] MAP_DARK = {"Dark", "dark"};
+
+
+    public static Color getColorAt(LinearGradientPaint painter, float input) {
         int lowerIndex = 0;
         int upperIndex = 1;
         float lowerBound = 0;
@@ -82,6 +91,53 @@ public abstract class LinearGradientTools {
         alpha = alpha > 1f ? 1f : alpha;
 
         return new java.awt.Color(red, green, blue, alpha);
+    }
+
+    public static LinearGradientPaint getStandardGradient(String str) {
+        LinearGradientPaint gradient = null;
+        if (Arrays.asList(MAP_GB).contains(str)) {
+            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
+                                               new Point2D.Double(100, 0),
+                                               new float[] {0f,1f},
+                                               new Color[] {new Color(0,0,0),
+                                                            new Color(0, 255, 0)});
+        } else if (Arrays.asList(MAP_DARK).contains(str)) {
+            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
+                                               new Point2D.Double(100, 0),
+                                               new float[] {0f,0.5f,1f},
+                                               new Color[] {new Color(0,0,0),
+                                                             new Color(255, 0, 0),
+                                                             new Color(255, 255, 0)});
+        } else if (Arrays.asList(MAP_HSV).contains(str)) {
+            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
+                                               new Point2D.Double(100, 0),
+                                               new float[] {0f,0.2f,0.4f,0.6f,0.8f,1f},
+                                               new Color[] {new Color(255,0,0),
+                                                            new Color(255, 255, 0),
+                                                            new Color(0, 255, 0),
+                                                            new Color(0, 255, 255),
+                                                            new Color(0, 0, 255),
+                                                            new Color(255, 0, 255)});
+        } else if (Arrays.asList(MAP_JET).contains(str)) {
+            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
+                                               new Point2D.Double(100, 0),
+                                               new float[] {0f,0.333f,0.666f,1f},
+                                               new Color[] {new Color(255,0,0),
+                                                            new Color(255, 255,0),
+                                                            new Color(0, 255, 255),
+                                                            new Color(0, 0, 255)});
+        } else if (Arrays.asList(MAP_GBR).contains(str)) {
+            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
+                                               new Point2D.Double(100, 0),
+                                               new float[] {0f,0.5f,1f},
+                                               new Color[] {new Color(0,255,0),
+                                                            new Color(0, 0, 0),
+                                                            new Color(255, 0, 0)});
+        } else {
+            System.err.println("Don't know the '" + str + "' color map.");
+        }
+
+        return gradient;
     }
 
 }

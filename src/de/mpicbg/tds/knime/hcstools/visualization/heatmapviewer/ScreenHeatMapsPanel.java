@@ -27,7 +27,7 @@ import de.mpicbg.tds.core.util.PanelImageExporter;
 
 public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeListener {
 
-    private HeatMapModel2 heatMapModel = new HeatMapModel2();
+    protected HeatMapModel2 heatMapModel = new HeatMapModel2();
     public List<ScreenHeatMapsTrellis> heatmaps;
     private int MIN_HEATMAP_WIDTH = 200;
     private int PREFERRED_WITH = 600;
