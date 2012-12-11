@@ -265,7 +265,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         JMenuItem source = (JMenuItem)actionEvent.getSource();
         LinearGradientPaint newGradient;
         if (source.getText().equals(MAP_CUSTOM)) {
-            ColorGradientDialog dialog = new ColorGradientDialog(heatMapModel.colorGradient);
+            ColorGradientDialog dialog = new ColorGradientDialog(heatMapModel);
             dialog.setVisible(true);
             newGradient = dialog.getGradientPainter();
         } else {
