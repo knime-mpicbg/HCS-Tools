@@ -86,7 +86,8 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         alwaysontop = new JCheckBoxMenuItem(ALWAYS_ON_TOP);
         alwaysontop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                alwaysOnTopAction();
+                JMenuItem item = (JMenuItem) e.getSource();
+                alwaysOnTopAction(item);
             }
         });
         menu.add(alwaysontop);
@@ -310,8 +311,9 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         heatMapModel.setShowSelection(markseleciton.isSelected());
     }
 
-    private void alwaysOnTopAction() {
-        //To change body of created methods use File | Settings | File Templates.
+    private void alwaysOnTopAction(JMenuItem menuItem) {
+        JFrame frame = (JFrame) getTopLevelAncestor();
+        frame.setAlwaysOnTop(menuItem.isSelected());
     }
 
     private void sortPlatesAction() {
