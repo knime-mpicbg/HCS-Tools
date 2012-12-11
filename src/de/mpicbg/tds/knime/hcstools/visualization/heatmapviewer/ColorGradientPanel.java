@@ -1,5 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -14,14 +16,9 @@ import java.awt.geom.Point2D;
 
 public class ColorGradientPanel extends JPanel{
 
-    private LinearGradientPaint gradientPainter;
-
     // Defaults
     private static final Dimension dimension = new Dimension(400, 30);
-    private static final Color[] defaultColors = {new Color(0,255,0),
-                                                  new Color(0,0,0),
-                                                  new Color(255, 0,0)};
-    private static final float[] defaultPositions = new float[] {0, (float) 0.5, 1};
+    private LinearGradientPaint gradientPainter = LinearGradientTools.getStandardGradient("GBR");
 
 
     // Constructors
@@ -37,10 +34,6 @@ public class ColorGradientPanel extends JPanel{
 
     // Utilities
     private void initialize() {
-        gradientPainter = new LinearGradientPaint(new Point2D.Double(0,0),
-                                                new Point2D.Double(dimension.getWidth(), 0),
-                                                defaultPositions,
-                                                defaultColors);
         setMinimumSize(dimension);
     }
 
