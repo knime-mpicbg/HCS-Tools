@@ -17,7 +17,7 @@ public class WellAttributeComboBox extends JComboBox {
     private JPanel parent;
 
 
-    public void configure(List<String> options, final HeatMapModel2 heatMapModel, final SelectorType selType) {
+    public void configure(List<String> options, final HeatMapModel2 heatMapModel, final AttributeType selType) {
         this.heatMapModel = heatMapModel;
         this.parent = parent;
 

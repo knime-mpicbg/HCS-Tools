@@ -4,14 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.Map;
 
 import de.mpicbg.tds.core.TdsUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 /**
  * @author Holger Brandl
@@ -28,7 +26,6 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
 	public OverlayLegend(Frame owner) {
 		super(owner);
 		initComponents();
-//		setSize(new Dimension(80, 150));
 	}
 
 	public OverlayLegend(Dialog owner) {
@@ -39,10 +36,11 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
 
 	private void initComponents() {
         setLayout(new BorderLayout());
-        legendPanel = new LegendPanel();
-        JScrollPane scrollPane1 = new JScrollPane();
-        scrollPane1.setViewportView(legendPanel);
-        add(scrollPane1);
+        legendPanel = new LegendPanel(this);
+        legendPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(legendPanel);
+        add(scrollPane, BorderLayout.CENTER);
 		setLocationRelativeTo(getOwner());
         legendPanel.registerKeyboardAction(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -79,6 +77,13 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
 
         private HeatMapModel2 heatMapModel;
         private int nullCounter = 0;
+        private JDialog parent;
+
+
+        protected LegendPanel(JDialog component) {
+            super();
+            parent = component;
+        }
 
 
         public void setModel(HeatMapModel2 heatMapModel) {
@@ -86,7 +91,6 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
             heatMapModel.addChangeListener(this);
             modelChanged();
         }
-
 
         @Override
         protected void paintComponent(Graphics graphics) {
@@ -123,54 +127,51 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
                 return;
             }
 
-    //		setPreferredSize(new Dimension(100, cache.size() * 25));
-            setLayout(new GridLayout(0, 1));
+            Collection<String> allOverlayValues = TdsUtils.collectAnnotationLevels(heatMapModel.getScreen(),
+                                                                                   heatMapModel.getOverlay());
+            setLayout(new GridBagLayout());
+            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.gridx = 0;
+            constraints.weightx = 1;
+            constraints.weighty = -1;
+            constraints.fill = GridBagConstraints.BOTH;
+            Font font = new Font("Arial", Font.PLAIN, 12);
+            int index = 0;
 
-            Collection<String> allOverlayValues = TdsUtils.collectAnnotationLevels(heatMapModel.getScreen(), heatMapModel.getOverlay());
-
-            Font font = new Font("Arial", Font.PLAIN, 11);
-            DescriptiveStatistics stats = new DescriptiveStatistics();
-            FontMetrics metrics = null;
             for (String overlayValue : cache.keySet()) {
-                if (!allOverlayValues.contains(overlayValue))
+                if (!allOverlayValues.contains(overlayValue) || StringUtils.isBlank(overlayValue))
                     continue;
-
+                constraints.gridy = index++;
                 JLabel legendEntry = new JLabel();
                 legendEntry.setFont(font);
-                metrics = legendEntry.getFontMetrics(font);
-                String str = "  " + overlayValue;
-                legendEntry.setText(str);
-                stats.addValue(metrics.stringWidth(str));
+                legendEntry.setText(overlayValue);
                 legendEntry.setOpaque(true);
                 Color color = cache.get(overlayValue);
                 if (color != null) {
                     legendEntry.setBackground(color);
                 }
-
-                add(legendEntry);
+                legendEntry.setBorder(BorderFactory.createEmptyBorder(2,10,2,2));
+                add(legendEntry, constraints);
             }
 
-
-            Double panelWidth;
-            Double panelHeight;
-            if (!(metrics == null)) {
-                stats.addValue(metrics.stringWidth(heatMapModel.getOverlay() + 80)); //Add some space for the window controls.
-                panelWidth = stats.getMax();
-                panelHeight = (double) metrics.getHeight() + 5;
-            } else {
-                panelWidth = 200d;
-                panelHeight = 20d;
-            }
-
-            // Set the appropriate window dimensions
+            // Make sure the window is not too small nor too big.
+            parent.pack();
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            Double width = panelWidth;
-            Double maxWidth = screenSize.getWidth() - 200;
+
+            int width = parent.getWidth();
+            Double screenWidth = screenSize.getWidth();
+            int maxWidth = screenWidth.intValue() - 200;
             width = ((width > maxWidth) ? maxWidth : width);
-            Double height = (double) allOverlayValues.size() * panelHeight;
-            Double maxHeight = screenSize.getHeight() - 100;
+            font = parent.getFont();
+            FontMetrics metrics = parent.getFontMetrics(font);
+            int minWidth = (parent.getTitle() == null) ? 250 : metrics.stringWidth(parent.getTitle()) + 100;
+            width = ((width < minWidth) ? minWidth : width);
+
+            int height = parent.getHeight();
+            Double screenHeight = screenSize.getHeight();
+            int maxHeight = screenHeight.intValue()- 100;
             height = ((height > maxHeight) ? maxHeight : height);
-            getTopLevelAncestor().setSize(new Dimension(width.intValue(), height.intValue()));
+            parent.setSize(new Dimension(width, height));
 
             revalidate();
             repaint();
