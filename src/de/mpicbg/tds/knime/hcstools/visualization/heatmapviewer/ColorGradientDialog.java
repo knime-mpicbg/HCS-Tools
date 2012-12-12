@@ -169,8 +169,6 @@ public class ColorGradientDialog extends JDialog {
                 index++;
             }
         }
-
-
     }
 
     private HashMap<String, Double[]> getDescriptors() {
@@ -230,146 +228,148 @@ public class ColorGradientDialog extends JDialog {
         System.exit(0);
     }
 
-}
 
 
-class PopulationPanel extends JPanel {
+    class PopulationPanel extends JPanel {
 
-    public float mean = 50;
-    public float sd = 10;
-    public float minScale = 0;
-    public float maxScale = 100;
-    public String panelName = "test";
-    private final float factor = 3;
-    private ColorGradientDialog parent;
+        public float mean = 50;
+        public float sd = 10;
+        public float minScale = 0;
+        public float maxScale = 100;
+        public String panelName = "test";
+        private final float factor = 3;
+        private ColorGradientDialog parent;
 
 
-    public PopulationPanel() {
-        super();
-        MouseListener popupListener = new PopupListener(createPopupMenu());
-        addMouseListener(popupListener);
-        setToolTipText("<html>The colored rectangle indicates the parameters mean&plusmn;" + factor + "&middot;sd.<br/>" +
-                       "Use right click to pass descriptor values as thumbs to the color gradient");
+        public PopulationPanel() {
+            super();
+            MouseListener popupListener = new PopupListener(createPopupMenu());
+            addMouseListener(popupListener);
+            setToolTipText("<html>The colored rectangle indicates the parameters mean&plusmn;" + factor + "&middot;sd.<br/>" +
+                    "Use right click to pass descriptor values as thumbs to the color gradient");
+        }
+
+        public PopulationPanel(ColorGradientDialog dialog, String name) {
+            this();
+            parent = dialog;
+            panelName = name;
+            Border border = BorderFactory.createEtchedBorder();
+            setBorder(BorderFactory.createTitledBorder(border, panelName));
+        }
+
+
+        public void configure(String name, float m, float s, float mis, float mas) {
+            panelName = name;
+            setName(panelName);
+            mean = m;
+            sd = s;
+            minScale = mis;
+            maxScale = mas;
+            repaint();
+        }
+
+        @Override
+        public void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+
+            Graphics2D g2d = (Graphics2D) graphics;
+            Font font = new Font("Arial", Font.PLAIN, 11);
+            g2d.setFont(font);
+            FontMetrics metrics = g2d.getFontMetrics(font);
+            Insets insets = getBorder().getBorderInsets(this);
+
+            RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2d.setRenderingHints(rh);
+
+            // Calculate the positions in pixels.
+            float scaleFactor = this.getWidth()/StrictMath.abs(maxScale-minScale);
+            float lowerBound = mean-factor*sd;
+            float upperBound = mean+factor*sd;
+
+            int left = StrictMath.round((lowerBound)*scaleFactor);
+            left = left < 0 ? insets.left : left;
+            int top = insets.top/2;
+            int width = StrictMath.round(2*factor*sd*scaleFactor);
+            width = width > this.getWidth() ? this.getWidth()-insets.left-insets.right : width;
+            int height = this.getHeight()-(insets.top/2+insets.bottom);
+
+            int middle = StrictMath.round(height/2+top+5);
+
+            // Draw the rectangles
+            g2d.setColor(new Color(165, 205, 255));
+            g2d.drawRect(left, top, width, height);
+            g2d.fillRect(left, top, width, height);
+
+            // Draw the labels
+            g2d.setColor(new Color(0, 0, 0));
+            String s = HeatMapColorToolBar.format(lowerBound);
+            g2d.drawString(s, left+metrics.stringWidth(" "), middle);
+            s = HeatMapColorToolBar.format(mean);
+            g2d.drawString(s, mean*scaleFactor-metrics.stringWidth(s)/2, middle);
+            s = HeatMapColorToolBar.format(upperBound);
+            g2d.drawString(s, upperBound*scaleFactor-metrics.stringWidth(s+" "), middle);
+        }
+
+
+        private JPopupMenu createPopupMenu() {
+            JPopupMenu menu = new JPopupMenu();
+            JMenuItem option1 = new JMenuItem("Add Thumb for mean");
+            option1.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    parent.addThumbnail(mean);
+
+                }
+            });
+            menu.add(option1);
+            JMenuItem option2 = new JMenuItem("Add Thumb for bounds");
+            option2.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    parent.addThumbnail(mean-factor*sd);
+                    parent.addThumbnail(mean+factor*sd);
+                }
+            });
+            menu.add(option2);
+            JMenuItem option3 = new JMenuItem("Add Thumbs for all");
+            option3.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    parent.addThumbnail(mean);
+                    parent.addThumbnail(mean-factor*sd);
+                    parent.addThumbnail(mean+factor*sd);
+                }
+            });
+            menu.add(option3);
+            return menu;
+        }
+
     }
 
-    public PopulationPanel(ColorGradientDialog dialog, String name) {
-        this();
-        parent = dialog;
-        panelName = name;
-        Border border = BorderFactory.createEtchedBorder();
-        setBorder(BorderFactory.createTitledBorder(border, panelName));
-    }
 
 
-    public void configure(String name, float m, float s, float mis, float mas) {
-        panelName = name;
-        setName(panelName);
-        mean = m;
-        sd = s;
-        minScale = mis;
-        maxScale = mas;
-        repaint();
-    }
+    class PopupListener extends MouseAdapter {
+        JPopupMenu popup;
 
-    @Override
-    public void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
+        PopupListener(JPopupMenu popupMenu) {
+            popup = popupMenu;
+        }
 
-        Graphics2D g2d = (Graphics2D) graphics;
-        Font font = new Font("Arial", Font.PLAIN, 11);
-        g2d.setFont(font);
-        FontMetrics metrics = g2d.getFontMetrics(font);
-        Insets insets = getBorder().getBorderInsets(this);
+        public void mousePressed(MouseEvent e) {
+            maybeShowPopup(e);
+        }
 
-        RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setRenderingHints(rh);
+        public void mouseReleased(MouseEvent e) {
+            maybeShowPopup(e);
+        }
 
-        // Calculate the positions in pixels.
-        float scaleFactor = this.getWidth()/StrictMath.abs(maxScale-minScale);
-        float lowerBound = mean-factor*sd;
-        float upperBound = mean+factor*sd;
-
-        int left = StrictMath.round((lowerBound)*scaleFactor);
-        left = left < 0 ? insets.left : left;
-        int top = insets.top/2;
-        int width = StrictMath.round(2*factor*sd*scaleFactor);
-        width = width > this.getWidth() ? this.getWidth()-insets.left-insets.right : width;
-        int height = this.getHeight()-(insets.top/2+insets.bottom);
-
-        int middle = StrictMath.round(height/2+top+5);
-
-        // Draw the rectangles
-        g2d.setColor(new Color(165, 205, 255));
-        g2d.drawRect(left, top, width, height);
-        g2d.fillRect(left, top, width, height);
-
-        // Draw the labels
-        g2d.setColor(new Color(0, 0, 0));
-        String s = HeatMapColorToolBar.format(lowerBound);
-        g2d.drawString(s, left+metrics.stringWidth(" "), middle);
-        s = HeatMapColorToolBar.format(mean);
-        g2d.drawString(s, mean*scaleFactor-metrics.stringWidth(s)/2, middle);
-        s = HeatMapColorToolBar.format(upperBound);
-        g2d.drawString(s, upperBound*scaleFactor-metrics.stringWidth(s+" "), middle);
-    }
-
-
-    private JPopupMenu createPopupMenu() {
-        JPopupMenu menu = new JPopupMenu();
-        JMenuItem option1 = new JMenuItem("Add Thumb for mean");
-        option1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                parent.addThumbnail(mean);
-
+        private void maybeShowPopup(MouseEvent e) {
+            if (e.isPopupTrigger()) {
+                popup.show(e.getComponent(),
+                        e.getX(), e.getY());
             }
-        });
-        menu.add(option1);
-        JMenuItem option2 = new JMenuItem("Add Thumb for bounds");
-        option2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                parent.addThumbnail(mean-factor*sd);
-                parent.addThumbnail(mean+factor*sd);
-            }
-        });
-        menu.add(option2);
-        JMenuItem option3 = new JMenuItem("Add Thumbs for all");
-        option3.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                parent.addThumbnail(mean);
-                parent.addThumbnail(mean-factor*sd);
-                parent.addThumbnail(mean+factor*sd);
-            }
-        });
-        menu.add(option3);
-        return menu;
-    }
-
-}
-
-
-class PopupListener extends MouseAdapter {
-    JPopupMenu popup;
-
-    PopupListener(JPopupMenu popupMenu) {
-        popup = popupMenu;
-    }
-
-    public void mousePressed(MouseEvent e) {
-        maybeShowPopup(e);
-    }
-
-    public void mouseReleased(MouseEvent e) {
-        maybeShowPopup(e);
-    }
-
-    private void maybeShowPopup(MouseEvent e) {
-        if (e.isPopupTrigger()) {
-            popup.show(e.getComponent(),
-                    e.getX(), e.getY());
         }
     }
+
 }

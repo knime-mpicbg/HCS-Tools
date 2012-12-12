@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.text.DecimalFormat;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRescaleStrategy;
 
 /**
@@ -18,7 +19,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRes
 public class HeatMapColorToolBar extends JToolBar {
 
     private HeatMapModel2 heatMapModel;
-    private ColorGradientPanel colorPanel;
+    private LinearGradientTools.ColorGradientPanel colorPanel;
     private JLabel minLabel = new JLabel("min");
     private JLabel medLabel = new JLabel("middle");
     private JLabel maxLabel = new JLabel("max");
@@ -88,7 +89,7 @@ public class HeatMapColorToolBar extends JToolBar {
         add(missLabel, constraints);
 
         // Add the color panel
-        colorPanel = new ColorGradientPanel();
+        colorPanel = new LinearGradientTools.ColorGradientPanel();
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.weightx = 1;
