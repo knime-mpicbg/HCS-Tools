@@ -16,7 +16,7 @@ import java.awt.*;
 /**
  * @author Holger Brandl
  */
-@Deprecated // Replaced by OverlayLegendFrame
+@Deprecated // Replaced by OverlayLegend
 public class OverlayLegendDialog extends JDialog implements HeatMapModelChangeListener {
 
 	private HeatMapModel heatMapModel;

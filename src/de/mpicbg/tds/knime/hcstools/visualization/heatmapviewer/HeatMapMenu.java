@@ -112,6 +112,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         JMenu menu = new JMenu(OVERLAY);
 
         overlaylegend = menu.add(OVERLAY_SHOW_LEGEND);
+        overlaylegend.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.META_MASK));
         overlaylegend.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -278,16 +279,16 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     private void showOverlayLegendAction() {
         Container parentContainer = HeatWellPanel.getParentContainer(this);
 
-        OverlayLegendDialog overlayLegendDialog;
+        OverlayLegend overlayLegend;
         if (parentContainer instanceof Dialog) {
-            overlayLegendDialog = new OverlayLegendDialog((Dialog) parentContainer);
+            overlayLegend = new OverlayLegend((Dialog) parentContainer);
         } else {
-            overlayLegendDialog = new OverlayLegendDialog((Frame) parentContainer);
+            overlayLegend = new OverlayLegend((Frame) parentContainer);
         }
 
-//        overlayLegendDialog.setModel(heatMapModel);        //TODO Create a new overlay legend that uses the heatmapmodel2
-        overlayLegendDialog.setModal(false);
-        overlayLegendDialog.setVisible(true);
+        overlayLegend.setModel(heatMapModel);
+        overlayLegend.setModal(false);
+        overlayLegend.setVisible(true);
     }
 
     private void hideOverlayAction() {

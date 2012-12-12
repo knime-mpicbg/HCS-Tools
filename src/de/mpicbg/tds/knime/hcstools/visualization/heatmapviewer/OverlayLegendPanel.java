@@ -15,6 +15,7 @@ import java.util.Map;
  *
  * @author Holger Brandl
  */
+@Deprecated
 public class OverlayLegendPanel extends JPanel implements HeatMapModelChangeListener {
 
     private HeatMapModel heatMapModel;
