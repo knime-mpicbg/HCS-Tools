@@ -52,7 +52,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     JMenuItem sortplates;
 
     HeatMapModel2 heatMapModel;
-    ScreenHeatMapsPanel heatMapsPanel;
+    ScreenViewer.ScreenHeatMapsPanel heatMapsPanel;
 
 
     //Constructors
@@ -62,7 +62,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         add(createTrellisMenu());
     }
 
-    public HeatMapMenu(ScreenHeatMapsPanel actOn) {
+    public HeatMapMenu(ScreenViewer.ScreenHeatMapsPanel actOn) {
         this();
         heatMapsPanel = actOn;
         heatMapModel = actOn.heatMapModel;

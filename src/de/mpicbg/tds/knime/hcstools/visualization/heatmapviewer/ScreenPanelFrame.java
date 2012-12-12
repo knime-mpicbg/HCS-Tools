@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author Holger Brandl
  */
-@Deprecated                        // Replaced by ScreenHeatMapsFrame
+@Deprecated                        // Replaced by ScreenViewer
 public class ScreenPanelFrame extends JFrame {
 
     public ScreenPanel screenPanel;

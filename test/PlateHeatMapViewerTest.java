@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.ScreenPanelFrame;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.ScreenViewer;
 import org.apache.commons.lang.StringUtils;
 
 import org.knime.core.data.DataRow;
@@ -19,7 +19,6 @@ import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel;
 import de.mpicbg.tds.knime.hcstools.visualization.ScreenExplorer;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.ScreenHeatMapsFrame;
 import de.mpicbg.tds.knime.knutils.Attribute;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
@@ -218,7 +217,7 @@ public class PlateHeatMapViewerTest {
         PlateHeatMapViewerTest test = new PlateHeatMapViewerTest();
         DataTable table = test.loadTable();
         List<Plate> plates = test.parseIntoPlates(table);
-        new ScreenHeatMapsFrame(plates);
+        new ScreenViewer(plates);
 //        new ScreenPanelFrame(plates);
     }
 
