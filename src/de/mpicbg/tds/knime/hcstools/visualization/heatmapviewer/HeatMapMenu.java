@@ -324,10 +324,10 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
     private void outlierHandlingAction(ActionEvent event) {
         JRadioButtonMenuItem menuItem = (JRadioButtonMenuItem) event.getSource();
-        if ( !menuItem.isSelected() ) {
-            if ( menuItem.getName().equals(OUTLIER_HANDLING_ORIGINAL) ) {
+        if ( menuItem.isSelected() ) {
+            if ( menuItem.getText().equals(OUTLIER_HANDLING_ORIGINAL) ) {
                 heatMapModel.setReadoutRescaleStrategy(new GlobalMinMaxStrategy());
-            } else if ( menuItem.getName().equals(OUTLIER_HANDLING_SMOOTHED) ) {
+            } else if ( menuItem.getText().equals(OUTLIER_HANDLING_SMOOTHED) ) {
                 heatMapModel.setReadoutRescaleStrategy(new QuantileSmoothedStrategy());
             } else {
                 System.err.println("Don't know the option " + menuItem.getName() + ".");
