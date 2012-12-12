@@ -21,7 +21,7 @@ import java.util.Map;
  *
  * @author Holger Brandl
  */
-@Deprecated //Replaced by PlateHeatMap
+@Deprecated //Replaced by HeatPlate
 public class PlateDetailsHeatMap extends JPanel {
 
     private Plate plate;

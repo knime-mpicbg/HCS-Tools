@@ -20,13 +20,13 @@ import de.mpicbg.tds.core.model.Plate;
  */
 
 // Replaces the PlateOverviewHeatMap
-public class ScreenHeatMap extends JPanel {
+public class HeatScreen extends JPanel {
 
     private Plate plate;
     private HeatMapModel2 heatMapModel;
 
 
-    public ScreenHeatMap(final Plate plate, HeatMapModel2 heatMapModel) {
+    public HeatScreen(final Plate plate, HeatMapModel2 heatMapModel) {
         this.plate = plate;
         this.heatMapModel = heatMapModel;
 
@@ -62,17 +62,17 @@ public class ScreenHeatMap extends JPanel {
                 HeatMapModel plateHeatMapModel = new HeatMapModel();
                 // todo if we want to use a global color scale also in the single plate view we ave to use te next line
 //                plateHeatMapModel.setScreen(PlateOverviewHeatMap.this.heatMapModel.getScreen());
-                plateHeatMapModel.setCurrentReadout(ScreenHeatMap.this.heatMapModel.getSelectedReadOut());
-                plateHeatMapModel.setOverlay(ScreenHeatMap.this.heatMapModel.getOverlay());
-                plateHeatMapModel.setReadoutRescaleStrategy(ScreenHeatMap.this.heatMapModel.getRescaleStrategy());
-                plateHeatMapModel.setColorScheme(ScreenHeatMap.this.heatMapModel.getColorScheme());
-                plateHeatMapModel.setHideMostFreqOverlay(ScreenHeatMap.this.heatMapModel.doHideMostFreqOverlay());
+                plateHeatMapModel.setCurrentReadout(HeatScreen.this.heatMapModel.getSelectedReadOut());
+                plateHeatMapModel.setOverlay(HeatScreen.this.heatMapModel.getOverlay());
+                plateHeatMapModel.setReadoutRescaleStrategy(HeatScreen.this.heatMapModel.getRescaleStrategy());
+                plateHeatMapModel.setColorScheme(HeatScreen.this.heatMapModel.getColorScheme());
+                plateHeatMapModel.setHideMostFreqOverlay(HeatScreen.this.heatMapModel.doHideMostFreqOverlay());
 
-                if (ScreenHeatMap.this.heatMapModel.getWellSelection().size() > 0) {
-                    plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(ScreenHeatMap.this.heatMapModel.getWellSelection()).get(plate));
+                if (HeatScreen.this.heatMapModel.getWellSelection().size() > 0) {
+                    plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(HeatScreen.this.heatMapModel.getWellSelection()).get(plate));
                 }
 
-                Window ownerWindow = Utils.getOwnerDialog(ScreenHeatMap.this);
+                Window ownerWindow = Utils.getOwnerDialog(HeatScreen.this);
                 PlatePanel.createPanelDialog(plate, plateHeatMapModel, ownerWindow);
             }
         });

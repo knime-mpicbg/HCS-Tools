@@ -21,7 +21,7 @@ import info.clearthought.layout.TableLayout;
  */
 
 // Replaces PlateDetailsHeatMap
-public class PlateHeatMap extends JPanel {
+public class HeatPlate extends JPanel {
 
     private Plate plate;
     private HeatMapModel2 heatmapModel;
@@ -29,7 +29,7 @@ public class PlateHeatMap extends JPanel {
     Map<Well, HeatWell> wellPanelGrid = new HashMap<Well, HeatWell>();
 
 
-    public PlateHeatMap(Plate plate, HeatMapModel2 heatmapModel) {
+    public HeatPlate(Plate plate, HeatMapModel2 heatmapModel) {
         this.plate = plate;
         this.heatmapModel = heatmapModel;
 
@@ -149,7 +149,7 @@ public class PlateHeatMap extends JPanel {
                         }
                     }
 
-                    PlateHeatMap.this.repaint();
+                    HeatPlate.this.repaint();
                 }
             }
 
@@ -198,7 +198,7 @@ public class PlateHeatMap extends JPanel {
                 invertSelection(wellPanel.getWell());
             }
 
-            PlateHeatMap.this.repaint();
+            HeatPlate.this.repaint();
         }
 
 
