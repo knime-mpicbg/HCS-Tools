@@ -114,7 +114,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         JMenu menu = new JMenu(OVERLAY);
 
         overlaylegend = menu.add(OVERLAY_SHOW_LEGEND);
-        overlaylegend.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.META_MASK));
+        overlaylegend.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.META_MASK));
         overlaylegend.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -159,7 +159,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         JMenu menu = new JMenu("Trellis");
         
         zoomin = new JMenuItem(ZOOM_IN, KeyEvent.VK_T);
-        zoomin.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.META_MASK));
+        zoomin.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.META_MASK));
         zoomin.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -169,7 +169,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         menu.add(zoomin);
         
         zoomout = new JMenuItem(ZOOM_OUT);
-        zoomout.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.META_MASK));
+        zoomout.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.META_MASK));
         zoomout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
