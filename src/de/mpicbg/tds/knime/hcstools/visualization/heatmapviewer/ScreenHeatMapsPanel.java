@@ -34,7 +34,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
     private int PREFERRED_HEIGHT = 350;
 
     private HeatMapMenu menu;
-    protected HeatMapToolbar toolbar;
+    protected HeatMapInputToolbar toolbar;
     private JPanel heatMapsContainer;
     protected HeatMapColorToolBar colorbar;
 
@@ -72,7 +72,7 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
 
     // Methods
     private void initialize() {
-        toolbar = new HeatMapToolbar();
+        toolbar = new HeatMapInputToolbar();
 
         heatMapsContainer = new JPanel();
         heatMapsContainer.setPreferredSize(new Dimension(PREFERRED_WITH-10,PREFERRED_HEIGHT-10));

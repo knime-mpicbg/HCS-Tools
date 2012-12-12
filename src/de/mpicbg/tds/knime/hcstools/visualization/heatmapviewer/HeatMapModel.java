@@ -18,6 +18,7 @@ import java.util.List;
  * @author Holger Brandl
  */
 
+@Deprecated
 public class HeatMapModel {
 
     ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();

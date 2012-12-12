@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * @author Holger Brandl
  */
-@Deprecated     // Replaced by HeatMapToolbar and HeatMapMenu
+@Deprecated     // Replaced by HeatMapInputToolbar and HeatMapMenu
 public class HeatMapViewerMenu extends JPanel {
 
 	private HeatMapModel heatMapModel;

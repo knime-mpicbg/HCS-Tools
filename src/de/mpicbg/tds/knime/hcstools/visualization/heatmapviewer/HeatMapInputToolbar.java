@@ -16,7 +16,7 @@ import de.mpicbg.tds.core.model.Plate;
  * To change this template use File | Settings | File Templates.
  */
 
-public class HeatMapToolbar extends JToolBar {
+public class HeatMapInputToolbar extends JToolBar {
 
     private HeatMapModel2 heatMapModel;
     private WellAttributeComboBox readoutSelector;
@@ -26,7 +26,7 @@ public class HeatMapToolbar extends JToolBar {
 
 
     // Constructor
-    public HeatMapToolbar() {
+    public HeatMapInputToolbar() {
         setPreferredSize(new Dimension(600, 30));
 
         add(new JLabel("Readout:"));
@@ -83,14 +83,14 @@ public class HeatMapToolbar extends JToolBar {
 
     // Reveal yourself!
     public static void main(String[] args) {
-        JFrame frame = new JFrame("HeatMapToolbar Test");
+        JFrame frame = new JFrame("HeatMapInputToolbar Test");
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         JTextArea text = new JTextArea("Just some text");
         text.setEnabled(true);
         text.setEditable(false);
         panel.add(text);
-        panel.add(new HeatMapToolbar());
+        panel.add(new HeatMapInputToolbar());
         frame.setContentPane(panel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
