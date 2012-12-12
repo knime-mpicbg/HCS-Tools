@@ -109,14 +109,15 @@ public class HeatWell extends JPanel {
 
         Graphics2D g2d = (Graphics2D) g;
 
+        // Border handling.
         if (showGrid) {
             g2d.setColor(Color.BLACK);
             g2d.setStroke(new BasicStroke(1));
             g2d.draw(new Rectangle(1, 1, getWidth() + 1, getHeight() + 1));
         }
 
+        // Overlay painting
         Color layoutColor = heatMapModel.getOverlayColor(well);
-
         if (layoutColor != null) {
             g2d.setColor(layoutColor);
             g2d.setStroke(overlayStroke);
@@ -127,11 +128,13 @@ public class HeatWell extends JPanel {
             }
         }
 
+        // Selection dot.
         if (heatMapModel.isShowSelection() && heatMapModel.isSelected(well)) {
             g2d.setColor(heatMapModel.getColorScheme().getHighlightColor());
             g2d.fillRect(getWidth() / 2 - 3, getHeight() / 2 - 3, 6, 6);
         }
 
+        //the actual value color.
         setBackground(heatMapModel.getReadoutColor(well));
     }
 

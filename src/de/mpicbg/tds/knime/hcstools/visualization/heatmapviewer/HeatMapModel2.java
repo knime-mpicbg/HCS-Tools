@@ -346,7 +346,9 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     public boolean isSelected(Well well) {
 
         for (Well w : selection) {
-            if (well.getPlateColumn().equals(w.getPlateColumn()) && well.getPlateRow().equals(w.getPlateRow()) && well.getPlate().getBarcode().equals(w.getPlate().getBarcode()))
+            if (well.getPlateColumn().equals(w.getPlateColumn()) &&
+                well.getPlateRow().equals(w.getPlateRow()) &&
+                well.getPlate().getBarcode().equals(w.getPlate().getBarcode()))
                 return true;
         }
 //        return selection.contains(well);
