@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
+import java.util.List;
 import javax.swing.*;
 
 import de.mpicbg.tds.core.TdsUtils;
@@ -21,7 +22,7 @@ public class HeatMapInputToolbar extends JToolBar {
     private HeatMapModel2 heatMapModel;
     private WellAttributeComboBox readoutSelector;
     private WellAttributeComboBox overlaySelector;
-    private PlateAttributeComboBox filterSelector;
+    private JComboBox filterSelector;
     private JFormattedTextField filterString;
 
 
@@ -42,7 +43,7 @@ public class HeatMapInputToolbar extends JToolBar {
         addSeparator();
 
         add(new JLabel("Filter Plates by:"));
-        filterSelector = new PlateAttributeComboBox();
+        filterSelector = new JComboBox();
         filterSelector.setPreferredSize(new Dimension(100, -1));
         add(filterSelector);
         filterString = new JFormattedTextField();
@@ -75,7 +76,9 @@ public class HeatMapInputToolbar extends JToolBar {
         java.util.List<String> annotations = TdsUtils.flattenAnnotationTypes(subScreen);
         annotations.add(0, "");
         overlaySelector.configure(annotations, heatMapModel, AttributeType.OVERLAY_ANNOTATION);
-        filterSelector.configure(subScreen);
+        List<String> plateAttributes = heatMapModel.getPlateAttributes();
+        DefaultComboBoxModel model = new DefaultComboBoxModel(plateAttributes.toArray());
+        filterSelector.setModel(model);
         java.util.List<String> readouts = TdsUtils.flattenReadoutNames(subScreen);
         readoutSelector.configure(readouts, heatMapModel, AttributeType.READOUT);
     }
