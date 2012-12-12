@@ -34,9 +34,9 @@ public class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeLis
     private int PREFERRED_HEIGHT = 350;
 
     private HeatMapMenu menu;
-    private HeatMapToolbar toolbar;
+    protected HeatMapToolbar toolbar;
     private JPanel heatMapsContainer;
-    private HeatMapColorToolBar colorbar;
+    protected HeatMapColorToolBar colorbar;
 
 
     // Constructors

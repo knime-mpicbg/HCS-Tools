@@ -105,6 +105,8 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
         menu.add(createOutlierSubMenu());
 
+        menu.add(createToolBarMenu());
+
         return menu;
     }
 
@@ -246,6 +248,31 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         item[0].setSelected(true);
 
         return lut;
+    }
+
+    private JMenu createToolBarMenu() {
+        JMenu toolbar = new JMenu("Toolbars");
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem("Show Toolbar");
+        item.setSelected(true);
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JCheckBoxMenuItem mi = (JCheckBoxMenuItem) actionEvent.getSource();
+                heatMapsPanel.toolbar.setVisible(mi.isSelected());
+            }
+        });
+        toolbar.add(item);
+        item = new JCheckBoxMenuItem("Show Colorbar");
+        item.setSelected(true);
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JCheckBoxMenuItem mi = (JCheckBoxMenuItem) actionEvent.getSource();
+                heatMapsPanel.colorbar.setVisible(mi.isSelected());
+            }
+        });
+        toolbar.add(item);
+        return toolbar;
     }
 
 
