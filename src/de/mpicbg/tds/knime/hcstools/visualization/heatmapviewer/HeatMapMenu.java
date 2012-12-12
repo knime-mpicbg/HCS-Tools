@@ -194,6 +194,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
                 sortPlatesAction();
             }
         });
+        sortplates.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK+InputEvent.ALT_DOWN_MASK));
         menu.add(sortplates);
 
         menu.add(createColorMapMenu());
@@ -345,9 +346,14 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     }
 
     private void sortPlatesAction() {
-        WellAttributeDialog dialog = new WellAttributeDialog();
-        dialog.pack();
+        PlateAttributeDialog dialog = new PlateAttributeDialog(heatMapModel);
+//        dialog.pack();
         dialog.setVisible(true);
+//        String[] selections = dialog.getSelection();
+//        for (String selection : selections) {
+////            heatMapModel.sortPlates();
+//        }
+
     }
 
     private void rowsColumnsAction() {

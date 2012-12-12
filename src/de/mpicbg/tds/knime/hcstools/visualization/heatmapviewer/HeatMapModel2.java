@@ -12,6 +12,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColo
 import org.apache.commons.math.stat.Frequency;
 
 import java.awt.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.List;
 
@@ -55,6 +56,9 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     private String plateFilterString = "";
     private String plateFilterAttribute = "barcode";
     public static final String OVERLAY_COLOR_CACHE = "overlay_col_cache";
+
+    // Plate sorting;
+    private String[] plateSortingAttributes;
 
     List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
 
@@ -413,6 +417,30 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setColorScheme(ScreenColorScheme colorScheme) {
         this.colorScheme = colorScheme;
+    }
+
+
+    // TODO: This should be solved via the configuration dialog of the node eventually
+    public java.util.List<String> getPlateAttributes() {
+        Collection<String> attributes = new HashSet<String>();
+
+        for (Plate plate : screen) {
+            Class plateClass = plate.getClass();
+
+            for (Field field : plateClass.getDeclaredFields()) {
+                attributes.add(field.getName());
+            }
+        }
+
+        return new ArrayList<String>(attributes);
+    }
+
+    public void setPlateSortingAttributes(String[] attributeList) {
+        plateSortingAttributes = attributeList;
+    }
+
+    public String[] getPlateSortingAttributes() {
+        return plateSortingAttributes;
     }
 
 }

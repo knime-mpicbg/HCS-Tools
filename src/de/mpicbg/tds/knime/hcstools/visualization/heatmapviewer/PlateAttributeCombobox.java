@@ -27,7 +27,7 @@ public class PlateAttributeComboBox extends JComboBox{
     }
 
 
-    private List<String> getPlateAttributes(List<Plate> plates) {
+    public static List<String> getPlateAttributes(List<Plate> plates) {
         Collection<String> attributes = new HashSet<String>();
 
         for (Plate plate : plates) {
