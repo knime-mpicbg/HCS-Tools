@@ -19,21 +19,22 @@ import de.mpicbg.tds.core.model.Plate;
  * @author Holger Brandl
  */
 
-public class ScreenHeatMapsTrellis extends JPanel {
+// Replaces the PlateOverviewHeatMap
+public class ScreenHeatMap extends JPanel {
 
     private Plate plate;
-
     private HeatMapModel2 heatMapModel;
 
 
-    public ScreenHeatMapsTrellis(final Plate plate, HeatMapModel2 heatMapModel) {
+    public ScreenHeatMap(final Plate plate, HeatMapModel2 heatMapModel) {
         this.plate = plate;
-
         this.heatMapModel = heatMapModel;
 
         setDoubleBuffered(true);
         setMinimumSize(new Dimension(100, 100));
+        setToolTipText(plate.getBarcode());
 
+        // Mouse listener for the well details tooltip.
         addMouseListener(new MouseAdapter() {
             public void mouseMoved(MouseEvent e) {
                 int colIndex = (int) (plate.getNumColumns() * e.getX() / (double) getWidth());
@@ -49,10 +50,8 @@ public class ScreenHeatMapsTrellis extends JPanel {
             }
         });
 
-        setToolTipText(plate.getBarcode());
-
+        // Mouse listener for the plate details view. Double clicking on a plate opens a new window.
         addMouseListener(new MouseAdapter() {
-
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 if (mouseEvent.getClickCount() != 2) {
@@ -61,20 +60,19 @@ public class ScreenHeatMapsTrellis extends JPanel {
 
                 // open a new detail-dialog for the plate
                 HeatMapModel plateHeatMapModel = new HeatMapModel();
-
                 // todo if we want to use a global color scale also in the single plate view we ave to use te next line
 //                plateHeatMapModel.setScreen(PlateOverviewHeatMap.this.heatMapModel.getScreen());
-                plateHeatMapModel.setCurrentReadout(ScreenHeatMapsTrellis.this.heatMapModel.getSelectedReadOut());
-                plateHeatMapModel.setOverlay(ScreenHeatMapsTrellis.this.heatMapModel.getOverlay());
-                plateHeatMapModel.setReadoutRescaleStrategy(ScreenHeatMapsTrellis.this.heatMapModel.getRescaleStrategy());
-                plateHeatMapModel.setColorScheme(ScreenHeatMapsTrellis.this.heatMapModel.getColorScheme());
-                plateHeatMapModel.setHideMostFreqOverlay(ScreenHeatMapsTrellis.this.heatMapModel.doHideMostFreqOverlay());
+                plateHeatMapModel.setCurrentReadout(ScreenHeatMap.this.heatMapModel.getSelectedReadOut());
+                plateHeatMapModel.setOverlay(ScreenHeatMap.this.heatMapModel.getOverlay());
+                plateHeatMapModel.setReadoutRescaleStrategy(ScreenHeatMap.this.heatMapModel.getRescaleStrategy());
+                plateHeatMapModel.setColorScheme(ScreenHeatMap.this.heatMapModel.getColorScheme());
+                plateHeatMapModel.setHideMostFreqOverlay(ScreenHeatMap.this.heatMapModel.doHideMostFreqOverlay());
 
-                if (ScreenHeatMapsTrellis.this.heatMapModel.getWellSelection().size() > 0) {
-                    plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(ScreenHeatMapsTrellis.this.heatMapModel.getWellSelection()).get(plate));
+                if (ScreenHeatMap.this.heatMapModel.getWellSelection().size() > 0) {
+                    plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(ScreenHeatMap.this.heatMapModel.getWellSelection()).get(plate));
                 }
 
-                Window ownerWindow = Utils.getOwnerDialog(ScreenHeatMapsTrellis.this);
+                Window ownerWindow = Utils.getOwnerDialog(ScreenHeatMap.this);
                 PlatePanel.createPanelDialog(plate, plateHeatMapModel, ownerWindow);
             }
         });
@@ -93,12 +91,10 @@ public class ScreenHeatMapsTrellis extends JPanel {
             int j = well.getPlateColumn() - 1;
 
             // fill the rect for each well with the appropriate color
-
             Color layoutColor = heatMapModel.getOverlayColor(well);
 
             if (heatMapModel.isSelected(well)) {
                 g.setColor(heatMapModel.getColorScheme().getHighlightColor());
-
             } else if (layoutColor != null) {
                 g.setColor(layoutColor);
             } else {
@@ -109,17 +105,14 @@ public class ScreenHeatMapsTrellis extends JPanel {
         }
     }
 
-
     public Plate getPlate() {
         return plate;
     }
 
-
     public void setSelection(Collection<Well> highlightWells) {
-        // todo is this actually updated wehn a selection is beeing made visible
+        // todo is this actually updated when a selection is being made visible
         heatMapModel.setDoShowLayout(false);
         heatMapModel.setWellSelection(highlightWells);
-
         repaint();
     }
 }

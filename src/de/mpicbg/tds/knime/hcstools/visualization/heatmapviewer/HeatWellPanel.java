@@ -18,7 +18,7 @@ import java.util.Random;
  * @author Holger Brandl
  * @see de.mpicbg.tds.core.view.PlateDetailsHeatMap
  */
-@Deprecated // Replaced by PlateHeatMapPanel
+@Deprecated // Replaced by HeatWell
 public class HeatWellPanel extends JPanel {
 
 

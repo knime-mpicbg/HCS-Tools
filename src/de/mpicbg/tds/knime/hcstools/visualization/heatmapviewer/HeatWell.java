@@ -1,7 +1,5 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.core.model.Well;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -9,9 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.Random;
 
-//import de.mpicbg.tds.core.view.HeatMapModel;
-//import de.mpicbg.tds.core.view.WellDetailPanel;
-
+import de.mpicbg.tds.core.model.Well;
 
 /**
  * A JPanel which renders a detailed view on a single well within a heat-map.
@@ -19,10 +15,9 @@ import java.util.Random;
  * @author Holger Brandl
  * @see de.mpicbg.tds.core.view.PlateDetailsHeatMap
  */
-public class PlateHeatMapPanel extends JPanel {
 
-
-//    private final Border border = BorderFactory.createLineBorder(Color.blue, 2);
+// replaces HeatWellPanel
+public class HeatWell extends JPanel {
 
     private Well well;
     private HeatMapModel2 heatMapModel;
@@ -30,23 +25,21 @@ public class PlateHeatMapPanel extends JPanel {
     public static int STROKE_WIDTH = 3;
     public static BasicStroke overlayStroke = new BasicStroke(STROKE_WIDTH);
     private boolean isSelected;
-
     private boolean showGrid = false;
 
 
-    public PlateHeatMapPanel(final Well well, HeatMapModel2 heatMapModel) {
+    public HeatWell(final Well well, HeatMapModel2 heatMapModel) {
         super();
 
         this.well = well;
         this.heatMapModel = heatMapModel;
 
+        // Mouse listener for the well details view. A well details dialog is opened with a double click
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 if (mouseEvent.getClickCount() == 2) {
-
-
-                    JDialog jDialog = new JDialog(getParentDialog(PlateHeatMapPanel.this), false);
+                    JDialog jDialog = new JDialog(getParentDialog(HeatWell.this), false);
                     jDialog.add(new WellDetailPanel(well));
 
                     Random random = new Random();
@@ -54,16 +47,13 @@ public class PlateHeatMapPanel extends JPanel {
                     jDialog.setVisible(true);
 
                     mouseEvent.consume();
-
-
                 }
             }
         });
-//
+
+        // Mouse listener for the tooltip, which is the well details.
         addMouseMotionListener(new MouseMotionAdapter() {
-
             String toolTip;
-
 
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
@@ -101,28 +91,12 @@ public class PlateHeatMapPanel extends JPanel {
     }
 
 
-//    private static long requestID;
-//    private static Random r  = new Random();
-
-
     @Override
     public JToolTip createToolTip() {
         JToolTip jToolTip = new JToolTip();
         jToolTip.setLayout(new BorderLayout());
-
-//        // a hacky delay approach to let the app query for compounds just if the user actually hover over a well
-//        int curRequestID =r.nextInt();
-//        requestID = curRequestID;
-//        Utils.sleep(100);
-//        if(requestID != curRequestID)
-//            return null;
-
-
-        WellDetailPanel wellDetailsPanel = new WellDetailPanel(well);
-
         jToolTip.setPreferredSize(new Dimension(350, 500));
-
-
+        WellDetailPanel wellDetailsPanel = new WellDetailPanel(well);
         jToolTip.add(wellDetailsPanel, BorderLayout.CENTER);
 
         return jToolTip;
@@ -153,12 +127,10 @@ public class PlateHeatMapPanel extends JPanel {
             }
         }
 
-
         if (heatMapModel.isShowSelection() && heatMapModel.isSelected(well)) {
             g2d.setColor(heatMapModel.getColorScheme().getHighlightColor());
             g2d.fillRect(getWidth() / 2 - 3, getHeight() / 2 - 3, 6, 6);
         }
-
 
         setBackground(heatMapModel.getReadoutColor(well));
     }
@@ -179,4 +151,3 @@ public class PlateHeatMapPanel extends JPanel {
         this.showGrid = showGrid;
     }
 }
-

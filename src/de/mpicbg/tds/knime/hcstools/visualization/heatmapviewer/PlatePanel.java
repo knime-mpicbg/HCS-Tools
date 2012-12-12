@@ -17,6 +17,7 @@ import java.util.Random;
 /**
  * @author Holger Brandl
  */
+@Deprecated
 public class PlatePanel extends JPanel implements HeatMapModelChangeListener {
 
 

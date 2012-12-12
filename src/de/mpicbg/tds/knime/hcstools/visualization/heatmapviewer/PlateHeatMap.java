@@ -20,17 +20,16 @@ import info.clearthought.layout.TableLayout;
  * @author Holger Brandl
  */
 
+// Replaces PlateDetailsHeatMap
 public class PlateHeatMap extends JPanel {
 
     private Plate plate;
-
     private HeatMapModel2 heatmapModel;
 
-    Map<Well, PlateHeatMapPanel> wellPanelGrid = new HashMap<Well, PlateHeatMapPanel>();
+    Map<Well, HeatWell> wellPanelGrid = new HashMap<Well, HeatWell>();
 
 
     public PlateHeatMap(Plate plate, HeatMapModel2 heatmapModel) {
-
         this.plate = plate;
         this.heatmapModel = heatmapModel;
 
@@ -43,7 +42,6 @@ public class PlateHeatMap extends JPanel {
         // configure the layout and populate it with well rendern
         int numRows = plate.getNumRows();
         int numColumns = plate.getNumColumns();
-
         double[] rowConfig = new double[numRows + 1];
         double[] columnConfig = new double[numColumns + 1];
 
@@ -60,7 +58,6 @@ public class PlateHeatMap extends JPanel {
         tableLayout.setRow(rowConfig);
         tableLayout.setColumn(columnConfig);
 
-
         // populate the grid
         JLabel topRightCornerLabel = new JLabel("");
         add(topRightCornerLabel, "0,0");
@@ -74,7 +71,6 @@ public class PlateHeatMap extends JPanel {
             add(rowLabel, "0, " + (i + 1));
         }
 
-
         // 2) column-header
         for (int i = 0; i < numColumns; i++) {
             JLabel colLabel = new JLabel((i + 1) + "");
@@ -83,14 +79,11 @@ public class PlateHeatMap extends JPanel {
             add(colLabel, (i + 1) + ", 0");
         }
 
-
         // 3) actual well renderers (by iterating over the plate as it's much more efficient compared to using the service)
         for (Well well : plate.getWells()) {
             String insertPosition = (well.getPlateColumn()) + ", " + (well.getPlateRow());
-            PlateHeatMapPanel heatWellPanel = new PlateHeatMapPanel(well, heatmapModel);
-
+            HeatWell heatWellPanel = new HeatWell(well, heatmapModel);
             heatWellPanel.addMouseListener(selectionController);
-
             wellPanelGrid.put(well, heatWellPanel);
             add(heatWellPanel, insertPosition);
 //            add(new JLabel(insertPosition), insertPosition);
@@ -106,16 +99,16 @@ public class PlateHeatMap extends JPanel {
 
 
     public void showGrid(boolean doShowGrid) {
-        for (PlateHeatMapPanel heatWellPanel : wellPanelGrid.values()) {
+        for (HeatWell heatWellPanel : wellPanelGrid.values()) {
             heatWellPanel.setShowGrid(doShowGrid);
         }
     }
 
 
+
     class WellSelectionController extends MouseAdapter {
 
         HeatWellPanel dragStart;
-
 
         @Override
         public void mousePressed(MouseEvent mouseEvent) {
@@ -125,14 +118,12 @@ public class PlateHeatMap extends JPanel {
             }
         }
 
-
 //        @Override
 //        public void mouseDragged(MouseEvent mouseEvent) {
 ////            super.mouseDragged(mouseEvent);
 //
 //
 //        }
-
 
         @Override
         public void mouseReleased(MouseEvent mouseEvent) {
@@ -165,7 +156,6 @@ public class PlateHeatMap extends JPanel {
             dragStart = null;
         }
 
-
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
             super.mouseClicked(mouseEvent);
@@ -173,7 +163,6 @@ public class PlateHeatMap extends JPanel {
             if (!mouseEvent.isMetaDown()) {
                 heatmapModel.getWellSelection().clear();
             }
-
 
             Object source = mouseEvent.getSource();
             if (source instanceof JLabel) {
