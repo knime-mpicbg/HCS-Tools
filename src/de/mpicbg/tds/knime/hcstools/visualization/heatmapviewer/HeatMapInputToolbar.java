@@ -23,7 +23,6 @@ public class HeatMapInputToolbar extends JToolBar {
     private WellAttributeComboBox readoutSelector;
     private WellAttributeComboBox overlaySelector;
     private JComboBox filterSelector;
-    private JFormattedTextField filterString;
 
 
     // Constructor
@@ -46,10 +45,10 @@ public class HeatMapInputToolbar extends JToolBar {
         filterSelector = new JComboBox();
         filterSelector.setPreferredSize(new Dimension(100, -1));
         add(filterSelector);
-        filterString = new JFormattedTextField();
+        JFormattedTextField filterString = new JFormattedTextField();
         filterString.setMinimumSize(new Dimension(100, 20));
-        filterString.setPreferredSize(new Dimension(100,20));
-        filterString.setMaximumSize(new Dimension(300,20));
+        filterString.setPreferredSize(new Dimension(100, 20));
+        filterString.setMaximumSize(new Dimension(300, 20));
         filterString.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
