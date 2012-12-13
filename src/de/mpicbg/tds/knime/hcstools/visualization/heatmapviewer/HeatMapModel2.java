@@ -9,6 +9,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinM
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRescaleStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.Frequency;
 
 import java.awt.*;
@@ -54,7 +55,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     private Map<String, String> maxFreqOverlay;
     private String overlay = "";
     private String plateFilterString = "";
-    private String plateFilterAttribute = "barcode";
+    private PlateComparators.PlateAttribute plateFilterAttribute = PlateComparators.PlateAttribute.BARCODE;
     public static final String OVERLAY_COLOR_CACHE = "overlay_col_cache";
 
     // Plate sorting;
@@ -82,66 +83,42 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     public void filterPlates(String pfs) {
         setPlateFilterString(pfs);
 
-        // no filter selected
-        if(plateFilterString.isEmpty()) {
+        // no filter selected or no filter string defined.
+        if(plateFilterString.isEmpty() || StringUtils.isBlank(pfs) )  {
             for(Plate p : plateFiltered.keySet()) {
                 plateFiltered.put(p,true);
             }
+            fireModelChanged();
+            return;
         }
 
-        if (plateFilterAttribute.equals("barcode")){
-            for(Plate p : plateFiltered.keySet()) {
-                if(p.getBarcode().contains(plateFilterString)) { plateFiltered.put(p,true); }
-                else  plateFiltered.put(p,false);
+        for(Plate p : plateFiltered.keySet()) {
+            boolean keep = false;
+
+            switch (plateFilterAttribute) {
+                case BARCODE:
+                    if(p.getBarcode().contains(plateFilterString)) { keep = true; } break;
+                case SCREENED_AT:
+                    if(p.getScreenedAt().equals(new Date(plateFilterString))) { keep = true; } break;
+                case BATCH_NAME:
+                    if(p.getBatchName().contains(plateFilterString)) { keep = true; } break;
+                case LIBRARY_CODE:
+                    if(p.getLibraryCode().contains(plateFilterString)) { keep = true; } break;
+                case LIBRARY_PLATE_NUMBER:
+                    if(p.getLibraryPlateNumber().equals(Integer.parseInt(plateFilterString))) { keep = true; } break;
+                case ASSAY:
+                    if(p.getAssay().contains(plateFilterString)) { keep = true; } break;
+                case REPLICATE:
+                    if(p.getReplicate().contains(plateFilterString)) { keep = true; } break;
             }
-        } else if (plateFilterAttribute.equals("screenedAt")){
-            for(Plate p : plateFiltered.keySet()) {
-                if(p.getScreenedAt().equals(new Date(plateFilterString))) { plateFiltered.put(p,true); }
-                else  plateFiltered.put(p,false);
-            }
-        } else if (plateFilterAttribute.equals("batchName")){
-            for(Plate p : plateFiltered.keySet()) {
-                if(p.getBatchName().contains(plateFilterString)) { plateFiltered.put(p,true); }
-                else  plateFiltered.put(p,false);
-            }
-        } else if (plateFilterAttribute.equals("libraryCode")){
-            for(Plate p : plateFiltered.keySet()) {
-                if(p.getLibraryCode().contains(plateFilterString)) { plateFiltered.put(p,true); }
-                else  plateFiltered.put(p,false);
-            }
-        } else if (plateFilterAttribute.equals("libraryPlateNumber")){
-            for(Plate p : plateFiltered.keySet()) {
-                if(p.getLibraryPlateNumber().equals(Integer.parseInt(plateFilterString))) { plateFiltered.put(p,true); }
-                else  plateFiltered.put(p,false);
-            }
-        } else if (plateFilterAttribute.equals("assay")){
-            for(Plate p : plateFiltered.keySet()) {
-                if(p.getAssay().contains(plateFilterString)) { plateFiltered.put(p,true); }
-                else  plateFiltered.put(p,false);
-            }
-        } else if (plateFilterAttribute.equals("replicate")){
-            for(Plate p : plateFiltered.keySet()) {
-                if(p.getReplicate().contains(plateFilterString)) { plateFiltered.put(p,true); }
-                else  plateFiltered.put(p,false);
-            }
-        } else if (plateFilterAttribute.equals("description")){
-            for(Plate p : plateFiltered.keySet()) {
-                if(p.getDescription().contains(plateFilterString)) { plateFiltered.put(p,true); }
-                else  plateFiltered.put(p,false);
-            }
-        } else if (plateFilterAttribute.equals("id")){
-            for(Plate p : plateFiltered.keySet()) {
-                if(p.getId().contains(plateFilterString)) { plateFiltered.put(p,true); }
-                else  plateFiltered.put(p,false);
-            }
-        } else {
-            System.err.println("Can't filter the plate attribute " + plateFilterAttribute + ".");
+
+            plateFiltered.put(p,keep);
         }
 
         fireModelChanged();
     }
 
-    public void filterPlates(String pfs, String pfa) {
+    public void filterPlates(String pfs, PlateComparators.PlateAttribute pfa) {
         setPlateFilterAttribute(pfa);
         filterPlates(pfs);
     }
@@ -404,7 +381,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
 
-    public void setPlateFilterAttribute(String fa) {
+    public void setPlateFilterAttribute(PlateComparators.PlateAttribute fa) {
         this.plateFilterAttribute = fa;
     }
 

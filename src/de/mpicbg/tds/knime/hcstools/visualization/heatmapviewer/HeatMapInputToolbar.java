@@ -47,7 +47,9 @@ public class HeatMapInputToolbar extends JToolBar {
         filterSelector.setPreferredSize(new Dimension(100, -1));
         add(filterSelector);
         filterString = new JFormattedTextField();
-        filterString.setPreferredSize(new Dimension(100, 20));
+        filterString.setMinimumSize(new Dimension(100, 20));
+        filterString.setPreferredSize(new Dimension(100,20));
+        filterString.setMaximumSize(new Dimension(300,20));
         filterString.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -60,8 +62,8 @@ public class HeatMapInputToolbar extends JToolBar {
 
     private void filterPlatesAction(ActionEvent event) {
         String filterString = event.getActionCommand();
-        String filterAnnotation = (String) filterSelector.getSelectedItem();
-        heatMapModel.filterPlates(filterString, filterAnnotation);
+        String filterAttribute = (String) filterSelector.getSelectedItem();
+        heatMapModel.filterPlates(filterString, PlateComparators.getPlateAttributeByTitle(filterAttribute));
     }
 
 

@@ -66,6 +66,15 @@ public abstract class PlateComparators {
         return attributes;
     }
 
+    public static PlateAttribute getPlateAttributeByTitle(String title) {
+        for (PlateAttribute attribute : PlateAttribute.values()) {
+            if (attribute.getTitle().equals(title)) {
+                return attribute;
+            }
+        }
+        return null;
+    }
+
 
 
     /**
