@@ -1,10 +1,9 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.core.model.Plate;
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -15,15 +14,17 @@ import java.util.List;
  * Date: 12/12/12
  *
  * Small dialog to select plate attributes.
- * TODO: indicate in some way the selection order
  */
 
 public class PlateAttributeDialog extends JDialog {
 
-    private JList attributeList;
-    private JList numberList;
     private HashMap<String, Integer> selection = new HashMap<String, Integer>();
     private HeatMapModel2 heatMapModel;
+    private JTable table;
+    private String[][] tableData = new String[3][2];
+    private ListSelectionModel listSelectionModel;
+
+    private static final String[] columnNames = {"order", "Attribute"};
 
 
     public PlateAttributeDialog() {
@@ -32,16 +33,18 @@ public class PlateAttributeDialog extends JDialog {
 
     public PlateAttributeDialog (HeatMapModel2 model) {
         heatMapModel = model;
-        initialize();
         setSize(new Dimension(250, 200));
+        initialize();
+        configureTable();
         setModal(true);
         setLocationRelativeTo(getOwner());
-        setTitle("Plate Attribute Selector");
+        setTitle("Filtering Selector");
+        setResizable(false);
     }
 
 
     private void onOK() {
-        heatMapModel.setPlateSortingAttributes(getSelection());
+        selection = getSelectionFromTable();
         dispose();
     }
 
@@ -50,67 +53,6 @@ public class PlateAttributeDialog extends JDialog {
     }
 
     private void initialize() {
-        numberList = new JList();
-        numberList.setEnabled(false);
-        numberList.setBorder(BorderFactory.createEtchedBorder());
-//        numberList.setBackground(new Color(221, 221, 221));
-        // Selection list.
-        attributeList = new JList();
-        attributeList.setVisibleRowCount(5);
-        attributeList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        attributeList.setToolTipText("<html>Select one or more plate attribute<br/>according to which the plates " +
-                "should be sorted.<br/>the order of selection is relevant!");
-
-        // Restore the previous state
-        if ( !(heatMapModel == null) ) {
-            List<String> plateAttributes = heatMapModel.getPlateAttributes();
-            DefaultComboBoxModel model = new DefaultComboBoxModel(plateAttributes.toArray());
-            attributeList.setModel(model);
-
-            // Mark the previous selection.
-            if (!(heatMapModel.getPlateSortingAttributes() == null)) {
-
-                //... of the attributes
-                List<String> oldAttributes = Arrays.asList(heatMapModel.getPlateSortingAttributes());
-                int[] index = new int[oldAttributes.size()];
-                for (int i = 0; i < oldAttributes.size(); i++) {
-                    index[i] = plateAttributes.indexOf(oldAttributes.get(i));
-                }
-                attributeList.setSelectedIndices(index);
-
-                // ...of the number list
-                updateOrderNumberList();
-            }
-        }
-
-        attributeList.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent listSelectionEvent) {
-//                ListSelectionModel lsm = (ListSelectionModel)listSelectionEvent.getSource();
-//
-//                int firstIndex = listSelectionEvent.getFirstIndex();
-//                int lastIndex = listSelectionEvent.getLastIndex();
-
-                updateOrderNumberList();
-            }
-        });
-
-        // Put everything in a scroll pane
-        JPanel listPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.weightx = 0.1;
-        constraints.weighty = 1;
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        listPanel.add(numberList, constraints);
-        constraints.gridx = 1;
-        constraints.weightx = 0.9;
-        listPanel.add(attributeList, constraints);
-        JScrollPane pane = new JScrollPane();
-        pane.setViewportView(listPanel);
-        pane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
         // Ok and cancel buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
@@ -134,14 +76,14 @@ public class PlateAttributeDialog extends JDialog {
 
         // Reunite the different sections in one pane.
         JPanel contentPane = new JPanel(new GridBagLayout());
-        constraints = new GridBagConstraints();
+        GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridy = 0;
         constraints.gridx = 0;
         constraints.weighty = 0.9;
         constraints.weightx = 1;
         constraints.insets = new Insets(7, 7, 7, 7);
         constraints.fill = GridBagConstraints.BOTH;
-        contentPane.add(pane, constraints);
+        contentPane.add(createTable(), constraints);
         constraints.gridy = 1;
         constraints.weighty = -1;
         contentPane.add(buttonPanel, constraints);
@@ -164,28 +106,77 @@ public class PlateAttributeDialog extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    public String[] getSelection() {
-        String[] list = new String[attributeList.getSelectedIndices().length];
-        int index = 0;
-        for (Object item : attributeList.getSelectedValues()) {
-            list[index++] = (String) item;
-        }
-        return list;
+    public HashMap<String, Integer> getSelection() {
+        return selection;
     }
 
-    private void updateOrderNumberList() {
-        String[] numbers = new String[attributeList.getModel().getSize()];
-        for (int i = 0; i < numbers.length; i++) {
-            numbers[i] = "-";
+    public HashMap<String, Integer> getSelectionFromTable() {
+        HashMap<String, Integer> sel = new HashMap<String, Integer>();
+        for (int i=0; i<table.getRowCount(); i++) {
+            if (!table.getValueAt(i,0).equals("-")) {
+                sel.put( (String)table.getValueAt(i,1) , Integer.parseInt((String) table.getValueAt(i,0)));
+            }
         }
-        int[] indices = attributeList.getSelectedIndices();
-        int nb;
-        for (int i=0; i<indices.length; i++) {
-            nb = i+1;
-            numbers[indices[i]] = "" + nb;
+        return sel;
+    }
+
+    private JScrollPane createTable() {
+        DefaultTableModel model = new DefaultTableModel(tableData, columnNames);
+        table = new JTable(model){
+            @Override
+            public boolean isCellEditable ( int row, int column )
+            {
+                return false;
+            }
+        };
+
+        listSelectionModel = table.getSelectionModel();
+        listSelectionModel.addListSelectionListener(new SelectionHandler());
+        table.setSelectionModel(listSelectionModel);
+        JScrollPane pane = new JScrollPane();
+        pane.setViewportView(table);
+        pane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        return pane;
+    }
+
+    private void configureTable() {
+
+        if ( !(heatMapModel == null) ) {
+            // Set the attribute names.
+            List<String> attributes = heatMapModel.getPlateAttributes();
+            tableData = new String[attributes.size()][1];
+            DefaultTableModel model = new DefaultTableModel(tableData, columnNames);
+            table.setModel(model);
+
+            int index = 0;
+            for (String attribute : attributes) {
+                model.setValueAt("-", index,0);
+                model.setValueAt(attribute,index++,1);
+            }
+
+            // Restore the previous selection.
+            if (!(heatMapModel.getSortAttributeSelection() == null)) {
+                selection = heatMapModel.getSortAttributeSelection();
+
+                //... of the attributes
+                int pos;
+                for (String key : selection.keySet()) {
+                    pos = attributes.indexOf(key);
+                    model.setValueAt(""+selection.get(key), pos, 0);
+                    listSelectionModel.addSelectionInterval(pos, pos);
+                }
+            }
         }
-        DefaultComboBoxModel model = new DefaultComboBoxModel(numbers);
-        numberList.setModel(model);
+
+        // TODO: find a neat way to set the column widths. This does not work for some reason.
+//        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+//        TableColumnModel columnModel = table.getColumnModel();
+//        columnModel.getColumn(0).setPreferredWidth(40);
+//        columnModel.getColumn(0).setWidth(40);
+//        columnModel.getColumn(1).setPreferredWidth(getWidth()-54);
+//        columnModel.getColumn(1).setWidth(getWidth()-54);
+//        table.setColumnModel(columnModel);
+        repaint();
     }
 
 
@@ -194,5 +185,61 @@ public class PlateAttributeDialog extends JDialog {
         dialog.setVisible(true);
         System.exit(0);
     }
+
+
+
+    private class SelectionHandler implements ListSelectionListener {
+
+        public void valueChanged(ListSelectionEvent event) {
+            ListSelectionModel lsm = (ListSelectionModel) event.getSource();
+
+            // Only use one of the actions
+            if (lsm.getValueIsAdjusting()){
+                return;
+            }
+
+            // fetch previous index map (order, position) and the indices of the selected rows
+            HashMap<String, Integer> indexMap = new HashMap<String, Integer>();
+            ArrayList<Integer> selectedIndices = new ArrayList<Integer>();
+
+            for (int i=0; i <table.getRowCount(); i++) {
+
+                if (lsm.isSelectedIndex(i)) {
+                    if (!table.getValueAt(i,0).equals("-")) {
+                        indexMap.put((String) table.getValueAt(i, 0), i);
+                    }
+                    selectedIndices.add(i);
+                } else if (!table.getValueAt(i,0).equals("-")) {
+                    table.setValueAt("-", i, 0);
+                }
+            }
+
+            // Sort according the order
+            List<String> orders = new ArrayList<String>(indexMap.keySet());
+            Collections.sort(orders);
+
+            // Re-index if one selection dropped out. Also invert keys and values for the next step
+            HashMap<Integer, String> validatedIndexMap = new HashMap<Integer, String>();
+            int newOrder = 1;
+            for (String order : orders) {
+                validatedIndexMap.put(indexMap.get(order), ""+newOrder);
+                newOrder++;
+            }
+
+            // Update the table
+            int order = indexMap.size();
+            for (Integer pos : selectedIndices) {
+
+                if (validatedIndexMap.containsKey(pos)) {
+                    table.setValueAt(validatedIndexMap.get(pos), pos, 0);
+                } else {
+                    ++order;
+                    table.setValueAt("" + order, pos, 0);
+                }
+            }
+            repaint();
+        }
+    }
+
 
 }

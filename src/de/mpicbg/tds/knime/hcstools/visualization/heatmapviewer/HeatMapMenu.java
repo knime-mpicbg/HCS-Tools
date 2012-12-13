@@ -349,6 +349,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         PlateAttributeDialog dialog = new PlateAttributeDialog(heatMapModel);
 //        dialog.pack();
         dialog.setVisible(true);
+        heatMapModel.setSortAttributeSelection(dialog.getSelection());
 //        String[] selections = dialog.getSelection();
 //        for (String selection : selections) {
 ////            heatMapModel.sortPlates();

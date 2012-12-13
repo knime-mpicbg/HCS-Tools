@@ -58,7 +58,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     public static final String OVERLAY_COLOR_CACHE = "overlay_col_cache";
 
     // Plate sorting;
-    private String[] plateSortingAttributes;
+    private HashMap<String, Integer> sortAttributeSelection;
 
     List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
 
@@ -148,6 +148,14 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public boolean isSelected(Plate p){
         return plateFiltered.get(p);
+    }
+
+    public void setSortAttributeSelection(HashMap<String, Integer> sortAttributeSelection) {
+        this.sortAttributeSelection = sortAttributeSelection;
+    }
+
+    public HashMap<String, Integer> getSortAttributeSelection() {
+        return sortAttributeSelection;
     }
 
     public enum SortBy { DATE, DATE_LIB, ASSAY, LIB, PLATENUM }
@@ -435,12 +443,5 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         return new ArrayList<String>(attributes);
     }
 
-    public void setPlateSortingAttributes(String[] attributeList) {
-        plateSortingAttributes = attributeList;
-    }
-
-    public String[] getPlateSortingAttributes() {
-        return plateSortingAttributes;
-    }
 
 }
