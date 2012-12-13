@@ -1,5 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
+import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -143,7 +145,7 @@ public class PlateAttributeDialog extends JDialog {
 
         if ( !(heatMapModel == null) ) {
             // Set the attribute names.
-            List<String> attributes = heatMapModel.getPlateAttributes();
+            List<String> attributes = Arrays.asList(PlateComparators.getPlateAttributeTitles(heatMapModel.getPlateAttributes()));
             tableData = new String[attributes.size()][1];
             DefaultTableModel model = new DefaultTableModel(tableData, columnNames);
             table.setModel(model);

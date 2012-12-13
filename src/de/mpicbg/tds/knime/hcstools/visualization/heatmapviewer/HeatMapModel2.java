@@ -2,9 +2,9 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.PlateSortByDate;
 import de.mpicbg.tds.core.model.PlateSortByPlateNumber;
 import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRescaleStrategy;
@@ -158,15 +158,8 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         return sortAttributeSelection;
     }
 
-    public enum SortBy { DATE, DATE_LIB, ASSAY, LIB, PLATENUM }
-
-    public void sortPlates(SortBy s) {
-        switch (s) {
-            case DATE: Collections.sort(screen, new PlateSortByDate());
-            case PLATENUM: Collections.sort(screen, new PlateSortByPlateNumber());
-        }
-        fireModelChanged();
-        return;
+    public void sortPlates(PlateComparators.PlateAttribute s) {
+        Collections.sort(screen, PlateComparators.getComparator(s));
     }
 
 
@@ -429,18 +422,30 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
 
     // TODO: This should be solved via the configuration dialog of the node eventually
-    public java.util.List<String> getPlateAttributes() {
-        Collection<String> attributes = new HashSet<String>();
+    public Collection<PlateComparators.PlateAttribute> getPlateAttributes() {
+        Collection<PlateComparators.PlateAttribute> availableAttributes = new HashSet<PlateComparators.PlateAttribute>();
+        PlateComparators.PlateAttribute[] attributes = PlateComparators.PlateAttribute.values();
 
         for (Plate plate : screen) {
-            Class plateClass = plate.getClass();
 
-            for (Field field : plateClass.getDeclaredFields()) {
-                attributes.add(field.getName());
+            for (PlateComparators.PlateAttribute attribute : attributes) {
+
+                try {
+                    Field field = plate.getClass().getDeclaredField(attribute.getName());
+                    field.setAccessible(true);
+                    Object object = field.get(plate);
+                    if (!(object == null)) {
+                        availableAttributes.add(attribute);
+                    }
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
-        return new ArrayList<String>(attributes);
+        return availableAttributes;
     }
 
 

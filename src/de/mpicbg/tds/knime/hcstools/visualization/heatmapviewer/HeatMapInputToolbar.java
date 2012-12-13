@@ -4,11 +4,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
-import java.util.List;
 import javax.swing.*;
 
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
 
 /**
  * User: Felix Meyenhofer
@@ -76,8 +76,8 @@ public class HeatMapInputToolbar extends JToolBar {
         java.util.List<String> annotations = TdsUtils.flattenAnnotationTypes(subScreen);
         annotations.add(0, "");
         overlaySelector.configure(annotations, heatMapModel, AttributeType.OVERLAY_ANNOTATION);
-        List<String> plateAttributes = heatMapModel.getPlateAttributes();
-        DefaultComboBoxModel model = new DefaultComboBoxModel(plateAttributes.toArray());
+        Collection<PlateComparators.PlateAttribute> plateAttributes = heatMapModel.getPlateAttributes();
+        DefaultComboBoxModel model = new DefaultComboBoxModel(PlateComparators.getPlateAttributeTitles(plateAttributes));
         filterSelector.setModel(model);
         java.util.List<String> readouts = TdsUtils.flattenReadoutNames(subScreen);
         readoutSelector.configure(readouts, heatMapModel, AttributeType.READOUT);
