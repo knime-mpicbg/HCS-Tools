@@ -54,12 +54,14 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     private boolean hideMostFrequentOverlay = false;
     private Map<String, String> maxFreqOverlay;
     private String overlay = "";
+
+    //Plate Filtering
     private String plateFilterString = "";
     private PlateComparators.PlateAttribute plateFilterAttribute = PlateComparators.PlateAttribute.BARCODE;
-    public static final String OVERLAY_COLOR_CACHE = "overlay_col_cache";
+//    public static final String OVERLAY_COLOR_CACHE = "overlay_col_cache";
 
     // Plate sorting;
-    private HashMap<String, Integer> sortAttributeSelection;
+    private List<PlateComparators.PlateAttribute> sortAttributeSelection;
 
     List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
 
@@ -127,18 +129,38 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         return plateFiltered.get(p);
     }
 
-    public void setSortAttributeSelection(HashMap<String, Integer> sortAttributeSelection) {
-        this.sortAttributeSelection = sortAttributeSelection;
+//    public void setSortAttributeSelection(HashMap<Integer,PlateComparators.PlateAttribute> sortAttributeSelection) {
+//        this.sortAttributeSelection = sortAttributeSelection;
+//    }
+//
+//    public HashMap<Integer,PlateComparators.PlateAttribute> getSortAttributeSelection() {
+//        return sortAttributeSelection;
+//    }
+
+    public void setSortAttributeSelectionByTiles(String[] titles) {
+        sortAttributeSelection = new ArrayList<PlateComparators.PlateAttribute>();
+        for (String title : titles) {
+            sortAttributeSelection.add(PlateComparators.getPlateAttributeByTitle(title));
+        }
+        fireModelChanged();
     }
 
-    public HashMap<String, Integer> getSortAttributeSelection() {
-        return sortAttributeSelection;
+    public String[] getSortAttributesSelectionTitles() {
+        if (sortAttributeSelection == null) {
+            return null;
+        } else {
+            return PlateComparators.getPlateAttributeTitles(sortAttributeSelection);
+        }
     }
 
-    public void sortPlates(PlateComparators.PlateAttribute s) {
-        Collections.sort(screen, PlateComparators.getComparator(s));
+    public void sortPlates(PlateComparators.PlateAttribute attribute) {
+        sortPlates(attribute, false);
     }
 
+    public void sortPlates(PlateComparators.PlateAttribute attribute, boolean descending) {
+        Collections.sort(screen, PlateComparators.getComparator(attribute));
+        if (!descending) { Collections.reverse(screen); }
+    }
 
     private void updateMaxOverlayFreqs(List<Plate> screen) {
         Collection<Well> wellCollection = new ArrayList<Well>(TdsUtils.flattenWells(screen));
@@ -426,4 +448,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
 
+    public void revertScreen() {
+        Collections.reverse(screen);
+    }
 }

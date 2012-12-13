@@ -1,13 +1,20 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
+import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileSmoothedStrategy;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.Container;
+import java.awt.Dialog;
+import java.awt.LinearGradientPaint;
+import java.awt.Frame;
 import java.awt.event.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * User: Felix Meyenhofer
@@ -347,14 +354,18 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
     private void sortPlatesAction() {
         PlateAttributeDialog dialog = new PlateAttributeDialog(heatMapModel);
-//        dialog.pack();
         dialog.setVisible(true);
-        heatMapModel.setSortAttributeSelection(dialog.getSelection());
-//        String[] selections = dialog.getSelection();
-//        for (String selection : selections) {
-////            heatMapModel.sortPlates();
-//        }
+        String[] selectedAttributes = dialog.getSelectedAttributeTitles();
+        List<String> inverted = Arrays.asList(selectedAttributes);
+        Collections.reverse(inverted);
+        for (String key : inverted) {
+            PlateComparators.PlateAttribute attribute = PlateComparators.getPlateAttributeByTitle(key);
+            heatMapModel.sortPlates(attribute);
+        }
 
+        if (!dialog.descending.isSelected()) { heatMapModel.revertScreen(); }
+        heatMapModel.fireModelChanged();
+        heatMapModel.setSortAttributeSelectionByTiles(selectedAttributes);
     }
 
     private void rowsColumnsAction() {

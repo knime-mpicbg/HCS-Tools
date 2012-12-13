@@ -1,8 +1,11 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
+import org.apache.commons.lang.ArrayUtils;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -20,11 +23,12 @@ import java.util.List;
 
 public class PlateAttributeDialog extends JDialog {
 
-    private HashMap<String, Integer> selection = new HashMap<String, Integer>();
+    private TreeMap<Integer, String> selection = new TreeMap<Integer, String>();
     private HeatMapModel2 heatMapModel;
     private JTable table;
     private String[][] tableData = new String[3][2];
     private ListSelectionModel listSelectionModel;
+    public JRadioButton descending;
 
     private static final String[] columnNames = {"order", "Attribute"};
 
@@ -35,12 +39,12 @@ public class PlateAttributeDialog extends JDialog {
 
     public PlateAttributeDialog (HeatMapModel2 model) {
         heatMapModel = model;
-        setSize(new Dimension(250, 200));
+        setSize(new Dimension(300, 300));
         initialize();
         configureTable();
         setModal(true);
         setLocationRelativeTo(getOwner());
-        setTitle("Filtering Selector");
+        setTitle("Sorting Attribute Selector");
         setResizable(false);
     }
 
@@ -76,18 +80,39 @@ public class PlateAttributeDialog extends JDialog {
         });
         buttonPanel.add(buttonOK);
 
+        // Sense
+        Font font = new Font("Arial", Font.PLAIN, 12);
+        JPanel sensPanel = new JPanel();
+        Border border = BorderFactory.createEtchedBorder();
+        TitledBorder titledBorder = BorderFactory.createTitledBorder(border, "Sorting Direction");
+        titledBorder.setTitleFont(font);
+        sensPanel.setBorder(titledBorder);
+        ButtonGroup group = new ButtonGroup();
+        JRadioButton radio = new JRadioButton("Ascending");
+        radio.setFont(font);
+        group.add(radio);
+        sensPanel.add(radio);
+        descending = new JRadioButton("Descending");
+        descending.setFont(font);
+        descending.setSelected(true);
+        group.add(descending);
+        sensPanel.add(descending);
+
         // Reunite the different sections in one pane.
         JPanel contentPane = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridy = 0;
         constraints.gridx = 0;
-        constraints.weighty = 0.9;
+        constraints.weighty = 0.8;
         constraints.weightx = 1;
         constraints.insets = new Insets(7, 7, 7, 7);
         constraints.fill = GridBagConstraints.BOTH;
         contentPane.add(createTable(), constraints);
+        table.setFont(font);
         constraints.gridy = 1;
-        constraints.weighty = -1;
+        constraints.weighty = 0.01;
+        contentPane.add(sensPanel, constraints);
+        constraints.gridy = 2;
         contentPane.add(buttonPanel, constraints);
 
         setContentPane(contentPane);
@@ -108,15 +133,20 @@ public class PlateAttributeDialog extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    public HashMap<String, Integer> getSelection() {
-        return selection;
+    public String[] getSelectedAttributeTitles() {
+        String[] attributes = new String[selection.size()];
+        int index = 0;
+        for (Object attribute: selection.values()) {
+            attributes[index++] = (String) attribute;
+        }
+        return attributes;
     }
 
-    public HashMap<String, Integer> getSelectionFromTable() {
-        HashMap<String, Integer> sel = new HashMap<String, Integer>();
+    public TreeMap<Integer, String> getSelectionFromTable() {
+        TreeMap<Integer, String> sel = new TreeMap<Integer, String>();
         for (int i=0; i<table.getRowCount(); i++) {
             if (!table.getValueAt(i,0).equals("-")) {
-                sel.put( (String)table.getValueAt(i,1) , Integer.parseInt((String) table.getValueAt(i,0)));
+                sel.put(Integer.parseInt((String) table.getValueAt(i,0)), (String)table.getValueAt(i,1));
             }
         }
         return sel;
@@ -144,29 +174,28 @@ public class PlateAttributeDialog extends JDialog {
     private void configureTable() {
 
         if ( !(heatMapModel == null) ) {
-            // Set the attribute names.
-            List<String> attributes = Arrays.asList(PlateComparators.getPlateAttributeTitles(heatMapModel.getPlateAttributes()));
-            tableData = new String[attributes.size()][1];
+            // Fetch the attribute names.
+            String[] attributes = PlateComparators.getPlateAttributeTitles(heatMapModel.getPlateAttributes());
+            String[] selectedAttributes = heatMapModel.getSortAttributesSelectionTitles();
+
+            // initialize the table
+            tableData = new String[attributes.length][1];
             DefaultTableModel model = new DefaultTableModel(tableData, columnNames);
             table.setModel(model);
 
             int index = 0;
+            List<Integer> selectionIndex = new ArrayList<Integer>();
             for (String attribute : attributes) {
+                if (ArrayUtils.contains(selectedAttributes, attribute)) {
+                    selectionIndex.add(index);
+                }
                 model.setValueAt("-", index,0);
                 model.setValueAt(attribute,index++,1);
             }
 
             // Restore the previous selection.
-            if (!(heatMapModel.getSortAttributeSelection() == null)) {
-                selection = heatMapModel.getSortAttributeSelection();
-
-                //... of the attributes
-                int pos;
-                for (String key : selection.keySet()) {
-                    pos = attributes.indexOf(key);
-                    model.setValueAt(""+selection.get(key), pos, 0);
-                    listSelectionModel.addSelectionInterval(pos, pos);
-                }
+            for (Integer position : selectionIndex) {
+                listSelectionModel.addSelectionInterval(position, position);
             }
         }
 
