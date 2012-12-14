@@ -35,21 +35,27 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
 
     // Constructor
     public ScreenViewer(){
-        setTitle("HCS Heat-map Viewer");
-        screenPanel = new ScreenHeatMapsPanel(menus);
-        menus = new HeatMapMenu(screenPanel);
-        setJMenuBar(menus);
-        add(screenPanel);
-        setBounds(150, 150, 800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        pack();
-        setVisible(true);
+        this(null);
+//        setTitle("HCS Heat-map Viewer");
+//        screenPanel = new ScreenHeatMapsPanel(menus);
+//        menus = new HeatMapMenu(screenPanel);
+//        setJMenuBar(menus);
+//        add(screenPanel);
+//        setBounds(150, 150, 800, 600);
+//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+////        pack();
+//        setVisible(true);
     }
 
     public ScreenViewer(List<Plate> plates) {
-        setTitle("HCS Heat-map Viewer");
-        screenPanel = new ScreenHeatMapsPanel(menus, plates);
+        if ( (plates == null) ) {
+            screenPanel = new ScreenHeatMapsPanel();
+        } else {
+            screenPanel = new ScreenHeatMapsPanel(plates);
+        }
+
         menus = new HeatMapMenu(screenPanel);
+        setTitle("HCS Heat-map Viewer");
         setJMenuBar(menus);
         add(screenPanel);
         setBounds(150, 150, 800, 600);
@@ -100,7 +106,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
 
     public static class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeListener {
 
-        protected HeatMapModel2 heatMapModel = new HeatMapModel2();
+        protected HeatMapModel2 heatMapModel;
         public List<HeatScreen> heatmaps;
         private int MIN_HEATMAP_WIDTH = 200;
         private int PREFERRED_WITH = 600;
@@ -113,17 +119,18 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
 
 
         // Constructors
-        public ScreenHeatMapsPanel(HeatMapMenu heatMapMenu) {
+        public ScreenHeatMapsPanel() {
             initialize();
+            heatMapModel = new HeatMapModel2();
+            heatMapModel.addChangeListener(this);
+            configure(heatMapModel);
             setMinimumSize(new Dimension(PREFERRED_WITH, PREFERRED_HEIGHT));
             setPreferredSize(new Dimension(PREFERRED_WITH, PREFERRED_HEIGHT));
-            menu = heatMapMenu;
-            heatMapModel.addChangeListener(this);
             new PanelImageExporter(this, true);
         }
 
-        public ScreenHeatMapsPanel(HeatMapMenu heatMapMenu, List<Plate> plates) {
-            this(heatMapMenu);
+        public ScreenHeatMapsPanel(List<Plate> plates) {
+            this();
 
             ToolTipManager.sharedInstance().setDismissDelay(7500);
             ToolTipManager.sharedInstance().setInitialDelay(500);
@@ -140,6 +147,11 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             });
 
             heatMapsContainer.setDoubleBuffered(true);
+        }
+
+        private void configure(HeatMapModel2 model) {
+            toolbar.configure(model);
+            colorbar.configure(model);
         }
 
 
@@ -190,7 +202,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
         }
 
         private void repopulatePlateGrid() {
-            sortHeatmaps();
+//            sortHeatmaps();
             List<HeatScreen> heatmapSelection = getFilteredHeatMap();
 
             int numColumns = (int) Math.floor(getWidth() / MIN_HEATMAP_WIDTH);
@@ -263,14 +275,14 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             repaint();
         }
 
-        private void sortHeatmaps() {
-            heatmaps.clear();
-            List<Plate> plates = heatMapModel.getScreen();
-            heatmaps = new ArrayList<HeatScreen>();
-            for (Plate plate : plates) {
-                heatmaps.add(new HeatScreen(plate, heatMapModel));
-            }
-        }
+//        private void sortHeatmaps() {
+//            heatmaps.clear();
+//            List<Plate> plates = heatMapModel.getScreen();
+//            heatmaps = new ArrayList<HeatScreen>();
+//            for (Plate plate : plates) {
+//                heatmaps.add(new HeatScreen(plate, heatMapModel));
+//            }
+//        }
 
         private void parsePlateBarCodes() {
             for (HeatScreen heatmap : heatmaps) {
@@ -335,7 +347,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             JFrame frame = new JFrame();
             frame.setSize(new Dimension(200, 500));
             frame.add(new ScreenHeatMapsPanel(null));
-            frame.pack();
+//            frame.pack();
             frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
             frame.setVisible(true);
         }

@@ -71,6 +71,11 @@ public class HeatMapInputToolbar extends JToolBar {
         heatMapModel = hmm;
 
         // populate the overlay menu based on the first plate
+        if (heatMapModel.getScreen() == null) {
+            System.err.println("Could not configure the Toolbar, since there is no data loaded.");
+            return;
+        }
+
         java.util.List<Plate> subScreen = Arrays.asList(hmm.getScreen().get(0));
 
         // reconfigure the selectors

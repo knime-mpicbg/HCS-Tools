@@ -1,1 +1,2 @@
 TODO: I added some dependencies to the HCSTools during the development. Those have to be made available in the lib/ folder at some point
+TODO: The PlateComparators should go in the hcscore module at some point. For now I keep it in the hcstools, since I am more comfortable to the fool around with git than with svn and for easier compilation.
