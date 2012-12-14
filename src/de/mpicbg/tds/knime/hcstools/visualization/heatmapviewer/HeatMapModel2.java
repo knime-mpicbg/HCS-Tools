@@ -2,7 +2,6 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.PlateSortByPlateNumber;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinMaxStrategy;
@@ -73,7 +72,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         this.screen = screen;
 
         // just to test sorting mechanism
-        Collections.sort(screen, new PlateSortByPlateNumber());
+        Collections.sort(screen, PlateComparators.getDateComparator());
 
         for(Plate p : screen) {
             plateFiltered.put(p, true);
