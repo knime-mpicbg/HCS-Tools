@@ -130,7 +130,7 @@ public class HeatWell extends JPanel {
 
         // Selection dot.
         if (heatMapModel.isShowSelection() && heatMapModel.isSelected(well)) {
-            g2d.setColor(heatMapModel.getColorScheme().getHighlightColor());
+            g2d.setColor(heatMapModel.getColorScheme().getSelectionMarkerColor());
             g2d.fillRect(getWidth() / 2 - 3, getHeight() / 2 - 3, 6, 6);
         }
 

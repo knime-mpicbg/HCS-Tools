@@ -87,7 +87,7 @@ public class ScreenColorScheme {
     }
 
 
-    public Color getHighlightColor() {
+    public Color getSelectionMarkerColor() {
         return Color.BLUE;
     }
 

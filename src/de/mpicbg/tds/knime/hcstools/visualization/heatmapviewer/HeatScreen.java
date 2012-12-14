@@ -93,8 +93,9 @@ public class HeatScreen extends JPanel {
             // fill the rect for each well with the appropriate color
             Color layoutColor = heatMapModel.getOverlayColor(well);
 
+            // Choose between selection layout and readout color.
             if (heatMapModel.isSelected(well)) {
-                g.setColor(heatMapModel.getColorScheme().getHighlightColor());
+                g.setColor(heatMapModel.getColorScheme().getSelectionMarkerColor());
             } else if (layoutColor != null) {
                 g.setColor(layoutColor);
             } else {

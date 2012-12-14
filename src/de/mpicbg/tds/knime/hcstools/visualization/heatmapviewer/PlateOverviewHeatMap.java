@@ -96,7 +96,7 @@ public class PlateOverviewHeatMap extends JPanel {
             Color layoutColor = heatMapModel.getOverlayColor(well);
 
             if (heatMapModel.isSelected(well)) {
-                g.setColor(heatMapModel.getColorScheme().getHighlightColor());
+                g.setColor(heatMapModel.getColorScheme().getSelectionMarkerColor());
 
             } else if (layoutColor != null) {
                 g.setColor(layoutColor);
