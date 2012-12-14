@@ -28,7 +28,6 @@ import java.util.List;
 
 public class ScreenViewer extends JFrame implements HiLiteListener{
 
-//    private ScreenPanel screenPanel;
     private ScreenHeatMapsPanel screenPanel;
     protected HeatMapMenu menus;
 
@@ -36,15 +35,6 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
     // Constructor
     public ScreenViewer(){
         this(null);
-//        setTitle("HCS Heat-map Viewer");
-//        screenPanel = new ScreenHeatMapsPanel(menus);
-//        menus = new HeatMapMenu(screenPanel);
-//        setJMenuBar(menus);
-//        add(screenPanel);
-//        setBounds(150, 150, 800, 600);
-//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-////        pack();
-//        setVisible(true);
     }
 
     public ScreenViewer(List<Plate> plates) {
@@ -60,7 +50,6 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
         add(screenPanel);
         setBounds(150, 150, 800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        pack();
         setVisible(true);
     }
 
@@ -107,7 +96,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
     public static class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeListener {
 
         protected HeatMapModel2 heatMapModel;
-        public List<HeatScreen> heatmaps;
+        private List<HeatScreen> heatmaps;
         private int MIN_HEATMAP_WIDTH = 200;
         private int PREFERRED_WITH = 600;
         private int PREFERRED_HEIGHT = 350;
@@ -149,13 +138,12 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             heatMapsContainer.setDoubleBuffered(true);
         }
 
+        // Methods
         private void configure(HeatMapModel2 model) {
             toolbar.configure(model);
             colorbar.configure(model);
         }
 
-
-        // Methods
         private void initialize() {
             toolbar = new HeatMapInputToolbar();
 
@@ -194,6 +182,14 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             parsePlateBarCodes();
             toolbar.configure(heatMapModel);
             colorbar.configure(heatMapModel); // Careful the toolbar has to be configured first, since the colorbar needs the readout for its configuration.
+        }
+
+        public List<HeatScreen> getHeatmaps() {
+            return heatmaps;
+        }
+
+        public void setHeatmaps(List<HeatScreen> heatmaps) {
+            this.heatmaps = heatmaps;
         }
 
         protected void zoom(double zoomFactor) {
@@ -347,7 +343,6 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             JFrame frame = new JFrame();
             frame.setSize(new Dimension(200, 500));
             frame.add(new ScreenHeatMapsPanel(null));
-//            frame.pack();
             frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
             frame.setVisible(true);
         }
