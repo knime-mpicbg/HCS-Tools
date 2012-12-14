@@ -284,10 +284,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     }
 
 
-
-    //////////////////////////////////////
     // Actions
-    //////////////////////////////////////
     @Override
     public void itemStateChanged(ItemEvent itemEvent) {
         System.err.println("There's an ItemEvent I don't care about!!!");
@@ -370,8 +367,8 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
     private void rowsColumnsAction() {
         RowColumnDialog dialog = new RowColumnDialog();
-        dialog.pack();
         dialog.setVisible(true);
+        heatMapModel.updateTrellisConfiguration(dialog.getNumberOfRows(), dialog.getNumberOfColumns(), dialog.isAutomatic());
     }
 
     private void zoomOutAction() {
@@ -383,9 +380,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     }
 
 
-    //////////////////////////////////////
     // Testing
-    //////////////////////////////////////
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();

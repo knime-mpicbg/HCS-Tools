@@ -49,6 +49,9 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     // View flags
     private boolean doShowConcentration = false;
     private boolean doShowLayout = false;
+    private boolean automaticTrellisConfiguration = true;
+    private Integer numberOfTrellisRows;
+    private Integer numberOfTrellisColumns;
 
     // Overlay attributes
     private boolean hideMostFrequentOverlay = false;
@@ -451,4 +454,37 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     public void revertScreen() {
         Collections.reverse(screen);
     }
+
+
+    public boolean getAutomaticTrellisConfiguration() {
+        return automaticTrellisConfiguration;
+    }
+
+    public void setAutomaticTrellisConfiguration(boolean flag) {
+        this.automaticTrellisConfiguration = flag;
+    }
+
+    public Integer getNumberOfTrellisRows() {
+        return numberOfTrellisRows;
+    }
+
+    public void setNumberOfTrellisRows(Integer numberOfTrellisRows) {
+        this.numberOfTrellisRows = numberOfTrellisRows;
+    }
+
+    public Integer getNumberOfTrellisColumns() {
+        return numberOfTrellisColumns;
+    }
+
+    public void setNumberOfTrellisColumns(Integer numberOfTrellisColumns) {
+        this.numberOfTrellisColumns = numberOfTrellisColumns;
+    }
+
+    public void updateTrellisConfiguration(Integer rows, Integer columns, boolean flag) {
+        this.setAutomaticTrellisConfiguration(flag);
+        this.setNumberOfTrellisRows(rows);
+        this.setNumberOfTrellisColumns(columns);
+        fireModelChanged();
+    }
+
 }
