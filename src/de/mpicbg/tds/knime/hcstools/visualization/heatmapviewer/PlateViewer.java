@@ -18,7 +18,7 @@ import java.util.Random;
 public class PlateViewer extends JPanel implements HeatMapModelChangeListener {
 
 
-    public PlateDetailsHeatMap heatmapPanel;
+    public HeatPlate heatmapPanel;
 
 
     public PlateViewer() {
@@ -26,22 +26,22 @@ public class PlateViewer extends JPanel implements HeatMapModelChangeListener {
     }
 
 
-    public PlateViewer(Plate plate, HeatMapModel heatMapModel) {
+    public PlateViewer(Plate plate, HeatMapModel2 heatMapModel) {
         this();
 
         if (heatMapModel == null) {
-            heatMapModel = new HeatMapModel();
+            heatMapModel = new HeatMapModel2();
         }
 
         heatMapModel.addChangeListener(this);
         heatMapModel.setScreen(Arrays.asList(plate));
 
-        heatMapViewerMenu.configure(heatMapModel);
+//        heatMapViewerMenu.configure(heatMapModel);
         colorBar.configure(heatMapModel);
 
-        heatMapViewerMenu.setSortingEnabled(false);
+//        heatMapViewerMenu.setSortingEnabled(false);
 
-        heatmapPanel = new PlateDetailsHeatMap(plate, heatMapModel);
+        heatmapPanel = new HeatPlate(plate, heatMapModel);
         heatmapContainerPanel.add(heatmapPanel, BorderLayout.CENTER);
 
         // add clipboard copy paste
@@ -61,9 +61,9 @@ public class PlateViewer extends JPanel implements HeatMapModelChangeListener {
         platePanelContainer = new JPanel();
         heatmapContainerPanel = new JPanel();
         toolBar2 = new JToolBar();
-        colorBar = new ColorBar();
+        colorBar = new HeatMapColorToolBar();
         menuBar1 = new JToolBar();
-        heatMapViewerMenu = new HeatMapViewerMenu();
+        heatMapViewerMenu = new HeatMapMenu();
 
         //======== this ========
         setLayout(new BorderLayout());
@@ -99,13 +99,13 @@ public class PlateViewer extends JPanel implements HeatMapModelChangeListener {
     private JPanel platePanelContainer;
     private JPanel heatmapContainerPanel;
     private JToolBar toolBar2;
-    private ColorBar colorBar;
+    private HeatMapColorToolBar colorBar;
     private JToolBar menuBar1;
-    private HeatMapViewerMenu heatMapViewerMenu;
+    private HeatMapMenu heatMapViewerMenu;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
 
-    public static PlateViewer createPanelDialog(Plate plate, HeatMapModel heatmapModel, Window ownerDialog) {
+    public static PlateViewer createPanelDialog(Plate plate, HeatMapModel2 heatmapModel, Window ownerDialog) {
         JDialog jDialog = new JDialog(ownerDialog);
 
 

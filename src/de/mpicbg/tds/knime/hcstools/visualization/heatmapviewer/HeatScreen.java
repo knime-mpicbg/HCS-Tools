@@ -59,7 +59,7 @@ public class HeatScreen extends JPanel {
                 }
 
                 // open a new detail-dialog for the plate
-                HeatMapModel plateHeatMapModel = new HeatMapModel();
+                HeatMapModel2 plateHeatMapModel = new HeatMapModel2();
                 // todo if we want to use a global color scale also in the single plate view we ave to use te next line
 //                plateHeatMapModel.setScreen(PlateOverviewHeatMap.this.heatMapModel.getScreen());
                 plateHeatMapModel.setCurrentReadout(HeatScreen.this.heatMapModel.getSelectedReadOut());
@@ -73,7 +73,7 @@ public class HeatScreen extends JPanel {
                 }
 
                 Window ownerWindow = Utils.getOwnerDialog(HeatScreen.this);
-                PlatePanel.createPanelDialog(plate, plateHeatMapModel, ownerWindow);
+                PlateViewer.createPanelDialog(plate, plateHeatMapModel, ownerWindow);
             }
         });
     }

@@ -108,13 +108,13 @@ public class HeatPlate extends JPanel {
 
     class WellSelectionController extends MouseAdapter {
 
-        HeatWellPanel dragStart;
+        HeatWell dragStart;
 
         @Override
         public void mousePressed(MouseEvent mouseEvent) {
             Object source = mouseEvent.getSource();
-            if (source instanceof HeatWellPanel && dragStart == null) {
-                dragStart = ((HeatWellPanel) source);
+            if (source instanceof HeatWell && dragStart == null) {
+                dragStart = ((HeatWell) source);
             }
         }
 
@@ -131,16 +131,16 @@ public class HeatPlate extends JPanel {
 
             if (dragStart != null) {
 
-                HeatWellPanel sourcePanel = (HeatWellPanel) mouseEvent.getSource();
+                HeatWell sourcePanel = (HeatWell) mouseEvent.getSource();
                 Point releasePoint = mouseEvent.getPoint();
                 Object source = getComponentAt(sourcePanel.getX() + releasePoint.x, sourcePanel.getY() + releasePoint.y);
 
-                if (source instanceof HeatWellPanel) {
+                if (source instanceof HeatWell) {
                     if (!mouseEvent.isMetaDown()) {
                         heatmapModel.getWellSelection().clear();
                     }
 
-                    HeatWellPanel dragStop = (HeatWellPanel) source;
+                    HeatWell dragStop = (HeatWell) source;
 
                     // now iterate over all wells in the rectangle to select
                     for (int colIndex = dragStart.getWell().getPlateColumn(); colIndex <= dragStop.getWell().getPlateColumn(); colIndex++) {
@@ -192,9 +192,9 @@ public class HeatPlate extends JPanel {
 
                 // column or row selection
 
-            } else if (source instanceof HeatWellPanel) {
+            } else if (source instanceof HeatWell) {
                 // single well selection
-                HeatWellPanel wellPanel = (HeatWellPanel) source;
+                HeatWell wellPanel = (HeatWell) source;
                 invertSelection(wellPanel.getWell());
             }
 
