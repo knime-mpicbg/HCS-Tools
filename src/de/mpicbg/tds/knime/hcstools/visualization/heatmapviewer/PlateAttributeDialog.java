@@ -39,7 +39,7 @@ public class PlateAttributeDialog extends JDialog {
 
     public PlateAttributeDialog (HeatMapModel2 model) {
         heatMapModel = model;
-        setSize(new Dimension(300, 300));
+        setSize(new Dimension(300, 270));
         initialize();
         configureTable();
         setModal(true);
