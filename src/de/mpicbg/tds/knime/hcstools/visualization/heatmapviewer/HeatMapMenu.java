@@ -192,6 +192,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
                 rowsColumnsAction();
             }
         });
+        rowscolumns.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.META_MASK));
         menu.add(rowscolumns);
 
         sortplates = menu.add(SORT_PLATES);
