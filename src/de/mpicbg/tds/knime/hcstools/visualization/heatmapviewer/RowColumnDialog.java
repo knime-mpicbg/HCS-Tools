@@ -2,6 +2,8 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -16,11 +18,13 @@ public class RowColumnDialog extends JDialog implements ItemListener {
 
     private JPanel contentPane;
     private JRadioButton automaticRadioButton;
-    private JRadioButton setRadioButton;
+    private JRadioButton manualRadioButton;
     private JSpinner rowSpinner;
     private JSpinner columnSpinner;
     private JPanel automaticPanel;
     private JPanel manualPanel;
+
+    private HeatMapModel2 heatMapModel;
 
     private final Border passiveBorder = BorderFactory.createEtchedBorder();
     private final Border activeBorder = BorderFactory.createBevelBorder(1);
@@ -49,28 +53,27 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
+    public RowColumnDialog(HeatMapModel2 model) {
+        this();
+        this.heatMapModel = model;
+        configure();
+    }
 
-    public void itemStateChanged(ItemEvent itemEvent) {
-        JRadioButton source = (JRadioButton) itemEvent.getSource();
-        if (source == setRadioButton) {
-            columnSpinner.setEnabled(true);
-            rowSpinner.setEnabled(true);
-            manualPanel.setBorder(BorderFactory.createTitledBorder(activeBorder, setRadioButton.getName()));
-            automaticPanel.setBorder(BorderFactory.createTitledBorder(passiveBorder, automaticRadioButton.getName()));
-        } else if (source == automaticRadioButton) {
-            columnSpinner.setEnabled(false);
-            rowSpinner.setEnabled(false);
-            manualPanel.setBorder(BorderFactory.createTitledBorder(passiveBorder, setRadioButton.getName()));
-            automaticPanel.setBorder(BorderFactory.createTitledBorder(activeBorder, automaticRadioButton.getName()));
+
+    // GUI utilities
+    private void configure() {
+        if ( !(heatMapModel == null) ) {
+            columnSpinner.setValue(heatMapModel.getNumberOfTrellisColumns());
+            rowSpinner.setValue(heatMapModel.getNumberOfTrellisRows());
+
+            if (heatMapModel.getAutomaticTrellisConfiguration()) {
+                toggleRadioButtons(automaticRadioButton);
+                automaticRadioButton.setSelected(true);
+            } else {
+                toggleRadioButtons(manualRadioButton);
+                manualRadioButton.setSelected(true);
+            }
         }
-    }
-
-    private void onOK() {
-        dispose();
-    }
-
-    private void onCancel() {
-        dispose();
     }
 
     private void initialize() {
@@ -85,17 +88,31 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         automaticPanel.add(automaticRadioButton);
 
         rowSpinner = new JSpinner();
+        rowSpinner.setName("rows");
         rowSpinner.setEnabled(false);
         rowSpinner.setModel(new SpinnerNumberModel(0, 0, 10000, 1));
+        rowSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent) {
+                updateColumnSpinnerValues(changeEvent);
+            }
+        });
         columnSpinner = new JSpinner();
+        columnSpinner.setName("columns");
         columnSpinner.setModel(new SpinnerNumberModel(0, 0, 10000, 1));
         columnSpinner.setEnabled(false);
+        columnSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent) {
+                updateRowSpinnerValues(changeEvent);
+            }
+        });
 
-        setRadioButton = new JRadioButton();
-        setRadioButton.setName("Set");
-        setRadioButton.addItemListener(this);
+        manualRadioButton = new JRadioButton();
+        manualRadioButton.setName("Set");
+        manualRadioButton.addItemListener(this);
         manualPanel = new JPanel(new GridBagLayout());
-        manualPanel.setBorder(BorderFactory.createTitledBorder(passiveBorder, setRadioButton.getName()));
+        manualPanel.setBorder(BorderFactory.createTitledBorder(passiveBorder, manualRadioButton.getName()));
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridwidth = 1;
         constraints.gridheight = 1;
@@ -105,7 +122,7 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         constraints.weighty = 1;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.anchor = GridBagConstraints.WEST;
-        manualPanel.add(setRadioButton, constraints);
+        manualPanel.add(manualRadioButton, constraints);
         constraints.gridy = 1;
         constraints.weightx = 0.1;
         constraints.fill = GridBagConstraints.VERTICAL;
@@ -123,8 +140,8 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         manualPanel.add(Box.createHorizontalGlue(), constraints);
 
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(5,1,1,1));
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
-        buttonPanel.add(Box.createHorizontalGlue());
         JButton buttonCancel = new JButton("Cancel");
         buttonCancel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -132,7 +149,7 @@ public class RowColumnDialog extends JDialog implements ItemListener {
             }
         });
         buttonPanel.add(buttonCancel);
-        buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        buttonPanel.add(Box.createRigidArea(new Dimension(7, 0)));
         JButton buttonOK = new JButton("OK");
         getRootPane().setDefaultButton(buttonOK);
         buttonOK.addActionListener(new ActionListener() {
@@ -146,7 +163,7 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         // Grouping the buttons
         ButtonGroup group = new ButtonGroup();
         group.add(automaticRadioButton);
-        group.add(setRadioButton);
+        group.add(manualRadioButton);
 
         // Create a contentPane
         contentPane = new JPanel();
@@ -157,11 +174,27 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         contentPane.add(buttonPanel);
     }
 
-    public Integer getNumberOfRows() {
+    private void toggleRadioButtons(JRadioButton source) {
+        if (source == manualRadioButton) {
+            columnSpinner.setEnabled(true);
+            rowSpinner.setEnabled(true);
+            manualPanel.setBorder(BorderFactory.createTitledBorder(activeBorder, manualRadioButton.getName()));
+            automaticPanel.setBorder(BorderFactory.createTitledBorder(passiveBorder, automaticRadioButton.getName()));
+        } else if (source == automaticRadioButton) {
+            columnSpinner.setEnabled(false);
+            rowSpinner.setEnabled(false);
+            manualPanel.setBorder(BorderFactory.createTitledBorder(passiveBorder, manualRadioButton.getName()));
+            automaticPanel.setBorder(BorderFactory.createTitledBorder(activeBorder, automaticRadioButton.getName()));
+        }
+    }
+
+
+    // Getters
+    public int getNumberOfRows() {
         return (Integer) rowSpinner.getValue();
     }
 
-    public Integer getNumberOfColumns() {
+    public int getNumberOfColumns() {
         return (Integer) columnSpinner.getValue();
     }
 
@@ -170,6 +203,38 @@ public class RowColumnDialog extends JDialog implements ItemListener {
     }
 
 
+    // Action methods
+    private void updateRowSpinnerValues(ChangeEvent event) {
+        JSpinner spinner = (JSpinner) event.getSource();
+        if (! (heatMapModel == null) ) {
+            Integer value = (int) Math.ceil(heatMapModel.getCurrentNumberOfPlates() * 1.0 / (Integer) spinner.getValue());
+            rowSpinner.setValue(value);
+        }
+    }
+
+    private void updateColumnSpinnerValues(ChangeEvent event) {
+        JSpinner spinner = (JSpinner) event.getSource();
+        if (! (heatMapModel == null) ) {
+            Integer value = (int) Math.ceil(heatMapModel.getCurrentNumberOfPlates() * 1.0 / (Integer) spinner.getValue());
+            columnSpinner.setValue(value);
+        }
+    }
+
+    public void itemStateChanged(ItemEvent itemEvent) {
+        JRadioButton source = (JRadioButton) itemEvent.getSource();
+        toggleRadioButtons(source);
+    }
+
+    private void onOK() {
+        dispose();
+    }
+
+    private void onCancel() {
+        dispose();
+    }
+
+
+    // Test
     public static void main(String[] args) {
         RowColumnDialog dialog = new RowColumnDialog();
         dialog.setVisible(true);
