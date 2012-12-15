@@ -367,7 +367,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     }
 
     private void rowsColumnsAction() {
-        RowColumnDialog dialog = new RowColumnDialog();
+        RowColumnDialog dialog = new RowColumnDialog(heatMapModel);
         dialog.setVisible(true);
         heatMapModel.updateTrellisConfiguration(dialog.getNumberOfRows(), dialog.getNumberOfColumns(), dialog.isAutomatic());
     }
