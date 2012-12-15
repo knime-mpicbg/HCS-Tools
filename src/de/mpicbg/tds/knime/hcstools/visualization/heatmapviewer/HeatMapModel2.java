@@ -53,6 +53,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     private boolean automaticTrellisConfiguration = true;
     private int numberOfTrellisRows;
     private int numberOfTrellisColumns;
+    private boolean fixPlateProportions = true;
 
     // Overlay attributes
     private boolean hideMostFrequentOverlay = false;
@@ -498,4 +499,12 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         return number;
     }
 
+    public void setPlateProportionMode(boolean plateDimensionMode) {
+        this.fixPlateProportions = plateDimensionMode;
+    }
+
+    public String[] getReferencePopulations() {
+        String attribute = (String) referencePopulations.keySet().toArray()[0];
+        return referencePopulations.get(attribute);
+    }
 }

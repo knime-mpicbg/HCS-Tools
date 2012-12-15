@@ -101,7 +101,7 @@ public class ColorGradientDialog extends JDialog {
         constraints.weighty = -1;
         constraints.gridx = 0;
         int index = 0;
-        String[] populations = HeatMapModel2.referencePopulations.get(HeatMapModel2.referencePopulations.keySet().toArray()[0]);
+        String[] populations = heatMapModel.getReferencePopulations();
         for (String population : populations) {
             populationPanels.add(new PopulationPanel(this, population));
             constraints.gridy = index;

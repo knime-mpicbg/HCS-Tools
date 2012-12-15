@@ -349,7 +349,7 @@ public class HeatMapMenu extends JMenuBar {
 
     private void plateDimensionsAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
-        heatMapModel.setPlateDimensionMode(item.isSelected());
+        heatMapModel.setPlateProportionMode(item.isSelected());
         heatMapModel.fireModelChanged();
     }
 
