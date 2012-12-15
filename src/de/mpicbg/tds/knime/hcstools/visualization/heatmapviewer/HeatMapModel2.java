@@ -48,9 +48,11 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     // View flags
     private boolean doShowConcentration = false;
     private boolean doShowLayout = false;
+
+    // Trellis settings
     private boolean automaticTrellisConfiguration = true;
-    private Integer numberOfTrellisRows;
-    private Integer numberOfTrellisColumns;
+    private int numberOfTrellisRows;
+    private int numberOfTrellisColumns;
 
     // Overlay attributes
     private boolean hideMostFrequentOverlay = false;
@@ -467,7 +469,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         return numberOfTrellisRows;
     }
 
-    public void setNumberOfTrellisRows(Integer numberOfTrellisRows) {
+    public void setNumberOfTrellisRows(int numberOfTrellisRows) {
         this.numberOfTrellisRows = numberOfTrellisRows;
     }
 
@@ -475,15 +477,25 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         return numberOfTrellisColumns;
     }
 
-    public void setNumberOfTrellisColumns(Integer numberOfTrellisColumns) {
+    public void setNumberOfTrellisColumns(int numberOfTrellisColumns) {
         this.numberOfTrellisColumns = numberOfTrellisColumns;
     }
 
-    public void updateTrellisConfiguration(Integer rows, Integer columns, boolean flag) {
+    public void updateTrellisConfiguration(int rows, int columns, boolean flag) {
         this.setAutomaticTrellisConfiguration(flag);
         this.setNumberOfTrellisRows(rows);
         this.setNumberOfTrellisColumns(columns);
         fireModelChanged();
+    }
+
+    public int getCurrentNumberOfPlates() {
+        int number = 0;
+        for (boolean state: plateFiltered.values()) {
+            if (state) {
+                number++;
+            }
+        }
+        return number;
     }
 
 }
