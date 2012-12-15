@@ -25,38 +25,7 @@ import java.util.List;
  * (existing in java.awt.event and org.knime.core.node.property.hilite)
  */
 
-public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListener {
-
-    private String SORT_PLATES = "Sort Plates";
-    private String ZOOM_IN = "Zoom in";
-    private String ZOOM_OUT = "Zoom out";
-    private String MAP_HSV = "HSV";
-    private String MAP_DARK = "Dark";
-    private String MAP_GB = "GB";
-    private String MAP_GBR = "GBR";
-    private String MAP_JET = "Jet";
-    private String MAP_CUSTOM = "Custom";
-    private String ROWS_COLUMNS = "Rows/Columns";
-    private String ALWAYS_ON_TOP = "Always on Top";
-    private String MARK_SELECTION = "Mark Selection";
-    private String OUTLIER_HANDLING = "Outlier Handling";
-    private String OUTLIER_HANDLING_ORIGINAL = "Original";
-    private String OUTLIER_HANDLING_SMOOTHED = "Smooth";
-    private String OVERLAY = "Overlay";
-    private String OVERLAY_SHOW_LEGEND = "Show Legend";
-    private String OVERLAY_HIDE_MOST_FREQUENT = "Hide Most Frequent";
-    private String HILITE_SHOW_ALL = "Show All";
-    private String HILITE_SHOW_HILITE = "Show HiLite Only";
-    private String HILITE_SHOW_UNHILITE = "Show UnHiLite Only";
-
-    JCheckBoxMenuItem alwaysontop;
-    JCheckBoxMenuItem markseleciton;
-    JMenuItem overlaylegend;
-    JCheckBoxMenuItem overlayhider;
-    JMenuItem zoomin;
-    JMenuItem zoomout;
-    JMenuItem rowscolumns;
-    JMenuItem sortplates;
+public class HeatMapMenu extends JMenuBar {
 
     HeatMapModel2 heatMapModel;
     ScreenViewer.ScreenHeatMapsPanel heatMapsPanel;
@@ -90,63 +59,59 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     private JMenu createViewMenu() {
         JMenu menu = new JMenu("View");
 
-        alwaysontop = new JCheckBoxMenuItem(ALWAYS_ON_TOP);
-        alwaysontop.addActionListener(new ActionListener() {
+        JCheckBoxMenuItem alwaysOnTop = new JCheckBoxMenuItem("Always on Top");
+        alwaysOnTop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JMenuItem item = (JMenuItem) e.getSource();
                 alwaysOnTopAction(item);
             }
         });
-        menu.add(alwaysontop);
+        menu.add(alwaysOnTop);
 
-        markseleciton = new JCheckBoxMenuItem(MARK_SELECTION);
-        markseleciton.addActionListener(new ActionListener() {
+        JCheckBoxMenuItem markSelection = new JCheckBoxMenuItem("Mark Selection");
+        markSelection.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                markSelectionAction();
+                markSelectionAction(actionEvent);
             }
         });
-        menu.add(markseleciton);
-
+        menu.add(markSelection);
         menu.add(createOverlaySubMenu());
-
         menu.add(createOutlierSubMenu());
-
         menu.add(createToolBarMenu());
 
         return menu;
     }
 
     private JMenu createOverlaySubMenu() {
-        JMenu menu = new JMenu(OVERLAY);
+        JMenu menu = new JMenu("Overlay");
 
-        overlaylegend = menu.add(OVERLAY_SHOW_LEGEND);
-        overlaylegend.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.META_MASK));
-        overlaylegend.addActionListener(new ActionListener() {
+        JMenuItem overlayLegend = menu.add("Show Legend");
+        overlayLegend.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.META_MASK));
+        overlayLegend.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 showOverlayLegendAction();
             }
         });
 
-        overlayhider = new JCheckBoxMenuItem(OVERLAY_HIDE_MOST_FREQUENT);
-        overlayhider.addActionListener(new ActionListener() {
+        JCheckBoxMenuItem overlayHider = new JCheckBoxMenuItem("Hide Most Frequent");
+        overlayHider.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                hideOverlayAction();
+                hideOverlayAction(actionEvent);
             }
         });
-        menu.add(overlayhider);
+        menu.add(overlayHider);
 
         return menu;
     }
 
     private JMenu createOutlierSubMenu() {
-        JMenu menu = new JMenu(OUTLIER_HANDLING);
+        JMenu menu = new JMenu("Outlier Handling");
         ButtonGroup group = new ButtonGroup();
-        String[] list = {OUTLIER_HANDLING_ORIGINAL, OUTLIER_HANDLING_SMOOTHED};
 
-        for (String name : list) {
+        for (String name : new String[]{"Original", "Smoothed"}) {
             JRadioButtonMenuItem item = new JRadioButtonMenuItem(name);
             group.add(item);
             menu.add(item);
@@ -164,48 +129,59 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
     private JMenu createTrellisMenu() {
         JMenu menu = new JMenu("Trellis");
-        
-        zoomin = new JMenuItem(ZOOM_IN, KeyEvent.VK_T);
-        zoomin.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.META_MASK));
-        zoomin.addActionListener(new ActionListener() {
+
+        JMenuItem zoomIn = new JMenuItem("Zoom in", KeyEvent.VK_T);
+        zoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.META_MASK));
+        zoomIn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 zoomInAction();
             }
         });
-        menu.add(zoomin);
-        
-        zoomout = new JMenuItem(ZOOM_OUT);
-        zoomout.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.META_MASK));
-        zoomout.addActionListener(new ActionListener() {
+        menu.add(zoomIn);
+
+        JMenuItem zoomOut = new JMenuItem("Zoom out");
+        zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.META_MASK));
+        zoomOut.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 zoomOutAction();
             }
         });
-        menu.add(zoomout);
-        
-        rowscolumns = new JMenuItem(ROWS_COLUMNS);
-        rowscolumns.addActionListener(new ActionListener() {
+        menu.add(zoomOut);
+
+        JMenuItem rowsColumns = new JMenuItem("Rows/Columns");
+        rowsColumns.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 rowsColumnsAction();
             }
         });
-        rowscolumns.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.META_MASK));
-        menu.add(rowscolumns);
+        rowsColumns.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.META_MASK));
+        menu.add(rowsColumns);
 
-        sortplates = menu.add(SORT_PLATES);
-        sortplates.addActionListener(new ActionListener() {
+        JMenuItem sortPlates = menu.add("Sort Plates");
+        sortPlates.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 sortPlatesAction();
             }
         });
-        sortplates.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK+InputEvent.ALT_DOWN_MASK));
-        menu.add(sortplates);
+        sortPlates.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK));
+        menu.add(sortPlates);
 
         menu.add(createColorMapMenu());
+
+        JCheckBoxMenuItem plateDimensions = new JCheckBoxMenuItem("Fix Plate Proportions");
+        plateDimensions.setSelected(true);
+        plateDimensions.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                plateDimensionsAction(actionEvent);
+            }
+        });
+        menu.add(plateDimensions);
+
         return menu;
     }
 
@@ -222,15 +198,14 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         JMenu menu = new JMenu("Filter");
         ButtonGroup group = new ButtonGroup();
         JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[3];
-        item[0] = new JRadioButtonMenuItem(HILITE_SHOW_ALL);
+        item[0] = new JRadioButtonMenuItem("Show All");
         item[0].setSelected(true);
-        item[1] = new JRadioButtonMenuItem(HILITE_SHOW_HILITE);
-        item[2] = new JRadioButtonMenuItem(HILITE_SHOW_UNHILITE);
+        item[1] = new JRadioButtonMenuItem("Show HiLite Only");
+        item[2] = new JRadioButtonMenuItem("Show UnHiLite Only");
 
         for (JRadioButtonMenuItem anItem : item) {
             menu.add(anItem);
             group.add(anItem);
-            anItem.addItemListener(this);
         }
 
         return menu;
@@ -239,7 +214,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     private JMenu createColorMapMenu() {
         JMenu lut = new JMenu("Colormap");
         ButtonGroup group = new ButtonGroup();
-        String[] names = {MAP_GB, MAP_GBR, MAP_HSV, MAP_JET, MAP_DARK, MAP_CUSTOM};
+        String[] names = {"GB", "GBR", "HSV", "Jet", "Dark", "Custom"};
         JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[names.length];
 
         for (int i = 0; i < names.length; i++) {
@@ -286,20 +261,10 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
 
     // Actions
-    @Override
-    public void itemStateChanged(ItemEvent itemEvent) {
-        System.err.println("There's an ItemEvent I don't care about!!!");
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent actionEvent) {
-        System.err.println("There's an ActionEvent I don't care about!!!");
-    }
-
     private void toggleColorMapAction(ActionEvent actionEvent) {
         JMenuItem source = (JMenuItem)actionEvent.getSource();
         LinearGradientPaint newGradient;
-        if (source.getText().equals(MAP_CUSTOM)) {
+        if (source.getText().equals("Custom")) {
             ColorGradientDialog dialog = new ColorGradientDialog(heatMapModel);
             dialog.setVisible(true);
             newGradient = dialog.getGradientPainter();
@@ -310,7 +275,7 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
     }
 
     private void showOverlayLegendAction() {
-        Container parentContainer = HeatWellPanel.getParentContainer(this);
+        Container parentContainer = HeatWell.getParentContainer(this);
 
         OverlayLegend overlayLegend;
         if (parentContainer instanceof Dialog) {
@@ -324,16 +289,17 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         overlayLegend.setVisible(true);
     }
 
-    private void hideOverlayAction() {
-        heatMapModel.setHideMostFreqOverlay(overlayhider.isSelected());
+    private void hideOverlayAction(ActionEvent event) {
+        JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
+        heatMapModel.setHideMostFreqOverlay(item.isSelected());
     }
 
     private void outlierHandlingAction(ActionEvent event) {
         JRadioButtonMenuItem menuItem = (JRadioButtonMenuItem) event.getSource();
         if ( menuItem.isSelected() ) {
-            if ( menuItem.getText().equals(OUTLIER_HANDLING_ORIGINAL) ) {
+            if ( menuItem.getText().equals("Original") ) {
                 heatMapModel.setReadoutRescaleStrategy(new GlobalMinMaxStrategy());
-            } else if ( menuItem.getText().equals(OUTLIER_HANDLING_SMOOTHED) ) {
+            } else if ( menuItem.getText().equals("Smoothed") ) {
                 heatMapModel.setReadoutRescaleStrategy(new QuantileSmoothedStrategy());
             } else {
                 System.err.println("Don't know the option " + menuItem.getName() + ".");
@@ -341,8 +307,9 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
         }
     }
 
-    private void markSelectionAction() {
-        heatMapModel.setShowSelection(markseleciton.isSelected());
+    private void markSelectionAction(ActionEvent event) {
+        JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
+        heatMapModel.setShowSelection(item.isSelected());
     }
 
     private void alwaysOnTopAction(JMenuItem menuItem) {
@@ -378,6 +345,12 @@ public class HeatMapMenu extends JMenuBar implements ActionListener, ItemListene
 
     private void zoomInAction() {
         heatMapsPanel.zoom(1.25);
+    }
+
+    private void plateDimensionsAction(ActionEvent event) {
+        JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
+        heatMapModel.setPlateDimensionMode(item.isSelected());
+        heatMapModel.fireModelChanged();
     }
 
 
