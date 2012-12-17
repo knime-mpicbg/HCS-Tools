@@ -209,24 +209,103 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
 //            sortHeatmaps();
             List<HeatScreen> heatmapSelection = getFilteredHeatMap();
 
-            JPanel plateContainer = heatmapSelection.get(0);
+            // Figure out how many rows an columns are needed.
+            int[] rowsColumns = calculateTrellisDimensions(heatmapSelection.size());
+            int numRows = rowsColumns[0];
+            int numColumns = rowsColumns[1];
 
+            // Propagate the new configuration to the heat map model
+            heatMapModel.updateTrellisConfiguration(numRows, numColumns);
+
+            // Recalculate the Table layout of the heatMapContainer panel.
+            numColumns = updateTrellisTableLayout(numRows, numColumns);
+
+            // track changes of the batch; this allows to alter the background color of the heatmaps
+            String lastBatchName = "bubabuba";
+            Color batchBcknd = Color.GRAY;
+
+            // populate the view with plates
+            int plateNameFontSize = Utils.isWindowsPlatform() ? 8 : 12;
+            Font barcodeFont = new Font("Serif", Font.PLAIN, plateNameFontSize);
+
+            for (int i = 0; i < heatmapSelection.size(); i++) {
+                HeatScreen heatMapPanel = heatmapSelection.get(i);
+                Plate plate = heatMapPanel.getPlate();
+
+                // Convert linear to xy position
+                int rowIndex = i / numColumns;
+                String gridPosition = (i - rowIndex * numColumns) + ", " + (rowIndex);
+
+                JPanel plateContainer = new JPanel();
+                plateContainer.setBorder(new TitledBorder(null, plate.getBarcode(), TitledBorder.CENTER, TitledBorder.BOTTOM, barcodeFont));
+
+                plateContainer.setLayout(new BorderLayout());
+
+                // change the background according to the batch
+                String curBatchName = plate.getBatchName();
+                if (curBatchName != null) {
+                    if ((curBatchName == null && lastBatchName != null) || !curBatchName.equals(lastBatchName)) {
+                        lastBatchName = curBatchName;
+                        batchBcknd = batchBcknd.equals(Color.GRAY) ? Color.LIGHT_GRAY : Color.GRAY;
+                    }
+                }
+                plateContainer.setBackground(batchBcknd);
+
+                plateContainer.add(heatMapPanel, BorderLayout.CENTER);
+                heatMapsContainer.add(plateContainer, gridPosition);
+            }
+
+            // Estimate the panel size.
+            updateContainerDimensions(numRows, numColumns);
+
+            // Now That the approximate size is right, get the plate container insets and adjust.
+            JPanel firstPlate = getFistPlate();
+            if ( !(firstPlate == null) ) {
+                Insets plateInsets = firstPlate.getInsets();
+                updateContainerDimensions(numRows, numColumns, (plateInsets.left + plateInsets.right),
+                                                               (plateInsets.top + plateInsets.bottom));
+            }
+
+            invalidate();
+            updateUI();
+            repaint();
+        }
+
+        private int[] calculateTrellisDimensions(int numberOfPlates) {
             int numRows, numColumns;
             if ( heatMapModel.getAutomaticTrellisConfiguration() ) {
-                int plateWidth = (plateContainer.getWidth() < MIN_HEATMAP_WIDTH) ? MIN_HEATMAP_WIDTH : plateContainer.getWidth();
+                JPanel firstPlate = getFistPlate();
+                int plateWidth;
+                if ( !(firstPlate == null) && firstPlate.getWidth() > MIN_HEATMAP_WIDTH) {
+                    plateWidth = firstPlate.getWidth();
+                } else {
+                    plateWidth = MIN_HEATMAP_WIDTH;
+                }
                 numColumns = (int) Math.floor(getWidth() *1.0 / (plateWidth + cellGap) );
-                numRows = (int) Math.ceil(heatmapSelection.size() / (double) numColumns);
+                numRows = (int) Math.ceil(numberOfPlates/ (double) numColumns);
                 heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
             } else {
                 numRows = heatMapModel.getNumberOfTrellisRows();
                 numColumns = heatMapModel.getNumberOfTrellisColumns();
                 heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             }
-            heatMapModel.updateTrellisConfiguration(numRows, numColumns);
 
             //patch the layout if only a few plates are selected
-            if (numColumns > heatmapSelection.size())
-                numColumns = heatmapSelection.size();
+            if (numColumns > numberOfPlates)
+                numColumns = numberOfPlates;
+
+            return new int[]{numRows, numColumns};
+        }
+
+        private JPanel getFistPlate() {
+            try {
+                return (JPanel) heatMapsContainer.getComponent(0);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        private int updateTrellisTableLayout(int numRows, int numColumns) {
 
             double[] columnConfig = new double[numColumns];
             for (int i = 0; i < columnConfig.length; i++) {
@@ -251,56 +330,14 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             TableLayout containerLayout = (TableLayout) heatMapsContainer.getLayout();
             containerLayout.setRow(rowConfig);
             containerLayout.setColumn(columnConfig);
+            return numColumns;
+        }
 
-            // track changes of the batch; this allows to alter the background color of the heatmaps
-            String lastBatchName = "bubabuba";
-            Color batchBcknd = Color.GRAY;
-
-            // populate the view with plates
-            int plateNameFontSize = Utils.isWindowsPlatform() ? 8 : 12;
-            Font barcodeFont = new Font("Serif", Font.PLAIN, plateNameFontSize);
-
-            for (int i = 0; i < heatmapSelection.size(); i++) {
-                HeatScreen heatMapPanel = heatmapSelection.get(i);
-                Plate plate = heatMapPanel.getPlate();
-
-                int rowIndex = i / numColumns;
-                String gridPosition = (i - rowIndex * numColumns) + ", " + (rowIndex);
-
-                plateContainer = new JPanel();
-                plateContainer.setBorder(new TitledBorder(null, plate.getBarcode(), TitledBorder.CENTER, TitledBorder.BOTTOM, barcodeFont));
-
-                plateContainer.setLayout(new BorderLayout());
-
-                // change the background according to the batch
-                String curBatchName = plate.getBatchName();
-                if (curBatchName != null) {
-                    if ((curBatchName == null && lastBatchName != null) || !curBatchName.equals(lastBatchName)) {
-                        lastBatchName = curBatchName;
-                        batchBcknd = batchBcknd.equals(Color.GRAY) ? Color.LIGHT_GRAY : Color.GRAY;
-                    }
-                }
-                plateContainer.setBackground(batchBcknd);
-
-                heatMapsContainer.add(plateContainer, gridPosition);
-                plateContainer.add(heatMapPanel, BorderLayout.CENTER);
-            }
-
-
-            // Estimate the panel size.
-            int containerWidth = numColumns * MIN_HEATMAP_WIDTH + (numColumns-1) * cellGap;
-            int containerHeight = numRows * MIN_HEATMAP_HEIGHT + (numRows - 1) * cellGap;
+        private void updateContainerDimensions(int numRows, int numColumns, int hmarging, int vmarging) {
+            int containerWidth = numColumns * MIN_HEATMAP_WIDTH + (numColumns-1) * cellGap + hmarging * numColumns;
+            int containerHeight = numRows * MIN_HEATMAP_HEIGHT + (numRows - 1) * cellGap + vmarging * numRows;
             Dimension containerDimensions = new Dimension(containerWidth, containerHeight);
             heatMapsContainer.setPreferredSize(containerDimensions);
-
-            // Now That the approximate size is right, get the plate container insets and adjust.
-            if ( !(plateContainer == null) ) {
-                Insets plateInsets = plateContainer.getInsets();
-                containerWidth = numColumns * MIN_HEATMAP_WIDTH + (numColumns-1) * cellGap + (plateInsets.left + plateInsets.right) * numColumns;
-                containerHeight = numRows * MIN_HEATMAP_HEIGHT + (numRows - 1) * cellGap + (plateInsets.top + plateInsets.bottom) * numRows;
-                containerDimensions = new Dimension(containerWidth, containerHeight);
-                heatMapsContainer.setPreferredSize(containerDimensions);
-            }
 
             // If the plate dimensions are fixed, put the container panel in another position panel to work around the
             // TableLayout properties, that wants to fill the entire space.
@@ -315,10 +352,10 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
                 heatMapsContainer.setMinimumSize(new Dimension(-1,-1));
                 heatMapScrollPane.setViewportView(heatMapsContainer);
             }
+        }
 
-            invalidate();
-            updateUI();
-            repaint();
+        private void updateContainerDimensions(int numRows, int numColumns) {
+            updateContainerDimensions(numRows, numColumns, 0, 0);
         }
 
 //        private void sortHeatmaps() {
