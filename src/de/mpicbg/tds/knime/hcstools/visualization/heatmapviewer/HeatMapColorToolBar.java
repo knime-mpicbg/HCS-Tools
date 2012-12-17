@@ -42,12 +42,7 @@ public class HeatMapColorToolBar extends JToolBar {
 
     @Override
     protected void paintComponent(Graphics graphics) {
-        if ( heatMapModel.colorGradient == null ) {
-            heatMapModel.colorGradient = colorPanel.getGradientPainter();
-            System.err.println("The HeatMapModels colorGradient attribute is not set, taking the default from ColorGradientPanel.");
-        } else {
-            colorPanel.configure(heatMapModel.colorGradient);
-        }
+        colorPanel.configure(heatMapModel.colorGradient);
 
         ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getRescaleStrategy();
         if ( heatMapModel.getSelectedReadOut() == null ) {

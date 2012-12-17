@@ -34,7 +34,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     // Coloring attributes
     ReadoutRescaleStrategy readoutRescaleStrategy = new GlobalMinMaxStrategy();
     ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();
-    LinearGradientPaint colorGradient;
+    LinearGradientPaint colorGradient = LinearGradientTools.getStandardGradient("GBR");
 
     // contains all plates
     private List<Plate> screen;

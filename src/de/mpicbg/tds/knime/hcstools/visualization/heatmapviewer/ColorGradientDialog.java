@@ -22,7 +22,8 @@ public class ColorGradientDialog extends JDialog {
     private HeatMapModel2 heatMapModel;
     private GradientSlider slider;
     private LinearGradientPaint currentGradient = LinearGradientTools.getStandardGradient("GB");
-    private ArrayList<PopulationPanel> populationPanels = new ArrayList<PopulationPanel>();
+    private ArrayList<PopulationPanel> populationIndicators = new ArrayList<PopulationPanel>();
+    private JPanel populationPanel;
 
     private JLabel minLabel = new JLabel("");
     private JLabel medLabel = new JLabel("");
@@ -34,15 +35,11 @@ public class ColorGradientDialog extends JDialog {
     // Constructors
     public ColorGradientDialog() {
         setContentPane(initialize());
-        setSize(new Dimension(600, 200+30*populationPanels.size()));
+        setTitle("Color Gradient Editor");
+        updateDialogDimensions();
         setResizable(false);
+        setLocationRelativeTo(getOwner());
         setModal(true);
-    }
-
-    public ColorGradientDialog(String title) {
-        this();
-        setTitle(title);
-        repaint();
     }
 
     public ColorGradientDialog(HeatMapModel2 model) {
@@ -53,7 +50,7 @@ public class ColorGradientDialog extends JDialog {
 
     // Utilities
     private JPanel initialize() {
-        // Create the cancel and ok buttons in a seperate panel
+        // Create the cancel and ok buttons in a separate panel
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
         buttonPanel.add(Box.createHorizontalGlue());
@@ -92,6 +89,9 @@ public class ColorGradientDialog extends JDialog {
         labelPanel.add(Box.createHorizontalGlue());
         labelPanel.add(maxLabel);
 
+        // Panel for the population descriptors
+        populationPanel = new JPanel(new GridBagLayout());
+
         // Create the content paine and layout the buttons and the slider.
         JPanel contentPane = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
@@ -100,24 +100,19 @@ public class ColorGradientDialog extends JDialog {
         constraints.weightx = 1;
         constraints.weighty = -1;
         constraints.gridx = 0;
-        int index = 0;
-        String[] populations = heatMapModel.getReferencePopulations();
-        for (String population : populations) {
-            populationPanels.add(new PopulationPanel(this, population));
-            constraints.gridy = index;
-            contentPane.add(populationPanels.get(index++), constraints);
-        }
+        constraints.gridy = 0;
+        contentPane.add(populationPanel, constraints);
         constraints.weighty = 0.8;
-        constraints.gridy = index;
+        constraints.gridy = 1;
         constraints.insets = new Insets(5,10,0,10);
         contentPane.add(slider, constraints);
 
         constraints.insets = new Insets(0,10,20,10);
-        constraints.gridy = ++index;
+        constraints.gridy = 2;
         constraints.weighty = -1;
         contentPane.add(labelPanel, constraints);
         constraints.insets = new Insets(0,10,0,10);
-        constraints.gridy = ++index;
+        constraints.gridy = 3;
         constraints.weighty = 0.2;
         contentPane.add(buttonPanel, constraints);
 
@@ -161,14 +156,28 @@ public class ColorGradientDialog extends JDialog {
             maxLabel.setText(HeatMapColorToolBar.format(maxValue));
 
             // Update the population panels
-            int index = 0;
             HashMap<String, Double[]> descriptors = getDescriptors();
-            for (String key : descriptors.keySet()) {
-                Double[] values = descriptors.get(key);
-                populationPanels.get(index).configure(key, values[0].floatValue(), values[1].floatValue(), minValue.floatValue(), maxValue.floatValue());
-                index++;
+            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.fill = GridBagConstraints.BOTH;
+            constraints.weightx = 1;
+            constraints.weighty = -1;
+            constraints.gridx = 0;
+            int index = 0;
+            String[] populations = heatMapModel.getReferencePopulations();
+            for (String population : populations) {
+                Double[] values = descriptors.get(population);
+                PopulationPanel populationIndicator = new PopulationPanel(this, population);
+                populationIndicator.configure(population, values[0].floatValue(), values[1].floatValue(), minValue.floatValue(), maxValue.floatValue());
+                populationIndicators.add(populationIndicator);
+                constraints.gridy = index;
+                populationPanel.add(populationIndicators.get(index++), constraints);
             }
+            updateDialogDimensions();
         }
+    }
+
+    private void updateDialogDimensions() {
+        setSize(new Dimension(600, 200 + 30 * populationIndicators.size()));
     }
 
     private HashMap<String, Double[]> getDescriptors() {
@@ -223,7 +232,8 @@ public class ColorGradientDialog extends JDialog {
 
     // Reveal yourself!
     public static void main(String[] args) {
-        ColorGradientDialog dialog = new ColorGradientDialog("Color gradient dialog test");
+//        ColorGradientDialog dialog = new ColorGradientDialog("Color gradient dialog test");
+        ColorGradientDialog dialog = new ColorGradientDialog(new HeatMapModel2());
         dialog.setVisible(true);
         System.exit(0);
     }
@@ -287,14 +297,17 @@ public class ColorGradientDialog extends JDialog {
             float lowerBound = mean-factor*sd;
             float upperBound = mean+factor*sd;
 
-            int left = StrictMath.round((lowerBound)*scaleFactor);
-            left = left < 0 ? insets.left : left;
+            int left = StrictMath.round((lowerBound-minScale)*scaleFactor);
             int top = insets.top/2;
             int width = StrictMath.round(2*factor*sd*scaleFactor);
-            width = width > this.getWidth() ? this.getWidth()-insets.left-insets.right : width;
+            int right = left+width;
+            int middle = (left+right) / 2;
             int height = this.getHeight()-(insets.top/2+insets.bottom);
+            int halfHeight = StrictMath.round(height/2+top+5);
 
-            int middle = StrictMath.round(height/2+top+5);
+            // Make sure the we don't try to paint over the panel borders.
+            left = left < 0 ? 0 : left;
+            width = width > this.getWidth() ? this.getWidth() : width;
 
             // Draw the rectangles
             g2d.setColor(new Color(165, 205, 255));
@@ -304,11 +317,11 @@ public class ColorGradientDialog extends JDialog {
             // Draw the labels
             g2d.setColor(new Color(0, 0, 0));
             String s = HeatMapColorToolBar.format(lowerBound);
-            g2d.drawString(s, left+metrics.stringWidth(" "), middle);
+            g2d.drawString(s, left+metrics.stringWidth(" "), halfHeight);
             s = HeatMapColorToolBar.format(mean);
-            g2d.drawString(s, mean*scaleFactor-metrics.stringWidth(s)/2, middle);
+            g2d.drawString(s, middle-metrics.stringWidth(s)/2, halfHeight);
             s = HeatMapColorToolBar.format(upperBound);
-            g2d.drawString(s, upperBound*scaleFactor-metrics.stringWidth(s+" "), middle);
+            g2d.drawString(s, right-metrics.stringWidth(s+" "), halfHeight);
         }
 
 
