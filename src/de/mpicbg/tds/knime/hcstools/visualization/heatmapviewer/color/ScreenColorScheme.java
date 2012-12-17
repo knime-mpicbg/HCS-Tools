@@ -43,7 +43,7 @@ public class ScreenColorScheme {
 
 
     public Color noReadOut() {
-        return Color.GRAY;
+        return Color.DARK_GRAY;
     }
 
 

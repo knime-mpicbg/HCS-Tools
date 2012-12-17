@@ -10,7 +10,7 @@ import de.mpicbg.tds.core.Utils;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.core.model.Plate;
-
+import de.mpicbg.tds.core.view.color.ScreenColorScheme;
 
 
 /**
@@ -30,6 +30,7 @@ public class HeatScreen extends JPanel {
         this.plate = plate;
         this.heatMapModel = heatMapModel;
 
+        setBackground(heatMapModel.getColorScheme().noReadOut());
         setDoubleBuffered(true);
         setMinimumSize(new Dimension(100, 100));
         setToolTipText(plate.getBarcode());

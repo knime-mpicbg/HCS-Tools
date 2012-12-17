@@ -131,7 +131,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 
     protected void zoom(double zoomFactor) {
         MIN_HEATMAP_WIDTH *= zoomFactor;
-        MIN_HEATMAP_HEIGHT *= zoomFactor;
+        MIN_HEATMAP_HEIGHT = (int) Math.round(MIN_HEATMAP_WIDTH*(16.0/24.0));
+//        MIN_HEATMAP_HEIGHT *= zoomFactor;
         repopulatePlateGrid();
     }
 
@@ -166,10 +167,26 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
             int rowIndex = i / numColumns;
             String gridPosition = (i - rowIndex * numColumns) + ", " + (rowIndex);
 
+            // Create a panel with borders.
             JPanel plateContainer = new JPanel();
-            plateContainer.setBorder(new TitledBorder(null, plate.getBarcode(), TitledBorder.CENTER, TitledBorder.BOTTOM, barcodeFont));
-
+            TitledBorder titledBorder = new TitledBorder(BorderFactory.createBevelBorder(1),
+                                                         plate.getBarcode(),
+                                                         TitledBorder.CENTER,
+                                                         TitledBorder.BOTTOM,
+                                                         barcodeFont);
+            plateContainer.setBorder(titledBorder);
             plateContainer.setLayout(new BorderLayout());
+
+            // Truncate the barcode.
+            String title = plate.getBarcode();
+            FontMetrics metrics = plateContainer.getFontMetrics(barcodeFont);
+            if ( metrics.stringWidth(title) >= MIN_HEATMAP_WIDTH ) {
+                while ( metrics.stringWidth(title + "...") > MIN_HEATMAP_WIDTH ) {
+                    if (title.length() < 2) { break; }
+                    title = title.substring(0, title.length()-1);
+                }
+                titledBorder.setTitle(title + "...");
+            }
 
 //            // change the background according to the batch
 //            String curBatchName = plate.getBatchName();
@@ -204,14 +221,14 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
     private int[] calculateTrellisDimensions(int numberOfPlates) {
         int numRows, numColumns;
         if ( heatMapModel.getAutomaticTrellisConfiguration() ) {
-            JPanel firstPlate = getFistPlate();
-            int plateWidth;
-            if ( !(firstPlate == null) && firstPlate.getWidth() > MIN_HEATMAP_WIDTH) {
-                plateWidth = firstPlate.getWidth();
-            } else {
-                plateWidth = MIN_HEATMAP_WIDTH;
-            }
-            numColumns = (int) Math.floor(getWidth() *1.0 / (plateWidth + cellGap) );
+//            JPanel firstPlate = getFistPlate();
+//            int plateWidth;
+//            if ( !(firstPlate == null) && firstPlate.getWidth() > MIN_HEATMAP_WIDTH) {
+//                plateWidth = firstPlate.getWidth();
+//            } else {
+//                plateWidth = MIN_HEATMAP_WIDTH;
+//            }
+            numColumns = (int) Math.floor(getWidth() *1.0 / (MIN_HEATMAP_WIDTH + cellGap) );
             numRows = (int) Math.ceil(numberOfPlates/ (double) numColumns);
             heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         } else {
