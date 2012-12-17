@@ -35,6 +35,7 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         setContentPane(contentPane);
         setSize(new Dimension(180,230));
         setResizable(false);
+        setLocationRelativeTo(getOwner());
         setModal(true);
 
         // call onCancel() when cross is clicked
