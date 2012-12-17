@@ -28,8 +28,9 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
     protected HeatMapModel2 heatMapModel;
     private List<HeatScreen> heatMaps;
 
-    private int MIN_HEATMAP_WIDTH = 180;
-    private int MIN_HEATMAP_HEIGHT = 120;
+    private int HEATMAP_WIDTH = 180;
+    private static int MIN_HEATMAP_WIDTH = 80;
+    private int HEATMAP_HEIGHT = 120;
     private int PREFERRED_WITH = 600;
     private int PREFERRED_HEIGHT = 400;
     private int cellGap = 5;
@@ -130,9 +131,11 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
     }
 
     protected void zoom(double zoomFactor) {
-        MIN_HEATMAP_WIDTH *= zoomFactor;
-        MIN_HEATMAP_HEIGHT = (int) Math.round(MIN_HEATMAP_WIDTH*(16.0/24.0));
-//        MIN_HEATMAP_HEIGHT *= zoomFactor;
+        HEATMAP_WIDTH *= zoomFactor;
+        HEATMAP_WIDTH = (HEATMAP_WIDTH < MIN_HEATMAP_WIDTH) ? MIN_HEATMAP_WIDTH : HEATMAP_WIDTH;
+        HEATMAP_WIDTH = (HEATMAP_WIDTH > getWidth()) ? getWidth()-cellGap : HEATMAP_WIDTH;
+        HEATMAP_HEIGHT = (int) Math.round(HEATMAP_WIDTH *(16.0/24.0));
+//        HEATMAP_HEIGHT *= zoomFactor;
         repopulatePlateGrid();
     }
 
@@ -180,8 +183,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
             // Truncate the barcode.
             String title = plate.getBarcode();
             FontMetrics metrics = plateContainer.getFontMetrics(barcodeFont);
-            if ( metrics.stringWidth(title) >= MIN_HEATMAP_WIDTH ) {
-                while ( metrics.stringWidth(title + "...") > MIN_HEATMAP_WIDTH ) {
+            if ( metrics.stringWidth(title) >= HEATMAP_WIDTH) {
+                while ( metrics.stringWidth(title + "...") > HEATMAP_WIDTH) {
                     if (title.length() < 2) { break; }
                     title = title.substring(0, title.length()-1);
                 }
@@ -223,12 +226,12 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
         if ( heatMapModel.getAutomaticTrellisConfiguration() ) {
 //            JPanel firstPlate = getFistPlate();
 //            int plateWidth;
-//            if ( !(firstPlate == null) && firstPlate.getWidth() > MIN_HEATMAP_WIDTH) {
+//            if ( !(firstPlate == null) && firstPlate.getWidth() > HEATMAP_WIDTH) {
 //                plateWidth = firstPlate.getWidth();
 //            } else {
-//                plateWidth = MIN_HEATMAP_WIDTH;
+//                plateWidth = HEATMAP_WIDTH;
 //            }
-            numColumns = (int) Math.floor(getWidth() *1.0 / (MIN_HEATMAP_WIDTH + cellGap) );
+            numColumns = (int) Math.floor(getWidth() *1.0 / (HEATMAP_WIDTH + cellGap) );
             numRows = (int) Math.ceil(numberOfPlates/ (double) numColumns);
             heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         } else {
@@ -281,8 +284,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
     }
 
     private void updateContainerDimensions(int numRows, int numColumns, int hmarging, int vmarging) {
-        int containerWidth = numColumns * MIN_HEATMAP_WIDTH + (numColumns-1) * cellGap + hmarging * numColumns;
-        int containerHeight = numRows * MIN_HEATMAP_HEIGHT + (numRows - 1) * cellGap + vmarging * numRows;
+        int containerWidth = numColumns * HEATMAP_WIDTH + (numColumns-1) * cellGap + hmarging * numColumns;
+        int containerHeight = numRows * HEATMAP_HEIGHT + (numRows - 1) * cellGap + vmarging * numRows;
         Dimension containerDimensions = new Dimension(containerWidth, containerHeight);
         heatMapsContainer.setPreferredSize(containerDimensions);
 
