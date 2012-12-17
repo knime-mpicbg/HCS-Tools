@@ -131,9 +131,10 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         manualPanel.add(columnSpinner, constraints);
         constraints.weightx = 0.9;
         constraints.gridx = 1;
+        constraints.gridy = 1;
         constraints.fill = GridBagConstraints.BOTH;
         manualPanel.add(new JLabel("Rows"), constraints);
-        constraints.gridy = 1;
+        constraints.gridy = 2;
         manualPanel.add(new JLabel("Columns"), constraints);
         constraints.gridx = 2;
         constraints.weightx = 1;
