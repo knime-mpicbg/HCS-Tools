@@ -28,7 +28,7 @@ import java.util.List;
 public class HeatMapMenu extends JMenuBar {
 
     HeatMapModel2 heatMapModel;
-    ScreenViewer.ScreenHeatMapsPanel heatMapsPanel;
+    HeatTrellis heatTrellis;
 
 
     //Constructors
@@ -38,9 +38,9 @@ public class HeatMapMenu extends JMenuBar {
         add(createTrellisMenu());
     }
 
-    public HeatMapMenu(ScreenViewer.ScreenHeatMapsPanel actOn) {
+    public HeatMapMenu(HeatTrellis actOn) {
         this();
-        heatMapsPanel = actOn;
+        heatTrellis = actOn;
         heatMapModel = actOn.heatMapModel;
     }
 
@@ -242,7 +242,7 @@ public class HeatMapMenu extends JMenuBar {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 JCheckBoxMenuItem mi = (JCheckBoxMenuItem) actionEvent.getSource();
-                heatMapsPanel.toolbar.setVisible(mi.isSelected());
+                heatTrellis.toolbar.setVisible(mi.isSelected());
             }
         });
         toolbar.add(item);
@@ -252,7 +252,7 @@ public class HeatMapMenu extends JMenuBar {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 JCheckBoxMenuItem mi = (JCheckBoxMenuItem) actionEvent.getSource();
-                heatMapsPanel.colorbar.setVisible(mi.isSelected());
+                heatTrellis.colorbar.setVisible(mi.isSelected());
             }
         });
         toolbar.add(item);
@@ -341,11 +341,11 @@ public class HeatMapMenu extends JMenuBar {
     }
 
     private void zoomOutAction() {
-        heatMapsPanel.zoom(0.75);
+        heatTrellis.zoom(0.75);
     }
 
     private void zoomInAction() {
-        heatMapsPanel.zoom(1.25);
+        heatTrellis.zoom(1.25);
     }
 
     private void plateDimensionsAction(ActionEvent event) {
