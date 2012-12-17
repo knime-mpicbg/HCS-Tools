@@ -4,11 +4,11 @@
     <name>Plate Viewer</name>
 
     <shortDescription>
-        Creates myriads of heatmaps to explore a set of plates.
+        Creates myriads of heatMaps to explore a set of plates.
     </shortDescription>
 
     <fullDescription>
-        <intro>Creates myriads of heatmaps to explore your screen. By default nodes expects three
+        <intro>Creates myriads of heatMaps to explore your screen. By default nodes expects three
             columns to be present in order to reorder wells back into plates: barcode, plateRow, plateColumn.
 
             The following plate types are supported: 6, 12, 24, 96, 384 and 1536. The viewer will try to make a guess

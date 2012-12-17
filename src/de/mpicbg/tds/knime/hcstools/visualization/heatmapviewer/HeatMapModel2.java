@@ -484,9 +484,12 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void updateTrellisConfiguration(int rows, int columns, boolean flag) {
         this.setAutomaticTrellisConfiguration(flag);
+        updateTrellisConfiguration(rows, columns);
+    }
+
+    public void updateTrellisConfiguration(int rows, int columns) {
         this.setNumberOfTrellisRows(rows);
         this.setNumberOfTrellisColumns(columns);
-        fireModelChanged();
     }
 
     public int getCurrentNumberOfPlates() {
@@ -497,6 +500,10 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
             }
         }
         return number;
+    }
+
+    public boolean isFixedPlateProportion() {
+        return fixPlateProportions;
     }
 
     public void setPlateProportionMode(boolean plateDimensionMode) {

@@ -337,6 +337,7 @@ public class HeatMapMenu extends JMenuBar {
         RowColumnDialog dialog = new RowColumnDialog(heatMapModel);
         dialog.setVisible(true);
         heatMapModel.updateTrellisConfiguration(dialog.getNumberOfRows(), dialog.getNumberOfColumns(), dialog.isAutomatic());
+        heatMapModel.fireModelChanged();
     }
 
     private void zoomOutAction() {
