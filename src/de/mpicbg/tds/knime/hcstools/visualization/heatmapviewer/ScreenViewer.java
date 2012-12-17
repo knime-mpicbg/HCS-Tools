@@ -96,15 +96,18 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
     public static class ScreenHeatMapsPanel extends JPanel implements HeatMapModelChangeListener {
 
         protected HeatMapModel2 heatMapModel;
-        private List<HeatScreen> heatmaps;
-        private int MIN_HEATMAP_WIDTH = 200;
+        private List<HeatScreen> heatMaps;
+        private int MIN_HEATMAP_WIDTH = 180;
+        private int MIN_HEATMAP_HEIGHT = 120;
         private int PREFERRED_WITH = 600;
-        private int PREFERRED_HEIGHT = 350;
+        private int PREFERRED_HEIGHT = 400;
 
-        private HeatMapMenu menu;
         protected HeatMapInputToolbar toolbar;
         private JPanel heatMapsContainer;
+        private JScrollPane heatMapScrollPane;
         protected HeatMapColorToolBar colorbar;
+        private int cellGap = 5;
+        private JPanel containerPositioner;
 
 
         // Constructors
@@ -151,18 +154,22 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             heatMapsContainer.setPreferredSize(new Dimension(PREFERRED_WITH-10,PREFERRED_HEIGHT-10));
             heatMapsContainer.setLayout(new TableLayout(new double[][]{{TableLayout.PREFERRED}, {TableLayout.PREFERRED}}));
             TableLayout layout = (TableLayout) heatMapsContainer.getLayout();
-            layout.setHGap(5);
-            layout.setVGap(5);
+            layout.setHGap(cellGap);
+            layout.setVGap(cellGap);
 
-            JTextArea text = new JTextArea("heatmap container panel");
+            // Just some indicating text in case the panel remains empty.
+            JTextArea text = new JTextArea("Heatmap container panel");
             text.setEditable(false);
             heatMapsContainer.add(text, "0, 0");
 
+            // Panel to avoid the table filling out the entire scroll pane.
+            containerPositioner = new JPanel();
+            containerPositioner.add(heatMapsContainer);
+
             colorbar = new HeatMapColorToolBar();
 
-            JScrollPane heatMapScrollPane = new JScrollPane();
-            heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-            heatMapScrollPane.setViewportView(heatMapsContainer);
+            heatMapScrollPane = new JScrollPane();
+            heatMapScrollPane.setViewportView(containerPositioner);
             heatMapScrollPane.setBackground(Color.BLACK);  //TODO: This is just to better distinguish the components. Should be removed before deployment.
 
             setLayout(new BorderLayout());
@@ -172,9 +179,9 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
         }
 
         public void setPlates(List<Plate> plates) {
-            heatmaps = new ArrayList<HeatScreen>();
+            heatMaps = new ArrayList<HeatScreen>();
             for (Plate plate : plates) {
-                heatmaps.add(new HeatScreen(plate, heatMapModel));
+                heatMaps.add(new HeatScreen(plate, heatMapModel));
             }
 
             // pre-configure the heatmap configuration model
@@ -184,16 +191,17 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             colorbar.configure(heatMapModel); // Careful the toolbar has to be configured first, since the colorbar needs the readout for its configuration.
         }
 
-        public List<HeatScreen> getHeatmaps() {
-            return heatmaps;
+        public List<HeatScreen> getHeatMaps() {
+            return heatMaps;
         }
 
-        public void setHeatmaps(List<HeatScreen> heatmaps) {
-            this.heatmaps = heatmaps;
+        public void setHeatMaps(List<HeatScreen> heatMaps) {
+            this.heatMaps = heatMaps;
         }
 
         protected void zoom(double zoomFactor) {
             MIN_HEATMAP_WIDTH *= zoomFactor;
+            MIN_HEATMAP_HEIGHT *= zoomFactor;
             repopulatePlateGrid();
         }
 
@@ -201,7 +209,20 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
 //            sortHeatmaps();
             List<HeatScreen> heatmapSelection = getFilteredHeatMap();
 
-            int numColumns = (int) Math.floor(getWidth() / MIN_HEATMAP_WIDTH);
+            JPanel plateContainer = heatmapSelection.get(0);
+
+            int numRows, numColumns;
+            if ( heatMapModel.getAutomaticTrellisConfiguration() ) {
+                int plateWidth = (plateContainer.getWidth() < MIN_HEATMAP_WIDTH) ? MIN_HEATMAP_WIDTH : plateContainer.getWidth();
+                numColumns = (int) Math.floor(getWidth() *1.0 / (plateWidth + cellGap) );
+                numRows = (int) Math.ceil(heatmapSelection.size() / (double) numColumns);
+                heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            } else {
+                numRows = heatMapModel.getNumberOfTrellisRows();
+                numColumns = heatMapModel.getNumberOfTrellisColumns();
+                heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            }
+            heatMapModel.updateTrellisConfiguration(numRows, numColumns);
 
             //patch the layout if only a few plates are selected
             if (numColumns > heatmapSelection.size())
@@ -211,7 +232,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             for (int i = 0; i < columnConfig.length; i++) {
                 columnConfig[i] = 1. / (double) numColumns;
             }
-            int numRows = (int) Math.ceil(heatmapSelection.size() / (double) numColumns);
+
             double[] rowConfig = new double[numRows];
             for (int i = 0; i < rowConfig.length; i++) {
                 rowConfig[i] = 1. / (double) numRows;
@@ -246,7 +267,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
                 int rowIndex = i / numColumns;
                 String gridPosition = (i - rowIndex * numColumns) + ", " + (rowIndex);
 
-                JPanel plateContainer = new JPanel();
+                plateContainer = new JPanel();
                 plateContainer.setBorder(new TitledBorder(null, plate.getBarcode(), TitledBorder.CENTER, TitledBorder.BOTTOM, barcodeFont));
 
                 plateContainer.setLayout(new BorderLayout());
@@ -265,23 +286,52 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
                 plateContainer.add(heatMapPanel, BorderLayout.CENTER);
             }
 
-            heatMapsContainer.setPreferredSize(new Dimension(numColumns * MIN_HEATMAP_WIDTH, numRows * MIN_HEATMAP_WIDTH));
+
+            // Estimate the panel size.
+            int containerWidth = numColumns * MIN_HEATMAP_WIDTH + (numColumns-1) * cellGap;
+            int containerHeight = numRows * MIN_HEATMAP_HEIGHT + (numRows - 1) * cellGap;
+            Dimension containerDimensions = new Dimension(containerWidth, containerHeight);
+            heatMapsContainer.setPreferredSize(containerDimensions);
+
+            // Now That the approximate size is right, get the plate container insets and adjust.
+            if ( !(plateContainer == null) ) {
+                Insets plateInsets = plateContainer.getInsets();
+                containerWidth = numColumns * MIN_HEATMAP_WIDTH + (numColumns-1) * cellGap + (plateInsets.left + plateInsets.right) * numColumns;
+                containerHeight = numRows * MIN_HEATMAP_HEIGHT + (numRows - 1) * cellGap + (plateInsets.top + plateInsets.bottom) * numRows;
+                containerDimensions = new Dimension(containerWidth, containerHeight);
+                heatMapsContainer.setPreferredSize(containerDimensions);
+            }
+
+            // If the plate dimensions are fixed, put the container panel in another position panel to work around the
+            // TableLayout properties, that wants to fill the entire space.
+            if ( heatMapModel.isFixedPlateProportion() ) {
+                heatMapsContainer.setMaximumSize(containerDimensions);
+                heatMapsContainer.setMinimumSize(containerDimensions);
+                containerPositioner.removeAll();
+                containerPositioner.add(heatMapsContainer);
+                heatMapScrollPane.setViewportView(containerPositioner);
+            } else {
+                heatMapsContainer.setMaximumSize(new Dimension(-1,-1));
+                heatMapsContainer.setMinimumSize(new Dimension(-1,-1));
+                heatMapScrollPane.setViewportView(heatMapsContainer);
+            }
+
             invalidate();
             updateUI();
             repaint();
         }
 
 //        private void sortHeatmaps() {
-//            heatmaps.clear();
+//            heatMaps.clear();
 //            List<Plate> plates = heatMapModel.getScreen();
-//            heatmaps = new ArrayList<HeatScreen>();
+//            heatMaps = new ArrayList<HeatScreen>();
 //            for (Plate plate : plates) {
-//                heatmaps.add(new HeatScreen(plate, heatMapModel));
+//                heatMaps.add(new HeatScreen(plate, heatMapModel));
 //            }
 //        }
 
         private void parsePlateBarCodes() {
-            for (HeatScreen heatmap : heatmaps) {
+            for (HeatScreen heatmap : heatMaps) {
                 Plate plate = heatmap.getPlate();
                 if (plate.getScreenedAt() != null) {
                     continue;
@@ -299,7 +349,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
         public List<HeatScreen> getFilteredHeatMap() {
 
             List<HeatScreen> heatMapSelection = new ArrayList<HeatScreen>();
-            for (HeatScreen heatmap : heatmaps) {
+            for (HeatScreen heatmap : heatMaps) {
                 Plate plate = heatmap.getPlate();
                 if(heatMapModel.isSelected(plate)) {
                     heatMapSelection.add(heatmap);
@@ -312,7 +362,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             // sort the selected wells according to plate
 
             Map<Plate, Collection<Well>> plateWells = new HashMap<Plate, Collection<Well>>();
-            for (HeatScreen heatmap : heatmaps) {
+            for (HeatScreen heatmap : heatMaps) {
                 plateWells.put(heatmap.getPlate(), new ArrayList<Well>());
             }
 
@@ -325,7 +375,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
             }
 
             // propagate the selection to the different panels
-            for (HeatScreen heatmap : heatmaps) {
+            for (HeatScreen heatmap : heatMaps) {
                 Collection<Well> plateSelection = plateWells.get(heatmap.getPlate());
 
                 heatmap.setSelection(plateSelection);
