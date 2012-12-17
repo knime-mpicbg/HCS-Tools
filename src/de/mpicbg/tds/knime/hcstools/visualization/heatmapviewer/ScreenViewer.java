@@ -6,6 +6,7 @@ import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -19,7 +20,10 @@ import java.util.List;
 public class ScreenViewer extends JFrame implements HiLiteListener{
 
     private HeatTrellis heatTrellis;
-    protected HeatMapMenu menus;
+    private HeatMapMenu menus;
+    private HeatMapColorToolBar colorbar;
+    private HeatMapInputToolbar toolbar;
+    private HeatMapModel2 heatMapModel;
 
 
     // Constructor
@@ -28,33 +32,44 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
     }
 
     public ScreenViewer(List<Plate> plates) {
-        if ( (plates == null) ) {
-            heatTrellis = new HeatTrellis();
-        } else {
-            heatTrellis = new HeatTrellis(plates);
-        }
-
-        menus = new HeatMapMenu(heatTrellis);
-        setTitle("HCS Heat-map Viewer");
-        setJMenuBar(menus);
-        add(heatTrellis);
+        heatMapModel = new HeatMapModel2();
+        initialize();
+        configure(plates);
         setBounds(150, 150, 810, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
 
 
+    private void initialize() {
+        toolbar = new HeatMapInputToolbar();
+        colorbar = new HeatMapColorToolBar();
+        heatTrellis = new HeatTrellis(heatMapModel);
+
+        add(toolbar, BorderLayout.NORTH);
+        add(heatTrellis, BorderLayout.CENTER);
+        add(colorbar, BorderLayout.SOUTH);
+
+        menus = new HeatMapMenu(this);
+        setTitle("HCS Heat-map Viewer");
+        setJMenuBar(menus);
+    }
+
+    private void configure(List<Plate> plates) {
+        heatTrellis.configure(heatMapModel, plates);
+        toolbar.configure(heatMapModel);
+        colorbar.configure(heatMapModel);
+    }
+
+
     // HiLiteListener methods.
     public void hiLite(final KeyEvent event) {
-
     }
 
     public void unHiLite(final KeyEvent event) {
-        //To change body of created methods use File | Settings | File Templates.
     }
 
     public void unHiLiteAll(final KeyEvent event) {
-
     }
 
 
@@ -66,6 +81,24 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
 
     public boolean isModified(ScreenViewer data) {
         return false;
+    }
+
+
+    public HeatTrellis getHeatTrellis() {
+        return heatTrellis;
+    }
+
+    public HeatMapModel2 getHeatMapModel() {
+        return heatMapModel;
+    }
+
+
+    public void toggleColorbarVisibility(boolean flag) {
+        this.colorbar.setVisible(flag);
+    }
+
+    public void toggleToolbarVisibility(boolean flag) {
+        this.toolbar.setVisible(flag);
     }
 
 

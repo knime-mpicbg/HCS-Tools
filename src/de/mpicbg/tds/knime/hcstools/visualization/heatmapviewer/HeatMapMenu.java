@@ -27,8 +27,9 @@ import java.util.List;
 
 public class HeatMapMenu extends JMenuBar {
 
-    HeatMapModel2 heatMapModel;
-    HeatTrellis heatTrellis;
+    private HeatMapModel2 heatMapModel;
+    private HeatTrellis heatTrellis;
+    private ScreenViewer window;
 
 
     //Constructors
@@ -38,10 +39,11 @@ public class HeatMapMenu extends JMenuBar {
         add(createTrellisMenu());
     }
 
-    public HeatMapMenu(HeatTrellis actOn) {
+    public HeatMapMenu(ScreenViewer parent) {
         this();
-        heatTrellis = actOn;
-        heatMapModel = actOn.heatMapModel;
+        this.window = parent;
+        heatTrellis = parent.getHeatTrellis();
+        heatMapModel = parent.getHeatMapModel();
     }
 
 
@@ -242,7 +244,7 @@ public class HeatMapMenu extends JMenuBar {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 JCheckBoxMenuItem mi = (JCheckBoxMenuItem) actionEvent.getSource();
-                heatTrellis.toolbar.setVisible(mi.isSelected());
+                window.toggleToolbarVisibility(mi.isSelected());
             }
         });
         toolbar.add(item);
@@ -252,7 +254,7 @@ public class HeatMapMenu extends JMenuBar {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 JCheckBoxMenuItem mi = (JCheckBoxMenuItem) actionEvent.getSource();
-                heatTrellis.colorbar.setVisible(mi.isSelected());
+                window.toggleColorbarVisibility(mi.isSelected());
             }
         });
         toolbar.add(item);
@@ -368,7 +370,6 @@ public class HeatMapMenu extends JMenuBar {
         frame.pack();
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        System.exit(0);
     }
 
 

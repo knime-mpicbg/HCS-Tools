@@ -27,36 +27,33 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 
     protected HeatMapModel2 heatMapModel;
     private List<HeatScreen> heatMaps;
+
     private int MIN_HEATMAP_WIDTH = 180;
     private int MIN_HEATMAP_HEIGHT = 120;
     private int PREFERRED_WITH = 600;
     private int PREFERRED_HEIGHT = 400;
+    private int cellGap = 5;
 
-    protected HeatMapInputToolbar toolbar;
     private JPanel heatMapsContainer;
     private JScrollPane heatMapScrollPane;
-    protected HeatMapColorToolBar colorbar;
-    private int cellGap = 5;
     private JPanel containerPositioner;
 
 
     // Constructors
     public HeatTrellis() {
-        initialize();
-        heatMapModel = new HeatMapModel2();
-        heatMapModel.addChangeListener(this);
-        configure(heatMapModel);
-        setMinimumSize(new Dimension(PREFERRED_WITH, PREFERRED_HEIGHT));
-        setPreferredSize(new Dimension(PREFERRED_WITH, PREFERRED_HEIGHT));
-        new PanelImageExporter(this, true);
+        this(new HeatMapModel2(), null);
     }
 
-    public HeatTrellis(List<Plate> plates) {
-        this();
+    public HeatTrellis(HeatMapModel2 model) {
+        this(model, null);
+    }
+
+    public HeatTrellis(HeatMapModel2 model, List<Plate> plates) {
+        initialize();
+        configure(model, plates);
 
         ToolTipManager.sharedInstance().setDismissDelay(7500);
         ToolTipManager.sharedInstance().setInitialDelay(500);
-        setPlates(plates);
 
         // re-layout the app when the window size changes
         addComponentListener(new ComponentAdapter() {
@@ -67,19 +64,22 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
                 }
             }
         });
-
         heatMapsContainer.setDoubleBuffered(true);
+
+        setMinimumSize(new Dimension(PREFERRED_WITH, PREFERRED_HEIGHT));
+        setPreferredSize(new Dimension(PREFERRED_WITH, PREFERRED_HEIGHT));
+        new PanelImageExporter(this, true);
     }
 
-    // Methods
-    private void configure(HeatMapModel2 model) {
-        toolbar.configure(model);
-        colorbar.configure(model);
+
+    // Utility methods
+    public void configure(HeatMapModel2 model, List<Plate> plates) {
+        this.heatMapModel = model;
+        heatMapModel.addChangeListener(this);
+        this.setPlates(plates);
     }
 
     private void initialize() {
-        toolbar = new HeatMapInputToolbar();
-
         heatMapsContainer = new JPanel();
         heatMapsContainer.setPreferredSize(new Dimension(PREFERRED_WITH-10,PREFERRED_HEIGHT-10));
         heatMapsContainer.setLayout(new TableLayout(new double[][]{{TableLayout.PREFERRED}, {TableLayout.PREFERRED}}));
@@ -96,19 +96,19 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
         containerPositioner = new JPanel();
         containerPositioner.add(heatMapsContainer);
 
-        colorbar = new HeatMapColorToolBar();
-
+        // The scroll pane...
         heatMapScrollPane = new JScrollPane();
         heatMapScrollPane.setViewportView(containerPositioner);
-        heatMapScrollPane.setBackground(Color.BLACK);  //TODO: This is just to better distinguish the components. Should be removed before deployment.
 
         setLayout(new BorderLayout());
-        add(toolbar, BorderLayout.NORTH);
         add(heatMapScrollPane, BorderLayout.CENTER);
-        add(colorbar, BorderLayout.SOUTH);
     }
 
     public void setPlates(List<Plate> plates) {
+        if ( plates == null ) {
+            return;
+        }
+
         heatMaps = new ArrayList<HeatScreen>();
         for (Plate plate : plates) {
             heatMaps.add(new HeatScreen(plate, heatMapModel));
@@ -117,8 +117,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
         // pre-configure the heatmap configuration model
         heatMapModel.setScreen(plates);
         parsePlateBarCodes();
-        toolbar.configure(heatMapModel);
-        colorbar.configure(heatMapModel); // Careful the toolbar has to be configured first, since the colorbar needs the readout for its configuration.
+//        toolbar.configure(heatMapModel);
+//        colorbar.configure(heatMapModel); // Careful the toolbar has to be configured first, since the colorbar needs the readout for its configuration.
     }
 
     public List<HeatScreen> getHeatMaps() {
@@ -150,9 +150,9 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
         // Recalculate the Table layout of the heatMapContainer panel.
         numColumns = updateTrellisTableLayout(numRows, numColumns);
 
-        // track changes of the batch; this allows to alter the background color of the heatmaps
-        String lastBatchName = "bubabuba";
-        Color batchBcknd = Color.GRAY;
+//        // track changes of the batch; this allows to alter the background color of the heatmaps
+//        String lastBatchName = "bubabuba";
+//        Color batchBcknd = Color.GRAY;
 
         // populate the view with plates
         int plateNameFontSize = Utils.isWindowsPlatform() ? 8 : 12;
@@ -171,15 +171,15 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 
             plateContainer.setLayout(new BorderLayout());
 
-            // change the background according to the batch
-            String curBatchName = plate.getBatchName();
-            if (curBatchName != null) {
-                if ((curBatchName == null && lastBatchName != null) || !curBatchName.equals(lastBatchName)) {
-                    lastBatchName = curBatchName;
-                    batchBcknd = batchBcknd.equals(Color.GRAY) ? Color.LIGHT_GRAY : Color.GRAY;
-                }
-            }
-            plateContainer.setBackground(batchBcknd);
+//            // change the background according to the batch
+//            String curBatchName = plate.getBatchName();
+//            if (curBatchName != null) {
+//                if ((curBatchName == null && lastBatchName != null) || !curBatchName.equals(lastBatchName)) {
+//                    lastBatchName = curBatchName;
+//                    batchBcknd = batchBcknd.equals(Color.GRAY) ? Color.LIGHT_GRAY : Color.GRAY;
+//                }
+//            }
+//            plateContainer.setBackground(batchBcknd);
 
             plateContainer.add(heatMapPanel, BorderLayout.CENTER);
             heatMapsContainer.add(plateContainer, gridPosition);
@@ -359,7 +359,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.setSize(new Dimension(200, 500));
-        frame.add(new HeatTrellis(null));
+        frame.add(new HeatTrellis());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
