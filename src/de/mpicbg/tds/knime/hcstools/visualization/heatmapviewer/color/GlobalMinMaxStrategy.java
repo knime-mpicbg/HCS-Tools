@@ -81,9 +81,10 @@ public class GlobalMinMaxStrategy implements ReadoutRescaleStrategy {
             return null;
         }
 
-        if (minMap.isEmpty()) {
-            return null;
-        }
+        // TODO: Find out why it this statement is here to prevent the update mechanism of the class for the extrema values????
+//        if (minMap.isEmpty()) {
+//            return null;
+//        }
 
         double minValue = getMinValue(selectedReadOut);
         double maxValue = getMaxValue(selectedReadOut);
