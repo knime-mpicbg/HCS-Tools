@@ -128,10 +128,11 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 
     protected void zoom(double zoomFactor) {
         HEATMAP_WIDTH *= zoomFactor;
+        // Make sure the new size does not exceed the limits.
         HEATMAP_WIDTH = (HEATMAP_WIDTH < MIN_HEATMAP_WIDTH) ? MIN_HEATMAP_WIDTH : HEATMAP_WIDTH;
         HEATMAP_WIDTH = (HEATMAP_WIDTH > getWidth()) ? getWidth()-cellGap : HEATMAP_WIDTH;
+        // Derive the heatmap height.
         HEATMAP_HEIGHT = (int) Math.round(HEATMAP_WIDTH *(16.0/24.0));
-//        HEATMAP_HEIGHT *= zoomFactor;
         repopulatePlateGrid();
     }
 
