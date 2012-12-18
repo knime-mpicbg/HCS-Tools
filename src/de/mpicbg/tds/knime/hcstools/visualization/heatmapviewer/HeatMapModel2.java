@@ -286,7 +286,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public Color getReadoutColor(Well well) {
         if (!well.isReadoutSuccess()) {
-            return colorScheme.noReadOut();     // TODO: Change the color here
+            return colorScheme.errorReadOut;
         }
 
         String selectedReadOut = getSelectedReadOut();
@@ -300,13 +300,13 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     public Color getReadOutColor(String selectedReadOut, Double wellReadout) {
         // also show the fallback color in cases when a single readout is not available
         if (wellReadout == null) {
-            return colorScheme.noReadOut();
+            return colorScheme.emptyReadOut;
         }
 
         // check if we can normalize the value (this maybe impossible if there's just a single well
         Double displayNormReadOut = readoutRescaleStrategy.normalize(wellReadout, selectedReadOut);
         if (displayNormReadOut == null) {
-            return colorScheme.noReadOut();
+            return colorScheme.errorReadOut;
         }
         return LinearGradientTools.getColorAt(colorGradient, displayNormReadOut.floatValue());
 //        return colorScale.mapReadout2Color(displayNormReadOut);

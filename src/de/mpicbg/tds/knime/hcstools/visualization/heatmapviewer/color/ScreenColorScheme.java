@@ -20,6 +20,9 @@ public class ScreenColorScheme {
     private Map<String, Map<String, Color>> colorCache = new HashMap<String, Map<String, Color>>();
     private Random r = new Random(4711);   // use seed here, to keep colors consistent between different runs
 
+    public final Color emptyReadOut = new Color(119, 119, 119);
+    public final Color errorReadOut = new Color(72, 56, 69);
+
 //    private ScreenControlServiceImpl controlService;
 
     private static ScreenColorScheme instance;

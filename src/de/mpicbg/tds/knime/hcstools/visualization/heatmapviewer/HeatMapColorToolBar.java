@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRescaleStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
 
 /**
  * User: Felix Meyenhofer
@@ -13,17 +14,17 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRes
  * Time: 1:35
  *
  * Colorbar to integrate in a heatmap frame.
- * TODO: When changing the orientation of the toolbar, the layout should be changed and the colorgradient rotated.
+ * TODO: When changing the orientation of the toolbar, the layout should be changed and the color gradient rotated.
  */
 
 public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeListener{
 
     private HeatMapModel2 heatMapModel;
-    private LinearGradientTools.ColorGradientPanel colorPanel;
+    private LinearGradientTools.ColorGradientPanel gradientPanel;
     private JLabel minLabel = new JLabel("min");
     private JLabel medLabel = new JLabel("middle");
     private JLabel maxLabel = new JLabel("max");
-    private Color missingValue = new Color(255,0,255);
+    private final ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();
 
     public static final DecimalFormat scienceFormat = new DecimalFormat("0.###E0");
     public static final DecimalFormat basicFormat = new DecimalFormat("######.###");
@@ -48,14 +49,17 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
     @Override
     protected synchronized void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
-        colorPanel.configure(heatMapModel.colorGradient);
-        ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getRescaleStrategy();
 
-        if (displayNormStrategy == null ) {
-            System.err.println("No Readout is selected, can't calculate the minimum and maximum value of the color bar.");
+        if (heatMapModel == null || heatMapModel.getSelectedReadOut() == null) {
+            System.err.println("Incomplete HeatMapModel configurations, can't retrieve minimum and maximum values.");
             return;
         }
 
+        // Set the color gradient
+        ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getRescaleStrategy();
+        gradientPanel.configure(heatMapModel.colorGradient);
+
+        // Set the scale labels.
         Double minValue = displayNormStrategy.getMinValue(heatMapModel.getSelectedReadOut());
         Double maxValue = displayNormStrategy.getMaxValue(heatMapModel.getSelectedReadOut());
         assert minValue < maxValue : "maximal readout value does not differ from minimal one";
@@ -65,9 +69,6 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
     }
 
     private void initialize() {
-        setLayout(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-
         // Create a panel with the labels for the colorbar.
         JPanel labelPanel = new JPanel();
         labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.LINE_AXIS));
@@ -76,35 +77,51 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         labelPanel.add(medLabel);
         labelPanel.add(Box.createHorizontalGlue());
         labelPanel.add(maxLabel);
+
+        // Add the color panel
+        gradientPanel = new LinearGradientTools.ColorGradientPanel();
+
+        // Add the panel indicating the missing value color.
+        JPanel errorPanel = new JPanel();
+        errorPanel.setBackground(colorScheme.errorReadOut);
+
+        // Create a label for the panel indicating the missing value color.
+        JLabel errorLabel = new JLabel(" Err ");
+        errorLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        // Add the panel indicating the missing value color.
+        JPanel emptyPanel = new JPanel();
+        emptyPanel.setBackground(colorScheme.emptyReadOut);
+
+        // Create a label for the panel indicating the missing value color.
+        JLabel emptyLabel = new JLabel(" Empty ");
+        errorLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        // Add the component to the main panel
+        setLayout(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.weightx = 1;
-        constraints.weighty = 0.2;
+        constraints.weighty = 0.9;
         constraints.fill = GridBagConstraints.BOTH;
+        add(gradientPanel, constraints);
+        constraints.gridy = 1;
+        constraints.weighty = 0.1;
         add(labelPanel, constraints);
 
-        // Create a label for the panel indicating the missing value color.
         constraints.gridx = 1;
         constraints.weightx = -1;
-        JLabel missLabel = new JLabel("  NaN  ");
-        missLabel.setHorizontalAlignment(JLabel.CENTER);
-        add(missLabel, constraints);
+        add(errorLabel, constraints);
+        constraints.gridy = 0;
+        constraints.weighty = 0.9;
+        add(errorPanel, constraints);
 
-        // Add the color panel
-        colorPanel = new LinearGradientTools.ColorGradientPanel();
-        constraints.gridx = 0;
+        constraints.gridx = 2;
+        add(emptyPanel, constraints);
         constraints.gridy = 1;
-        constraints.weightx = 1;
-        constraints.weighty = 0.8;
-        add(colorPanel, constraints);
-
-        // Add the panel indicating the missing value color.
-        JPanel missPanel = new JPanel();
-        missPanel.setBackground(missingValue); // TODO: This color should come from the ScreenColorScheme. There should also probably be another panel indicating the failed readounts (err)
-        constraints.gridy = 1;
-        constraints.gridx = 1;
-        constraints.weightx = -1;
-        add(missPanel, constraints);
+        constraints.weighty = 0.1;
+        add(emptyLabel, constraints);
     }
 
     protected void configure(HeatMapModel2 model) {
@@ -123,10 +140,10 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
 
 
     public static void main(String[] args) {
-        HeatMapColorToolBar toolBar = new HeatMapColorToolBar();
+        HeatMapColorToolBar toolBar = new HeatMapColorToolBar(new HeatMapModel2());
         JFrame frame = new JFrame();
-        frame.setSize(500, 100);
         frame.add(toolBar);
+        frame.setSize(500, 60);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }

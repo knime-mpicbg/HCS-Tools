@@ -30,7 +30,7 @@ public class HeatScreen extends JPanel {
         this.plate = plate;
         this.heatMapModel = heatMapModel;
 
-        setBackground(heatMapModel.getColorScheme().noReadOut());
+        setBackground(heatMapModel.getColorScheme().emptyReadOut);
         setDoubleBuffered(true);
         setMinimumSize(new Dimension(100, 100));
         setToolTipText(plate.getBarcode());
