@@ -95,7 +95,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
             for(Plate p : plateFiltered.keySet()) {
                 plateFiltered.put(p,true);
             }
-            fireModelChanged();
+//            fireModelChanged();
             return;
         }
 
@@ -122,7 +122,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
             plateFiltered.put(p,keep);
         }
 
-        fireModelChanged();
+//        fireModelChanged();
     }
 
     public void filterPlates(String pfs, PlateComparators.PlateAttribute pfa) {
@@ -147,7 +147,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         for (String title : titles) {
             sortAttributeSelection.add(PlateComparators.getPlateAttributeByTitle(title));
         }
-        fireModelChanged();
+//        fireModelChanged();
     }
 
     public String[] getSortAttributesSelectionTitles() {
@@ -216,9 +216,9 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
 
     public void setReadoutRescaleStrategy(ReadoutRescaleStrategy readoutRescaleStrategy) {
-        this.readoutRescaleStrategy = readoutRescaleStrategy;
         readoutRescaleStrategy.configure(screen);
-        fireModelChanged();
+        this.readoutRescaleStrategy = readoutRescaleStrategy;
+//        fireModelChanged();
     }
 
 
@@ -245,7 +245,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setCurrentReadout(String currentReadout) {
         this.currentReadout = currentReadout;
-        fireModelChanged();
+//        fireModelChanged();
     }
 
 
@@ -259,7 +259,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setColorGradient(LinearGradientPaint gradient) {
         colorGradient = gradient;
-        fireModelChanged();
+//        fireModelChanged();
     }
 
 
@@ -286,7 +286,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public Color getReadoutColor(Well well) {
         if (!well.isReadoutSuccess()) {
-            return colorScheme.noReadOut();
+            return colorScheme.noReadOut();     // TODO: Change the color here
         }
 
         String selectedReadOut = getSelectedReadOut();
@@ -320,7 +320,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setDoShowLayout(boolean showLayout) {
         this.doShowLayout = showLayout;
-        fireModelChanged();
+//        fireModelChanged();
     }
 
 
@@ -328,7 +328,10 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         return doShowConcentration;
     }
 
-
+    /**
+     * This is a convenience method to update the GUI. It should not be called from this class but rather from other
+     * classes using the HeatMapModel as a information carrier.
+     */
     void fireModelChanged() {
         for (HeatMapModelChangeListener changeListener : changeListeners) {
             changeListener.modelChanged();
@@ -338,7 +341,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setDoShowConcentration(boolean doShowConcentration) {
         this.doShowConcentration = doShowConcentration;
-        fireModelChanged();
+//        fireModelChanged();
     }
 
 
@@ -372,13 +375,13 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setHideMostFreqOverlay(boolean useBckndForLibraryWells) {
         this.hideMostFrequentOverlay = useBckndForLibraryWells;
-        fireModelChanged();
+//        fireModelChanged();
     }
 
 
     public void setShowSelection(boolean showSelection) {
         this.showSelection = showSelection;
-        fireModelChanged();
+//        fireModelChanged();
     }
 
 
@@ -394,7 +397,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setOverlay(String overlay) {
         this.overlay = overlay;
-        fireModelChanged();
+//        fireModelChanged();
     }
 
 
