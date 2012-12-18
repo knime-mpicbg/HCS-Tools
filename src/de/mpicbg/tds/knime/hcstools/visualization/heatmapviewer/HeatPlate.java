@@ -204,7 +204,7 @@ public class HeatPlate extends JPanel {
 
         private void invertSelection(Well well) {
 //			wellPanelGrid.get(well).repaint();
-            if (heatmapModel.isSelected(well)) {
+            if (heatmapModel.isWellSelected(well)) {
                 heatmapModel.getWellSelection().remove(well);
             } else {
                 heatmapModel.getWellSelection().add(well);

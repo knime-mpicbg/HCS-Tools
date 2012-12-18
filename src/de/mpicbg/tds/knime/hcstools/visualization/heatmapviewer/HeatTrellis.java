@@ -1,10 +1,10 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.barcodes.BarcodeParserFactory;
 import de.mpicbg.tds.core.Utils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.core.util.PanelImageExporter;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
 import info.clearthought.layout.TableLayout;
 
 import javax.swing.*;
@@ -12,6 +12,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
 
@@ -178,6 +180,17 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
             plateContainer.setBorder(titledBorder);
             plateContainer.setLayout(new BorderLayout());
 
+            // Add mouse listeners
+            plateContainer.addMouseListener(new PlateSelectionController());
+            heatMapPanel.addMouseListener(new PlateSelectionController());
+
+            // Choose the background color.
+            Color backgroundColor = getRootPane().getBackground();
+            if ( heatMapModel.doMarkSelection() && heatMapModel.isPlateSelected(plate) ) {
+                backgroundColor = ScreenColorScheme.getInstance().selectionColor;
+            }
+            plateContainer.setBackground(backgroundColor);
+
             // Truncate the barcode.
             titledBorder.setTitle(truncateBarcode(plate.getBarcode(), plateContainer.getFontMetrics(barcodeFont)));
 
@@ -334,7 +347,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 //        }
 //    }
 
-    public List<HeatScreen> createHeatMaps() {
+    private List<HeatScreen> createHeatMaps() {
         List<HeatScreen> currentHeatMaps = new ArrayList<HeatScreen>();
         for ( Plate plate : heatMapModel.getScreen() ) {
             if (heatMapModel.plateFiltered.get(plate)) {
@@ -343,6 +356,18 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
         }
         return currentHeatMaps;
     }
+
+
+    private List<HeatScreen> getHeatMaps() {
+        Component[] components = heatMapsContainer.getComponents();
+        List<HeatScreen> heatMaps = new ArrayList<HeatScreen>();
+
+        for (Component component : components) {
+            heatMaps.add((HeatScreen) component);
+        }
+        return heatMaps;
+    }
+
 
 //    public List<HeatScreen> getFilteredHeatMap() {
 //
@@ -356,29 +381,28 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 //        return heatMapSelection;
 //    }
 
-    public void updateSelection(Collection<Well> wellSelection) {
-        // sort the selected wells according to plate
+    public void updateSelection(Collection<Well> wellSelection, boolean appendFlag) {
+        Collection<Well> currentSelection = heatMapModel.getWellSelection();
 
-//        Map<Plate, Collection<Well>> plateWells = new HashMap<Plate, Collection<Well>>();
-//        for (HeatScreen heatmap : heatMaps) {
-//            plateWells.put(heatmap.getPlate(), new ArrayList<Well>());
-//        }
-//
-//        heatMapModel.setWellSelection(wellSelection);
-//        repaint();
-//
-//        heatMapModel.setWellSelection(wellSelection);
-//        for (Well well : wellSelection) {
-//            plateWells.get(well.getPlate()).add(well);
-//        }
-//
-//        // propagate the selection to the different panels
-//        for (HeatScreen heatmap : heatMaps) {
-//            Collection<Well> plateSelection = plateWells.get(heatmap.getPlate());
-//
-//            heatmap.setSelection(plateSelection);
-//        }
+        if (appendFlag) {
+
+            for (Well well : wellSelection) {
+                if ( heatMapModel.isWellSelected(well) )
+                    currentSelection.remove(well);
+                else
+                    currentSelection.add(well);
+            }
+
+        } else {
+
+            currentSelection.clear();
+            for (Well well : wellSelection)
+                currentSelection.add(well);
+        }
+
+        heatMapModel.setWellSelection(currentSelection);
     }
+
 
     public void modelChanged() {
         if (isVisible() && getWidth() > 0) {
@@ -393,6 +417,57 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
         frame.add(new HeatTrellis(new HeatMapModel2()));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
+    }
+
+
+
+    private class PlateSelectionController implements MouseListener {
+
+        /**
+         * @param panel instance of the heat map renderer
+         * @return selectionStatus selection status after operation
+         */
+        private void toggleSelection(JPanel panel, HeatScreen heatMap) {
+            if (heatMapModel.isPlateSelected(heatMap.getPlate())) {
+                panel.setBackground(getRootPane().getBackground());
+            } else {
+                panel.setBackground(ScreenColorScheme.getInstance().selectionColor);
+            }
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent mouseEvent) {
+            if (heatMapModel.doMarkSelection()) {
+
+                JPanel container = null;
+                HeatScreen heatMap = null;
+                try {
+                    heatMap = (HeatScreen) mouseEvent.getSource();
+                    container = (JPanel) heatMap.getParent();
+                } catch (ClassCastException e) {
+                    container = (JPanel) mouseEvent.getSource();
+                    heatMap = (HeatScreen) container.getComponent(0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                boolean append = mouseEvent.isMetaDown();
+                toggleSelection(container, heatMap);
+                updateSelection(heatMap.getPlate().getWells(), append);
+            }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent mouseEvent) { /** Do nothing */ }     // ToDo support Drag selection
+
+        @Override
+        public void mouseReleased(MouseEvent mouseEvent) { /** Do nothing */ }
+
+        @Override
+        public void mouseEntered(MouseEvent mouseEvent) { /** Do nothing */ }
+
+        @Override
+        public void mouseExited(MouseEvent mouseEvent) { /** Do nothing */ }
     }
 
 }

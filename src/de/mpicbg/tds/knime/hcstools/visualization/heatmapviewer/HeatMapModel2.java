@@ -43,7 +43,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     // Well selection
     Collection<Well> selection = new ArrayList<Well>();
-    private boolean showSelection = false;
+    private boolean markSelection = true;
 
     // View flags
     private boolean doShowConcentration = false;
@@ -130,7 +130,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         filterPlates(pfs);
     }
 
-    public boolean isSelected(Plate p){
+    public boolean isFiltered(Plate p){
         return plateFiltered.get(p);
     }
 
@@ -354,8 +354,14 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         this.selection = selection;
     }
 
+    public boolean isPlateSelected(Plate plate) {
+        for (Well well : plate.getWells()) {
+            if ( isWellSelected(well) ) { return true; }
+        }
+        return false;
+    }
 
-    public boolean isSelected(Well well) {
+    public boolean isWellSelected(Well well) {
 
         for (Well w : selection) {
             if (well.getPlateColumn().equals(w.getPlateColumn()) &&
@@ -379,14 +385,14 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
 
-    public void setShowSelection(boolean showSelection) {
-        this.showSelection = showSelection;
+    public void setMarkSelection(boolean markSelection) {
+        this.markSelection = markSelection;
 //        fireModelChanged();
     }
 
 
-    public boolean isShowSelection() {
-        return showSelection;
+    public boolean doMarkSelection() {
+        return markSelection;
     }
 
 

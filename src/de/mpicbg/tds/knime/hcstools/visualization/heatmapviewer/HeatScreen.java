@@ -10,7 +10,6 @@ import de.mpicbg.tds.core.Utils;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.view.color.ScreenColorScheme;
 
 
 /**
@@ -95,9 +94,10 @@ public class HeatScreen extends JPanel {
             Color layoutColor = heatMapModel.getOverlayColor(well);
 
             // Choose between selection layout and readout color.
-            if (heatMapModel.isSelected(well)) {
-                g.setColor(heatMapModel.getColorScheme().getSelectionMarkerColor());
-            } else if (layoutColor != null) {
+//            if (heatMapModel.isWellSelected(well)) {
+//                g.setColor(heatMapModel.getColorScheme().getSelectionMarkerColor());
+//            } else
+            if (layoutColor != null) {
                 g.setColor(layoutColor);
             } else {
                 g.setColor(heatMapModel.getReadoutColor(well));

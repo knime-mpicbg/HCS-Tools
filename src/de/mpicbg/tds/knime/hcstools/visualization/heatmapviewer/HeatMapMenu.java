@@ -34,16 +34,21 @@ public class HeatMapMenu extends JMenuBar {
 
     //Constructors
     public HeatMapMenu() {
-        add(createHiLiteMenu());
-        add(createViewMenu());
-        add(createTrellisMenu());
+        this(null);
     }
 
     public HeatMapMenu(ScreenViewer parent) {
-        this();
-        this.window = parent;
-        heatTrellis = parent.getHeatTrellis();
-        heatMapModel = parent.getHeatMapModel();
+        if (parent != null) {
+            this.window = parent;
+            heatTrellis = parent.getHeatTrellis();
+            heatMapModel = parent.getHeatMapModel();
+        } else {
+            heatMapModel = new HeatMapModel2();
+        }
+
+        add(createHiLiteMenu());
+        add(createViewMenu());
+        add(createTrellisMenu());
     }
 
 
@@ -71,6 +76,7 @@ public class HeatMapMenu extends JMenuBar {
         menu.add(alwaysOnTop);
 
         JCheckBoxMenuItem markSelection = new JCheckBoxMenuItem("Mark Selection");
+        markSelection.setSelected(heatMapModel.doMarkSelection());
         markSelection.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -312,7 +318,8 @@ public class HeatMapMenu extends JMenuBar {
 
     private void markSelectionAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
-        heatMapModel.setShowSelection(item.isSelected());
+        heatMapModel.setMarkSelection(item.isSelected());
+        heatMapModel.fireModelChanged();
     }
 
     private void alwaysOnTopAction(JMenuItem menuItem) {
