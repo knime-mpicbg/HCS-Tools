@@ -26,7 +26,7 @@ import java.util.List;
 public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 
     protected HeatMapModel2 heatMapModel;
-    private List<HeatScreen> heatMaps;
+//    private List<HeatScreen> heatMaps;
 
     private int HEATMAP_WIDTH = 180;
     private static int MIN_HEATMAP_WIDTH = 80;
@@ -179,15 +179,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
             plateContainer.setLayout(new BorderLayout());
 
             // Truncate the barcode.
-            String title = plate.getBarcode();
-            FontMetrics metrics = plateContainer.getFontMetrics(barcodeFont);
-            if ( metrics.stringWidth(title) >= HEATMAP_WIDTH) {
-                while ( metrics.stringWidth(title + "...") > HEATMAP_WIDTH) {
-                    if (title.length() < 2) { break; }
-                    title = title.substring(0, title.length()-1);
-                }
-                titledBorder.setTitle(title + "...");
-            }
+            titledBorder.setTitle(truncateBarcode(plate.getBarcode(), plateContainer.getFontMetrics(barcodeFont)));
 
 //            // change the background according to the batch
 //            String curBatchName = plate.getBatchName();
@@ -217,6 +209,17 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
         invalidate();
         updateUI();
         repaint();
+    }
+
+    private String truncateBarcode(String barcode, FontMetrics metric) {
+        if ( metric.stringWidth(barcode) >= HEATMAP_WIDTH ) {
+            while ( metric.stringWidth(barcode + "...") > HEATMAP_WIDTH ) {
+                if (barcode.length() < 2) { break; }
+                barcode = barcode.substring(0, barcode.length()-1);
+            }
+            barcode += "...";
+        }
+        return barcode;
     }
 
     private int[] calculateTrellisDimensions(int numberOfPlates) {
@@ -353,28 +356,28 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 //        return heatMapSelection;
 //    }
 
-    public void setSelection(Collection<Well> wellSelection) {
+    public void updateSelection(Collection<Well> wellSelection) {
         // sort the selected wells according to plate
 
-        Map<Plate, Collection<Well>> plateWells = new HashMap<Plate, Collection<Well>>();
-        for (HeatScreen heatmap : heatMaps) {
-            plateWells.put(heatmap.getPlate(), new ArrayList<Well>());
-        }
-
-        heatMapModel.setWellSelection(wellSelection);
-        repaint();
-
-        heatMapModel.setWellSelection(wellSelection);
-        for (Well well : wellSelection) {
-            plateWells.get(well.getPlate()).add(well);
-        }
-
-        // propagate the selection to the different panels
-        for (HeatScreen heatmap : heatMaps) {
-            Collection<Well> plateSelection = plateWells.get(heatmap.getPlate());
-
-            heatmap.setSelection(plateSelection);
-        }
+//        Map<Plate, Collection<Well>> plateWells = new HashMap<Plate, Collection<Well>>();
+//        for (HeatScreen heatmap : heatMaps) {
+//            plateWells.put(heatmap.getPlate(), new ArrayList<Well>());
+//        }
+//
+//        heatMapModel.setWellSelection(wellSelection);
+//        repaint();
+//
+//        heatMapModel.setWellSelection(wellSelection);
+//        for (Well well : wellSelection) {
+//            plateWells.get(well.getPlate()).add(well);
+//        }
+//
+//        // propagate the selection to the different panels
+//        for (HeatScreen heatmap : heatMaps) {
+//            Collection<Well> plateSelection = plateWells.get(heatmap.getPlate());
+//
+//            heatmap.setSelection(plateSelection);
+//        }
     }
 
     public void modelChanged() {
