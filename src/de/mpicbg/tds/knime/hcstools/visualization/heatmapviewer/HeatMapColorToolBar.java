@@ -16,7 +16,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRes
  * TODO: When changing the orientation of the toolbar, the layout should be changed and the colorgradient rotated.
  */
 
-public class HeatMapColorToolBar extends JToolBar {
+public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeListener{
 
     private HeatMapModel2 heatMapModel;
     private LinearGradientTools.ColorGradientPanel colorPanel;
@@ -39,22 +39,29 @@ public class HeatMapColorToolBar extends JToolBar {
         configure(model);
     }
 
+    public void modelChanged() {
+        if (isVisible() && getWidth() > 0) {
+            repaint();
+        }
+    }
 
     @Override
-    protected void paintComponent(Graphics graphics) {
+    protected synchronized void paintComponent(Graphics graphics) {
+        super.paintComponent(graphics);
         colorPanel.configure(heatMapModel.colorGradient);
-
         ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getRescaleStrategy();
-        if ( heatMapModel.getSelectedReadOut() == null ) {
+
+        if (displayNormStrategy == null ) {
             System.err.println("No Readout is selected, can't calculate the minimum and maximum value of the color bar.");
-        } else {
-            Double minValue = displayNormStrategy.getMinValue(heatMapModel.getSelectedReadOut());
-            Double maxValue = displayNormStrategy.getMaxValue(heatMapModel.getSelectedReadOut());
-            assert minValue < maxValue : "maximal readout value does not differ from minimal one";
-            minLabel.setText(format(minValue));
-            medLabel.setText(format((maxValue+minValue)/2));
-            maxLabel.setText(format(maxValue));
+            return;
         }
+
+        Double minValue = displayNormStrategy.getMinValue(heatMapModel.getSelectedReadOut());
+        Double maxValue = displayNormStrategy.getMaxValue(heatMapModel.getSelectedReadOut());
+        assert minValue < maxValue : "maximal readout value does not differ from minimal one";
+        minLabel.setText(format(minValue));
+        medLabel.setText(format((maxValue+minValue)/2));
+        maxLabel.setText(format(maxValue));
     }
 
     private void initialize() {
@@ -93,7 +100,7 @@ public class HeatMapColorToolBar extends JToolBar {
 
         // Add the panel indicating the missing value color.
         JPanel missPanel = new JPanel();
-        missPanel.setBackground(missingValue);
+        missPanel.setBackground(missingValue); // TODO: This color should come from the ScreenColorScheme. There should also probably be another panel indicating the failed readounts (err)
         constraints.gridy = 1;
         constraints.gridx = 1;
         constraints.weightx = -1;
@@ -102,6 +109,7 @@ public class HeatMapColorToolBar extends JToolBar {
 
     protected void configure(HeatMapModel2 model) {
         heatMapModel = model;
+        heatMapModel.addChangeListener(this);
     }
 
     public static String format(double value) {

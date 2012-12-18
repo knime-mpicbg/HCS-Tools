@@ -306,6 +306,7 @@ public class HeatMapMenu extends JMenuBar {
             } else {
                 System.err.println("Don't know the option " + menuItem.getName() + ".");
             }
+            heatMapModel.fireModelChanged();
         }
     }
 
@@ -330,7 +331,7 @@ public class HeatMapMenu extends JMenuBar {
             heatMapModel.sortPlates(attribute);
         }
 
-        if (!dialog.descending.isSelected()) { heatMapModel.revertScreen(); }
+        if (!dialog.isDescending()) { heatMapModel.revertScreen(); }
         heatMapModel.fireModelChanged();
         heatMapModel.setSortAttributeSelectionByTiles(selectedAttributes);
     }

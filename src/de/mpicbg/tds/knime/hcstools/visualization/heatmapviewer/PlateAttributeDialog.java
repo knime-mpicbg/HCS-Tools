@@ -28,7 +28,7 @@ public class PlateAttributeDialog extends JDialog {
     private JTable table;
     private String[][] tableData = new String[3][2];
     private ListSelectionModel listSelectionModel;
-    public JRadioButton descending;
+    private JRadioButton descending;
 
     private static final String[] columnNames = {"order", "Attribute"};
 
@@ -131,6 +131,10 @@ public class PlateAttributeDialog extends JDialog {
                 onCancel();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+    }
+
+    public boolean isDescending() {
+        return descending.isSelected();
     }
 
     public String[] getSelectedAttributeTitles() {

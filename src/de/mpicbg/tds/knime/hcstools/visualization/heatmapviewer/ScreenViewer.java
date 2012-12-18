@@ -20,7 +20,6 @@ import java.util.List;
 public class ScreenViewer extends JFrame implements HiLiteListener{
 
     private HeatTrellis heatTrellis;
-    private HeatMapMenu menus;
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
     private HeatMapModel2 heatMapModel;
@@ -33,8 +32,9 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
 
     public ScreenViewer(List<Plate> plates) {
         heatMapModel = new HeatMapModel2();
+        heatMapModel.setScreen(plates);
         initialize();
-        configure(plates);
+        configure();
         setBounds(150, 150, 810, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
@@ -44,19 +44,19 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
     private void initialize() {
         toolbar = new HeatMapInputToolbar();
         colorbar = new HeatMapColorToolBar();
-        heatTrellis = new HeatTrellis(heatMapModel);
+        heatTrellis = new HeatTrellis();
 
         add(toolbar, BorderLayout.NORTH);
         add(heatTrellis, BorderLayout.CENTER);
         add(colorbar, BorderLayout.SOUTH);
 
-        menus = new HeatMapMenu(this);
-        setTitle("HCS Heat-map Viewer");
+        HeatMapMenu menus = new HeatMapMenu(this);
+        setTitle("HCS Heatmap Viewer");
         setJMenuBar(menus);
     }
 
-    private void configure(List<Plate> plates) {
-        heatTrellis.configure(heatMapModel, plates);
+    private void configure() {
+        heatTrellis.configure(heatMapModel);
         toolbar.configure(heatMapModel);
         colorbar.configure(heatMapModel);
     }

@@ -42,16 +42,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 
     // Constructors
     public HeatTrellis() {
-        this(new HeatMapModel2(), null);
-    }
-
-    public HeatTrellis(HeatMapModel2 model) {
-        this(model, null);
-    }
-
-    public HeatTrellis(HeatMapModel2 model, List<Plate> plates) {
         initialize();
-        configure(model, plates);
 
         ToolTipManager.sharedInstance().setDismissDelay(7500);
         ToolTipManager.sharedInstance().setInitialDelay(500);
@@ -72,12 +63,17 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
         new PanelImageExporter(this, true);
     }
 
+    public HeatTrellis(HeatMapModel2 model) {
+        this();
+        configure(model);
+    }
+
 
     // Utility methods
-    public void configure(HeatMapModel2 model, List<Plate> plates) {
+    public void configure(HeatMapModel2 model) {
         this.heatMapModel = model;
         heatMapModel.addChangeListener(this);
-        this.setPlates(plates);
+//        this.setPlates(plates);
     }
 
     private void initialize() {
@@ -105,30 +101,30 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
         add(heatMapScrollPane, BorderLayout.CENTER);
     }
 
-    public void setPlates(List<Plate> plates) {
-        if ( plates == null ) {
-            return;
-        }
+//    public void setPlates(List<Plate> plates) {
+//        if ( plates == null ) {
+//            return;
+//        }
+//
+//        heatMaps = new ArrayList<HeatScreen>();
+//        for (Plate plate : plates) {
+//            heatMaps.add(new HeatScreen(plate, heatMapModel));
+//        }
+//
+//        // pre-configure the heatmap configuration model
+////        heatMapModel.setScreen(plates);
+//        parsePlateBarCodes();
+////        toolbar.configure(heatMapModel);
+////        colorbar.configure(heatMapModel); // Careful the toolbar has to be configured first, since the colorbar needs the readout for its configuration.
+//    }
 
-        heatMaps = new ArrayList<HeatScreen>();
-        for (Plate plate : plates) {
-            heatMaps.add(new HeatScreen(plate, heatMapModel));
-        }
-
-        // pre-configure the heatmap configuration model
-        heatMapModel.setScreen(plates);
-        parsePlateBarCodes();
-//        toolbar.configure(heatMapModel);
-//        colorbar.configure(heatMapModel); // Careful the toolbar has to be configured first, since the colorbar needs the readout for its configuration.
-    }
-
-    public List<HeatScreen> getHeatMaps() {
-        return heatMaps;
-    }
-
-    public void setHeatMaps(List<HeatScreen> heatMaps) {
-        this.heatMaps = heatMaps;
-    }
+//    public List<HeatScreen> getHeatMaps() {
+//        return heatMaps;
+//    }
+//
+//    public void setHeatMaps(List<HeatScreen> heatMaps) {
+//        this.heatMaps = heatMaps;
+//    }
 
     protected void zoom(double zoomFactor) {
         HEATMAP_WIDTH *= zoomFactor;
@@ -141,7 +137,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 
     private void repopulatePlateGrid() {
 //            sortHeatmaps();
-        List<HeatScreen> heatmapSelection = getFilteredHeatMap();
+//        List<HeatScreen> heatmapSelection = getFilteredHeatMap();
+        List<HeatScreen> heatmapSelection = createHeatMaps();
 
         // Figure out how many rows an columns are needed.
         int[] rowsColumns = calculateTrellisDimensions(heatmapSelection.size());
@@ -317,33 +314,43 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
 //            }
 //        }
 
-    private void parsePlateBarCodes() {
-        for (HeatScreen heatmap : heatMaps) {
-            Plate plate = heatmap.getPlate();
-            if (plate.getScreenedAt() != null) {
-                continue;
-            }
+//    private void parsePlateBarCodes() {
+//        for (HeatScreen heatmap : heatMaps) {
+//            Plate plate = heatmap.getPlate();
+//            if (plate.getScreenedAt() != null) {
+//                continue;
+//            }
+//
+//            try {
+//                Plate.configurePlateByBarcode(plate, BarcodeParserFactory.getAssayPlateBarcodeOLDParser(plate.getBarcode()));
+//            } catch (Throwable t) {
+//                // do nothing here
+////                heatMapViewerMenu.setSortingEnabled(false);
+//            }
+//        }
+//    }
 
-            try {
-                Plate.configurePlateByBarcode(plate, BarcodeParserFactory.getAssayPlateBarcodeOLDParser(plate.getBarcode()));
-            } catch (Throwable t) {
-                // do nothing here
-//                heatMapViewerMenu.setSortingEnabled(false);
-            }
-        }
-    }
-
-    public List<HeatScreen> getFilteredHeatMap() {
-
-        List<HeatScreen> heatMapSelection = new ArrayList<HeatScreen>();
-        for (HeatScreen heatmap : heatMaps) {
-            Plate plate = heatmap.getPlate();
-            if(heatMapModel.isSelected(plate)) {
-                heatMapSelection.add(heatmap);
+    public List<HeatScreen> createHeatMaps() {
+        List<HeatScreen> currentHeatMaps = new ArrayList<HeatScreen>();
+        for ( Plate plate : heatMapModel.getScreen() ) {
+            if (heatMapModel.plateFiltered.get(plate)) {
+                currentHeatMaps.add(new HeatScreen(plate, heatMapModel));
             }
         }
-        return heatMapSelection;
+        return currentHeatMaps;
     }
+
+//    public List<HeatScreen> getFilteredHeatMap() {
+//
+//        List<HeatScreen> heatMapSelection = new ArrayList<HeatScreen>();
+//        for (HeatScreen heatmap : heatMaps) {
+//            Plate plate = heatmap.getPlate();
+//            if(heatMapModel.isSelected(plate)) {
+//                heatMapSelection.add(heatmap);
+//            }
+//        }
+//        return heatMapSelection;
+//    }
 
     public void setSelection(Collection<Well> wellSelection) {
         // sort the selected wells according to plate
@@ -379,7 +386,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener {
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.setSize(new Dimension(200, 500));
-        frame.add(new HeatTrellis());
+        frame.add(new HeatTrellis(new HeatMapModel2()));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
