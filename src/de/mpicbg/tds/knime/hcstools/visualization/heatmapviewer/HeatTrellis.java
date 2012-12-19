@@ -30,7 +30,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
 //    private List<HeatScreen> heatMaps;
 
     private int HEATMAP_WIDTH = 180;
-    private static int MIN_HEATMAP_WIDTH = 80;
+    @SuppressWarnings("FieldCanBeLocal")
+    private final int MIN_HEATMAP_WIDTH = 80;
     private int HEATMAP_HEIGHT = 120;
     private int PREFERRED_WITH = 600;
     private int PREFERRED_HEIGHT = 400;
@@ -142,8 +143,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
 //    }
 
     /**
-     *
-     * @param zoomFactor
+     * Method to scale up and down the heatmaps.
+     * @param zoomFactor zoom or scale factor applied to the heatmap size
      */
     protected void zoom(double zoomFactor) {
         HEATMAP_WIDTH *= zoomFactor;
@@ -428,7 +429,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         heatMapModel.setWellSelection(currentSelection);
     }
 
-    private void updateWellSelection(List<HeatScreen> heatMaps, boolean append) {
+    private void updateWellSelection(List<HeatScreen> heatMaps) {
 
         for (HeatScreen heatMap : heatMaps) {
             updateWellSelection(heatMap, true);
@@ -510,7 +511,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
 
             else {
                 List<HeatScreen> selectedHeatMaps = calculateHeatMapSelection(pressedHeatMap, currentHeatMap);
-                updateWellSelection(selectedHeatMaps, mouseEvent.isMetaDown());
+                updateWellSelection(selectedHeatMaps);
             }
 
             repopulatePlateGrid();
