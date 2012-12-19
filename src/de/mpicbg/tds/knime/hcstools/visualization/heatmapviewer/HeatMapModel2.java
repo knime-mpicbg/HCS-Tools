@@ -354,6 +354,10 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         this.selection = selection;
     }
 
+    public void clearWellSelection() {
+        this.selection.clear();
+    }
+
     public boolean isPlateSelected(Plate plate) {
         for (Well well : plate.getWells()) {
             if ( isWellSelected(well) ) { return true; }
