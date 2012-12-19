@@ -36,6 +36,7 @@ public class HeatScreen extends JPanel {
 
         // Mouse listener for the well details tooltip.
         addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseMoved(MouseEvent e) {
                 int colIndex = (int) (plate.getNumColumns() * e.getX() / (double) getWidth());
                 int rowIndex = (int) (plate.getNumRows() * e.getY() / (double) getHeight());
@@ -50,32 +51,37 @@ public class HeatScreen extends JPanel {
             }
         });
 
-        // Mouse listener for the plate details view. Double clicking on a plate opens a new window.
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                if (mouseEvent.getClickCount() != 2) {
-                    return;
-                }
+//        // Mouse listener for the plate details view. Double clicking on a plate opens a new window.
+//        addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent mouseEvent) {
+//                if (mouseEvent.getClickCount() != 2) {
+//                    return;
+//                }
+//                openNewPlateViewer();
+//
+//
+//            }
+//        });
+    }
 
-                // open a new detail-dialog for the plate
-                HeatMapModel2 plateHeatMapModel = new HeatMapModel2();
-                // todo if we want to use a global color scale also in the single plate view we ave to use te next line
+    protected void openNewPlateViewer() {
+        // open a new detail-dialog for the plate
+        HeatMapModel2 plateHeatMapModel = new HeatMapModel2();
+        // todo if we want to use a global color scale also in the single plate view we ave to use te next line
 //                plateHeatMapModel.setScreen(PlateOverviewHeatMap.this.heatMapModel.getScreen());
-                plateHeatMapModel.setCurrentReadout(HeatScreen.this.heatMapModel.getSelectedReadOut());
-                plateHeatMapModel.setOverlay(HeatScreen.this.heatMapModel.getOverlay());
-                plateHeatMapModel.setReadoutRescaleStrategy(HeatScreen.this.heatMapModel.getRescaleStrategy());
-                plateHeatMapModel.setColorScheme(HeatScreen.this.heatMapModel.getColorScheme());
-                plateHeatMapModel.setHideMostFreqOverlay(HeatScreen.this.heatMapModel.doHideMostFreqOverlay());
+        plateHeatMapModel.setCurrentReadout(this.heatMapModel.getSelectedReadOut());
+        plateHeatMapModel.setOverlay(this.heatMapModel.getOverlay());
+        plateHeatMapModel.setReadoutRescaleStrategy(this.heatMapModel.getRescaleStrategy());
+        plateHeatMapModel.setColorScheme(this.heatMapModel.getColorScheme());
+        plateHeatMapModel.setHideMostFreqOverlay(this.heatMapModel.doHideMostFreqOverlay());
 
-                if (HeatScreen.this.heatMapModel.getWellSelection().size() > 0) {
-                    plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(HeatScreen.this.heatMapModel.getWellSelection()).get(plate));
-                }
+        if (this.heatMapModel.getWellSelection().size() > 0) {
+            plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(this.heatMapModel.getWellSelection()).get(plate));
+        }
 
-                Window ownerWindow = Utils.getOwnerDialog(HeatScreen.this);
-                PlateViewer.createPanelDialog(plate, plateHeatMapModel, ownerWindow);
-            }
-        });
+        Window ownerWindow = Utils.getOwnerDialog(this);
+        PlateViewer.createPanelDialog(this.getPlate(), plateHeatMapModel, ownerWindow);
     }
 
 
