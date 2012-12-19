@@ -76,6 +76,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     /**
      * HeatMapModelChangeListener method.
      */
+    @Override
     public void modelChanged() {
         if (isVisible() && getWidth() > 0) {
             repopulatePlateGrid();
@@ -487,8 +488,10 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     private HeatScreen pressedHeatMap;
     private HeatScreen currentHeatMap;
 
+    @Override
     public void mouseClicked(MouseEvent mouseEvent) { /** Do Nothing */ }
 
+    @Override
     public void mousePressed(MouseEvent mouseEvent) {
         // Left click selection action.
         if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
@@ -503,6 +506,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         }
     }
 
+    @Override
     public void mouseReleased(MouseEvent mouseEvent) {
         // Mouse released is used only in the selection process, thus only listens to the first mouse button
         if ( (mouseEvent.getButton() == MouseEvent.BUTTON1) ) {
@@ -518,11 +522,13 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         }
     }
 
+    @Override
     public void mouseEntered(MouseEvent mouseEvent) {
         // Register the map the mouse pointer last skidded in.
         currentHeatMap = getHeatMap(mouseEvent);
     }
 
+    @Override
     public void mouseExited(MouseEvent mouseEvent) { /** Do Nothing */ }
 
 
