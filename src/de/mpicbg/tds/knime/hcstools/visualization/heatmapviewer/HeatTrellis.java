@@ -26,17 +26,19 @@ import java.util.List;
 
 public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, MouseListener {
 
-    protected HeatMapModel2 heatMapModel;
-//    private List<HeatScreen> heatMaps;
+    // Panel size factors
+    public final int MIN_HEATMAP_WIDTH = 80;
+    public final int cellGap = 5;
 
+    // The current heatmap size (width/height = 1.5 is the real microtiter plate proportions)
     private int HEATMAP_WIDTH = 180;
-    @SuppressWarnings("FieldCanBeLocal")
-    private final int MIN_HEATMAP_WIDTH = 80;
     private int HEATMAP_HEIGHT = 120;
+
     private int PREFERRED_WITH = 600;
     private int PREFERRED_HEIGHT = 400;
-    private int cellGap = 5;
 
+    // Component fields.
+    protected HeatMapModel2 heatMapModel;
     private JPanel heatMapsContainer;
     private JScrollPane heatMapScrollPane;
     private JPanel containerPositioner;

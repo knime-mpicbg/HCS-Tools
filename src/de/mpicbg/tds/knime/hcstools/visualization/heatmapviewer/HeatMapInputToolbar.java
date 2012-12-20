@@ -20,6 +20,12 @@ import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
 
 public class HeatMapInputToolbar extends JToolBar {
 
+    // The toolbar size influences the automatic size (pack()) of all windows it is used in.
+    public final int TOOLBAR_HEIGHT = 30;
+    public final int READOUT_WIDTH = 250;
+    public final int OVERLAY_WIDTH = 100;
+    public final int FILTER_WIDTH = 300;
+
     private HeatMapModel2 heatMapModel;
     private WellAttributeComboBox readoutSelector;
     private WellAttributeComboBox overlaySelector;
@@ -30,17 +36,18 @@ public class HeatMapInputToolbar extends JToolBar {
     // Constructor
     public HeatMapInputToolbar(HeatMapViewer parent) {
         this.parent = parent;
-        setPreferredSize(new Dimension(600, 30));
+
+        setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
         add(new JLabel("Readout:"));
         readoutSelector = new WellAttributeComboBox();
-        readoutSelector.setPreferredSize(new Dimension(250, -1));
+        readoutSelector.setPreferredSize(new Dimension(READOUT_WIDTH, -1));
         add(readoutSelector);
         addSeparator();
 
         add(new JLabel("Overlay:"));
         overlaySelector = new WellAttributeComboBox();
-        overlaySelector.setPreferredSize(new Dimension(100, -1));
+        overlaySelector.setPreferredSize(new Dimension(OVERLAY_WIDTH, -1));
         add(overlaySelector);
 
         // Add the filter functionality for the ScreenViewer.
@@ -48,12 +55,11 @@ public class HeatMapInputToolbar extends JToolBar {
             addSeparator();
             add(new JLabel("Filter Plates by:"));
             filterSelector = new JComboBox();
-            filterSelector.setPreferredSize(new Dimension(100, -1));
+            filterSelector.setPreferredSize(new Dimension(FILTER_WIDTH/2, -1));
             add(filterSelector);
             JFormattedTextField filterString = new JFormattedTextField();
-            filterString.setMinimumSize(new Dimension(100, 20));
-            filterString.setPreferredSize(new Dimension(100, 20));
-            filterString.setMaximumSize(new Dimension(300, 20));
+            filterString.setPreferredSize(new Dimension(FILTER_WIDTH/2, (int) Math.round(TOOLBAR_HEIGHT/3.0*2)));
+            filterString.setMaximumSize(new Dimension(FILTER_WIDTH, (int) Math.round(TOOLBAR_HEIGHT/3.0*2)));
             filterString.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
@@ -61,6 +67,10 @@ public class HeatMapInputToolbar extends JToolBar {
                 }
             });
             add(filterString);
+
+            setPreferredSize(new Dimension(READOUT_WIDTH + OVERLAY_WIDTH + FILTER_WIDTH, TOOLBAR_HEIGHT));
+        } else {
+            setPreferredSize(new Dimension(READOUT_WIDTH + OVERLAY_WIDTH, TOOLBAR_HEIGHT));
         }
     }
 

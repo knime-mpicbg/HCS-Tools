@@ -18,6 +18,11 @@ import java.util.List;
 
 public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewer{
 
+    // Window size factors
+    public final int HEIGHT = 600;
+    public final int WIDTH = 810;
+
+    // Component fields.
     private HeatTrellis heatTrellis;
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
@@ -34,7 +39,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
         heatMapModel.setScreen(plates);
         initialize();
         configure();
-        setBounds(150, 150, 810, 600);
+        setBounds(150, 150, WIDTH, HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }

@@ -26,19 +26,19 @@ import info.clearthought.layout.TableLayout;
 
 public class HeatPlate extends JPanel implements MouseListener {
 
-//    private Plate plate;
+    // The well size determines the heat map size (panel) and influences the PlateViewers size.
+    public final int WELL_SIZE = 25;
+
+    // Component fields.
     private HeatMapModel2 heatMapModel;
 
     Map<Well, HeatWell> wellPanelGrid = new HashMap<Well, HeatWell>();
 
 
     public HeatPlate(PlateViewer parent, Plate plate, HeatMapModel2 heatMapModel) {
-//        this.plate = plate;
         this.heatMapModel = heatMapModel;
         this.setBorder(BorderFactory.createEmptyBorder());
         this.setBackground(ScreenColorScheme.getInstance().emptyReadOut);
-
-//        WellSelectionController selectionController = new WellSelectionController();
 
         // configure the actual grid
         TableLayout tableLayout = new TableLayout();
@@ -50,7 +50,7 @@ public class HeatPlate extends JPanel implements MouseListener {
         double[] rowConfig = new double[numRows + 1];
         double[] columnConfig = new double[numColumns + 1];
 
-        this.setPreferredSize(new Dimension((numColumns+1)*25, (numRows+1)*25));
+        this.setPreferredSize(new Dimension((numColumns+1)*WELL_SIZE, (numRows+1)*WELL_SIZE));
 
         rowConfig[0] = 25;
         for (int i = 1; i < rowConfig.length; i++) {
