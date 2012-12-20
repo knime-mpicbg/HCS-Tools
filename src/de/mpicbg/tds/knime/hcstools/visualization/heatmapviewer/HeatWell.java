@@ -2,7 +2,6 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.Random;
@@ -35,23 +34,17 @@ public class HeatWell extends JPanel {
         this.well = well;
         this.heatMapModel = heatMapModel;
 
-        // Mouse listener for the well details view. A well details dialog is opened with a double click
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                // Open well detail panel on right click.
-                if (mouseEvent.getButton() == MouseEvent.BUTTON3) {
-                    JDialog jDialog = new JDialog(getParentDialog(HeatWell.this), false);
-                    jDialog.add(new WellDetailPanel(well));
-
-                    Random random = new Random();
-                    jDialog.setBounds(random.nextInt(100) + 200, random.nextInt(100) + 200, 300, 500);
-                    jDialog.setVisible(true);
-
-                    mouseEvent.consume();
-                }
-            }
-        });
+//        // Mouse listener for the well details view. A well details dialog is opened with a double click
+//        addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent mouseEvent) {
+//                // Open well detail panel on right click.
+//                if (mouseEvent.getButton() == MouseEvent.BUTTON3) {
+//                    openNewWellViewer();
+//                    mouseEvent.consume();
+//                }
+//            }
+//        });
 
         // Mouse listener for the tooltip, which is the well details.
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -64,6 +57,15 @@ public class HeatWell extends JPanel {
     }
 
 
+    protected void openNewWellViewer() {
+        JDialog jDialog = new JDialog(getParentDialog(this), false);
+        jDialog.add(new WellDetailPanel(this.well));
+
+        Random random = new Random();
+        jDialog.setBounds(random.nextInt(100) + 200, random.nextInt(100) + 200, 300, 500);
+        jDialog.setVisible(true);
+    }
+
     public Well getWell() {
         return well;
     }
@@ -73,9 +75,9 @@ public class HeatWell extends JPanel {
 //        repaint();
 //    }
 
-    public void setShowGrid(boolean showGrid) {
-        this.showGrid = showGrid;
-    }
+//    public void setShowGrid(boolean showGrid) {
+//        this.showGrid = showGrid;
+//    }
 
     public static Dialog getParentDialog(Container component) {
         while (component != null) {

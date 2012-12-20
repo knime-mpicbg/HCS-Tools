@@ -4,8 +4,7 @@ import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,11 +60,15 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
 
         heatMapModel.setScreen(Arrays.asList(plate));
 
-        heatMap = new HeatPlate(plate, heatMapModel);
+        heatMap = new HeatPlate(this, plate, heatMapModel);
         heatMapContainer.add(heatMap);
+        Dimension ms = heatMap.getPreferredSize();
+        heatMapContainer.setPreferredSize(new Dimension(ms.width+10, ms.height+10));
 
         Random posJitter = new Random();
-        this.setBounds(200 + posJitter.nextInt(100), 200 + posJitter.nextInt(100), 630, 500);
+        setLocation(200 + posJitter.nextInt(100), 200 + posJitter.nextInt(100));
+        pack();
+        setResizable(false);
         setVisible(true);
     }
 
@@ -79,9 +82,8 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         toolbar = new HeatMapInputToolbar(this);
         add(toolbar, BorderLayout.NORTH);
 
-        heatMapContainer = new JPanel();
-        heatMapContainer.setLayout(new BorderLayout());
-        heatMapContainer.setBorder(BorderFactory.createEmptyBorder(0,10,10,10));
+        heatMapContainer = new JPanel(new FlowLayout(FlowLayout.CENTER, 0,0));
+        heatMapContainer.setBorder(BorderFactory.createEmptyBorder(0,0,10,10));
         add(heatMapContainer, BorderLayout.CENTER);
 
         colorbar = new HeatMapColorToolBar();

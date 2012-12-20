@@ -2,38 +2,43 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.event.MouseListener;
+import java.util.*;
+import java.util.List;
 
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
 import info.clearthought.layout.TableLayout;
 
 /**
  * @author Holger Brandl
  *
  * Implements a more detailed view for a single plate which also includes compounds, concentration, etc.
+ * Replaces PlateDetailsHeatMap
  * TODO: clean out commented methods.
+ * TODO: synch the selcetion with the trellis
+ * TODO: control the colors (now the behavious seems erratic)
  */
 
-// Replaces PlateDetailsHeatMap
-public class HeatPlate extends JPanel {
+public class HeatPlate extends JPanel implements MouseListener {
 
-    private Plate plate;
-    private HeatMapModel2 heatmapModel;
+//    private Plate plate;
+    private HeatMapModel2 heatMapModel;
 
     Map<Well, HeatWell> wellPanelGrid = new HashMap<Well, HeatWell>();
 
 
-    public HeatPlate(Plate plate, HeatMapModel2 heatmapModel) {
-        this.plate = plate;
-        this.heatmapModel = heatmapModel;
+    public HeatPlate(PlateViewer parent, Plate plate, HeatMapModel2 heatMapModel) {
+//        this.plate = plate;
+        this.heatMapModel = heatMapModel;
+        this.setBorder(BorderFactory.createEmptyBorder());
+        this.setBackground(ScreenColorScheme.getInstance().emptyReadOut);
 
-        WellSelectionController selectionController = new WellSelectionController();
+//        WellSelectionController selectionController = new WellSelectionController();
 
         // configure the actual grid
         TableLayout tableLayout = new TableLayout();
@@ -44,6 +49,8 @@ public class HeatPlate extends JPanel {
         int numColumns = plate.getNumColumns();
         double[] rowConfig = new double[numRows + 1];
         double[] columnConfig = new double[numColumns + 1];
+
+        this.setPreferredSize(new Dimension((numColumns+1)*25, (numRows+1)*25));
 
         rowConfig[0] = 25;
         for (int i = 1; i < rowConfig.length; i++) {
@@ -58,32 +65,40 @@ public class HeatPlate extends JPanel {
         tableLayout.setRow(rowConfig);
         tableLayout.setColumn(columnConfig);
 
-        // populate the grid
-        JLabel topRightCornerLabel = new JLabel("");
-        add(topRightCornerLabel, "0,0");
-        topRightCornerLabel.addMouseListener(selectionController);
+        // populate the grid (The labels have to have the mouse listener so the outer wells can be drag-selected).
+        JLabel space = new JLabel("");
+        space.setBackground(parent.getBackground());
+        space.setOpaque(true);
+        add(space, "0,0");
+        space.addMouseListener(this);
 
         // 1) row-header
         for (int i = 0; i < numRows; i++) {
             JLabel rowLabel = new JLabel(TdsUtils.mapPlateRowNumberToString(i + 1));
-            rowLabel.addMouseListener(selectionController);
-            rowLabel.setBackground(Color.RED);
+            rowLabel.setVerticalAlignment(JLabel.CENTER);
+            rowLabel.setHorizontalAlignment(JLabel.CENTER);
+            rowLabel.addMouseListener(this);
+            rowLabel.setBackground(parent.getBackground());
+            rowLabel.setOpaque(true);
             add(rowLabel, "0, " + (i + 1));
         }
 
         // 2) column-header
         for (int i = 0; i < numColumns; i++) {
             JLabel colLabel = new JLabel((i + 1) + "");
-            colLabel.addMouseListener(selectionController);
-            colLabel.setBackground(Color.GREEN);
+            colLabel.setHorizontalAlignment(JLabel.CENTER);
+            colLabel.setVerticalAlignment(JLabel.BOTTOM);
+            colLabel.addMouseListener(this);
+            colLabel.setBackground(parent.getBackground());
+            colLabel.setOpaque(true);
             add(colLabel, (i + 1) + ", 0");
         }
 
         // 3) actual well renderer (by iterating over the plate as it's much more efficient compared to using the service)
         for (Well well : plate.getWells()) {
             String insertPosition = (well.getPlateColumn()) + ", " + (well.getPlateRow());
-            HeatWell heatWellPanel = new HeatWell(well, heatmapModel);
-            heatWellPanel.addMouseListener(selectionController);
+            HeatWell heatWellPanel = new HeatWell(well, heatMapModel);
+            heatWellPanel.addMouseListener(this);
             wellPanelGrid.put(well, heatWellPanel);
             add(heatWellPanel, insertPosition);
 //            add(new JLabel(insertPosition), insertPosition);
@@ -106,110 +121,127 @@ public class HeatPlate extends JPanel {
 
 
 
-    class WellSelectionController extends MouseAdapter {
+    /**
+     * Helpers for selection handling
+     */
+    public void updateWellSelection(HeatWell heatWell, boolean appendFlag) {
+        if ( !appendFlag )
+            clearWellSelection();
 
-        HeatWell dragStart;
+        Collection<Well> currentSelection = heatMapModel.getWellSelection();
 
-        @Override
-        public void mousePressed(MouseEvent mouseEvent) {
-            Object source = mouseEvent.getSource();
-            if (source instanceof HeatWell && dragStart == null) {
-                dragStart = ((HeatWell) source);
-            }
+        if ( heatMapModel.isWellSelected(heatWell.getWell()) )
+            currentSelection.remove(heatWell.getWell());
+        else {
+            currentSelection.add(heatWell.getWell());
         }
 
-//        @Override
-//        public void mouseDragged(MouseEvent mouseEvent) {
-////            super.mouseDragged(mouseEvent);
-//
-//
-//        }
+        heatMapModel.setWellSelection(currentSelection);
+    }
 
-        @Override
-        public void mouseReleased(MouseEvent mouseEvent) {
-            super.mouseReleased(mouseEvent);
+    private void updateWellSelection(List<HeatWell> heatWells) {
+        for (HeatWell heatWell : heatWells) {
+            updateWellSelection(heatWell, true);
+        }
+    }
 
-            if (dragStart != null) {
+    private void clearWellSelection() {
+        heatMapModel.clearWellSelection();
+    }
 
-                HeatWell sourcePanel = (HeatWell) mouseEvent.getSource();
-                Point releasePoint = mouseEvent.getPoint();
-                Object source = getComponentAt(sourcePanel.getX() + releasePoint.x, sourcePanel.getY() + releasePoint.y);
 
-                if (source instanceof HeatWell) {
-                    if (!mouseEvent.isMetaDown()) {
-                        heatmapModel.getWellSelection().clear();
-                    }
+    /**
+     * Helper methods for the heatmap selection with the mouse on the trellis
+     */
+    private List<HeatWell> getHeatWells() {
+        Component[] components = this.getComponents();
+        List<HeatWell> heatWells = new ArrayList<HeatWell>();
 
-                    HeatWell dragStop = (HeatWell) source;
-
-                    // now iterate over all wells in the rectangle to select
-                    for (int colIndex = dragStart.getWell().getPlateColumn(); colIndex <= dragStop.getWell().getPlateColumn(); colIndex++) {
-                        for (int rowIndex = dragStart.getWell().getPlateRow(); rowIndex <= dragStop.getWell().getPlateRow(); rowIndex++) {
-                            invertSelection(plate.getWell(colIndex, rowIndex));
-                        }
-                    }
-
-                    HeatPlate.this.repaint();
-                }
-            }
-
-            dragStart = null;
+        for (Component component : components) {
+            if ( component instanceof HeatWell )
+                heatWells.add((HeatWell) component);
         }
 
-        @Override
-        public void mouseClicked(MouseEvent mouseEvent) {
-            super.mouseClicked(mouseEvent);
+        return heatWells;
+    }
 
-            if (!mouseEvent.isMetaDown()) {
-                heatmapModel.getWellSelection().clear();
+    private List<HeatWell> calculateHeatMapSelection(Component start, Component stop) {
+        List<HeatWell> components = getHeatWells();
+
+        Point startPoint = start.getLocationOnScreen();
+        Point stopPoint = stop.getLocationOnScreen();
+
+        double xLow = Math.min(startPoint.getX(), stopPoint.getX());
+        double xhigh = Math.max(startPoint.getX(), stopPoint.getX());
+        double ylow = Math.min(startPoint.getY(), stopPoint.getY());
+        double yhigh = Math.max(startPoint.getY(), stopPoint.getY());
+
+        List<HeatWell> selection = new ArrayList<HeatWell>();
+        for (HeatWell component : components) {
+            Point point = component.getLocationOnScreen();
+            double x = point.getX();
+            double y = point.getY();
+            if ( (xLow <= x) && (x <= xhigh) && (ylow <= y) && (y <= yhigh) )
+                selection.add(component);
+        }
+
+        return selection;
+    }
+
+
+    /**
+     * MouseListener stuff and helper methods.
+     */
+    private Component pressedComponent;
+    private Component currentComponent;
+
+    @Override
+    public void mouseClicked(MouseEvent mouseEvent) { /** Do Nothing */ }
+
+    @Override
+    public void mousePressed(MouseEvent mouseEvent) {
+        // Left click selection action.
+        if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
+            if ( !mouseEvent.isMetaDown() )
+                clearWellSelection();
+            pressedComponent = (Component) mouseEvent.getSource();
+
+        // Open Plate details view on right click
+        } else if ( mouseEvent.getButton() == MouseEvent.BUTTON3 ) {
+            try {
+                HeatWell heatWell = (HeatWell) mouseEvent.getSource();
+                heatWell.openNewWellViewer();
+            } catch (ClassCastException e) {
+                System.err.println("Ignoring call to open Well dialog from: " + mouseEvent.getSource().getClass().getName());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        }
+    }
 
-            Object source = mouseEvent.getSource();
-            if (source instanceof JLabel) {
+    @Override
+    public void mouseReleased(MouseEvent mouseEvent) {
+        // Mouse released is used only in the selection process, thus only listens to the first mouse button
+        if ( (mouseEvent.getButton() == MouseEvent.BUTTON1) ) {
+            if ( pressedComponent.equals(currentComponent) && (currentComponent instanceof HeatWell) )
+                updateWellSelection((HeatWell) currentComponent, mouseEvent.isMetaDown());
 
-                String label = ((JLabel) source).getText();
-
-                if (label.isEmpty()) {
-                    for (Well well : plate.getWells()) {
-                        invertSelection(well);
-                    }
-
-                } else if (label.matches("[\\d]*")) {
-                    int column = Integer.parseInt(label);
-
-                    for (int i = 1; i <= plate.getNumRows(); i++) {
-                        Well well = plate.getWell(column, i);
-                        invertSelection(well);
-                    }
-                } else {
-                    int rowIndex = TdsUtils.mapPlateRowStringToNumber(label);
-
-                    for (int i = 1; i <= plate.getNumColumns(); i++) {
-                        Well well = plate.getWell(i, rowIndex);
-                        invertSelection(well);
-                    }
-                }
-
-                // column or row selection
-
-            } else if (source instanceof HeatWell) {
-                // single well selection
-                HeatWell wellPanel = (HeatWell) source;
-                invertSelection(wellPanel.getWell());
+            else {
+                List<HeatWell> selectedHeatWells = calculateHeatMapSelection(pressedComponent, currentComponent);
+                updateWellSelection(selectedHeatWells);
             }
 
             HeatPlate.this.repaint();
         }
-
-
-        private void invertSelection(Well well) {
-//			wellPanelGrid.get(well).repaint();
-            if (heatmapModel.isWellSelected(well)) {
-                heatmapModel.getWellSelection().remove(well);
-            } else {
-                heatmapModel.getWellSelection().add(well);
-            }
-        }
     }
+
+    @Override
+    public void mouseEntered(MouseEvent mouseEvent) {
+        // Register the map the mouse pointer last skidded in.
+        currentComponent = (Component) mouseEvent.getSource();
+    }
+
+    @Override
+    public void mouseExited(MouseEvent mouseEvent) { /** Do Nothing */ }
 
 }
