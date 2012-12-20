@@ -1,12 +1,7 @@
-/*
- * Created by JFormDesigner on Thu Dec 17 21:53:49 CET 2009
- */
-
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ColorBar;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,112 +9,112 @@ import java.util.Arrays;
 import java.util.Random;
 
 
-// Replaces PlatePanel
-public class PlateViewer extends JPanel implements HeatMapModelChangeListener {
+/**
+ * User: Felix Meyenhofer
+ * Date: 20/12/12
+ *
+ * Creates a window for a detailed plate view.
+ * Replaces PlatePanel
+ */
+
+public class PlateViewer extends JFrame implements HeatMapModelChangeListener, HeatMapViewer {
+
+    private HeatMapModel2 heatMapModel;
+    @SuppressWarnings("FieldCanBeLocal")
+    private HeatPlate heatMap;
+    private JPanel heatMapContainer;
+    private HeatMapColorToolBar colorbar;
+    private HeatMapInputToolbar toolbar;
 
 
-    public HeatPlate heatmapPanel;
+    /**
+     * Constructor
+     * @param model an instance of the HeatMapModel class.
+     */
+    public PlateViewer(HeatMapModel2 model) {
+        if ( model != null )
+            this.heatMapModel = model;
 
-
-    public PlateViewer() {
-        initComponents();
-    }
-
-
-    public PlateViewer(Plate plate, HeatMapModel2 heatMapModel) {
-        this();
-
-        if (heatMapModel == null) {
-            heatMapModel = new HeatMapModel2();
-        }
+        this.initialize();
+        this.setTitle("HCS Plate Viewer");
 
         heatMapModel.addChangeListener(this);
+
+        colorbar.configure(heatMapModel);
+
+        new PanelImageExporter(heatMapContainer, true);
+    }
+
+    public PlateViewer(Plate plate, HeatMapModel2 heatMapModel) {
+        this(heatMapModel);
+        setTitle(plate.getBarcode());
+
         heatMapModel.setScreen(Arrays.asList(plate));
 
-//        heatMapViewerMenu.configure(heatMapModel);
-        colorBar.configure(heatMapModel);
+        heatMap = new HeatPlate(plate, heatMapModel);
+        heatMapContainer.add(heatMap);
 
-//        heatMapViewerMenu.setSortingEnabled(false);
-
-        heatmapPanel = new HeatPlate(plate, heatMapModel);
-        heatmapContainerPanel.add(heatmapPanel, BorderLayout.CENTER);
-
-        // add clipboard copy paste
-        new PanelImageExporter(heatmapContainerPanel, true);
+        Random posJitter = new Random();
+        this.setBounds(200 + posJitter.nextInt(100), 200 + posJitter.nextInt(100), 630, 500);
+        setVisible(true);
     }
 
 
+    private void initialize() {
+        PlateMenu menu = new PlateMenu(this);
+        setJMenuBar(menu);
+
+        setLayout(new BorderLayout());
+
+        toolbar = new HeatMapInputToolbar();
+        add(toolbar, BorderLayout.NORTH);
+
+        heatMapContainer = new JPanel();
+        heatMapContainer.setLayout(new BorderLayout());
+        heatMapContainer.setBorder(BorderFactory.createEmptyBorder(0,10,10,10));
+        add(heatMapContainer, BorderLayout.CENTER);
+
+        colorbar = new HeatMapColorToolBar();
+        add(colorbar, BorderLayout.SOUTH);
+    }
+
+
+    /**
+     * The HeatMapModelChangeListener interface.
+     */
+    @Override
     public void modelChanged() {
         if (isVisible() && getWidth() > 0)
             repaint();
     }
 
 
-    private void initComponents() {
-        // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        // Generated using JFormDesigner Open Source Project license - Sphinx-4 (cmusphinx.sourceforge.net/sphinx4/)
-        platePanelContainer = new JPanel();
-        heatmapContainerPanel = new JPanel();
-        toolBar2 = new JToolBar();
-        colorBar = new HeatMapColorToolBar();
-        menuBar1 = new JToolBar();
-        heatMapViewerMenu = new HeatMapMenu();
-
-        //======== this ========
-        setLayout(new BorderLayout());
-
-        //======== platePanelContainer ========
-        {
-            platePanelContainer.setLayout(new BorderLayout());
-
-            //======== heatmapContainerPanel ========
-            {
-                heatmapContainerPanel.setLayout(new BorderLayout());
-
-                //======== toolBar2 ========
-                {
-                    toolBar2.add(colorBar);
-                }
-                heatmapContainerPanel.add(toolBar2, BorderLayout.SOUTH);
-
-                //======== menuBar1 ========
-                {
-                    menuBar1.add(heatMapViewerMenu);
-                }
-                heatmapContainerPanel.add(menuBar1, BorderLayout.NORTH);
-            }
-            platePanelContainer.add(heatmapContainerPanel, BorderLayout.CENTER);
-        }
-        add(platePanelContainer, BorderLayout.CENTER);
-        // JFormDesigner - End of component initialization  //GEN-END:initComponents
+    /**
+     * Viewer interface
+     */
+    @Override
+    public void toggleToolbarVisibility(boolean visibility) {
+        toolbar.setVisible(visibility);
     }
 
-    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    // Generated using JFormDesigner Open Source Project license - Sphinx-4 (cmusphinx.sourceforge.net/sphinx4/)
-    private JPanel platePanelContainer;
-    private JPanel heatmapContainerPanel;
-    private JToolBar toolBar2;
-    private HeatMapColorToolBar colorBar;
-    private JToolBar menuBar1;
-    private HeatMapMenu heatMapViewerMenu;
-    // JFormDesigner - End of variables declaration  //GEN-END:variables
-
-
-    public static PlateViewer createPanelDialog(Plate plate, HeatMapModel2 heatmapModel, Window ownerDialog) {
-        JDialog jDialog = new JDialog(ownerDialog);
-
-
-        jDialog.setTitle("PlateViewer: " + plate.getBarcode());
-        Random posJitter = new Random();
-        jDialog.setBounds(200 + posJitter.nextInt(100), 200 + posJitter.nextInt(100), 700, 500);
-
-        jDialog.setLayout(new BorderLayout());
-
-        PlateViewer platePanel = new PlateViewer(plate, heatmapModel);
-        jDialog.add(platePanel, BorderLayout.CENTER);
-
-        jDialog.setVisible(true);
-
-        return platePanel;
+    @Override
+    public void toggleColorbarVisibility(boolean visibility) {
+        colorbar.setVisible(visibility);
     }
+
+    @Override
+    public HeatMapModel2 getHeatMapModel() {
+        return heatMapModel;
+    }
+
+
+    /**
+     * Quick testing.
+     */
+    public static void main(String[] args) {
+        PlateViewer plateViewer = new PlateViewer(new HeatMapModel2());
+        plateViewer.setSize(new Dimension(600, 300));
+        plateViewer.setVisible(true);
+    }
+
 }

@@ -4,9 +4,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 import javax.swing.*;
-import java.util.Collection;
 
-import de.mpicbg.tds.core.Utils;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.core.model.Plate;
@@ -16,6 +14,7 @@ import de.mpicbg.tds.core.model.Plate;
  * Implements a memory-efficient and fast heatmap-preview panel for a single screening plate.
  *
  * @author Holger Brandl
+ * TODO: Clean out commented methods.
  */
 
 // Replaces the PlateOverviewHeatMap
@@ -80,8 +79,10 @@ public class HeatScreen extends JPanel {
             plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(this.heatMapModel.getWellSelection()).get(plate));
         }
 
-        Window ownerWindow = Utils.getOwnerDialog(this);
-        PlateViewer.createPanelDialog(this.getPlate(), plateHeatMapModel, ownerWindow);
+//        Window ownerWindow = Utils.getOwnerDialog(this);
+//        PlateViewer.createPanelDialog(this.getPlate(), plateHeatMapModel, ownerWindow);
+        new PlateViewer(this.getPlate(), plateHeatMapModel);
+
     }
 
 
@@ -117,10 +118,10 @@ public class HeatScreen extends JPanel {
         return plate;
     }
 
-    public void setSelection(Collection<Well> highlightWells) {
-        // todo is this actually updated when a selection is being made visible
-        heatMapModel.setDoShowLayout(false);
-        heatMapModel.setWellSelection(highlightWells);
-        repaint();
-    }
+//    public void setSelection(Collection<Well> highlightWells) {
+//        // todo is this actually updated when a selection is being made visible
+//        heatMapModel.setDoShowLayout(false);
+//        heatMapModel.setWellSelection(highlightWells);
+//        repaint();
+//    }
 }
