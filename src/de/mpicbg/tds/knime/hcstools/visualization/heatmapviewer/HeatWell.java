@@ -8,15 +8,16 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.Random;
 
 import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
 
 /**
- * A JPanel which renders a detailed view on a single well within a heat-map.
- *
  * @author Holger Brandl
- * @see de.mpicbg.tds.core.view.PlateDetailsHeatMap
+ *
+ * A JPanel which renders a detailed view on a single well within a heat-map.
+ * replaces HeatWellPanel
+ * TODO: clean out commented methods.
  */
 
-// replaces HeatWellPanel
 public class HeatWell extends JPanel {
 
     private Well well;
@@ -24,7 +25,7 @@ public class HeatWell extends JPanel {
 
     public static int STROKE_WIDTH = 3;
     public static BasicStroke overlayStroke = new BasicStroke(STROKE_WIDTH);
-    private boolean isSelected;
+//    private boolean isSelected;
     private boolean showGrid = false;
 
 
@@ -38,7 +39,8 @@ public class HeatWell extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
-                if (mouseEvent.getClickCount() == 2) {
+                // Open well detail panel on right click.
+                if (mouseEvent.getButton() == MouseEvent.BUTTON3) {
                     JDialog jDialog = new JDialog(getParentDialog(HeatWell.this), false);
                     jDialog.add(new WellDetailPanel(well));
 
@@ -53,17 +55,27 @@ public class HeatWell extends JPanel {
 
         // Mouse listener for the tooltip, which is the well details.
         addMouseMotionListener(new MouseMotionAdapter() {
-            String toolTip;
-
             @Override
             public void mouseMoved(MouseEvent mouseEvent) {
                 super.mouseMoved(mouseEvent);
-
                 setToolTipText(" ");
             }
         });
     }
 
+
+    public Well getWell() {
+        return well;
+    }
+
+//    public void setSelected(boolean isSelected) {
+//        this.isSelected = isSelected;
+//        repaint();
+//    }
+
+    public void setShowGrid(boolean showGrid) {
+        this.showGrid = showGrid;
+    }
 
     public static Dialog getParentDialog(Container component) {
         while (component != null) {
@@ -76,7 +88,6 @@ public class HeatWell extends JPanel {
 
         return null;
     }
-
 
     public static Container getParentContainer(Container component) {
         while (component != null) {
@@ -130,7 +141,7 @@ public class HeatWell extends JPanel {
 
         // Selection dot.
         if (heatMapModel.doMarkSelection() && heatMapModel.isWellSelected(well)) {
-            g2d.setColor(heatMapModel.getColorScheme().getSelectionMarkerColor());
+            g2d.setColor(ScreenColorScheme.getInstance().selectionColor);
             g2d.fillRect(getWidth() / 2 - 3, getHeight() / 2 - 3, 6, 6);
         }
 
@@ -138,19 +149,4 @@ public class HeatWell extends JPanel {
         setBackground(heatMapModel.getReadoutColor(well));
     }
 
-
-    public Well getWell() {
-        return well;
-    }
-
-
-    public void setSelected(boolean isSelected) {
-        this.isSelected = isSelected;
-        repaint();
-    }
-
-
-    public void setShowGrid(boolean showGrid) {
-        this.showGrid = showGrid;
-    }
 }
