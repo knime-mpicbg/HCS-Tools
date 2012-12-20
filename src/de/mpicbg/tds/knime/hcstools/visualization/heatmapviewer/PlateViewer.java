@@ -4,7 +4,10 @@ import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -46,7 +49,15 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
 
     public PlateViewer(Plate plate, HeatMapModel2 heatMapModel) {
         this(heatMapModel);
+
+        List<Plate> pseudoScreen = new ArrayList<Plate>();
+        pseudoScreen.add(plate);
+        this.heatMapModel.setScreen(pseudoScreen);
+
         setTitle(plate.getBarcode());
+
+        toolbar.configure(heatMapModel);
+        colorbar.configure(heatMapModel);
 
         heatMapModel.setScreen(Arrays.asList(plate));
 
