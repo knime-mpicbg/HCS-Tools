@@ -1,57 +1,62 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileSmoothedStrategy;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.LinearGradientPaint;
-import java.awt.Frame;
-import java.awt.event.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 /**
  * User: Felix Meyenhofer
- * Date: 10/11/12
- * Time: 20:45
+ * Date: 18/12/12
  *
- * TODO: Create a ScreenMenu class extending PlateMenu and get rid of this one.
+ * Menu for the PlateViewer
  */
 
-public class HeatMapMenu extends JMenuBar {
+public class PlateMenu extends JMenuBar {
 
     private HeatMapModel2 heatMapModel;
-    private HeatTrellis heatTrellis;
-    private ScreenViewer window;
+    private HeatMapViewer window;
 
 
-    //Constructors
-    public HeatMapMenu() {
+    /**
+     * Constructors
+     */
+    public PlateMenu() {
         this(null);
     }
 
-    public HeatMapMenu(ScreenViewer parent) {
-        if (parent != null) {
-            this.window = parent;
-            heatTrellis = parent.getHeatTrellis();
-            heatMapModel = parent.getHeatMapModel();
-        } else {
-            heatMapModel = new HeatMapModel2();
-        }
+    public PlateMenu(HeatMapViewer parent) {
+        configure(parent);
 
-        add(createHiLiteMenu());
-        add(createViewMenu());
-        add(createTrellisMenu());
+        this.add(createHiLiteMenu());
+        this.add(createViewMenu());
     }
 
 
-    // Methods for menu creation
+    /**
+     * Self configuration (overwritten by sub-classes)
+     * @param parent
+     */
+    private void configure(HeatMapViewer parent) {
+        if (parent != null) {
+            this.window = parent;
+            this.heatMapModel = parent.getHeatMapModel();
+        } else {
+            this.heatMapModel = new HeatMapModel2();
+        }
+    }
+
+
+    /**
+     * Methods for menu creation
+     */
     private ImageIcon createImageIcon(String path, String description) {
         java.net.URL imgURL = getClass().getResource(path);
         if (imgURL != null) {
@@ -85,6 +90,7 @@ public class HeatMapMenu extends JMenuBar {
         menu.add(markSelection);
         menu.add(createOverlaySubMenu());
         menu.add(createOutlierSubMenu());
+        menu.add(createColorMapMenu());
         menu.add(createToolBarMenu());
 
         return menu;
@@ -130,64 +136,6 @@ public class HeatMapMenu extends JMenuBar {
             });
         }
         menu.getItem(0).setSelected(true);
-
-        return menu;
-    }
-
-    private JMenu createTrellisMenu() {
-        JMenu menu = new JMenu("Trellis");
-
-        JMenuItem zoomIn = new JMenuItem("Zoom in", KeyEvent.VK_T);
-        zoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.META_MASK));
-        zoomIn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                zoomInAction();
-            }
-        });
-        menu.add(zoomIn);
-
-        JMenuItem zoomOut = new JMenuItem("Zoom out");
-        zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.META_MASK));
-        zoomOut.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                zoomOutAction();
-            }
-        });
-        menu.add(zoomOut);
-
-        JMenuItem rowsColumns = new JMenuItem("Rows/Columns");
-        rowsColumns.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                rowsColumnsAction();
-            }
-        });
-        rowsColumns.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.META_MASK));
-        menu.add(rowsColumns);
-
-        JMenuItem sortPlates = menu.add("Sort Plates");
-        sortPlates.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                sortPlatesAction();
-            }
-        });
-        sortPlates.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK));
-        menu.add(sortPlates);
-
-        menu.add(createColorMapMenu());
-
-        JCheckBoxMenuItem plateDimensions = new JCheckBoxMenuItem("Fix Plate Proportions");
-        plateDimensions.setSelected(true);
-        plateDimensions.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                plateDimensionsAction(actionEvent);
-            }
-        });
-        menu.add(plateDimensions);
 
         return menu;
     }
@@ -267,7 +215,9 @@ public class HeatMapMenu extends JMenuBar {
     }
 
 
-    // Actions
+   /**
+    * Actions
+    */
     private void toggleColorMapAction(ActionEvent actionEvent) {
         JMenuItem source = (JMenuItem)actionEvent.getSource();
         LinearGradientPaint newGradient;
@@ -326,45 +276,10 @@ public class HeatMapMenu extends JMenuBar {
         frame.setAlwaysOnTop(menuItem.isSelected());
     }
 
-    private void sortPlatesAction() {
-        PlateAttributeDialog dialog = new PlateAttributeDialog(heatMapModel);
-        dialog.setVisible(true);
-        String[] selectedAttributes = dialog.getSelectedAttributeTitles();
-        List<String> inverted = Arrays.asList(selectedAttributes);
-        Collections.reverse(inverted);
-        for (String key : inverted) {
-            PlateComparators.PlateAttribute attribute = PlateComparators.getPlateAttributeByTitle(key);
-            heatMapModel.sortPlates(attribute);
-        }
 
-        if (!dialog.isDescending()) { heatMapModel.revertScreen(); }
-        heatMapModel.fireModelChanged();
-        heatMapModel.setSortAttributeSelectionByTiles(selectedAttributes);
-    }
-
-    private void rowsColumnsAction() {
-        RowColumnDialog dialog = new RowColumnDialog(heatMapModel);
-        dialog.setVisible(true);
-        heatMapModel.updateTrellisConfiguration(dialog.getNumberOfRows(), dialog.getNumberOfColumns(), dialog.isAutomatic());
-        heatMapModel.fireModelChanged();
-    }
-
-    private void zoomOutAction() {
-        heatTrellis.zoom(0.75);
-    }
-
-    private void zoomInAction() {
-        heatTrellis.zoom(1.25);
-    }
-
-    private void plateDimensionsAction(ActionEvent event) {
-        JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
-        heatMapModel.setPlateProportionMode(item.isSelected());
-        heatMapModel.fireModelChanged();
-    }
-
-
-    // Testing
+    /**
+     * Testing
+     */
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
@@ -373,11 +288,10 @@ public class HeatMapMenu extends JMenuBar {
         text.setEditable(false);
         panel.add(text);
         frame.setContentPane(panel);
-        frame.setJMenuBar(new HeatMapMenu());
+        frame.setJMenuBar(new PlateMenu());
         frame.pack();
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-
 
 }
