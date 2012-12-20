@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,9 +14,10 @@ import de.mpicbg.tds.core.model.Well;
 import info.clearthought.layout.TableLayout;
 
 /**
- * Implements a more details view for a single plate which also includes compounds, concentration, etc.
- *
  * @author Holger Brandl
+ *
+ * Implements a more detailed view for a single plate which also includes compounds, concentration, etc.
+ * TODO: clean out commented methods.
  */
 
 // Replaces PlateDetailsHeatMap
@@ -39,7 +39,7 @@ public class HeatPlate extends JPanel {
         TableLayout tableLayout = new TableLayout();
         setLayout(tableLayout);
 
-        // configure the layout and populate it with well rendern
+        // configure the layout and populate it with well renders
         int numRows = plate.getNumRows();
         int numColumns = plate.getNumColumns();
         double[] rowConfig = new double[numRows + 1];
@@ -79,7 +79,7 @@ public class HeatPlate extends JPanel {
             add(colLabel, (i + 1) + ", 0");
         }
 
-        // 3) actual well renderers (by iterating over the plate as it's much more efficient compared to using the service)
+        // 3) actual well renderer (by iterating over the plate as it's much more efficient compared to using the service)
         for (Well well : plate.getWells()) {
             String insertPosition = (well.getPlateColumn()) + ", " + (well.getPlateRow());
             HeatWell heatWellPanel = new HeatWell(well, heatmapModel);
@@ -91,18 +91,18 @@ public class HeatPlate extends JPanel {
     }
 
 
-    public void setSelection(Collection<Well> highlightWells) {
-        for (Well highlightWell : highlightWells) {
-            wellPanelGrid.get(highlightWell).setSelected(true);
-        }
-    }
+//    public void setSelection(Collection<Well> highlightWells) {
+//        for (Well highlightWell : highlightWells) {
+//            wellPanelGrid.get(highlightWell).setSelected(true);
+//        }
+//    }
 
 
-    public void showGrid(boolean doShowGrid) {
-        for (HeatWell heatWellPanel : wellPanelGrid.values()) {
-            heatWellPanel.setShowGrid(doShowGrid);
-        }
-    }
+//    public void showGrid(boolean doShowGrid) {
+//        for (HeatWell heatWellPanel : wellPanelGrid.values()) {
+//            heatWellPanel.setShowGrid(doShowGrid);
+//        }
+//    }
 
 
 
