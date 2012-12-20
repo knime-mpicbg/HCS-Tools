@@ -13,7 +13,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 /**
- * User: Felix Meyenhofer
+ * Author: Felix Meyenhofer
  * Date: 18/12/12
  *
  * Menu for the PlateViewer
@@ -21,8 +21,8 @@ import java.awt.event.KeyEvent;
 
 public class PlateMenu extends JMenuBar {
 
-    private HeatMapModel2 heatMapModel;
-    private HeatMapViewer window;
+    protected HeatMapModel2 heatMapModel;
+    protected HeatMapViewer window;
 
 
     /**
@@ -42,7 +42,7 @@ public class PlateMenu extends JMenuBar {
 
     /**
      * Self configuration (overwritten by sub-classes)
-     * @param parent
+     * @param parent parent window
      */
     private void configure(HeatMapViewer parent) {
         if (parent != null) {
@@ -57,7 +57,7 @@ public class PlateMenu extends JMenuBar {
     /**
      * Methods for menu creation
      */
-    private ImageIcon createImageIcon(String path, String description) {
+    protected ImageIcon createImageIcon(String path, String description) {
         java.net.URL imgURL = getClass().getResource(path);
         if (imgURL != null) {
             return new ImageIcon(imgURL, description);
@@ -67,7 +67,7 @@ public class PlateMenu extends JMenuBar {
         }
     }
 
-    private JMenu createViewMenu() {
+    protected JMenu createViewMenu() {
         JMenu menu = new JMenu("View");
 
         JCheckBoxMenuItem alwaysOnTop = new JCheckBoxMenuItem("Always on Top");
@@ -96,7 +96,7 @@ public class PlateMenu extends JMenuBar {
         return menu;
     }
 
-    private JMenu createOverlaySubMenu() {
+    protected JMenu createOverlaySubMenu() {
         JMenu menu = new JMenu("Overlay");
 
         JMenuItem overlayLegend = menu.add("Show Legend");
@@ -120,7 +120,7 @@ public class PlateMenu extends JMenuBar {
         return menu;
     }
 
-    private JMenu createOutlierSubMenu() {
+    protected JMenu createOutlierSubMenu() {
         JMenu menu = new JMenu("Outlier Handling");
         ButtonGroup group = new ButtonGroup();
 
@@ -140,7 +140,7 @@ public class PlateMenu extends JMenuBar {
         return menu;
     }
 
-    private JMenu createHiLiteMenu() {
+    protected JMenu createHiLiteMenu() {
         JMenu menu = new JMenu((HiLiteHandler.HILITE));
         menu.add(HiLiteHandler.HILITE_SELECTED);
         menu.add(HiLiteHandler.UNHILITE_SELECTED);
@@ -149,7 +149,7 @@ public class PlateMenu extends JMenuBar {
         return menu;
     }
 
-    private JMenu createHiLiteFilterMenu() {
+    protected JMenu createHiLiteFilterMenu() {
         JMenu menu = new JMenu("Filter");
         ButtonGroup group = new ButtonGroup();
         JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[3];
@@ -166,7 +166,7 @@ public class PlateMenu extends JMenuBar {
         return menu;
     }
 
-    private JMenu createColorMapMenu() {
+    protected JMenu createColorMapMenu() {
         JMenu lut = new JMenu("Colormap");
         ButtonGroup group = new ButtonGroup();
         String[] names = {"GB", "GBR", "HSV", "Jet", "Dark", "Custom"};
@@ -189,7 +189,7 @@ public class PlateMenu extends JMenuBar {
         return lut;
     }
 
-    private JMenu createToolBarMenu() {
+    protected JMenu createToolBarMenu() {
         JMenu toolbar = new JMenu("Toolbars");
         JCheckBoxMenuItem item = new JCheckBoxMenuItem("Show Toolbar");
         item.setSelected(true);
@@ -218,7 +218,7 @@ public class PlateMenu extends JMenuBar {
    /**
     * Actions
     */
-    private void toggleColorMapAction(ActionEvent actionEvent) {
+    protected void toggleColorMapAction(ActionEvent actionEvent) {
         JMenuItem source = (JMenuItem)actionEvent.getSource();
         LinearGradientPaint newGradient;
         if (source.getText().equals("Custom")) {
@@ -229,9 +229,10 @@ public class PlateMenu extends JMenuBar {
             newGradient = LinearGradientTools.getStandardGradient(source.getText());
         }
         heatMapModel.setColorGradient(newGradient);
+        heatMapModel.fireModelChanged();
     }
 
-    private void showOverlayLegendAction() {
+    protected void showOverlayLegendAction() {
         Container parentContainer = HeatWell.getParentContainer(this);
 
         OverlayLegend overlayLegend;
@@ -246,12 +247,13 @@ public class PlateMenu extends JMenuBar {
         overlayLegend.setVisible(true);
     }
 
-    private void hideOverlayAction(ActionEvent event) {
+    protected void hideOverlayAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
         heatMapModel.setHideMostFreqOverlay(item.isSelected());
+        heatMapModel.fireModelChanged();
     }
 
-    private void outlierHandlingAction(ActionEvent event) {
+    protected void outlierHandlingAction(ActionEvent event) {
         JRadioButtonMenuItem menuItem = (JRadioButtonMenuItem) event.getSource();
         if ( menuItem.isSelected() ) {
             if ( menuItem.getText().equals("Original") ) {
@@ -265,13 +267,13 @@ public class PlateMenu extends JMenuBar {
         }
     }
 
-    private void markSelectionAction(ActionEvent event) {
+    protected void markSelectionAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
         heatMapModel.setMarkSelection(item.isSelected());
         heatMapModel.fireModelChanged();
     }
 
-    private void alwaysOnTopAction(JMenuItem menuItem) {
+    protected void alwaysOnTopAction(JMenuItem menuItem) {
         JFrame frame = (JFrame) getTopLevelAncestor();
         frame.setAlwaysOnTop(menuItem.isSelected());
     }

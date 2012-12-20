@@ -20,7 +20,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
 
     // Window size factors
     public final int HEIGHT = 600;
-    public final int WIDTH = 810;
+    public final int WIDTH = 850;
 
     // Component fields.
     private HeatTrellis heatTrellis;
@@ -54,7 +54,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
         add(heatTrellis, BorderLayout.CENTER);
         add(colorbar, BorderLayout.SOUTH);
 
-        HeatMapMenu menus = new HeatMapMenu(this);
+        ScreenMenu menus = new ScreenMenu(this);
         setTitle("HCS Heatmap Viewer");
         setJMenuBar(menus);
     }
