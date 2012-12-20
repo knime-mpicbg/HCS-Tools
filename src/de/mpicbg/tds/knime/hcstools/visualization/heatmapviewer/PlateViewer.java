@@ -8,7 +8,6 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.Random;
 
-
 /**
  * User: Felix Meyenhofer
  * Date: 20/12/12
@@ -66,7 +65,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
 
         setLayout(new BorderLayout());
 
-        toolbar = new HeatMapInputToolbar();
+        toolbar = new HeatMapInputToolbar(this);
         add(toolbar, BorderLayout.NORTH);
 
         heatMapContainer = new JPanel();

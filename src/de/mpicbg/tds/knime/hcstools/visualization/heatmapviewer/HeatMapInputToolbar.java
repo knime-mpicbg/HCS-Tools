@@ -11,10 +11,10 @@ import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
 
 /**
- * User: Felix Meyenhofer
+ * Author: Felix Meyenhofer
  * Date: 10/12/12
- * Time: 21:17
- * To change this template use File | Settings | File Templates.
+ *
+ * HeatMapViewer Toolbar
  */
 
 public class HeatMapInputToolbar extends JToolBar {
@@ -26,7 +26,7 @@ public class HeatMapInputToolbar extends JToolBar {
 
 
     // Constructor
-    public HeatMapInputToolbar() {
+    public HeatMapInputToolbar(HeatMapViewer parent) {
         setPreferredSize(new Dimension(600, 30));
 
         add(new JLabel("Readout:"));
@@ -39,23 +39,26 @@ public class HeatMapInputToolbar extends JToolBar {
         overlaySelector = new WellAttributeComboBox();
         overlaySelector.setPreferredSize(new Dimension(100, -1));
         add(overlaySelector);
-        addSeparator();
 
-        add(new JLabel("Filter Plates by:"));
-        filterSelector = new JComboBox();
-        filterSelector.setPreferredSize(new Dimension(100, -1));
-        add(filterSelector);
-        JFormattedTextField filterString = new JFormattedTextField();
-        filterString.setMinimumSize(new Dimension(100, 20));
-        filterString.setPreferredSize(new Dimension(100, 20));
-        filterString.setMaximumSize(new Dimension(300, 20));
-        filterString.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                filterPlatesAction(actionEvent);
-            }
-        });
-        add(filterString);
+        // Add the filter functionality for the ScreenViewer.
+        if ( (parent == null ) || (parent instanceof ScreenViewer) ) {
+            addSeparator();
+            add(new JLabel("Filter Plates by:"));
+            filterSelector = new JComboBox();
+            filterSelector.setPreferredSize(new Dimension(100, -1));
+            add(filterSelector);
+            JFormattedTextField filterString = new JFormattedTextField();
+            filterString.setMinimumSize(new Dimension(100, 20));
+            filterString.setPreferredSize(new Dimension(100, 20));
+            filterString.setMaximumSize(new Dimension(300, 20));
+            filterString.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    filterPlatesAction(actionEvent);
+                }
+            });
+            add(filterString);
+        }
     }
 
 
@@ -99,7 +102,7 @@ public class HeatMapInputToolbar extends JToolBar {
         text.setEnabled(true);
         text.setEditable(false);
         panel.add(text);
-        panel.add(new HeatMapInputToolbar());
+        panel.add(new HeatMapInputToolbar(null));
         frame.setContentPane(panel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();

@@ -12,12 +12,11 @@ import java.util.List;
 /**
  * User: Felix Meyenhofer
  * Date: 10/4/12
- * Time: 11:53
  *
  * Creates a window containing all the heat-maps of a screen.
  */
 
-public class ScreenViewer extends JFrame implements HiLiteListener{
+public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewer{
 
     private HeatTrellis heatTrellis;
     private HeatMapColorToolBar colorbar;
@@ -42,7 +41,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
 
 
     private void initialize() {
-        toolbar = new HeatMapInputToolbar();
+        toolbar = new HeatMapInputToolbar(this);
         colorbar = new HeatMapColorToolBar();
         heatTrellis = new HeatTrellis();
 
@@ -73,30 +72,32 @@ public class ScreenViewer extends JFrame implements HiLiteListener{
     }
 
 
-    public void setData(ScreenViewer data) {
-    }
-
-    public void getData(ScreenViewer data) {
-    }
-
-    public boolean isModified(ScreenViewer data) {
-        return false;
-    }
+//    public void setData(ScreenViewer data) {
+//    }
+//
+//    public void getData(ScreenViewer data) {
+//    }
+//
+//    public boolean isModified(ScreenViewer data) {
+//        return false;
+//    }
 
 
     public HeatTrellis getHeatTrellis() {
         return heatTrellis;
     }
 
+    @Override
     public HeatMapModel2 getHeatMapModel() {
         return heatMapModel;
     }
 
-
+    @Override
     public void toggleColorbarVisibility(boolean flag) {
         this.colorbar.setVisible(flag);
     }
 
+    @Override
     public void toggleToolbarVisibility(boolean flag) {
         this.toolbar.setVisible(flag);
     }
