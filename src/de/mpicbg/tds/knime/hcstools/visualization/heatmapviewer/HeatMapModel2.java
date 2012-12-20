@@ -366,6 +366,8 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
     public boolean isWellSelected(Well well) {
+        if ( selection.isEmpty() )
+            return false;
 
         for (Well w : selection) {
             if (well.getPlateColumn().equals(w.getPlateColumn()) &&
