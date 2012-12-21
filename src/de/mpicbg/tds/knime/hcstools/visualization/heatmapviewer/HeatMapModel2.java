@@ -407,6 +407,27 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         this.selection = selection;
     }
 
+    /**
+     * Helpers for selection handling
+     */
+    protected void updateWellSelection(Well well) {
+        Collection<Well> currentSelection = getWellSelection();
+
+        if ( isWellSelected(well) )
+            currentSelection.remove(well);
+        else {
+            currentSelection.add(well);
+        }
+
+        setWellSelection(currentSelection);
+    }
+
+    protected void updateWellSelection(List<Well> wells) {
+        for (Well well : wells) {
+            updateWellSelection(well);
+        }
+    }
+
     public void clearWellSelection() {
         this.selection.clear();
     }

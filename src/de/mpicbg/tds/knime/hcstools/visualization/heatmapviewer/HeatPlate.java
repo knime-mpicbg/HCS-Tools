@@ -122,37 +122,6 @@ public class HeatPlate extends JPanel implements MouseListener {
 //        }
 //    }
 
-
-
-    /**
-     * Helpers for selection handling
-     */
-    public void updateWellSelection(HeatWell heatWell, boolean appendFlag) {
-        if ( !appendFlag )
-            clearWellSelection();
-
-        Collection<Well> currentSelection = heatMapModel.getWellSelection();
-
-        if ( heatMapModel.isWellSelected(heatWell.getWell()) )
-            currentSelection.remove(heatWell.getWell());
-        else {
-            currentSelection.add(heatWell.getWell());
-        }
-
-        heatMapModel.setWellSelection(currentSelection);
-    }
-
-    private void updateWellSelection(List<HeatWell> heatWells) {
-        for (HeatWell heatWell : heatWells) {
-            updateWellSelection(heatWell, true);
-        }
-    }
-
-    private void clearWellSelection() {
-        heatMapModel.clearWellSelection();
-    }
-
-
     /**
      * Helper methods for the heatmap selection with the mouse on the trellis
      */
@@ -168,7 +137,7 @@ public class HeatPlate extends JPanel implements MouseListener {
         return heatWells;
     }
 
-    private List<HeatWell> calculateHeatMapSelection(Component start, Component stop) {
+    private List<Well> calculateHeatMapSelection(Component start, Component stop) {
         List<HeatWell> components = getHeatWells();
 
         Point startPoint = start.getLocationOnScreen();
@@ -179,13 +148,13 @@ public class HeatPlate extends JPanel implements MouseListener {
         double ylow = Math.min(startPoint.getY(), stopPoint.getY());
         double yhigh = Math.max(startPoint.getY(), stopPoint.getY());
 
-        List<HeatWell> selection = new ArrayList<HeatWell>();
+        List<Well> selection = new ArrayList<Well>();
         for (HeatWell component : components) {
             Point point = component.getLocationOnScreen();
             double x = point.getX();
             double y = point.getY();
             if ( (xLow <= x) && (x <= xhigh) && (ylow <= y) && (y <= yhigh) )
-                selection.add(component);
+                selection.add(component.getWell()) ;
         }
 
         return selection;
@@ -207,8 +176,9 @@ public class HeatPlate extends JPanel implements MouseListener {
         if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
             pressedComponent = (Component) mouseEvent.getSource();
 
+            // Clear selection
             if ( !mouseEvent.isMetaDown() ) {
-                clearWellSelection();
+                heatMapModel.clearWellSelection();
             }
 
         // Open Plate details view on right click
@@ -229,11 +199,11 @@ public class HeatPlate extends JPanel implements MouseListener {
         // Mouse released is used only in the selection process, thus only listens to the first mouse button
         if ( (mouseEvent.getButton() == MouseEvent.BUTTON1) ) {
             if ( pressedComponent.equals(currentComponent) && (currentComponent instanceof HeatWell) )
-                updateWellSelection((HeatWell) currentComponent, mouseEvent.isMetaDown());
+                heatMapModel.updateWellSelection(((HeatWell) currentComponent).getWell());
 
             else {
-                List<HeatWell> selectedHeatWells = calculateHeatMapSelection(pressedComponent, currentComponent);
-                updateWellSelection(selectedHeatWells);
+                List<Well> selectedHeatWells = calculateHeatMapSelection(pressedComponent, currentComponent);
+                heatMapModel.updateWellSelection(selectedHeatWells);
             }
 
             HeatPlate.this.repaint();

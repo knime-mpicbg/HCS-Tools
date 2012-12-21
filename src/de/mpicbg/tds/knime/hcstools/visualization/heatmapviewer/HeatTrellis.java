@@ -517,9 +517,9 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     public void mousePressed(MouseEvent mouseEvent) {
         // Left click selection action.
         if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
-                if ( !mouseEvent.isMetaDown() )
-                    clearWellSelection();
-                pressedHeatMap = getHeatMap(mouseEvent);
+            if ( !mouseEvent.isMetaDown() )
+                heatMapModel.clearWellSelection();
+            pressedHeatMap = getHeatMap(mouseEvent);
 
         // Open Plate details view on right click
         } else if ( mouseEvent.getButton() == MouseEvent.BUTTON3 ) {
@@ -543,11 +543,12 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         // Mouse released is used only in the selection process, thus only listens to the first mouse button
         if ( (mouseEvent.getButton() == MouseEvent.BUTTON1) ) {
             if ( pressedHeatMap.equals(currentHeatMap) )
-                updateWellSelection(currentHeatMap, mouseEvent.isMetaDown());
+                heatMapModel.updateWellSelection(currentHeatMap.getPlate().getWells());
 
             else {
                 List<HeatScreen> selectedHeatMaps = calculateHeatMapSelection(pressedHeatMap, currentHeatMap);
-                updateWellSelection(selectedHeatMaps);
+                for (HeatScreen heatmap : selectedHeatMaps)
+                    heatMapModel.updateWellSelection(heatmap.getPlate().getWells());
             }
 
             heatMapModel.fireModelChanged();
