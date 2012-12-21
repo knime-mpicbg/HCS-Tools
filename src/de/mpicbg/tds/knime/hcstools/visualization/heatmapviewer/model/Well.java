@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model;
 
 import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.model.Plate;
+//import de.mpicbg.tds.core.model.Plate;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -35,7 +35,7 @@ public class Well implements Serializable {
 
     private Boolean readoutSuccess = true;
 
-    private de.mpicbg.tds.core.model.Plate plate;
+    private Plate plate;
     private String id;
 
 
@@ -74,7 +74,7 @@ public class Well implements Serializable {
     }
 
 
-    public de.mpicbg.tds.core.model.Plate getPlate() {
+    public Plate getPlate() {
         return plate;
     }
 

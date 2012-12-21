@@ -1,7 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model;
 
 import de.mpicbg.tds.barcodes.BarcodeParser;
-import de.mpicbg.tds.core.model.Well;
 
 import java.io.Serializable;
 import java.util.*;
@@ -241,7 +240,7 @@ public class Plate implements Serializable{
     }
 
 
-    public static void inferPlateDimFromWells(de.mpicbg.tds.core.model.Plate plate) {
+    public static void inferPlateDimFromWells(Plate plate) {
         List<Well> wells = new ArrayList<Well>(plate.getWells());
         Collections.sort(wells, new Comparator<Well>() {
             public int compare(Well well, Well well2) {
