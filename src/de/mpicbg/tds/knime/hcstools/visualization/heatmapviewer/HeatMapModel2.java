@@ -329,6 +329,24 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         }
     }
 
+    public List<HeatMapModelChangeListener> getChangeListeners() {
+        return changeListeners;
+    }
+
+    public void removeChangeListener(HeatMapModelChangeListener listener) {
+        changeListeners.remove(listener);
+    }
+
+    public void addChangeListener(List<HeatMapModelChangeListener> listeners) {
+        for (HeatMapModelChangeListener listener : listeners)
+            addChangeListener(listener);
+    }
+
+    public void addChangeListener(HeatMapModelChangeListener listener) {
+        if (!changeListeners.contains(listener))
+            changeListeners.add(listener);
+    }
+
 
 //    public void setDoShowConcentration(boolean doShowConcentration) {
 //        this.doShowConcentration = doShowConcentration;
@@ -412,12 +430,6 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setPlateFilterAttribute(PlateComparators.PlateAttribute fa) {
         this.plateFilterAttribute = fa;
-    }
-
-
-    public void addChangeListener(HeatMapModelChangeListener changeListener) {
-        if (!changeListeners.contains(changeListener))
-            changeListeners.add(changeListener);
     }
 
 

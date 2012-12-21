@@ -5,6 +5,8 @@ import de.mpicbg.tds.core.util.PanelImageExporter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +22,7 @@ import java.util.Random;
 
 public class PlateViewer extends JFrame implements HeatMapModelChangeListener, HeatMapViewer {
 
+    private HeatTrellis updater;
     private HeatMapModel2 heatMapModel;
     @SuppressWarnings("FieldCanBeLocal")
     private HeatPlate heatMap;
@@ -46,8 +49,20 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         new PanelImageExporter(heatMapContainer, true);
     }
 
-    public PlateViewer(Plate plate, HeatMapModel2 heatMapModel) {
+    public PlateViewer(HeatTrellis parent,Plate plate, HeatMapModel2 heatMapModel) {
         this(heatMapModel);
+        this.updater = parent;
+
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                PlateViewer viewer = (PlateViewer) windowEvent.getSource();
+                HeatMapModel2 model = viewer.updater.getHeatMapModel();
+                model.removeChangeListener(viewer);
+                viewer.setVisible(false);
+            }
+        });
 
         List<Plate> pseudoScreen = new ArrayList<Plate>();
         pseudoScreen.add(plate);
@@ -88,6 +103,11 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
 
         colorbar = new HeatMapColorToolBar();
         add(colorbar, BorderLayout.SOUTH);
+    }
+
+
+    public HeatTrellis getUpdater() {
+        return updater;
     }
 
 

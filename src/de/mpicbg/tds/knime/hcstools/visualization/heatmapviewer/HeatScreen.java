@@ -5,7 +5,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 import javax.swing.*;
 
-import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.core.model.Plate;
 
@@ -64,26 +63,27 @@ public class HeatScreen extends JPanel {
 //        });
     }
 
-    protected void openNewPlateViewer() {
-        // open a new detail-dialog for the plate
-        HeatMapModel2 plateHeatMapModel = new HeatMapModel2();
-        // todo if we want to use a global color scale also in the single plate view we ave to use te next line
-//                plateHeatMapModel.setScreen(PlateOverviewHeatMap.this.heatMapModel.getScreen());
-        plateHeatMapModel.setCurrentReadout(this.heatMapModel.getSelectedReadOut());
-        plateHeatMapModel.setOverlay(this.heatMapModel.getOverlay());
-        plateHeatMapModel.setReadoutRescaleStrategy(this.heatMapModel.getRescaleStrategy());
-        plateHeatMapModel.setColorScheme(this.heatMapModel.getColorScheme());
-        plateHeatMapModel.setHideMostFreqOverlay(this.heatMapModel.doHideMostFreqOverlay());
-
-        if (this.heatMapModel.getWellSelection().size() > 0) {
-            plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(this.heatMapModel.getWellSelection()).get(plate));
-        }
-
-//        Window ownerWindow = Utils.getOwnerDialog(this);
-//        PlateViewer.createPanelDialog(this.getPlate(), plateHeatMapModel, ownerWindow);
-        new PlateViewer(this.getPlate(), plateHeatMapModel);
-
-    }
+//    protected void openNewPlateViewer() {
+//        // open a new detail-dialog for the plate
+//        HeatMapModel2 plateHeatMapModel = new HeatMapModel2();
+//        // todo if we want to use a global color scale also in the single plate view we ave to use te next line
+////                plateHeatMapModel.setScreen(PlateOverviewHeatMap.this.heatMapModel.getScreen());
+//        plateHeatMapModel.setCurrentReadout(this.heatMapModel.getSelectedReadOut());
+//        plateHeatMapModel.setOverlay(this.heatMapModel.getOverlay());
+//        plateHeatMapModel.setReadoutRescaleStrategy(this.heatMapModel.getRescaleStrategy());
+//        plateHeatMapModel.setColorScheme(this.heatMapModel.getColorScheme());
+//        plateHeatMapModel.setHideMostFreqOverlay(this.heatMapModel.doHideMostFreqOverlay());
+//        plateHeatMapModel.addChangeListener(this.heatMapModel.getChangeListeners());
+//        plateHeatMapModel.setWellSelection(heatMapModel.getWellSelection());
+////        if (this.heatMapModel.getWellSelection().size() > 0) {
+////            plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(this.heatMapModel.getWellSelection()).get(plate));
+////        }
+//
+////        Window ownerWindow = Utils.getOwnerDialog(this);
+////        PlateViewer.createPanelDialog(this.getPlate(), plateHeatMapModel, ownerWindow);
+////        new PlateViewer(thisgetPlate(), plateHeatMapModel);
+//
+//    }
 
 
     @Override

@@ -202,9 +202,11 @@ public class HeatPlate extends JPanel implements MouseListener {
     public void mousePressed(MouseEvent mouseEvent) {
         // Left click selection action.
         if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
-            if ( !mouseEvent.isMetaDown() )
-                clearWellSelection();
             pressedComponent = (Component) mouseEvent.getSource();
+
+            if ( !mouseEvent.isMetaDown() ) {
+                clearWellSelection();
+            }
 
         // Open Plate details view on right click
         } else if ( mouseEvent.getButton() == MouseEvent.BUTTON3 ) {
@@ -232,6 +234,9 @@ public class HeatPlate extends JPanel implements MouseListener {
             }
 
             HeatPlate.this.repaint();
+            heatMapModel.fireModelChanged();
+            PlateViewer viewer = (PlateViewer) getTopLevelAncestor();
+            viewer.getUpdater().getHeatMapModel().fireModelChanged();
         }
     }
 
