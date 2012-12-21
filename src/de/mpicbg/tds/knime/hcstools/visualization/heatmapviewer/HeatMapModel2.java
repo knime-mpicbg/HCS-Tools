@@ -17,9 +17,9 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Document me!
- *
  * @author Holger Brandl
+ *
+ * Class to transport and synchronize information.
  */
 
 public class HeatMapModel2 {                   //TODO remove the 2 once the transition from the old to the new HeatMapModel is completed
@@ -45,9 +45,9 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     Collection<Well> selection = new ArrayList<Well>();
     private boolean markSelection = true;
 
-    // View flags
-    private boolean doShowConcentration = false;
-    private boolean doShowLayout = false;
+//    // View flags
+//    private boolean doShowConcentration = false;
+//    private boolean doShowLayout = false;
 
     // Trellis settings
     private boolean automaticTrellisConfiguration = true;
@@ -68,6 +68,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     // Plate sorting;
     private List<PlateComparators.PlateAttribute> sortAttributeSelection;
 
+    // List of objects that can be updated from this central place.
     List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
 
 
@@ -92,10 +93,9 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
         // no filter selected or no filter string defined.
         if(plateFilterString.isEmpty() || StringUtils.isBlank(pfs) )  {
-            for(Plate p : plateFiltered.keySet()) {
+            for(Plate p : plateFiltered.keySet())
                 plateFiltered.put(p,true);
-            }
-//            fireModelChanged();
+
             return;
         }
 
@@ -121,8 +121,6 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
             plateFiltered.put(p,keep);
         }
-
-//        fireModelChanged();
     }
 
     public void filterPlates(String pfs, PlateComparators.PlateAttribute pfa) {
@@ -130,9 +128,9 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         filterPlates(pfs);
     }
 
-    public boolean isFiltered(Plate p){
-        return plateFiltered.get(p);
-    }
+//    public boolean isFiltered(Plate p){
+//        return plateFiltered.get(p);
+//    }
 
 //    public void setSortAttributeSelection(HashMap<Integer,PlateComparators.PlateAttribute> sortAttributeSelection) {
 //        this.sortAttributeSelection = sortAttributeSelection;
@@ -245,7 +243,6 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setCurrentReadout(String currentReadout) {
         this.currentReadout = currentReadout;
-//        fireModelChanged();
     }
 
 
@@ -259,21 +256,18 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setColorGradient(LinearGradientPaint gradient) {
         colorGradient = gradient;
-//        fireModelChanged();
     }
 
 
     public Color getOverlayColor(Well well) {
         String overlayType = getOverlay();
-        if (overlayType == null || overlayType.isEmpty()) {
+        if (overlayType == null || overlayType.isEmpty())
             return null;
-        }
 
         String overlay = well.getAnnotation(overlayType);
 
-        if (overlay == null || (doHideMostFreqOverlay() && isMostFrequent(overlayType, overlay))) {
+        if (overlay == null || (doHideMostFreqOverlay() && isMostFrequent(overlayType, overlay)))
             return null;
-        }
 
         return getColorScheme().getColorFromCache(overlayType, overlay);
     }
@@ -309,24 +303,23 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
             return colorScheme.errorReadOut;
         }
         return LinearGradientTools.getColorAt(colorGradient, displayNormReadOut.floatValue());
-//        return colorScale.mapReadout2Color(displayNormReadOut);
     }
 
 
-    public boolean doShowLayout() {
-        return doShowLayout;
-    }
-
-
-    public void setDoShowLayout(boolean showLayout) {
-        this.doShowLayout = showLayout;
-//        fireModelChanged();
-    }
-
-
-    public boolean doShowConcentration() {
-        return doShowConcentration;
-    }
+//    public boolean doShowLayout() {
+//        return doShowLayout;
+//    }
+//
+//
+//    public void setDoShowLayout(boolean showLayout) {
+//        this.doShowLayout = showLayout;
+////        fireModelChanged();
+//    }
+//
+//
+//    public boolean doShowConcentration() {
+//        return doShowConcentration;
+//    }
 
     /**
      * This is a convenience method to update the GUI. It should not be called from this class but rather from other
@@ -339,16 +332,15 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
 
-    public void setDoShowConcentration(boolean doShowConcentration) {
-        this.doShowConcentration = doShowConcentration;
-//        fireModelChanged();
-    }
+//    public void setDoShowConcentration(boolean doShowConcentration) {
+//        this.doShowConcentration = doShowConcentration;
+////        fireModelChanged();
+//    }
 
 
     public Collection<Well> getWellSelection() {
         return selection;
     }
-
 
     public void setWellSelection(Collection<Well> selection) {
         this.selection = selection;
@@ -387,13 +379,11 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setHideMostFreqOverlay(boolean useBckndForLibraryWells) {
         this.hideMostFrequentOverlay = useBckndForLibraryWells;
-//        fireModelChanged();
     }
 
 
     public void setMarkSelection(boolean markSelection) {
         this.markSelection = markSelection;
-//        fireModelChanged();
     }
 
 
@@ -409,7 +399,6 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setOverlay(String overlay) {
         this.overlay = overlay;
-//        fireModelChanged();
     }
 
 
@@ -429,9 +418,8 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
 
     public void addChangeListener(HeatMapModelChangeListener changeListener) {
-        if (!changeListeners.contains(changeListener)) {
+        if (!changeListeners.contains(changeListener))
             changeListeners.add(changeListener);
-        }
     }
 
 
@@ -510,9 +498,8 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     public int getCurrentNumberOfPlates() {
         int number = 0;
         for (boolean state: plateFiltered.values()) {
-            if (state) {
+            if (state)
                 number++;
-            }
         }
         return number;
     }
@@ -529,4 +516,5 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         String attribute = (String) referencePopulations.keySet().toArray()[0];
         return referencePopulations.get(attribute);
     }
+
 }
