@@ -2,13 +2,13 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinMaxStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileSmoothedStrategy;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -52,7 +52,9 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     public PlateViewer(HeatTrellis parent,Plate plate, HeatMapModel2 heatMapModel) {
         this(heatMapModel);
         this.updater = parent;
+        this.setTitle(plate.getBarcode());
 
+        // Remove the HeatMapModelChangeListener when closing the window.
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -64,26 +66,26 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
             }
         });
 
-        List<Plate> pseudoScreen = new ArrayList<Plate>();
-        pseudoScreen.add(plate);
-        this.heatMapModel.setScreen(pseudoScreen);
+        //Set the data.
+        this.heatMapModel.setScreen(Arrays.asList(plate));
 
-        setTitle(plate.getBarcode());
+        // Configure the toolbars.
+        toolbar.configure(this.heatMapModel);
+        colorbar.configure(this.heatMapModel);
 
-        toolbar.configure(heatMapModel);
-        colorbar.configure(heatMapModel);
-
-        heatMapModel.setScreen(Arrays.asList(plate));
-
-        heatMap = new HeatPlate(this, plate, heatMapModel);
+        // Add the plate heatmap
+        heatMap = new HeatPlate(this, plate, this.heatMapModel);
         heatMapContainer.add(heatMap);
+
+        // Set the window dimensions given by the plate heatmap size.
         Dimension ms = heatMap.getPreferredSize();
         heatMapContainer.setPreferredSize(new Dimension(ms.width+10, ms.height+10));
-
-        Random posJitter = new Random();
-        setLocation(200 + posJitter.nextInt(100), 200 + posJitter.nextInt(100));
         pack();
         setResizable(false);
+
+        // Set the location of the new PlateViewer
+        Random posJitter = new Random();
+        setLocation(200 + posJitter.nextInt(100), 200 + posJitter.nextInt(100));
         setVisible(true);
     }
 

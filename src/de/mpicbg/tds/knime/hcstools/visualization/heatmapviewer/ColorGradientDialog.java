@@ -142,7 +142,7 @@ public class ColorGradientDialog extends JDialog {
         slider.setValues(currentGradient.getFractions(), currentGradient.getColors());
 
         // Set the gradient labels
-        ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getRescaleStrategy();
+        ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getReadoutRescaleStrategy();
         if ( heatMapModel.getSelectedReadOut() == null ) {
             System.err.println("No Readout is selected, can't calculate the minimum and maximum value of the color bar.");
         } else {

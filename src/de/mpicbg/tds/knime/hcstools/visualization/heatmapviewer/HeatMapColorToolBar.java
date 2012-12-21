@@ -56,7 +56,7 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         }
 
         // Set the color gradient
-        ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getRescaleStrategy();
+        ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getReadoutRescaleStrategy();
         gradientPanel.configure(heatMapModel.colorGradient);
 
         // Set the scale labels.
