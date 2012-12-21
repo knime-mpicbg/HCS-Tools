@@ -45,10 +45,6 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     Collection<Well> selection = new ArrayList<Well>();
     private boolean markSelection = true;
 
-//    // View flags
-//    private boolean doShowConcentration = false;
-//    private boolean doShowLayout = false;
-
     // Trellis settings
     private boolean automaticTrellisConfiguration = true;
     private int numberOfTrellisRows;
@@ -72,22 +68,9 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
 
 
-    public void setScreen(List<Plate> screen) {
-        this.screen = screen;
-
-        // just to test sorting mechanism
-        Collections.sort(screen, PlateComparators.getDateComparator());
-
-        for(Plate p : screen) {
-            plateFiltered.put(p, true);
-        }
-
-        // sort all wells according to readout
-        readoutRescaleStrategy.configure(screen);
-
-        updateMaxOverlayFreqs(screen);
-    }
-
+    /**
+     * Plate filtering
+     */
     public void filterPlates(String pfs) {
         setPlateFilterString(pfs);
 
@@ -128,17 +111,18 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         filterPlates(pfs);
     }
 
-//    public boolean isFiltered(Plate p){
-//        return plateFiltered.get(p);
-//    }
 
-//    public void setSortAttributeSelection(HashMap<Integer,PlateComparators.PlateAttribute> sortAttributeSelection) {
-//        this.sortAttributeSelection = sortAttributeSelection;
-//    }
-//
-//    public HashMap<Integer,PlateComparators.PlateAttribute> getSortAttributeSelection() {
-//        return sortAttributeSelection;
-//    }
+    /**
+     * Plate Sorting
+     */
+    public void sortPlates(PlateComparators.PlateAttribute attribute) {
+        sortPlates(attribute, false);
+    }
+
+    public void sortPlates(PlateComparators.PlateAttribute attribute, boolean descending) {
+        Collections.sort(screen, PlateComparators.getComparator(attribute));
+        if (!descending) { Collections.reverse(screen); }
+    }
 
     public void setSortAttributeSelectionByTiles(String[] titles) {
         sortAttributeSelection = new ArrayList<PlateComparators.PlateAttribute>();
@@ -154,13 +138,20 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         }
     }
 
-    public void sortPlates(PlateComparators.PlateAttribute attribute) {
-        sortPlates(attribute, false);
+
+    /**
+     * Overlay partial hiding.
+     */
+    private boolean isMostFrequent(String overlayType, String overlay) {
+        return maxFreqOverlay.containsKey(overlayType) && maxFreqOverlay.get(overlayType).equals(overlay);
     }
 
-    public void sortPlates(PlateComparators.PlateAttribute attribute, boolean descending) {
-        Collections.sort(screen, PlateComparators.getComparator(attribute));
-        if (!descending) { Collections.reverse(screen); }
+    public boolean doHideMostFreqOverlay() {
+        return hideMostFrequentOverlay;
+    }
+
+    public void setHideMostFreqOverlay(boolean useBckndForLibraryWells) {
+        this.hideMostFrequentOverlay = useBckndForLibraryWells;
     }
 
     private void updateMaxOverlayFreqs(List<Plate> screen) {
@@ -206,46 +197,103 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
 
-    public ReadoutRescaleStrategy getRescaleStrategy() {
-        return readoutRescaleStrategy;
-    }
+    /**
+     * Data handling
+     */
+    public void setScreen(List<Plate> screen) {
+        this.screen = screen;
 
+        // just to test sorting mechanism
+        Collections.sort(screen, PlateComparators.getDateComparator());
 
-    public void setReadoutRescaleStrategy(ReadoutRescaleStrategy readoutRescaleStrategy) {
+        for(Plate p : screen) {
+            plateFiltered.put(p, true);
+        }
+
+        // sort all wells according to readout
         readoutRescaleStrategy.configure(screen);
-        this.readoutRescaleStrategy = readoutRescaleStrategy;
-//        fireModelChanged();
+
+        updateMaxOverlayFreqs(screen);
     }
-
-
-//    public void setColorScale(ColorScale colorScale) {
-//        this.colorScale = colorScale;
-//        fireModelChanged();
-//    }
-//
-//
-//    public ColorScale getColorScale() {
-//        return colorScale;
-//    }
-
 
     public List<Plate> getScreen() {
         return screen;
     }
 
+    public void revertScreen() {
+        Collections.reverse(screen);
+    }
+
+    public int getCurrentNumberOfPlates() {
+        int number = 0;
+        for (boolean state: plateFiltered.values()) {
+            if (state)
+                number++;
+        }
+        return number;
+    }
+
+
+    /**
+     * Attribute stuff.
+     * TODO: This should be solved via the configuration dialog of the node eventually
+     */
+    public Collection<PlateComparators.PlateAttribute> getPlateAttributes() {
+        Collection<PlateComparators.PlateAttribute> availableAttributes = new HashSet<PlateComparators.PlateAttribute>();
+        PlateComparators.PlateAttribute[] attributes = PlateComparators.PlateAttribute.values();
+
+        for (Plate plate : screen) {
+
+            for (PlateComparators.PlateAttribute attribute : attributes) {
+
+                try {
+                    Field field = plate.getClass().getDeclaredField(attribute.getName());
+                    field.setAccessible(true);
+                    Object object = field.get(plate);
+                    if (!(object == null)) {
+                        availableAttributes.add(attribute);
+                    }
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return availableAttributes;
+    }
 
     public String getSelectedReadOut() {
         return currentReadout;
     }
 
-
     public void setCurrentReadout(String currentReadout) {
         this.currentReadout = currentReadout;
     }
 
+    public String getOverlay() {
+        return overlay;
+    }
 
+    public void setOverlay(String overlay) {
+        this.overlay = overlay;
+    }
+
+    public String getOverlayValue(Well well) {
+        return well.getAnnotation(getOverlay());
+    }
+
+
+    /**
+     * Color handling
+     */
     public ScreenColorScheme getColorScheme() {
         return colorScheme;
+    }
+
+    public void setColorScheme(ScreenColorScheme colorScheme) {
+        this.colorScheme = colorScheme;
     }
 
     public LinearGradientPaint getColorGradient() {
@@ -255,7 +303,6 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     public void setColorGradient(LinearGradientPaint gradient) {
         colorGradient = gradient;
     }
-
 
     public Color getOverlayColor(Well well) {
         String overlayType = getOverlay();
@@ -270,12 +317,6 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         return getColorScheme().getColorFromCache(overlayType, overlay);
     }
 
-
-    private boolean isMostFrequent(String overlayType, String overlay) {
-        return maxFreqOverlay.containsKey(overlayType) && maxFreqOverlay.get(overlayType).equals(overlay);
-    }
-
-
     public Color getReadoutColor(Well well) {
         if (!well.isReadoutSuccess()) {
             return colorScheme.errorReadOut;
@@ -287,7 +328,6 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         Double wellReadout = well.getReadout(selectedReadOut);
         return getReadOutColor(selectedReadOut, wellReadout);
     }
-
 
     public Color getReadOutColor(String selectedReadOut, Double wellReadout) {
         // also show the fallback color in cases when a single readout is not available
@@ -303,21 +343,16 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         return LinearGradientTools.getColorAt(colorGradient, displayNormReadOut.floatValue());
     }
 
+    public ReadoutRescaleStrategy getRescaleStrategy() {
+        return readoutRescaleStrategy;
+    }
 
-//    public boolean doShowLayout() {
-//        return doShowLayout;
-//    }
-//
-//
-//    public void setDoShowLayout(boolean showLayout) {
-//        this.doShowLayout = showLayout;
-////        fireModelChanged();
-//    }
-//
-//
-//    public boolean doShowConcentration() {
-//        return doShowConcentration;
-//    }
+
+    public void setReadoutRescaleStrategy(ReadoutRescaleStrategy readoutRescaleStrategy) {
+        readoutRescaleStrategy.configure(screen);
+        this.readoutRescaleStrategy = readoutRescaleStrategy;
+    }
+
 
     /**
      * This is a convenience method to update the GUI. It should not be called from this class but rather from other
@@ -348,11 +383,16 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
 
-//    public void setDoShowConcentration(boolean doShowConcentration) {
-//        this.doShowConcentration = doShowConcentration;
-////        fireModelChanged();
-//    }
+    /**
+     * Well selection handling.
+     */
+    public void setMarkSelection(boolean markSelection) {
+        this.markSelection = markSelection;
+    }
 
+    public boolean doMarkSelection() {
+        return markSelection;
+    }
 
     public Collection<Well> getWellSelection() {
         return selection;
@@ -383,46 +423,13 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
                 well.getPlate().getBarcode().equals(w.getPlate().getBarcode()))
                 return true;
         }
-//        return selection.contains(well);
         return false;
     }
 
 
-    public boolean doHideMostFreqOverlay() {
-        return hideMostFrequentOverlay;
-    }
-
-
-    public void setHideMostFreqOverlay(boolean useBckndForLibraryWells) {
-        this.hideMostFrequentOverlay = useBckndForLibraryWells;
-    }
-
-
-    public void setMarkSelection(boolean markSelection) {
-        this.markSelection = markSelection;
-    }
-
-
-    public boolean doMarkSelection() {
-        return markSelection;
-    }
-
-
-    public String getOverlay() {
-        return overlay;
-    }
-
-
-    public void setOverlay(String overlay) {
-        this.overlay = overlay;
-    }
-
-
-    public String getOverlayValue(Well well) {
-        return well.getAnnotation(getOverlay());
-    }
-
-
+    /**
+     * Plate Filtering.
+     */
     public void setPlateFilterString(String fs) {
         this.plateFilterString = fs;
     }
@@ -433,44 +440,9 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
 
-    public void setColorScheme(ScreenColorScheme colorScheme) {
-        this.colorScheme = colorScheme;
-    }
-
-
-    // TODO: This should be solved via the configuration dialog of the node eventually
-    public Collection<PlateComparators.PlateAttribute> getPlateAttributes() {
-        Collection<PlateComparators.PlateAttribute> availableAttributes = new HashSet<PlateComparators.PlateAttribute>();
-        PlateComparators.PlateAttribute[] attributes = PlateComparators.PlateAttribute.values();
-
-        for (Plate plate : screen) {
-
-            for (PlateComparators.PlateAttribute attribute : attributes) {
-
-                try {
-                    Field field = plate.getClass().getDeclaredField(attribute.getName());
-                    field.setAccessible(true);
-                    Object object = field.get(plate);
-                    if (!(object == null)) {
-                        availableAttributes.add(attribute);
-                    }
-                } catch (NoSuchFieldException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return availableAttributes;
-    }
-
-
-    public void revertScreen() {
-        Collections.reverse(screen);
-    }
-
-
+    /**
+     * Trellis grid configuration.
+     */
     public boolean getAutomaticTrellisConfiguration() {
         return automaticTrellisConfiguration;
     }
@@ -505,15 +477,10 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         this.setNumberOfTrellisColumns(columns);
     }
 
-    public int getCurrentNumberOfPlates() {
-        int number = 0;
-        for (boolean state: plateFiltered.values()) {
-            if (state)
-                number++;
-        }
-        return number;
-    }
 
+    /**
+     * Plate propotions.
+     */
     public boolean isFixedPlateProportion() {
         return fixPlateProportions;
     }
@@ -522,6 +489,10 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         this.fixPlateProportions = plateDimensionMode;
     }
 
+
+    /**
+     * Reference populations.
+     */
     public String[] getReferencePopulations() {
         String attribute = (String) referencePopulations.keySet().toArray()[0];
         return referencePopulations.get(attribute);
