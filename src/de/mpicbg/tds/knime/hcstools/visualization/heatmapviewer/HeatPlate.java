@@ -27,7 +27,7 @@ import info.clearthought.layout.TableLayout;
 public class HeatPlate extends JPanel implements MouseListener {
 
     // The well size determines the heat map size (panel) and influences the PlateViewers size.
-    public final int WELL_SIZE = 25;
+    public final int WELL_SIZE = 22;
 
     // Component fields.
     private HeatMapModel2 heatMapModel;

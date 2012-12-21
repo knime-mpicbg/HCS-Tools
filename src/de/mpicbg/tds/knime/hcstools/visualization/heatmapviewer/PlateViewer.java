@@ -9,7 +9,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.Random;
-import java.util.UUID;
 
 /**
  * User: Felix Meyenhofer
@@ -103,7 +102,8 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
 
         // Set the location of the new PlateViewer
         Random posJitter = new Random();
-        setLocation(200 + posJitter.nextInt(100), 200 + posJitter.nextInt(100));
+        double left = Toolkit.getDefaultToolkit().getScreenSize().getWidth() - this.getWidth() - 100;
+        setLocation((int) left + posJitter.nextInt(100), 200 + posJitter.nextInt(100));
 //        setVisible(true);
     }
 

@@ -96,6 +96,15 @@ public class ScreenMenu extends PlateMenu {
         });
         menu.add(plateDimensions);
 
+        JMenuItem closeAll = new JMenuItem("Close All Plate Viewers");
+        closeAll.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                heatTrellis.closePlateViewers();
+            }
+        });
+        menu.add(closeAll);
+
         JCheckBoxMenuItem globalScaling = new JCheckBoxMenuItem("Global Color Scale");
         globalScaling.setSelected(heatMapModel.isGlobalScaling());
         globalScaling.addActionListener(new ActionListener() {

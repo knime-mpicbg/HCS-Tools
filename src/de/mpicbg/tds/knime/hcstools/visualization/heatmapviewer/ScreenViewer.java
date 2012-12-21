@@ -39,7 +39,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
         heatMapModel.setScreen(plates);
         initialize();
         configure();
-        setBounds(150, 150, WIDTH, HEIGHT);
+        setBounds(50, 150, WIDTH, HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
