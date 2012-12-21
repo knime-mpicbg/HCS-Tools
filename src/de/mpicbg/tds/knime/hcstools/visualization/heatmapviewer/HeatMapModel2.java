@@ -142,10 +142,8 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public void setSortAttributeSelectionByTiles(String[] titles) {
         sortAttributeSelection = new ArrayList<PlateComparators.PlateAttribute>();
-        for (String title : titles) {
+        for (String title : titles)
             sortAttributeSelection.add(PlateComparators.getPlateAttributeByTitle(title));
-        }
-//        fireModelChanged();
     }
 
     public String[] getSortAttributesSelectionTitles() {
