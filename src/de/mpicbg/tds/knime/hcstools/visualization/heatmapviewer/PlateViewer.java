@@ -47,13 +47,13 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategyInstance());
         model.setColorScheme(parent.heatMapModel.getColorScheme());
         model.setHideMostFreqOverlay(parent.heatMapModel.doHideMostFreqOverlay());
-        model.addChangeListener(parent.heatMapModel.getChangeListeners());
         model.setWellSelection(parent.heatMapModel.getWellSelection());
         model.setScreen(Arrays.asList(plate));
         this.heatMapModel = model;
 
         // Register the Viewer in the ChangeListeners
         parent.heatMapModel.addChangeListener(this);
+        this.heatMapModel.addChangeListener(this);
 
         // Configure
         this.menu.configure(this.heatMapModel);
