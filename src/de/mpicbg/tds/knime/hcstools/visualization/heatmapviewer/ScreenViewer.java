@@ -20,7 +20,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
 
     // Window size factors
     public final int HEIGHT = 600;
-    public final int WIDTH = 850;
+    public final int WIDTH = 810;
 
     // Component fields.
     private HeatTrellis heatTrellis;
@@ -68,6 +68,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
 
     // HiLiteListener methods.
     public void hiLite(final KeyEvent event) {
+//        getNodeModel()
     }
 
     public void unHiLite(final KeyEvent event) {
