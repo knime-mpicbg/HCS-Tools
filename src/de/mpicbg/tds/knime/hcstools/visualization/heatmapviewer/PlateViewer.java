@@ -2,8 +2,6 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinMaxStrategy;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileSmoothedStrategy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,35 +22,46 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
 
     private HeatTrellis updater;
     private HeatMapModel2 heatMapModel;
-    @SuppressWarnings("FieldCanBeLocal")
-    private HeatPlate heatMap;
+
     private JPanel heatMapContainer;
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
+    private PlateMenu menu;
 
 
     /**
-     * Constructor
-     * @param model an instance of the HeatMapModel class.
+     * Constructors
      */
-    public PlateViewer(HeatMapModel2 model) {
-        if ( model != null )
-            this.heatMapModel = model;
-
+    public PlateViewer() {
         this.initialize();
-        this.setTitle("HCS Plate Viewer");
-
-        heatMapModel.addChangeListener(this);
-
-        colorbar.configure(heatMapModel);
-
-        new PanelImageExporter(heatMapContainer, true);
     }
 
-    public PlateViewer(HeatTrellis parent,Plate plate, HeatMapModel2 heatMapModel) {
-        this(heatMapModel);
+    public PlateViewer(HeatTrellis parent, Plate plate) {
+        this();
         this.updater = parent;
-        this.setTitle(plate.getBarcode());
+
+        // Create a new instance of the HeatMapModel and copy some attributes.
+        HeatMapModel2 model = new HeatMapModel2();
+        model.setCurrentReadout(parent.heatMapModel.getSelectedReadOut());
+        model.setOverlay(parent.heatMapModel.getOverlay());
+        model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategyInstance());
+        model.setColorScheme(parent.heatMapModel.getColorScheme());
+        model.setHideMostFreqOverlay(parent.heatMapModel.doHideMostFreqOverlay());
+        model.addChangeListener(parent.heatMapModel.getChangeListeners());
+        model.setWellSelection(parent.heatMapModel.getWellSelection());
+        model.setScreen(Arrays.asList(plate));
+        this.heatMapModel = model;
+
+        // Register the Viewer in the ChangeListeners
+        parent.heatMapModel.addChangeListener(this);
+
+        // Configure
+        this.menu.configure(this.heatMapModel);
+        this.toolbar.configure(this.heatMapModel);
+        this.colorbar.configure(this.heatMapModel);
+
+        // Give a meaningful title.
+        this.setTitle(heatMapModel.getScreen().get(0).getBarcode());
 
         // Remove the HeatMapModelChangeListener when closing the window.
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -66,16 +75,16 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
             }
         });
 
-        //Set the data.
-        this.heatMapModel.setScreen(Arrays.asList(plate));
-
         // Configure the toolbars.
         toolbar.configure(this.heatMapModel);
         colorbar.configure(this.heatMapModel);
 
         // Add the plate heatmap
-        heatMap = new HeatPlate(this, plate, this.heatMapModel);
+        HeatPlate heatMap = new HeatPlate(this);
         heatMapContainer.add(heatMap);
+
+        // Add "save image" functionality
+        new PanelImageExporter(heatMapContainer, true);
 
         // Set the window dimensions given by the plate heatmap size.
         Dimension ms = heatMap.getPreferredSize();
@@ -90,8 +99,11 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     }
 
 
+    /**
+     * Helper Methods
+     */
     private void initialize() {
-        PlateMenu menu = new PlateMenu(this);
+        menu = new PlateMenu(this);
         setJMenuBar(menu);
 
         setLayout(new BorderLayout());
@@ -146,7 +158,8 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
      * Quick testing.
      */
     public static void main(String[] args) {
-        PlateViewer plateViewer = new PlateViewer(new HeatMapModel2());
+        PlateViewer plateViewer = new PlateViewer();
+        plateViewer.heatMapModel = new HeatMapModel2();
         plateViewer.setSize(new Dimension(600, 300));
         plateViewer.setVisible(true);
     }

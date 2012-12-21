@@ -31,14 +31,18 @@ public class HeatPlate extends JPanel implements MouseListener {
 
     // Component fields.
     private HeatMapModel2 heatMapModel;
-
     Map<Well, HeatWell> wellPanelGrid = new HashMap<Well, HeatWell>();
 
 
-    public HeatPlate(PlateViewer parent, Plate plate, HeatMapModel2 heatMapModel) {
-        this.heatMapModel = heatMapModel;
+    /**
+     * Constructor
+     */
+    public HeatPlate(PlateViewer parent) {
+        this.heatMapModel = parent.getHeatMapModel();
         this.setBorder(BorderFactory.createEmptyBorder());
         this.setBackground(ScreenColorScheme.getInstance().emptyReadOut);
+
+        Plate plate = heatMapModel.getScreen().get(0);
 
         // configure the actual grid
         TableLayout tableLayout = new TableLayout();
@@ -101,7 +105,6 @@ public class HeatPlate extends JPanel implements MouseListener {
             heatWellPanel.addMouseListener(this);
             wellPanelGrid.put(well, heatWellPanel);
             add(heatWellPanel, insertPosition);
-//            add(new JLabel(insertPosition), insertPosition);
         }
     }
 
