@@ -509,20 +509,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         // Open Plate details view on right click
         } else if ( mouseEvent.getButton() == MouseEvent.BUTTON3 ) {
             HeatScreen heatMap = getHeatMap(mouseEvent);
-
-            // open a new detail-dialog for the plate
-            HeatMapModel2 plateHeatMapModel = new HeatMapModel2();
-            // todo if we want to use a global color scale also in the single plate view we ave to use te next line
-//                plateHeatMapModel.setScreen(PlateOverviewHeatMap.this.heatMapModel.getScreen());
-            plateHeatMapModel.setCurrentReadout(this.heatMapModel.getSelectedReadOut());
-            plateHeatMapModel.setOverlay(this.heatMapModel.getOverlay());
-            plateHeatMapModel.setReadoutRescaleStrategy(this.heatMapModel.getReadoutRescaleStrategy());
-            plateHeatMapModel.setColorScheme(this.heatMapModel.getColorScheme());
-            plateHeatMapModel.setHideMostFreqOverlay(this.heatMapModel.doHideMostFreqOverlay());
-            plateHeatMapModel.addChangeListener(this.heatMapModel.getChangeListeners());
-            plateHeatMapModel.setWellSelection(heatMapModel.getWellSelection());
-
-            PlateViewer viewer = new PlateViewer(this, heatMap.getPlate(), plateHeatMapModel);
+            PlateViewer viewer = new PlateViewer(this, heatMap.getPlate());
             heatMapModel.addChangeListener(viewer);
         }
     }
