@@ -516,7 +516,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
 //                plateHeatMapModel.setScreen(PlateOverviewHeatMap.this.heatMapModel.getScreen());
             plateHeatMapModel.setCurrentReadout(this.heatMapModel.getSelectedReadOut());
             plateHeatMapModel.setOverlay(this.heatMapModel.getOverlay());
-            plateHeatMapModel.setReadoutRescaleStrategy(this.heatMapModel.getRescaleStrategy());
+            plateHeatMapModel.setReadoutRescaleStrategy(this.heatMapModel.getReadoutRescaleStrategy());
             plateHeatMapModel.setColorScheme(this.heatMapModel.getColorScheme());
             plateHeatMapModel.setHideMostFreqOverlay(this.heatMapModel.doHideMostFreqOverlay());
             plateHeatMapModel.addChangeListener(this.heatMapModel.getChangeListeners());
