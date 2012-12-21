@@ -20,8 +20,6 @@ import info.clearthought.layout.TableLayout;
  * Implements a more detailed view for a single plate which also includes compounds, concentration, etc.
  * Replaces PlateDetailsHeatMap
  * TODO: clean out commented methods.
- * TODO: synch the selcetion with the trellis
- * TODO: control the colors (now the behavious seems erratic)
  */
 
 public class HeatPlate extends JPanel implements MouseListener {

@@ -433,38 +433,6 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
 
 
     /**
-     * Helpers for selection handling
-     */
-    public void updateWellSelection(HeatScreen heatmap, boolean appendFlag) {
-
-        if ( !appendFlag )
-            clearWellSelection();
-
-        Collection<Well> currentSelection = heatMapModel.getWellSelection();
-
-        if ( heatMapModel.isPlateSelected(heatmap.getPlate()) )
-            currentSelection.removeAll(heatmap.getPlate().getWells());
-        else {
-            for (Well well : heatmap.getPlate().getWells())
-                currentSelection.add(well);
-        }
-
-        heatMapModel.setWellSelection(currentSelection);
-    }
-
-    private void updateWellSelection(List<HeatScreen> heatMaps) {
-
-        for (HeatScreen heatMap : heatMaps) {
-            updateWellSelection(heatMap, true);
-        }
-    }
-
-    private void clearWellSelection() {
-        heatMapModel.clearWellSelection();
-    }
-
-
-    /**
      * Helper methods for the heatmap selection with the mouse on the trellis
      */
     private HeatScreen getHeatMap(MouseEvent mouseEvent) {
