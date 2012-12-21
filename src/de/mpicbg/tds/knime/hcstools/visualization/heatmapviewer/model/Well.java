@@ -186,7 +186,7 @@ public class Well implements Serializable {
 
 
     public List<String> getBasicReadoutNames() {
-        Class<? extends de.mpicbg.tds.core.model.Well> clazz = this.getClass();
+        Class<? extends Well> clazz = this.getClass();
 
         if (clazz.equals(de.mpicbg.tds.core.model.Well.class))
             return new ArrayList<String>();
