@@ -43,6 +43,9 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     private JScrollPane heatMapScrollPane;
     private JPanel containerPositioner;
 
+    // List of PlateViewers.
+    Map<HeatScreen, PlateViewer> plateViewers = new HashMap<HeatScreen, PlateViewer>();
+
 
     /**
      *  Constructors
@@ -404,6 +407,18 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     }
 
 
+    /**
+     * Handling of the PlateViewer windows
+     */
+    protected void closePlateViewers() {
+        for (PlateViewer viewer : plateViewers.values()) {
+            if ( viewer != null)
+                viewer.setVisible(false);
+        }
+        plateViewers.clear();
+    }
+
+
 //    public List<HeatScreen> getFilteredHeatMap() {
 //
 //        List<HeatScreen> heatMapSelection = new ArrayList<HeatScreen>();
@@ -510,7 +525,16 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         } else if ( mouseEvent.getButton() == MouseEvent.BUTTON3 ) {
             HeatScreen heatMap = getHeatMap(mouseEvent);
             PlateViewer viewer = new PlateViewer(this, heatMap.getPlate());
-            heatMapModel.addChangeListener(viewer);
+
+            if (plateViewers.containsKey(heatMap)) {
+                viewer = plateViewers.get(heatMap);
+                viewer.toFront();
+                viewer.repaint();
+            } else {
+                viewer.setVisible(true);
+                plateViewers.put(heatMap, viewer);
+                heatMapModel.addChangeListener(viewer);
+            }
         }
     }
 

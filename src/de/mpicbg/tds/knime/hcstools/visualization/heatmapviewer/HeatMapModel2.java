@@ -30,6 +30,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     // Coloring attributes
     private ReadoutRescaleStrategy readoutRescaleStrategy = new GlobalMinMaxStrategy();
+    private boolean globalScaling = false;
     ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();
     LinearGradientPaint colorGradient = LinearGradientTools.getStandardGradient("GBR");
 
@@ -500,6 +501,18 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     public String[] getReferencePopulations() {
         String attribute = (String) referencePopulations.keySet().toArray()[0];
         return referencePopulations.get(attribute);
+    }
+
+
+    /**
+     * Global color scaling.
+     */
+    public boolean isGlobalScaling() {
+        return globalScaling;
+    }
+
+    public void setGlobalScaling(boolean globalScaling) {
+        this.globalScaling = globalScaling;
     }
 
 }

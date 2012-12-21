@@ -96,6 +96,16 @@ public class ScreenMenu extends PlateMenu {
         });
         menu.add(plateDimensions);
 
+        JCheckBoxMenuItem globalScaling = new JCheckBoxMenuItem("Global Color Scale");
+        globalScaling.setSelected(heatMapModel.isGlobalScaling());
+        globalScaling.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                globalScalingAction(event);
+            }
+        });
+        menu.add(globalScaling);
+
         return menu;
     }
 
@@ -138,6 +148,27 @@ public class ScreenMenu extends PlateMenu {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
         heatMapModel.setPlateProportionMode(item.isSelected());
         heatMapModel.fireModelChanged();
+    }
+
+    private void globalScalingAction(ActionEvent event) {
+        JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
+
+        Object[] options = {"Cancel", "Proceed"};
+        int optionIndex = JOptionPane.showOptionDialog(getTopLevelAncestor(),
+                                                        "<html>To keep the windows consistent,<br/>" +
+                                                                "all the Plate Viewers will be closed</htmal>",
+                                                        "Changing the global scaling Option",
+                                                        JOptionPane.YES_NO_OPTION,
+                                                        JOptionPane.WARNING_MESSAGE,
+                                                        null,
+                                                        options,
+                                                        options[1]);
+        if ( optionIndex == 0 ) {
+            item.setSelected(heatMapModel.isGlobalScaling());
+        } else {
+            heatMapModel.setGlobalScaling(item.isSelected());
+            heatTrellis.closePlateViewers();
+        }
     }
 
 

@@ -9,6 +9,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * User: Felix Meyenhofer
@@ -44,11 +45,19 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         HeatMapModel2 model = new HeatMapModel2();
         model.setCurrentReadout(parent.heatMapModel.getSelectedReadOut());
         model.setOverlay(parent.heatMapModel.getOverlay());
-        model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategyInstance());
         model.setColorScheme(parent.heatMapModel.getColorScheme());
         model.setHideMostFreqOverlay(parent.heatMapModel.doHideMostFreqOverlay());
         model.setWellSelection(parent.heatMapModel.getWellSelection());
-        model.setScreen(Arrays.asList(plate));
+
+        if ( parent.heatMapModel.isGlobalScaling() ) {
+            this.menu.colorMenu.setEnabled(!parent.heatMapModel.isGlobalScaling());
+        model.setScreen(parent.heatMapModel.getScreen());
+        model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategy());
+        } else {
+            model.setScreen(Arrays.asList(plate));
+            model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategyInstance());
+        }
+
         this.heatMapModel = model;
 
         // Register the Viewer in the ChangeListeners
@@ -61,7 +70,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         this.colorbar.configure(this.heatMapModel);
 
         // Give a meaningful title.
-        this.setTitle(heatMapModel.getScreen().get(0).getBarcode());
+        this.setTitle("Plate Viewer (" + heatMapModel.getScreen().get(0).getBarcode() + ")");
 
         // Remove the HeatMapModelChangeListener when closing the window.
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -95,7 +104,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         // Set the location of the new PlateViewer
         Random posJitter = new Random();
         setLocation(200 + posJitter.nextInt(100), 200 + posJitter.nextInt(100));
-        setVisible(true);
+//        setVisible(true);
     }
 
 

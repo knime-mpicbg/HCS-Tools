@@ -23,6 +23,7 @@ public class PlateMenu extends JMenuBar {
 
     protected HeatMapModel2 heatMapModel;
     protected HeatMapViewer window;
+    protected JMenuItem colorMenu;
 
 
     /**
@@ -34,7 +35,11 @@ public class PlateMenu extends JMenuBar {
 
     public PlateMenu(HeatMapViewer parent) {
         this.window = parent;
-        configure(parent.getHeatMapModel());
+        if (parent == null) {
+            configure(new HeatMapModel2());
+        } else {
+            configure(parent.getHeatMapModel());
+        }
 
         this.add(createHiLiteMenu());
         this.add(createViewMenu());
@@ -73,8 +78,7 @@ public class PlateMenu extends JMenuBar {
         JCheckBoxMenuItem alwaysOnTop = new JCheckBoxMenuItem("Always on Top");
         alwaysOnTop.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JMenuItem item = (JMenuItem) e.getSource();
-                alwaysOnTopAction(item);
+                alwaysOnTopAction(e);
             }
         });
         menu.add(alwaysOnTop);
@@ -88,9 +92,11 @@ public class PlateMenu extends JMenuBar {
             }
         });
         menu.add(markSelection);
+
         menu.add(createOverlaySubMenu());
         menu.add(createOutlierSubMenu());
-        menu.add(createColorMapMenu());
+        colorMenu = menu.add(createColorMapMenu());
+        colorMenu.setEnabled(!heatMapModel.isGlobalScaling());
         menu.add(createToolBarMenu());
 
         return menu;
@@ -273,9 +279,10 @@ public class PlateMenu extends JMenuBar {
         heatMapModel.fireModelChanged();
     }
 
-    protected void alwaysOnTopAction(JMenuItem menuItem) {
+    protected void alwaysOnTopAction(ActionEvent e) {
+        JMenuItem item = (JMenuItem) e.getSource();
         JFrame frame = (JFrame) getTopLevelAncestor();
-        frame.setAlwaysOnTop(menuItem.isSelected());
+        frame.setAlwaysOnTop(item.isSelected());
     }
 
 
