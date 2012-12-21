@@ -33,7 +33,8 @@ public class PlateMenu extends JMenuBar {
     }
 
     public PlateMenu(HeatMapViewer parent) {
-        configure(parent);
+        this.window = parent;
+        configure(parent.getHeatMapModel());
 
         this.add(createHiLiteMenu());
         this.add(createViewMenu());
@@ -42,12 +43,11 @@ public class PlateMenu extends JMenuBar {
 
     /**
      * Self configuration (overwritten by sub-classes)
-     * @param parent parent window
+     * @param model parent window
      */
-    private void configure(HeatMapViewer parent) {
-        if (parent != null) {
-            this.window = parent;
-            this.heatMapModel = parent.getHeatMapModel();
+    protected void configure(HeatMapModel2 model) {
+        if (model != null) {
+            this.heatMapModel = model;
         } else {
             this.heatMapModel = new HeatMapModel2();
         }
