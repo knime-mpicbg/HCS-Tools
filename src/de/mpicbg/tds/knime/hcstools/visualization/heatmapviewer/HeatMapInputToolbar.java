@@ -79,6 +79,7 @@ public class HeatMapInputToolbar extends JToolBar {
         String filterString = event.getActionCommand();
         String filterAttribute = (String) filterSelector.getSelectedItem();
         heatMapModel.filterPlates(filterString, PlateComparators.getPlateAttributeByTitle(filterAttribute));
+        heatMapModel.fireModelChanged();
     }
 
 
