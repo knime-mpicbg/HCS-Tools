@@ -4,10 +4,7 @@ import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinMaxStrategy;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRescaleStrategy;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.Frequency;
 
@@ -345,6 +342,14 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public ReadoutRescaleStrategy getReadoutRescaleStrategy() {
         return readoutRescaleStrategy;
+    }
+
+    public ReadoutRescaleStrategy getReadoutRescaleStrategyInstance() {
+        if ( readoutRescaleStrategy instanceof GlobalMinMaxStrategy ) {
+            return new GlobalMinMaxStrategy();
+        } else {
+            return new QuantileSmoothedStrategy();
+        }
     }
 
     public void setReadoutRescaleStrategy(ReadoutRescaleStrategy readoutRescaleStrategy) {
