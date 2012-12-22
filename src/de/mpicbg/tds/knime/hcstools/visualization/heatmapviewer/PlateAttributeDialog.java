@@ -1,6 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateComparators;
 import org.apache.commons.lang.ArrayUtils;
 
 import javax.swing.*;

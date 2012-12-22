@@ -9,7 +9,7 @@ import javax.swing.*;
 
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateComparators;
 
 /**
  * Author: Felix Meyenhofer

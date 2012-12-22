@@ -3,7 +3,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
-import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateComparators;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.Frequency;

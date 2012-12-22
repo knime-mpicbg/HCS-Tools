@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model;
 
 import de.mpicbg.tds.core.TdsUtils;
-//import de.mpicbg.tds.core.model.Plate;
+import org.knime.core.data.RowKey;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -20,34 +20,65 @@ public class Well implements Serializable {
     private Integer plateRow;
     private Integer plateColumn;
 
+    /**
+     * Numerical data.
+     */
     private HashMap<String, Object> wellStatistics = new HashMap<String, Object>();
 
-
-    private HashMap<String, String> annotations = new HashMap<String, String>();
     /**
-     * A predefined string, which indicates the type of the well. Use the WELL_TYPE-constants is possible.
+     * Nominal well attributes.
+     */
+    private HashMap<String, String> annotations = new HashMap<String, String>();
+
+    /**
+     * A predefined string, which indicates the type of the well. Use the WELL_TYPE-constants is possible.    TODO: What? Where?
+     */
+
+    /**
+     * The treatment (well condition).
      */
     private String treatment;
     private String compoundConcentration;
 
-    // a short description of the well if present
+    /**
+     * A short description of the well if present
+     */
     private String description;
 
+    /**
+     * Flag for the readount status.
+     */
     private Boolean readoutSuccess = true;
 
+    /**
+     * Parent plate
+     */
     private Plate plate;
+
+    /**
+     * ID. TODO:Add a description (what id is it anyway? reader? db? what?)
+     */
     private String id;
+
+    /**
+     * The row key of the table that it is from
+     */
+    private RowKey knimeTableRowKey;
 
 
     /**
-     * the list of well-fields imaged for this well. This maybe null or empty if single-field analysis was applied.
+     * the list of well-fields imaged for this well. This maybe null or empty if single-field analysis was applied.  TODO: What? Where?
      */
 
-    public Well() {
+//    public Well() {
+//
+//    }
 
-    }
-
-
+    /**
+     * Constructor of a Well (container of a microtiter plate)
+     * @param plateRow row number/coordinate
+     * @param plateCol column number/coordinate
+     */
     public Well(int plateRow, int plateCol) {
         setPlateRow(plateRow);
         setPlateColumn(plateCol);
@@ -253,5 +284,13 @@ public class Well implements Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public RowKey getKnimeTableRowKey() {
+        return knimeTableRowKey;
+    }
+
+    public void setKnimeTableRowKey(RowKey knimeTableRowKey) {
+        this.knimeTableRowKey = knimeTableRowKey;
     }
 }

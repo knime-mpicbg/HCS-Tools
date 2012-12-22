@@ -1,4 +1,4 @@
-package de.mpicbg.tds.knime.hcstools.visualization;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model;
 
 import de.mpicbg.tds.core.model.Plate;
 
@@ -8,7 +8,6 @@ import java.util.Comparator;
 /**
  * User: Felix Meyenhofer
  * Date: 12/13/12
- * Time: 16:09
  *
  * Class providing the plate comparators. It's a wrapper class, that groups the Comparators for the Plate class in one
  * location. Furthermore it provides easy selection.

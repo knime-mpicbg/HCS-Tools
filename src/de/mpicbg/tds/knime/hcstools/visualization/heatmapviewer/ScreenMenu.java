@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import de.mpicbg.tds.knime.hcstools.visualization.PlateComparators;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateComparators;
 
 /**
  * Author: Felix Meyenhofer

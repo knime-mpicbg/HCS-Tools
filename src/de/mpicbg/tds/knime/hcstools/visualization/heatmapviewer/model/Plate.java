@@ -13,35 +13,72 @@ import java.util.*;
  */
 public class Plate implements Serializable{
 
+    /**
+     * Number of well rows and well columns in the plate.
+     */
     private int numRows = 16;
     private int numColumns = 24;
 
 //    private Screen screen;
 
-    private String barcode;
-    private Date screenedAt;
-    private String batchName;
-
-    private String libraryCode;
-    private Integer libraryPlateNumber;
-
     /**
-     * Contains the assay description part of the barcode.
+     * Barcode of the plate
      */
-    private String assay;
-    private String replicate;
+    private String barcode;
+
+        /**
+         * Date of meansurement / cell passage (Usually part of the barcode)
+         */
+        private Date screenedAt;
+
+        /**
+         * ? (Usually part of the barcode)
+         */
+        private String batchName;
+
+        /**
+         * Code/ID of the molecule library and the number of the library plate (Usually part of the barcode)
+         */
+        private String libraryCode;
+        private Integer libraryPlateNumber;
+
+        /**
+         * Contains the assay description part of the barcode (Usually part of the barcode)
+         */
+        private String assay;
+
+        /**
+         * Replicate indicator (A,B,C...)
+         */
+        private String replicate;
 
     /**
      * A free documentation field, which allows to add further comments about a plate.
      */
     private String description;
 
+
+    /**
+     * List of wells containing additional well information, annotations, and readouts.
+     */
     private List<Well> wells = new ArrayList<Well>();
 
-    // a transient property map for analysis caching
+    /**
+     * A transient property map for analysis caching
+     */
     private HashMap<String, Object> plateStatistics;
+
+    /**
+     * ID (from where? what id?) TODO: add proper description
+     */
     private String id;
 
+
+
+    /**
+     * Constructor
+     * @param barcode unique string containing plate information (at least across the experiment)
+     */
     public Plate(String barcode) {
         this.barcode = barcode;
     }
@@ -66,89 +103,96 @@ public class Plate implements Serializable{
         return wells;
     }
 
-
     public void setWells(List<Well> wells) {
         this.wells = wells;
     }
-
 
     public int getNumRows() {
         return numRows;
     }
 
-
     public void setNumRows(int numRows) {
         this.numRows = numRows;
     }
-
 
     public int getNumColumns() {
         return numColumns;
     }
 
-
     public void setNumColumns(int numColumns) {
         this.numColumns = numColumns;
     }
-
 
     public String getBarcode() {
         return barcode;
     }
 
-
     public void setBarcode(String barcode) {
         this.barcode = barcode;
     }
-
 
     public String getLibraryCode() {
         return libraryCode;
     }
 
-
     public void setLibraryCode(String libraryCode) {
         this.libraryCode = libraryCode;
     }
-
 
     public Integer getLibraryPlateNumber() {
         return libraryPlateNumber;
     }
 
-
     public void setLibraryPlateNumber(Integer libraryPlateNumber) {
         this.libraryPlateNumber = libraryPlateNumber;
     }
-
 
     public Date getScreenedAt() {
         return screenedAt;
     }
 
-
     public void setScreenedAt(Date screenedAt) {
         this.screenedAt = screenedAt;
     }
-
 
     public String getBatchName() {
         return batchName;
     }
 
-
     public void setBatchName(String batchName) {
         this.batchName = batchName;
     }
-
 
     public String getDescription() {
         return description;
     }
 
-
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getAssay() {
+        return assay;
+    }
+
+    public void setAssay(String assay) {
+        this.assay = assay;
+    }
+
+    public String getReplicate() {
+        return replicate;
+    }
+
+    public void setReplicate(String replicate) {
+        this.replicate = replicate;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
 
@@ -204,26 +248,6 @@ public class Plate implements Serializable{
         }
 
         return transientGrid.get(plateColumn + "-" + plateRow);
-    }
-
-
-    public String getAssay() {
-        return assay;
-    }
-
-
-    public void setAssay(String assay) {
-        this.assay = assay;
-    }
-
-
-    public String getReplicate() {
-        return replicate;
-    }
-
-
-    public void setReplicate(String replicate) {
-        this.replicate = replicate;
     }
 
 
@@ -287,8 +311,8 @@ public class Plate implements Serializable{
     }
 
 
-    public Plate() {
-    }
+//    public Plate() {
+//    }
 
     public static void configurePlateByBarcode(de.mpicbg.tds.core.model.Plate plate, BarcodeParser barcodeReader) {
         plate.setLibraryCode(barcodeReader.getLibraryCode()); // use a fake barcode here
@@ -298,13 +322,4 @@ public class Plate implements Serializable{
         plate.setAssay(barcodeReader.getAssay());
     }
 
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String id) {
-        this.id = id;
-    }
 }
