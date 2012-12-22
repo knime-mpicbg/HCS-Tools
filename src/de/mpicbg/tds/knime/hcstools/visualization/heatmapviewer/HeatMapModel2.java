@@ -29,7 +29,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
     // Coloring attributes
-    private ReadoutRescaleStrategy readoutRescaleStrategy = new GlobalMinMaxStrategy();
+    private ReadoutRescaleStrategy readoutRescaleStrategy = new MinMaxStrategy();
     private boolean globalScaling = false;
     ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();
     LinearGradientPaint colorGradient = LinearGradientTools.getStandardGradient("GBR");
@@ -346,10 +346,10 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
     public ReadoutRescaleStrategy getReadoutRescaleStrategyInstance() {
-        if ( readoutRescaleStrategy instanceof GlobalMinMaxStrategy ) {
-            return new GlobalMinMaxStrategy();
+        if ( readoutRescaleStrategy instanceof MinMaxStrategy ) {
+            return new MinMaxStrategy();
         } else {
-            return new QuantileSmoothedStrategy();
+            return new QuantileStrategy();
         }
     }
 

@@ -3,16 +3,20 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * Document me!
  *
  * @author Holger Brandl
  */
-@Deprecated
-public class GlobalMinMaxStrategy implements ReadoutRescaleStrategy {
+public class QuantileStrategy implements ReadoutRescaleStrategy {
 
     Map<String, Double> minMap = new HashMap<String, Double>();
     Map<String, Double> maxMap = new HashMap<String, Double>();
@@ -48,38 +52,43 @@ public class GlobalMinMaxStrategy implements ReadoutRescaleStrategy {
 
     private void updateMinMaxForReadOut(final String selectedReadOut) {
 
-        List<Double> doubles = new ArrayList<Double>();
+        DescriptiveStatistics sumStats = new DescriptiveStatistics();
         ArrayList<Well> allWells = new ArrayList<Well>(TdsUtils.flattenWells(screen));
 
         for (Well allWell : allWells) {
             Double readout = allWell.getReadout(selectedReadOut);
             if (readout != null && !readout.equals(Double.NaN)) {
-                doubles.add(readout);
+                sumStats.addValue(readout);
             }
         }
 
-        if (allWells.size() < 2) { // just in case that an empty plate was included into the screen
-            System.err.println("screen/plate contains less than 2 wells. Setup of min-max-normalization failed!");
+        if (allWells.isEmpty()) { // just in case that an empty plate was included into the screen
+            System.err.println("screen contains no valid wells. Setup of min-max-normalization failed!");
             return;
         }
 
         // now sort them according to the given readout
-        Collections.sort(doubles);
 
-        if (doubles.size() < 2) {
-            System.err.println("screen/plate contains less than 2 valid readout for selected readout '" + selectedReadOut + "'. Setup of min-max-normalization failed!");
-            return;
-        }
 
-        minMap.put(selectedReadOut, doubles.get(0));
-        maxMap.put(selectedReadOut, doubles.get(doubles.size() - 1));
+        double q1 = sumStats.getPercentile(25);
+        double q3 = sumStats.getPercentile(75);
+
+        double iqr = q3 - q1;
+
+        double min = q1 - 1.5 * iqr;
+        double max = q3 + 1.5 * iqr;
+
+        min = min < sumStats.getMin() ? sumStats.getMin() : min;
+        max = max > sumStats.getMax() ? sumStats.getMax() : max;
+
+        minMap.put(selectedReadOut, min);
+        maxMap.put(selectedReadOut, max);
     }
 
 
     public Double normalize(Double wellReadout, String selectedReadOut) {
-        if (wellReadout == null) {
+        if (wellReadout == null)
             return null;
-        }
 
         // TODO: Find out why it this statement is here to prevent the update mechanism of the class for the extrema values????
 //        if (minMap.isEmpty()) {
@@ -88,6 +97,15 @@ public class GlobalMinMaxStrategy implements ReadoutRescaleStrategy {
 
         double minValue = getMinValue(selectedReadOut);
         double maxValue = getMaxValue(selectedReadOut);
+
+        // apply the bounds
+        if (wellReadout < minValue) {
+            wellReadout = minValue;
+        }
+
+        if (wellReadout > maxValue) {
+            wellReadout = maxValue;
+        }
 
         return (wellReadout - minValue) / (maxValue - minValue);
     }

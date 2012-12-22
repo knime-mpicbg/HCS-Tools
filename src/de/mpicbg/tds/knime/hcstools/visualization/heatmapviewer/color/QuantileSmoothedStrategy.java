@@ -16,6 +16,8 @@ import java.util.Map;
  *
  * @author Holger Brandl
  */
+
+@Deprecated
 public class QuantileSmoothedStrategy implements ReadoutRescaleStrategy {
 
     Map<String, Double> minMap = new HashMap<String, Double>();

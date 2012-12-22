@@ -11,8 +11,8 @@ import java.util.*;
  *
  * @author Holger Brandl
  */
-@Deprecated
-public class GlobalMinMaxStrategy implements ReadoutRescaleStrategy {
+
+public class MinMaxStrategy implements ReadoutRescaleStrategy {
 
     Map<String, Double> minMap = new HashMap<String, Double>();
     Map<String, Double> maxMap = new HashMap<String, Double>();

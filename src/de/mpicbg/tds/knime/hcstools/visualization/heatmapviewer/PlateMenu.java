@@ -1,8 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.GlobalMinMaxStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.MinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileSmoothedStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileStrategy;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
@@ -263,9 +263,9 @@ public class PlateMenu extends JMenuBar {
         JRadioButtonMenuItem menuItem = (JRadioButtonMenuItem) event.getSource();
         if ( menuItem.isSelected() ) {
             if ( menuItem.getText().equals("Original") ) {
-                heatMapModel.setReadoutRescaleStrategy(new GlobalMinMaxStrategy());
+                heatMapModel.setReadoutRescaleStrategy(new MinMaxStrategy());
             } else if ( menuItem.getText().equals("Smoothed") ) {
-                heatMapModel.setReadoutRescaleStrategy(new QuantileSmoothedStrategy());
+                heatMapModel.setReadoutRescaleStrategy(new QuantileStrategy());
             } else {
                 System.err.println("Don't know the option " + menuItem.getName() + ".");
             }
