@@ -515,6 +515,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         if ( (mouseEvent.getButton() == MouseEvent.BUTTON1) ) {
             drag = false;
             previousPreSelection.clear();
+
             if ( pressedHeatMap.equals(currentHeatMap) )
                 heatMapModel.updateWellSelection(currentHeatMap.getPlate().getWells());
 

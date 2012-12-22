@@ -26,6 +26,7 @@ public class HeatWell extends JPanel {
     public static BasicStroke overlayStroke = new BasicStroke(STROKE_WIDTH);
 //    private boolean isSelected;
     private boolean showGrid = false;
+    protected boolean isPreselected = false;
 
 
     public HeatWell(final Well well, HeatMapModel2 heatMapModel) {
@@ -121,6 +122,12 @@ public class HeatWell extends JPanel {
         super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g;
+
+        if (isPreselected) {
+            setBackground(ScreenColorScheme.getInstance().preselectionColor);
+            return;
+//            setOpaque(true);
+        }
 
         // Border handling.
         if (showGrid) {
