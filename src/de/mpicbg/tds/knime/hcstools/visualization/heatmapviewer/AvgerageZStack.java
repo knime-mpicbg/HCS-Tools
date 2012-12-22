@@ -15,6 +15,7 @@ import java.util.List;
  *
  * @author Holger Brandl
  */
+@Deprecated
 public class AvgerageZStack {
 
     private Collection<Plate> curPlateSelection;
