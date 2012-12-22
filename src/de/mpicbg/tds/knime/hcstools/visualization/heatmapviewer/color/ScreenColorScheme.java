@@ -23,6 +23,7 @@ public class ScreenColorScheme {
     public final Color emptyReadOut = new Color(119, 119, 119);
     public final Color errorReadOut = new Color(72, 56, 69);
     public final Color selectionColor = new Color(0, 0, 255);
+    public final Color preselectionColor =  new Color(108, 127,255);
     // TODO: remove redundant methods for the default colors.
 //    private ScreenControlServiceImpl controlService;
 

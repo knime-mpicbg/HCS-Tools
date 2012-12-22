@@ -476,6 +476,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
      */
     private HeatScreen pressedHeatMap;
     private HeatScreen currentHeatMap;
+    private boolean drag = false;
+    private List<HeatScreen> previousPreSelection = new ArrayList<HeatScreen>();
 
     @Override
     public void mouseClicked(MouseEvent mouseEvent) { /** Do Nothing */ }
@@ -484,6 +486,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     public void mousePressed(MouseEvent mouseEvent) {
         // Left click selection action.
         if (mouseEvent.getButton() == MouseEvent.BUTTON1) {
+            drag = true;
+
             if ( !mouseEvent.isMetaDown() )
                 heatMapModel.clearWellSelection();
             pressedHeatMap = getHeatMap(mouseEvent);
@@ -509,6 +513,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     public void mouseReleased(MouseEvent mouseEvent) {
         // Mouse released is used only in the selection process, thus only listens to the first mouse button
         if ( (mouseEvent.getButton() == MouseEvent.BUTTON1) ) {
+            drag = false;
+            previousPreSelection.clear();
             if ( pressedHeatMap.equals(currentHeatMap) )
                 heatMapModel.updateWellSelection(currentHeatMap.getPlate().getWells());
 
@@ -526,6 +532,28 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     public void mouseEntered(MouseEvent mouseEvent) {
         // Register the map the mouse pointer last skidded in.
         currentHeatMap = getHeatMap(mouseEvent);
+        // Paint selection background
+        if (drag) {
+            List<HeatScreen> selectedHeatMaps = calculateHeatMapSelection(pressedHeatMap, currentHeatMap);
+            previousPreSelection.removeAll(selectedHeatMaps);
+
+            // Deselect.
+            for (HeatScreen unselect : previousPreSelection) {
+                if (!heatMapModel.isPlateSelected(unselect.getPlate())) {
+                    JPanel container = (JPanel) unselect.getParent();
+                    container.setBackground(getTopLevelAncestor().getBackground());
+                }
+            }
+
+            // Mark current selection.
+            for (HeatScreen select : selectedHeatMaps) {
+                if (!heatMapModel.isPlateSelected(select.getPlate())) {
+                    JPanel container = (JPanel) select.getParent();
+                    container.setBackground(ScreenColorScheme.getInstance().preselectionColor);
+                }
+            }
+            previousPreSelection = selectedHeatMaps;
+        }
     }
 
     @Override
