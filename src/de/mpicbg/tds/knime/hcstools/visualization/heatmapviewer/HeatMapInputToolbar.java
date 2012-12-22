@@ -7,8 +7,9 @@ import java.util.*;
 import java.util.List;
 import javax.swing.*;
 
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateAttribute;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateComparators;
 
 /**
@@ -78,7 +79,7 @@ public class HeatMapInputToolbar extends JToolBar {
     private void filterPlatesAction(ActionEvent event) {
         String filterString = event.getActionCommand();
         String filterAttribute = (String) filterSelector.getSelectedItem();
-        heatMapModel.filterPlates(filterString, PlateComparators.getPlateAttributeByTitle(filterAttribute));
+        heatMapModel.filterPlates(filterString, PlateUtils.getPlateAttributeByTitle(filterAttribute));
         heatMapModel.fireModelChanged();
     }
 
@@ -96,17 +97,17 @@ public class HeatMapInputToolbar extends JToolBar {
         List<Plate> subScreen = Arrays.asList(hmm.getScreen().get(0));
 
         // reconfigure the selectors
-        List<String> annotations = TdsUtils.flattenAnnotationTypes(subScreen);
+        List<String> annotations = PlateUtils.flattenAnnotationTypes(subScreen);
         annotations.add(0, "");
         overlaySelector.configure(annotations, heatMapModel, AttributeType.OVERLAY_ANNOTATION);
 
-        List<String> readouts = TdsUtils.flattenReadoutNames(subScreen);
+        List<String> readouts = PlateUtils.flattenReadoutNames(subScreen);
         readoutSelector.configure(readouts, heatMapModel, AttributeType.READOUT);
 
         // Configure the filter functionality for the ScreenViewer.
         if ( (parent == null ) || (parent instanceof ScreenViewer) ) {
-            Collection<PlateComparators.PlateAttribute> plateAttributes = heatMapModel.getPlateAttributes();
-            DefaultComboBoxModel model = new DefaultComboBoxModel(PlateComparators.getPlateAttributeTitles(plateAttributes));
+            Collection<PlateAttribute> plateAttributes = heatMapModel.getPlateAttributes();
+            DefaultComboBoxModel model = new DefaultComboBoxModel(PlateUtils.getPlateAttributeTitles(plateAttributes));
             filterSelector.setModel(model);
         }
     }

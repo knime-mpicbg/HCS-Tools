@@ -8,7 +8,7 @@ import java.awt.event.KeyEvent;
 import java.util.Collection;
 import java.util.Map;
 
-import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -127,8 +127,8 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
                 return;
             }
 
-            Collection<String> allOverlayValues = TdsUtils.collectAnnotationLevels(heatMapModel.getScreen(),
-                                                                                   heatMapModel.getOverlay());
+            Collection<String> allOverlayValues = PlateUtils.collectAnnotationLevels(heatMapModel.getScreen(),
+                    heatMapModel.getOverlay());
             setLayout(new GridBagLayout());
             GridBagConstraints constraints = new GridBagConstraints();
             constraints.gridx = 0;

@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.Random;
 
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
 
 /**
@@ -15,6 +15,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColo
  * A JPanel which renders a detailed view on a single well within a heat-map.
  * replaces HeatWellPanel
  * TODO: clean out commented methods.
+ * TODO: reintegrate the well detail panel.
  */
 
 public class HeatWell extends JPanel {
@@ -60,7 +61,7 @@ public class HeatWell extends JPanel {
 
     protected void openNewWellViewer() {
         JDialog jDialog = new JDialog(getParentDialog(this), false);
-        jDialog.add(new WellDetailPanel(this.well));
+//        jDialog.add(new WellDetailPanel(this.well));
 
         Random random = new Random();
         jDialog.setBounds(random.nextInt(100) + 200, random.nextInt(100) + 200, 300, 500);
@@ -110,8 +111,8 @@ public class HeatWell extends JPanel {
         JToolTip jToolTip = new JToolTip();
         jToolTip.setLayout(new BorderLayout());
         jToolTip.setPreferredSize(new Dimension(350, 500));
-        WellDetailPanel wellDetailsPanel = new WellDetailPanel(well);
-        jToolTip.add(wellDetailsPanel, BorderLayout.CENTER);
+//        WellDetailPanel wellDetailsPanel = new WellDetailPanel(well);
+//        jToolTip.add(wellDetailsPanel, BorderLayout.CENTER);
 
         return jToolTip;
     }

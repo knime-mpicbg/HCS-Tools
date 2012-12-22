@@ -6,6 +6,10 @@ import java.util.*;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.ScreenPanelFrame;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.ScreenViewer;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Conventions;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import org.apache.commons.lang.StringUtils;
 
 import org.knime.core.data.DataRow;
@@ -15,17 +19,17 @@ import org.knime.core.node.NodeLogger;
 
 import de.mpicbg.tds.barcodes.BarcodeParser;
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
+//import de.mpicbg.tds.core.TdsUtils;
+//import de.mpicbg.tds.core.model.Plate;
+//import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel;
 import de.mpicbg.tds.knime.hcstools.visualization.ScreenExplorer;
 import de.mpicbg.tds.knime.knutils.Attribute;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
-import static de.mpicbg.tds.core.TdsUtils.SCREEN_MODEL_TREATMENT;
-import static de.mpicbg.tds.core.model.Plate.configurePlateByBarcode;
-import static de.mpicbg.tds.core.model.Plate.inferPlateDimFromWells;
+//import static de.mpicbg.tds.core.TdsUtils.SCREEN_MODEL_TREATMENT;
+//import static de.mpicbg.tds.core.model.Plate.configurePlateByBarcode;
+//import static de.mpicbg.tds.core.model.Plate.inferPlateDimFromWells;
 
 /**
  * User: Felix Meyenhofer
@@ -148,7 +152,7 @@ public class PlateHeatMapViewerTest {
             try {
                 BarcodeParser barcodeParser = bpf.getParser(barcode);
                 if (barcodeParser != null)
-                    configurePlateByBarcode(curPlate, barcodeParser);
+                    Plate.configurePlateByBarcode(curPlate, barcodeParser);
             } catch (Throwable t) {
                 NodeLogger.getLogger(ScreenExplorer.class).error(t);
             }
@@ -183,7 +187,7 @@ public class PlateHeatMapViewerTest {
                         continue;
                     }*/
 
-                    if (StringUtils.equalsIgnoreCase(SCREEN_MODEL_TREATMENT, attributeName)) {
+                    if (StringUtils.equalsIgnoreCase(Conventions.CBG.TREATMENT, attributeName)) {
                         well.setTreatment(attribute.getNominalAttribute(tableRow));
                     }
 
@@ -206,10 +210,10 @@ public class PlateHeatMapViewerTest {
 
         // fix the plate dimension if necessary, using some heuristics, which defaults to 384
         for (Plate plate : allPlates) {
-            inferPlateDimFromWells(plate);
+            Plate.inferPlateDimFromWells(plate);
         }
 
-        TdsUtils.unifyPlateDimensionsToLUB(allPlates);
+        PlateUtils.unifyPlateDimensionsToLUB(allPlates);
         return allPlates;
     }
 

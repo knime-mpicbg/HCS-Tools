@@ -10,8 +10,8 @@ import java.util.HashMap;
 
 import com.bric.swing.GradientSlider;
 import com.bric.swing.MultiThumbSlider;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.RescaleStrategy;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;

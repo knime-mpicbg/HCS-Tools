@@ -7,9 +7,9 @@ import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
 
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
 import info.clearthought.layout.TableLayout;
@@ -76,7 +76,7 @@ public class HeatPlate extends JPanel implements MouseListener {
 
         // 1) row-header
         for (int i = 0; i < numRows; i++) {
-            JLabel rowLabel = new JLabel(TdsUtils.mapPlateRowNumberToString(i + 1));
+            JLabel rowLabel = new JLabel(PlateUtils.mapPlateRowNumberToString(i + 1));
             rowLabel.setVerticalAlignment(JLabel.CENTER);
             rowLabel.setHorizontalAlignment(JLabel.CENTER);
             rowLabel.addMouseListener(this);

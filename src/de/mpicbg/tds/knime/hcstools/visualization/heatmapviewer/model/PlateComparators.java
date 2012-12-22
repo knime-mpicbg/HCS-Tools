@@ -1,7 +1,5 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model;
 
-import de.mpicbg.tds.core.model.Plate;
-
 import java.util.Collection;
 import java.util.Comparator;
 
@@ -67,68 +65,7 @@ public abstract class PlateComparators {
     }
 
 
-    /**
-     *  Utilities to handle the PlateAttributes
-     */
-    public static String[] getPlateAttributeTitles(Collection<PlateAttribute> collection) {
-        String[] titles = new String[collection.size()];
-        int index = 0;
-        for (PlateAttribute item : collection) {
-            titles[index++] = item.getTitle();
-        }
-        return titles;
-    }
 
-    public static String[] getPlateAttributeNames(Collection<PlateAttribute> collection) {
-        String[] attributes = new String[collection.size()];
-        int index = 0;
-        for (PlateAttribute item : collection) {
-            attributes[index++] = item.getName();
-        }
-        return attributes;
-    }
-
-    public static PlateAttribute getPlateAttributeByTitle(String title) {
-        for (PlateAttribute attribute : PlateAttribute.values()) {
-            if (attribute.getTitle().equals(title)) {
-                return attribute;
-            }
-        }
-        return null;
-    }
-
-
-
-    /**
-     * This class makes the connection between the Plate attribute names and the something readable. It's also a way to
-     * what attributes are available (Could not find a decent way to derive this directly form the Plate class.
-     * TODO: There is surly a neater way to do this. I don't like the fact, that if the Plate class changes, this might fail...
-     */
-    public enum PlateAttribute {
-        SCREENED_AT             ("screenedAt", "Date of Acquisition"),
-        LIBRARY_PLATE_NUMBER    ("libraryPlateNumber", "Library Plate Number"),
-        BARCODE                 ("barcode", "Barcode"),
-        ASSAY                   ("assay", "Assay"),
-        LIBRARY_CODE            ("libraryCode", "Library Code"),
-        BATCH_NAME              ("batchName", "Batch Name"),
-        REPLICATE               ("replicate", "Replicate");
-
-        private final String name;
-        private final String title;
-
-        PlateAttribute(String name, String title) {
-            this.name = name;
-            this.title = title;
-        }
-
-        public String getName(){
-            return this.name;
-        }
-
-        public String getTitle(){
-            return this.title;
-        }
-    }
 
 
     /**

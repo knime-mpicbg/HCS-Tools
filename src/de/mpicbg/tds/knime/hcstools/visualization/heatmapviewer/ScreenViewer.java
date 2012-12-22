@@ -1,6 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;

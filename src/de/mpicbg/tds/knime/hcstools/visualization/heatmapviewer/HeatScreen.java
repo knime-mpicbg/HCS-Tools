@@ -5,8 +5,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 import javax.swing.*;
 
-import de.mpicbg.tds.core.model.Well;
-import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 
 
 /**
@@ -76,7 +76,7 @@ public class HeatScreen extends JPanel {
 //        plateHeatMapModel.addChangeListener(this.heatMapModel.getChangeListeners());
 //        plateHeatMapModel.setWellSelection(heatMapModel.getWellSelection());
 ////        if (this.heatMapModel.getWellSelection().size() > 0) {
-////            plateHeatMapModel.setWellSelection(TdsUtils.splitIntoPlateMap(this.heatMapModel.getWellSelection()).get(plate));
+////            plateHeatMapModel.setWellSelection(PlateUtils.splitIntoPlateMap(this.heatMapModel.getWellSelection()).get(plate));
 ////        }
 //
 ////        Window ownerWindow = Utils.getOwnerDialog(this);

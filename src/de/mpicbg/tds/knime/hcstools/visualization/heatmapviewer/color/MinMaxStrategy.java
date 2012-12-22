@@ -1,8 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color;
 
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 
 import java.util.*;
 
@@ -49,7 +49,7 @@ public class MinMaxStrategy implements RescaleStrategy {
     private void updateMinMaxForReadOut(final String selectedReadOut) {
 
         List<Double> doubles = new ArrayList<Double>();
-        ArrayList<Well> allWells = new ArrayList<Well>(TdsUtils.flattenWells(screen));
+        ArrayList<Well> allWells = new ArrayList<Well>(PlateUtils.flattenWells(screen));
 
         for (Well allWell : allWells) {
             Double readout = allWell.getReadout(selectedReadOut);

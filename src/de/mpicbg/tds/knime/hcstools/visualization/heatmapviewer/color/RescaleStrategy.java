@@ -1,6 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color;
 
-import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 
 import java.util.Collection;
 

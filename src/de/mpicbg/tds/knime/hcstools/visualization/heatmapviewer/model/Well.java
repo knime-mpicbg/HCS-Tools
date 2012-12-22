@@ -1,6 +1,5 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model;
 
-import de.mpicbg.tds.core.TdsUtils;
 import org.knime.core.data.RowKey;
 
 import java.io.Serializable;
@@ -70,9 +69,11 @@ public class Well implements Serializable {
      * the list of well-fields imaged for this well. This maybe null or empty if single-field analysis was applied.  TODO: What? Where?
      */
 
-//    public Well() {
-//
-//    }
+
+    /**
+     *  Constructor for an empty well
+     */
+    public Well() {}
 
     /**
      * Constructor of a Well (container of a microtiter plate)
@@ -137,7 +138,7 @@ public class Well implements Serializable {
 
     @Override
     public String toString() {
-        return getPlate().getBarcode() + "[" + TdsUtils.mapPlateRowNumberToString(getPlateRow()) + getPlateColumn() + "]";
+        return getPlate().getBarcode() + "[" + PlateUtils.mapPlateRowNumberToString(getPlateRow()) + getPlateColumn() + "]";
     }
 
 
@@ -219,7 +220,7 @@ public class Well implements Serializable {
     public List<String> getBasicReadoutNames() {
         Class<? extends Well> clazz = this.getClass();
 
-        if (clazz.equals(de.mpicbg.tds.core.model.Well.class))
+        if (clazz.equals(Well.class))
             return new ArrayList<String>();
 
         if (!readoutNames.containsKey(clazz)) {

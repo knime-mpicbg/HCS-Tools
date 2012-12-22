@@ -1,8 +1,9 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateAttribute;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateComparators;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.*;
 import org.apache.commons.lang.StringUtils;
@@ -56,11 +57,11 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     //Plate Filtering
     private String plateFilterString = "";
-    private PlateComparators.PlateAttribute plateFilterAttribute = PlateComparators.PlateAttribute.BARCODE;
+    private PlateAttribute plateFilterAttribute = PlateAttribute.BARCODE;
 //    public static final String OVERLAY_COLOR_CACHE = "overlay_col_cache";
 
     // Plate sorting;
-    private List<PlateComparators.PlateAttribute> sortAttributeSelection;
+    private List<PlateAttribute> sortAttributeSelection;
 
     // List of objects that can be updated from this central place.
     List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
@@ -104,7 +105,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         }
     }
 
-    public void filterPlates(String pfs, PlateComparators.PlateAttribute pfa) {
+    public void filterPlates(String pfs, PlateAttribute pfa) {
         setPlateFilterAttribute(pfa);
         filterPlates(pfs);
     }
@@ -113,26 +114,26 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     /**
      * Plate Sorting
      */
-    public void sortPlates(PlateComparators.PlateAttribute attribute) {
+    public void sortPlates(PlateAttribute attribute) {
         sortPlates(attribute, false);
     }
 
-    public void sortPlates(PlateComparators.PlateAttribute attribute, boolean descending) {
+    public void sortPlates(PlateAttribute attribute, boolean descending) {
         Collections.sort(screen, PlateComparators.getComparator(attribute));
         if (!descending) { Collections.reverse(screen); }
     }
 
     public void setSortAttributeSelectionByTiles(String[] titles) {
-        sortAttributeSelection = new ArrayList<PlateComparators.PlateAttribute>();
+        sortAttributeSelection = new ArrayList<PlateAttribute>();
         for (String title : titles)
-            sortAttributeSelection.add(PlateComparators.getPlateAttributeByTitle(title));
+            sortAttributeSelection.add(PlateUtils.getPlateAttributeByTitle(title));
     }
 
     public String[] getSortAttributesSelectionTitles() {
         if (sortAttributeSelection == null) {
             return null;
         } else {
-            return PlateComparators.getPlateAttributeTitles(sortAttributeSelection);
+            return PlateUtils.getPlateAttributeTitles(sortAttributeSelection);
         }
     }
 
@@ -153,8 +154,8 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
     private void updateMaxOverlayFreqs(List<Plate> screen) {
-        Collection<Well> wellCollection = new ArrayList<Well>(TdsUtils.flattenWells(screen));
-        List<String> overlayNames = TdsUtils.flattenAnnotationTypes(screen);
+        Collection<Well> wellCollection = new ArrayList<Well>(PlateUtils.flattenWells(screen));
+        List<String> overlayNames = PlateUtils.flattenAnnotationTypes(screen);
 
         Map<String, Frequency> annotStats = new HashMap<String, Frequency>();
         for (String overlayName : overlayNames) {
@@ -236,13 +237,13 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
      * Attribute stuff.
      * TODO: This should be solved via the configuration dialog of the node eventually
      */
-    public Collection<PlateComparators.PlateAttribute> getPlateAttributes() {
-        Collection<PlateComparators.PlateAttribute> availableAttributes = new HashSet<PlateComparators.PlateAttribute>();
-        PlateComparators.PlateAttribute[] attributes = PlateComparators.PlateAttribute.values();
+    public Collection<PlateAttribute> getPlateAttributes() {
+        Collection<PlateAttribute> availableAttributes = new HashSet<PlateAttribute>();
+        PlateAttribute[] attributes = PlateAttribute.values();
 
         for (Plate plate : screen) {
 
-            for (PlateComparators.PlateAttribute attribute : attributes) {
+            for (PlateAttribute attribute : attributes) {
 
                 try {
                     Field field = plate.getClass().getDeclaredField(attribute.getName());
@@ -461,7 +462,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     }
 
 
-    public void setPlateFilterAttribute(PlateComparators.PlateAttribute fa) {
+    public void setPlateFilterAttribute(PlateAttribute fa) {
         this.plateFilterAttribute = fa;
     }
 

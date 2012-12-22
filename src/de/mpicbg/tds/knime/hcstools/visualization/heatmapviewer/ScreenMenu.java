@@ -9,7 +9,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateAttribute;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateComparators;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
 
 /**
  * Author: Felix Meyenhofer
@@ -129,7 +131,7 @@ public class ScreenMenu extends PlateMenu {
         List<String> inverted = Arrays.asList(selectedAttributes);
         Collections.reverse(inverted);
         for (String key : inverted) {
-            PlateComparators.PlateAttribute attribute = PlateComparators.getPlateAttributeByTitle(key);
+            PlateAttribute attribute = PlateUtils.getPlateAttributeByTitle(key);
             heatMapModel.sortPlates(attribute);
         }
 

@@ -83,6 +83,10 @@ public class Plate implements Serializable{
         this.barcode = barcode;
     }
 
+    /**
+     * Constructor for an empty well.
+     */
+    public Plate() {}
 
 //    @ManyToOne
 //    public Screen getScreen() {
@@ -310,9 +314,6 @@ public class Plate implements Serializable{
         }
     }
 
-
-//    public Plate() {
-//    }
 
     public static void configurePlateByBarcode(Plate plate, BarcodeParser barcodeReader) {
         plate.setLibraryCode(barcodeReader.getLibraryCode()); // use a fake barcode here
