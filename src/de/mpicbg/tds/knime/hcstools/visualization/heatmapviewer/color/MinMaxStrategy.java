@@ -12,7 +12,7 @@ import java.util.*;
  * @author Holger Brandl
  */
 
-public class MinMaxStrategy implements ReadoutRescaleStrategy {
+public class MinMaxStrategy implements RescaleStrategy {
 
     Map<String, Double> minMap = new HashMap<String, Double>();
     Map<String, Double> maxMap = new HashMap<String, Double>();

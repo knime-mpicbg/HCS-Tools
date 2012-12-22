@@ -5,7 +5,7 @@ import java.awt.*;
 import java.text.DecimalFormat;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRescaleStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.RescaleStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
 
 /**
@@ -56,7 +56,7 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         }
 
         // Set the color gradient
-        ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getReadoutRescaleStrategy();
+        RescaleStrategy displayNormStrategy = heatMapModel.getReadoutRescaleStrategy();
         gradientPanel.configure(heatMapModel.colorGradient);
 
         // Set the scale labels.

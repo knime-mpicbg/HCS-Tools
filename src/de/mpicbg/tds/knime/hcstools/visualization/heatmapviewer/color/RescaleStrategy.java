@@ -11,8 +11,7 @@ import java.util.Collection;
  * @author Holger Brandl
  */
 
-@Deprecated
-public interface ReadoutRescaleStrategy {
+public interface RescaleStrategy {
 
 	void configure(Collection<Plate> screen);
 

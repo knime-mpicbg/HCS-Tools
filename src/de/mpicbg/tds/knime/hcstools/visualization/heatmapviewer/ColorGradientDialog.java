@@ -13,7 +13,7 @@ import com.bric.swing.MultiThumbSlider;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ReadoutRescaleStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.RescaleStrategy;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 
@@ -142,7 +142,7 @@ public class ColorGradientDialog extends JDialog {
         slider.setValues(currentGradient.getFractions(), currentGradient.getColors());
 
         // Set the gradient labels
-        ReadoutRescaleStrategy displayNormStrategy = heatMapModel.getReadoutRescaleStrategy();
+        RescaleStrategy displayNormStrategy = heatMapModel.getReadoutRescaleStrategy();
         if ( heatMapModel.getSelectedReadOut() == null ) {
             System.err.println("No Readout is selected, can't calculate the minimum and maximum value of the color bar.");
         } else {

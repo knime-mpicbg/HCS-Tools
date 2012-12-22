@@ -314,7 +314,7 @@ public class Plate implements Serializable{
 //    public Plate() {
 //    }
 
-    public static void configurePlateByBarcode(de.mpicbg.tds.core.model.Plate plate, BarcodeParser barcodeReader) {
+    public static void configurePlateByBarcode(Plate plate, BarcodeParser barcodeReader) {
         plate.setLibraryCode(barcodeReader.getLibraryCode()); // use a fake barcode here
         plate.setLibraryPlateNumber(barcodeReader.getPlateNumber());
         plate.setScreenedAt(barcodeReader.getDate());
