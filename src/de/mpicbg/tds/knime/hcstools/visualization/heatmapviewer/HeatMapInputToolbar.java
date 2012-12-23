@@ -10,7 +10,6 @@ import javax.swing.*;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateAttribute;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateComparators;
 
 /**
  * Author: Felix Meyenhofer
@@ -54,7 +53,7 @@ public class HeatMapInputToolbar extends JToolBar {
         // Add the filter functionality for the ScreenViewer.
         if ( (parent == null ) || (parent instanceof ScreenViewer) ) {
             addSeparator();
-            add(new JLabel("Filter Plates by:"));
+            add(new JLabel("Filter by:"));
             filterSelector = new JComboBox();
             filterSelector.setPreferredSize(new Dimension(FILTER_WIDTH/2, -1));
             add(filterSelector);
