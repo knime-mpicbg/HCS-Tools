@@ -3,6 +3,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.MinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
@@ -11,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.Collection;
 
 /**
  * Author: Felix Meyenhofer
@@ -148,29 +150,32 @@ public class PlateMenu extends JMenuBar {
 
     protected JMenu createHiLiteMenu() {
         JMenu menu = new JMenu((HiLiteHandler.HILITE));
-        menu.add(HiLiteHandler.HILITE_SELECTED);
-        menu.add(HiLiteHandler.UNHILITE_SELECTED);
-        menu.add(HiLiteHandler.CLEAR_HILITE);
-        menu.add(createHiLiteFilterMenu());
+        JMenuItem item = menu.add(HiLiteHandler.HILITE_SELECTED);
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                hiLiteAction();
+            }
+        });
+        item = menu.add(HiLiteHandler.UNHILITE_SELECTED);
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                unHiLiteAction();
+            }
+        });
+        item = menu.add(HiLiteHandler.CLEAR_HILITE);
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                clearHiLiteAction();
+            }
+        });
+
         return menu;
     }
 
-    protected JMenu createHiLiteFilterMenu() {
-        JMenu menu = new JMenu("Filter");
-        ButtonGroup group = new ButtonGroup();
-        JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[3];
-        item[0] = new JRadioButtonMenuItem("Show All");
-        item[0].setSelected(true);
-        item[1] = new JRadioButtonMenuItem("Show HiLite Only");
-        item[2] = new JRadioButtonMenuItem("Show UnHiLite Only");
 
-        for (JRadioButtonMenuItem anItem : item) {
-            menu.add(anItem);
-            group.add(anItem);
-        }
-
-        return menu;
-    }
 
     protected JMenu createColorMapMenu() {
         JMenu lut = new JMenu("Colormap");
@@ -283,6 +288,23 @@ public class PlateMenu extends JMenuBar {
         JMenuItem item = (JMenuItem) e.getSource();
         JFrame frame = (JFrame) getTopLevelAncestor();
         frame.setAlwaysOnTop(item.isSelected());
+    }
+
+    private void unHiLiteAction() {
+        Collection<Well> selection = heatMapModel.getWellSelection();
+        heatMapModel.removeHilLites(selection);
+        heatMapModel.fireModelChanged();
+    }
+
+    private void clearHiLiteAction() {
+        heatMapModel.clearHiLites();
+        heatMapModel.fireModelChanged();
+    }
+
+    private void hiLiteAction() {
+        Collection<Well> selection = heatMapModel.getWellSelection();
+        heatMapModel.addHilLites(selection);
+        heatMapModel.fireModelChanged();
     }
 
 

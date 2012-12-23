@@ -38,11 +38,14 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     // contains all plates
     private List<Plate> screen;
     private String currentReadout;
-    HashMap<Plate, Boolean> plateFiltered = new HashMap<Plate, Boolean>();
 
     // Well selection
     Collection<Well> selection = new ArrayList<Well>();
     private boolean markSelection = true;
+
+    // Hiliteing
+    Collection<Well> hiLite = new ArrayList<Well>();
+    private HiLiteDisplayMode hiLiteDisplayModus = HiLiteDisplayMode.ALL;
 
     // Trellis settings
     private boolean automaticTrellisConfiguration = true;
@@ -58,6 +61,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     //Plate Filtering
     private String plateFilterString = "";
     private PlateAttribute plateFilterAttribute = PlateAttribute.BARCODE;
+    HashMap<Plate, Boolean> plateFiltered = new HashMap<Plate, Boolean>();
 //    public static final String OVERLAY_COLOR_CACHE = "overlay_col_cache";
 
     // Plate sorting;
@@ -202,8 +206,8 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     public void setScreen(List<Plate> screen) {
         this.screen = screen;
 
-        // just to test sorting mechanism
-        Collections.sort(screen, PlateComparators.getDateComparator());
+//        // just to test sorting mechanism
+//        Collections.sort(screen, PlateComparators.getDateComparator());
 
         for(Plate p : screen) {
             plateFiltered.put(p, true);
@@ -230,6 +234,32 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
                 number++;
         }
         return number;
+    }
+
+    public List<Plate> getPlatesToDisplay() {
+        List<Plate> subset = new ArrayList<Plate>();
+
+        switch (this.hiLiteDisplayModus) {
+            case HILITE_ONLY:
+                for (Plate plate : this.screen)
+                    if ( isPlateHiLited(plate) && plateFiltered.get(plate) )
+                        subset.add(plate);
+                break;
+
+            case UNHILITE_ONLY:
+                for (Plate plate : this.screen)
+                    if ( !isPlateHiLited(plate) && plateFiltered.get(plate) )
+                        subset.add(plate);
+                break;
+
+            case ALL:
+                for (Plate plate : this.screen)
+                    if ( plateFiltered.get(plate) )
+                        subset.add(plate);
+                break;
+        }
+
+        return subset;
     }
 
 
@@ -370,10 +400,6 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         }
     }
 
-    public List<HeatMapModelChangeListener> getChangeListeners() {
-        return changeListeners;
-    }
-
     public void removeChangeListener(HeatMapModelChangeListener listener) {
         changeListeners.remove(listener);
     }
@@ -451,6 +477,54 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Knime Hiliting
+     */
+    public Collection<Well> getHiLite() {
+        return hiLite;
+    }
+
+    public void setHiLite(Collection<Well> hiLite) {
+        this.hiLite = hiLite;
+    }
+
+    public void addHilLites(Collection<Well> wells) {
+        this.hiLite.addAll(wells);
+
+    }
+
+    public void removeHilLites(Collection<Well> wells) {
+        this.hiLite.removeAll(wells);
+    }
+
+    public void clearHiLites() {
+        this.hiLite.clear();
+    }
+
+    public boolean isPlateHiLited(Plate plate) {
+        for (Well well : plate.getWells()) {
+            if ( isWellHiLited(well) ) { return true; }
+        }
+        return false;
+    }
+
+    public boolean isWellHiLited(Well well) {
+        if ( (hiLite == null) || hiLite.isEmpty() )
+            return false;
+
+        for (Well w : hiLite) {
+            if (well.getPlateColumn().equals(w.getPlateColumn()) &&
+                    well.getPlateRow().equals(w.getPlateRow()) &&
+                    well.getPlate().getBarcode().equals(w.getPlate().getBarcode()))
+                return true;
+        }
+        return false;
+    }
+
+    public void setHiLiteDisplayModus(HiLiteDisplayMode mode) {
+        this.hiLiteDisplayModus = mode;
     }
 
 
@@ -536,5 +610,9 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     public void setGlobalScaling(boolean globalScaling) {
         this.globalScaling = globalScaling;
     }
+
+
+
+    protected enum HiLiteDisplayMode {HILITE_ONLY, UNHILITE_ONLY, ALL}
 
 }

@@ -218,8 +218,14 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
 
             // Choose the background color.
             Color backgroundColor = getRootPane().getBackground();
-            if ( heatMapModel.doMarkSelection() && heatMapModel.isPlateSelected(plate) ) {
-                backgroundColor = ScreenColorScheme.getInstance().selectionColor;
+            if ( heatMapModel.doMarkSelection() ) {
+                if ( heatMapModel.isPlateHiLited(plate) && heatMapModel.isPlateSelected(plate) ) {
+                    backgroundColor = ScreenColorScheme.getInstance().selectionAndHiLiteColor;
+                } else if ( heatMapModel.isPlateHiLited(plate) ) {
+                    backgroundColor = ScreenColorScheme.getInstance().HilLiteColor;
+                } else if ( heatMapModel.isPlateSelected(plate) ) {
+                    backgroundColor = ScreenColorScheme.getInstance().selectionColor;
+                }
             }
             plateContainer.setBackground(backgroundColor);
 
@@ -386,11 +392,10 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
 
     private List<HeatScreen> createHeatMaps() {
         List<HeatScreen> currentHeatMaps = new ArrayList<HeatScreen>();
-        for ( Plate plate : heatMapModel.getScreen() ) {
-            if (heatMapModel.plateFiltered.get(plate)) {
-                currentHeatMaps.add(new HeatScreen(plate, heatMapModel));
-            }
-        }
+
+        for ( Plate plate : heatMapModel.getPlatesToDisplay() )
+            currentHeatMaps.add(new HeatScreen(plate, heatMapModel));
+
         return currentHeatMaps;
     }
 

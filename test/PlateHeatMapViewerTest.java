@@ -176,6 +176,7 @@ public class PlateHeatMapViewerTest {
             for (DataRow tableRow : wellRows) {
                 Well well = new Well();
                 curPlate.getWells().add(well);
+                well.setKnimeTableRowKey(tableRow.getKey());
                 well.setPlate(curPlate);
                 well.setPlateRow(plateRowAttribute.getIntAttribute(tableRow));
                 well.setPlateColumn(plateColAttribute.getIntAttribute(tableRow));

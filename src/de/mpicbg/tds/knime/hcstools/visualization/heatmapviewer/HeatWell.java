@@ -150,9 +150,19 @@ public class HeatWell extends JPanel {
         }
 
         // Selection dot.
-        if (heatMapModel.doMarkSelection() && heatMapModel.isWellSelected(well)) {
-            g2d.setColor(ScreenColorScheme.getInstance().selectionColor);
-            g2d.fillRect(getWidth() / 2 - 3, getHeight() / 2 - 3, 6, 6);
+        if ( heatMapModel.doMarkSelection() ) {
+            Color dotColor = null;
+            if ( heatMapModel.isWellHiLited(well) && heatMapModel.isWellSelected(well)) {
+                dotColor = ScreenColorScheme.getInstance().selectionAndHiLiteColor;
+            } else if ( heatMapModel.isWellHiLited(well) ) {
+                dotColor = ScreenColorScheme.getInstance().HilLiteColor;
+            } else if ( heatMapModel.isWellSelected(well)) {
+                dotColor = ScreenColorScheme.getInstance().selectionColor;
+            }
+            if (dotColor != null) {
+                g2d.setColor(dotColor);
+                g2d.fillRect(getWidth() / 2 - 3, getHeight() / 2 - 3, 6, 6);
+            }
         }
 
         //the actual value color.

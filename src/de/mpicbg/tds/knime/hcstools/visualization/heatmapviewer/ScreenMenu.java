@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateAttribute;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateComparators;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
 
 /**
@@ -117,6 +116,43 @@ public class ScreenMenu extends PlateMenu {
         });
         menu.add(globalScaling);
 
+        menu.add(createHiLiteFilterMenu());
+
+        return menu;
+    }
+
+    protected JMenu createHiLiteFilterMenu() {
+        JMenu menu = new JMenu("HiLite Filter");
+        ButtonGroup group = new ButtonGroup();
+        JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[3];
+        item[0] = new JRadioButtonMenuItem("Show All");
+        item[0].setSelected(true);
+        item[0].addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                displayModeAction(HeatMapModel2.HiLiteDisplayMode.ALL);
+            }
+        });
+        item[1] = new JRadioButtonMenuItem("Show HiLite Only");
+        item[1].addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                displayModeAction(HeatMapModel2.HiLiteDisplayMode.HILITE_ONLY);
+            }
+        });
+        item[2] = new JRadioButtonMenuItem("Show UnHiLite Only");
+        item[2].addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                displayModeAction(HeatMapModel2.HiLiteDisplayMode.UNHILITE_ONLY);
+            }
+        });
+
+        for (JRadioButtonMenuItem anItem : item) {
+            menu.add(anItem);
+            group.add(anItem);
+        }
+
         return menu;
     }
 
@@ -180,6 +216,11 @@ public class ScreenMenu extends PlateMenu {
             heatMapModel.setGlobalScaling(item.isSelected());
             heatTrellis.closePlateViewers();
         }
+    }
+
+    private void displayModeAction(HeatMapModel2.HiLiteDisplayMode mode) {
+        heatMapModel.setHiLiteDisplayModus(mode);
+        heatMapModel.fireModelChanged();
     }
 
 
