@@ -57,6 +57,10 @@ public class Plate implements Serializable{
      */
     private String description;
 
+    /**
+     * Plate label for display purposes.
+     */
+    private String label;
 
     /**
      * List of wells containing additional well information, annotations, and readouts.
@@ -72,8 +76,6 @@ public class Plate implements Serializable{
      * ID (from where? what id?) TODO: add proper description
      */
     private String id;
-
-
 
     /**
      * Constructor
@@ -197,6 +199,14 @@ public class Plate implements Serializable{
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
 
