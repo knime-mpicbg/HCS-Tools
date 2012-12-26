@@ -4,6 +4,8 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.MinMaxStra
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
+import org.knime.core.data.RowKey;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
@@ -13,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Author: Felix Meyenhofer
@@ -294,17 +297,31 @@ public class PlateMenu extends JMenuBar {
         Collection<Well> selection = heatMapModel.getWellSelection();
         heatMapModel.removeHilLites(selection);
         heatMapModel.fireModelChanged();
+
+        HashSet<RowKey> keys = new HashSet<RowKey>();
+        for (Well well : selection) {
+            keys.add(well.getKnimeTableRowKey());
+        }
+        window.getNodeModel().getInHiLiteHandler(0).fireUnHiLiteEvent(keys); //TODO: put the port number in a variable in the nodemodel
     }
 
     private void clearHiLiteAction() {
         heatMapModel.clearHiLites();
         heatMapModel.fireModelChanged();
+
+        window.getNodeModel().getInHiLiteHandler(0).fireClearHiLiteEvent(); //TODO: put the port number in a variable in the nodemodel
     }
 
     private void hiLiteAction() {
         Collection<Well> selection = heatMapModel.getWellSelection();
         heatMapModel.addHilLites(selection);
         heatMapModel.fireModelChanged();
+
+        HashSet<RowKey> keys = new HashSet<RowKey>();
+        for (Well well : selection) {
+            keys.add(well.getKnimeTableRowKey());
+        }
+        window.getNodeModel().getInHiLiteHandler(0).fireHiLiteEvent(keys); //TODO: put the port number in a variable in the nodemodel
     }
 
 

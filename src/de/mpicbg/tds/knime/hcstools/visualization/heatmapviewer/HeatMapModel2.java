@@ -495,8 +495,16 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     }
 
+    public void addHilLites(Well well) {
+        this.hiLite.add(well);
+    }
+
     public void removeHilLites(Collection<Well> wells) {
         this.hiLite.removeAll(wells);
+    }
+
+    public void removeHiLite(Well well) {
+        this.hiLite.remove(well);
     }
 
     public void clearHiLites() {

@@ -2,6 +2,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
+import org.knime.core.node.NodeModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,6 +28,8 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
     private PlateMenu menu;
+
+    private NodeModel node;
 
 
     /**
@@ -148,6 +151,11 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     /**
      * Viewer interface
      */
+    @Override
+    public NodeModel getNodeModel() {
+        return node;
+    }
+
     @Override
     public void toggleToolbarVisibility(boolean visibility) {
         toolbar.setVisible(visibility);

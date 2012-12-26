@@ -1,13 +1,17 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
-
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
+import org.knime.core.data.RowKey;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User: Felix Meyenhofer
@@ -26,12 +30,24 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
     private HeatTrellis heatTrellis;
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
+
+    // Data carrier
     private HeatMapModel2 heatMapModel;
 
+    // Parent node
+    private NodeModel node;
 
-    // Constructor
+
+    /**
+     * Constructors
+     */
     public ScreenViewer(){
         this(null);
+    }
+
+    public ScreenViewer(NodeModel nodeModel, List<Plate> plates) {
+        this(plates);
+        this.node = nodeModel;
     }
 
     public ScreenViewer(List<Plate> plates) {
@@ -68,30 +84,43 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
 
     // HiLiteListener methods.
     public void hiLite(final KeyEvent event) {
-//        getNodeModel()
+        Set<RowKey> keys = event.keys();
+        Collection<Plate> plates = heatMapModel.getScreen();
+        for (Plate plate : plates){
+            for (Well well : plate.getWells()) {
+                if ( keys.contains(well.getKnimeTableRowKey()) ) {
+                    heatMapModel.addHilLites(well);
+                }
+            }
+        }
+        heatMapModel.fireModelChanged();
     }
 
     public void unHiLite(final KeyEvent event) {
+        Set<RowKey> keys = event.keys();
+        for (Well well : heatMapModel.getHiLite()) {
+            if ( keys.contains(well.getKnimeTableRowKey()) ) {
+                heatMapModel.removeHiLite(well);
+            }
+        }
+        heatMapModel.fireModelChanged();
     }
 
     public void unHiLiteAll(final KeyEvent event) {
+        heatMapModel.clearHiLites();
+        heatMapModel.fireModelChanged();
     }
-
-
-//    public void setData(ScreenViewer data) {
-//    }
-//
-//    public void getData(ScreenViewer data) {
-//    }
-//
-//    public boolean isModified(ScreenViewer data) {
-//        return false;
-//    }
 
 
     public HeatTrellis getHeatTrellis() {
         return heatTrellis;
     }
+
+    @Override
+    public NodeModel getNodeModel() {
+        return node;
+    }
+
 
     @Override
     public HeatMapModel2 getHeatMapModel() {
