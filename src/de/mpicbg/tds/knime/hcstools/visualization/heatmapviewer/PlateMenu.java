@@ -302,14 +302,23 @@ public class PlateMenu extends JMenuBar {
         for (Well well : selection) {
             keys.add(well.getKnimeTableRowKey());
         }
-        window.getNodeModel().getInHiLiteHandler(0).fireUnHiLiteEvent(keys); //TODO: put the port number in a variable in the nodemodel
+
+        if (window.getNodeModel() == null) {
+            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
+        } else {
+            window.getNodeModel().getInHiLiteHandler(0).fireUnHiLiteEvent(keys); //TODO: put the port number in a variable in the nodemodel
+        }
     }
 
     private void clearHiLiteAction() {
         heatMapModel.clearHiLites();
         heatMapModel.fireModelChanged();
 
-        window.getNodeModel().getInHiLiteHandler(0).fireClearHiLiteEvent(); //TODO: put the port number in a variable in the nodemodel
+        if (window.getNodeModel() == null) {
+            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
+        } else {
+            window.getNodeModel().getInHiLiteHandler(0).fireClearHiLiteEvent(); //TODO: put the port number in a variable in the nodemodel
+        }
     }
 
     private void hiLiteAction() {
@@ -321,7 +330,12 @@ public class PlateMenu extends JMenuBar {
         for (Well well : selection) {
             keys.add(well.getKnimeTableRowKey());
         }
-        window.getNodeModel().getInHiLiteHandler(0).fireHiLiteEvent(keys); //TODO: put the port number in a variable in the nodemodel
+
+        if (window.getNodeModel() == null) {
+            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
+        } else {
+            window.getNodeModel().getInHiLiteHandler(0).fireHiLiteEvent(keys); //TODO: put the port number in a variable in the nodemodel
+        }
     }
 
 
