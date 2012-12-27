@@ -23,11 +23,7 @@ import java.util.List;
 public class HeatMapModel2 {                   //TODO remove the 2 once the transition from the old to the new HeatMapModel is completed
 
     // Reference populations
-    //TODO: This will be set by the Configuration dialog of the node at some point. This here is just a testing hack.
-    public static HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
-    static {
-        referencePopulations.put("transfection",new String[]{"Mock", "Tox3", "Neg5"});
-    }
+    public HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
 
     // Coloring attributes
     private RescaleStrategy readoutRescaleStrategy = new MinMaxStrategy();
@@ -603,8 +599,15 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
      * Reference populations.
      */
     public String[] getReferencePopulations() {
-        String attribute = (String) referencePopulations.keySet().toArray()[0];
-        return referencePopulations.get(attribute);
+        return referencePopulations.get(getReferencePopulationParameter());
+    }
+
+    public String getReferencePopulationParameter() {
+        return (String) referencePopulations.keySet().toArray()[0];
+    }
+
+    public void setReferencePopulations(HashMap<String, String[]> referencePopulations) {
+        this.referencePopulations = referencePopulations;
     }
 
 

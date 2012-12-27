@@ -1,5 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
+import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import org.knime.core.data.RowKey;
@@ -10,6 +11,7 @@ import org.knime.core.node.property.hilite.KeyEvent;
 import javax.swing.*;
 import java.awt.BorderLayout;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -39,20 +41,28 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
 
 
     /**
-     * Constructors
+     * Constructors for the node factory
+     * @param nodeModel HeatMapViewerNodeModel
      */
-    public ScreenViewer(){
-        this(null);
-    }
-
-    public ScreenViewer(NodeModel nodeModel, List<Plate> plates) {
-        this(plates);
+    public ScreenViewer(HeatMapViewerNodeModel nodeModel) {
+        this(nodeModel.getPlates());
         this.node = nodeModel;
+        this.heatMapModel.setReferencePopulations(nodeModel.reference);
     }
 
+    /**
+     * Constructor for testing.
+     * @param plates list of plates
+     * @see Plate
+     */
     public ScreenViewer(List<Plate> plates) {
         heatMapModel = new HeatMapModel2();
         heatMapModel.setScreen(plates);
+
+        HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
+        referencePopulations.put("transfection",new String[]{"Mock", "Tox3", "Neg5"});
+        heatMapModel.setReferencePopulations(referencePopulations);
+
         initialize();
         configure();
         setBounds(50, 150, WIDTH, HEIGHT);
@@ -136,11 +146,5 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
     public void toggleToolbarVisibility(boolean flag) {
         this.toolbar.setVisible(flag);
     }
-
-
-    public static void main(String[] args) {
-        new ScreenViewer();
-    }
-
 
 }
