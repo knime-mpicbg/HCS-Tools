@@ -232,9 +232,13 @@ public class PlateHeatMapViewerTest {
 //        new ScreenPanelFrame(plates);
 
 
-
         // Create screen view panel
         ScreenViewer view = new ScreenViewer(plates);
+
+        // Set some reference populations.
+        HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
+        referencePopulations.put("transfection",new String[]{"Mock", "Tox3", "Neg5"});
+        view.getHeatMapModel().setReferencePopulations(referencePopulations);
 
         // Create a frame to carry it.
         JFrame frame = new JFrame("Whatever");

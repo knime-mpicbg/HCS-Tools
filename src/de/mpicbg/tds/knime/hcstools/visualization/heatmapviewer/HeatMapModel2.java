@@ -390,7 +390,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
      * This is a convenience method to update the GUI. It should not be called from this class but rather from other
      * classes using the HeatMapModel as a information carrier.
      */
-    void fireModelChanged() {
+    public void fireModelChanged() {
         for (HeatMapModelChangeListener changeListener : changeListeners) {
             changeListener.modelChanged();
         }
@@ -599,10 +599,16 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
      * Reference populations.
      */
     public String[] getReferencePopulations() {
+        if ( (referencePopulations == null) || referencePopulations.isEmpty() )
+            return null;
+
         return referencePopulations.get(getReferencePopulationParameter());
     }
 
     public String getReferencePopulationParameter() {
+        if ( (referencePopulations == null) || referencePopulations.isEmpty() )
+            return null;
+
         return (String) referencePopulations.keySet().toArray()[0];
     }
 

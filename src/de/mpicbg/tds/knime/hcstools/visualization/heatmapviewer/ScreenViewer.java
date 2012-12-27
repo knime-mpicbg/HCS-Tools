@@ -60,10 +60,6 @@ public class ScreenViewer extends JPanel implements HiLiteListener, HeatMapViewe
         heatMapModel = new HeatMapModel2();
         heatMapModel.setScreen(plates);
 
-        HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
-        referencePopulations.put("transfection",new String[]{"Mock", "Tox3", "Neg5"});
-        heatMapModel.setReferencePopulations(referencePopulations);
-
         initialize();
         configure();
 //        setBounds(50, 150, WIDTH, HEIGHT);
