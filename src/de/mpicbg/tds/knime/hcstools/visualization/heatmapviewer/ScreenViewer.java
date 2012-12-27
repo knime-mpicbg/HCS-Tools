@@ -37,7 +37,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
     private HeatMapModel2 heatMapModel;
 
     // Parent node
-    private NodeModel node;
+    private HeatMapViewerNodeModel node;
 
 
     /**
@@ -86,9 +86,9 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
     }
 
     private void configure() {
-        heatTrellis.configure(heatMapModel);
-        toolbar.configure(heatMapModel);
-        colorbar.configure(heatMapModel);
+        heatTrellis.configure(this.heatMapModel);
+        toolbar.configure(this.heatMapModel);
+        colorbar.configure(this.heatMapModel);
     }
 
 
@@ -129,6 +129,11 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
     @Override
     public NodeModel getNodeModel() {
         return node;
+    }
+
+    @Override
+    public JMenuBar getDefaultMenu() {
+        return getJMenuBar();
     }
 
 

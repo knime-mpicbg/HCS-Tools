@@ -5,7 +5,6 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGrad
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import org.knime.core.data.RowKey;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
@@ -44,6 +43,10 @@ public class PlateMenu extends JMenuBar {
             configure(new HeatMapModel2());
         } else {
             configure(parent.getHeatMapModel());
+            JMenuBar parentMenu = parent.getDefaultMenu();
+            if (parentMenu != null)
+                for (int i=0; i<parentMenu.getMenuCount(); i++)
+                    this.add(parentMenu.getMenu(i));
         }
 
         this.add(createHiLiteMenu());

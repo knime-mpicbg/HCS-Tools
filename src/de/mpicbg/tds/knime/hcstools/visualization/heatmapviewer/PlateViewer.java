@@ -132,7 +132,6 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         add(colorbar, BorderLayout.SOUTH);
     }
 
-
     public HeatTrellis getUpdater() {
         return updater;
     }
@@ -154,6 +153,11 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     @Override
     public NodeModel getNodeModel() {
         return node;
+    }
+
+    @Override
+    public JMenuBar getDefaultMenu() {
+        return this.getJMenuBar();
     }
 
     @Override
