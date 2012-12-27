@@ -156,21 +156,23 @@ public class ColorGradientDialog extends JDialog {
             maxLabel.setText(HeatMapColorToolBar.format(maxValue));
 
             // Update the population panels
-            HashMap<String, Double[]> descriptors = getDescriptors();
             GridBagConstraints constraints = new GridBagConstraints();
             constraints.fill = GridBagConstraints.BOTH;
             constraints.weightx = 1;
             constraints.weighty = -1;
             constraints.gridx = 0;
-            int index = 0;
             String[] populations = heatMapModel.getReferencePopulations();
-            for (String population : populations) {
-                Double[] values = descriptors.get(population);
-                PopulationPanel populationIndicator = new PopulationPanel(this, population);
-                populationIndicator.configure(population, values[0].floatValue(), values[1].floatValue(), minValue.floatValue(), maxValue.floatValue());
-                populationIndicators.add(populationIndicator);
-                constraints.gridy = index;
-                populationPanel.add(populationIndicators.get(index++), constraints);
+            if (populations != null) {
+                HashMap<String, Double[]> descriptors = getDescriptors();
+                int index = 0;
+                for (String population : populations) {
+                    Double[] values = descriptors.get(population);
+                    PopulationPanel populationIndicator = new PopulationPanel(this, population);
+                    populationIndicator.configure(population, values[0].floatValue(), values[1].floatValue(), minValue.floatValue(), maxValue.floatValue());
+                    populationIndicators.add(populationIndicator);
+                    constraints.gridy = index;
+                    populationPanel.add(populationIndicators.get(index++), constraints);
+                }
             }
             updateDialogDimensions();
         }
