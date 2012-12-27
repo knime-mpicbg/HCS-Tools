@@ -1,5 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateAttribute;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,43 +12,25 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateAttribute;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
-
 /**
- * Author: Felix Meyenhofer
- * Date: 20/12/12
- *
- * Menu for the ScreenViewer
+ * @author Felix Meyenhofer
+ *         creation: 12/27/12
  */
 
-public class ScreenMenu extends PlateMenu {
+public class TrellisMenu extends JMenu {
 
     private HeatTrellis heatTrellis;
-
-
-    /**
-     * Constructors
-     */
-    public ScreenMenu() {
-        this(null);
-    }
-
-    public ScreenMenu(ScreenViewer parent) {
-        super(parent);
-
-        if (parent != null)
-            heatTrellis = parent.getHeatTrellis();
-
-        this.add(createTrellisMenu());
-    }
-
+    private HeatMapModel2 heatMapModel;
 
     /**
-     * Methods for menu creation
+     * Constructor of the heatmap trellis menu
+     * @param parent a HeatMapViewer object
      */
-    private JMenu createTrellisMenu() {
-        JMenu menu = new JMenu("Trellis");
+    public TrellisMenu(ScreenViewer parent) {
+        this.heatTrellis = parent.getHeatTrellis();
+        this.heatMapModel = parent.getHeatMapModel();
+
+        this.setText("Trellis");
 
         JMenuItem zoomIn = new JMenuItem("Zoom in", KeyEvent.VK_T);
         zoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.META_MASK));
@@ -55,7 +40,7 @@ public class ScreenMenu extends PlateMenu {
                 zoomInAction();
             }
         });
-        menu.add(zoomIn);
+        this.add(zoomIn);
 
         JMenuItem zoomOut = new JMenuItem("Zoom out");
         zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, InputEvent.META_MASK));
@@ -65,7 +50,7 @@ public class ScreenMenu extends PlateMenu {
                 zoomOutAction();
             }
         });
-        menu.add(zoomOut);
+        this.add(zoomOut);
 
         JMenuItem rowsColumns = new JMenuItem("Rows/Columns");
         rowsColumns.addActionListener(new ActionListener() {
@@ -75,9 +60,9 @@ public class ScreenMenu extends PlateMenu {
             }
         });
         rowsColumns.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.META_MASK));
-        menu.add(rowsColumns);
+        this.add(rowsColumns);
 
-        JMenuItem sortPlates = menu.add("Sort Plates");
+        JMenuItem sortPlates = this.add("Sort Plates");
         sortPlates.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -85,7 +70,7 @@ public class ScreenMenu extends PlateMenu {
             }
         });
         sortPlates.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK));
-        menu.add(sortPlates);
+        this.add(sortPlates);
 
         JCheckBoxMenuItem plateDimensions = new JCheckBoxMenuItem("Fix Plate Proportions");
         plateDimensions.setSelected(true);
@@ -95,7 +80,7 @@ public class ScreenMenu extends PlateMenu {
                 plateDimensionsAction(actionEvent);
             }
         });
-        menu.add(plateDimensions);
+        this.add(plateDimensions);
 
         JMenuItem closeAll = new JMenuItem("Close All Plate Viewers");
         closeAll.addActionListener(new ActionListener() {
@@ -104,7 +89,7 @@ public class ScreenMenu extends PlateMenu {
                 heatTrellis.closePlateViewers();
             }
         });
-        menu.add(closeAll);
+        this.add(closeAll);
 
         JCheckBoxMenuItem globalScaling = new JCheckBoxMenuItem("Global Color Scale");
         globalScaling.setSelected(heatMapModel.isGlobalScaling());
@@ -114,14 +99,17 @@ public class ScreenMenu extends PlateMenu {
                 globalScalingAction(event);
             }
         });
-        menu.add(globalScaling);
+        this.add(globalScaling);
 
-        menu.add(createHiLiteFilterMenu());
+        this.add(createHiLiteFilterMenu());
 
-        return menu;
     }
 
-    protected JMenu createHiLiteFilterMenu() {
+    /**
+     * Returns the HiLite filter sub-menu.
+     * @return sub-menu
+     */
+    private JMenu createHiLiteFilterMenu() {
         JMenu menu = new JMenu("HiLite Filter");
         ButtonGroup group = new ButtonGroup();
         JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[3];
@@ -202,14 +190,14 @@ public class ScreenMenu extends PlateMenu {
 
         Object[] options = {"Cancel", "Proceed"};
         int optionIndex = JOptionPane.showOptionDialog(getTopLevelAncestor(),
-                                                        "<html>To keep the windows consistent,<br/>" +
-                                                                "all the Plate Viewers will be closed</htmal>",
-                                                        "Changing the global scaling Option",
-                                                        JOptionPane.YES_NO_OPTION,
-                                                        JOptionPane.WARNING_MESSAGE,
-                                                        null,
-                                                        options,
-                                                        options[1]);
+                "<html>To keep the windows consistent,<br/>" +
+                        "all the Plate Viewers will be closed</htmal>",
+                "Changing the global scaling Option",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                options,
+                options[1]);
         if ( optionIndex == 0 ) {
             item.setSelected(heatMapModel.isGlobalScaling());
         } else {
@@ -221,24 +209,6 @@ public class ScreenMenu extends PlateMenu {
     private void displayModeAction(HeatMapModel2.HiLiteDisplayMode mode) {
         heatMapModel.setHiLiteDisplayModus(mode);
         heatMapModel.fireModelChanged();
-    }
-
-
-    /**
-     * Testing
-     */
-    public static void main(String[] args) {
-        JFrame frame = new JFrame();
-        JPanel panel = new JPanel();
-        JTextArea text = new JTextArea("This is some text");
-        text.setEnabled(true);
-        text.setEditable(false);
-        panel.add(text);
-        frame.setContentPane(panel);
-        frame.setJMenuBar(new ScreenMenu());
-        frame.pack();
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
 }

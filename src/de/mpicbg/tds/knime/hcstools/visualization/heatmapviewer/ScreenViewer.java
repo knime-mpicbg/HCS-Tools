@@ -9,24 +9,25 @@ import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
 /**
- * User: Felix Meyenhofer
- * Date: 10/4/12
- *
  * Creates a window containing all the heat-maps of a screen.
+ * The screen view is constructed in a JPanel to fit in the NodeView (JFrames don't)
+ *
+ * @author Felix Meyenhofer
+ * Date: 10/4/12
  */
 
-public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewer{
+public class ScreenViewer extends JPanel implements HiLiteListener, HeatMapViewer {
 
-    // Window size factors
-    public final int HEIGHT = 600;
-    public final int WIDTH = 810;
+//    // Window size factors
+//    public final int HEIGHT = 600;
+//    public final int WIDTH = 810;
 
     // Component fields.
     private HeatTrellis heatTrellis;
@@ -53,7 +54,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
     /**
      * Constructor for testing.
      * @param plates list of plates
-     * @see Plate
+     * @see de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate
      */
     public ScreenViewer(List<Plate> plates) {
         heatMapModel = new HeatMapModel2();
@@ -65,8 +66,7 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
 
         initialize();
         configure();
-        setBounds(50, 150, WIDTH, HEIGHT);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//        setBounds(50, 150, WIDTH, HEIGHT);
         setVisible(true);
     }
 
@@ -76,13 +76,10 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
         colorbar = new HeatMapColorToolBar();
         heatTrellis = new HeatTrellis();
 
+        this.setLayout(new BorderLayout());
         add(toolbar, BorderLayout.NORTH);
         add(heatTrellis, BorderLayout.CENTER);
         add(colorbar, BorderLayout.SOUTH);
-
-        ScreenMenu menus = new ScreenMenu(this);
-        setTitle("HCS Heatmap Viewer");
-        setJMenuBar(menus);
     }
 
     private void configure() {
@@ -132,24 +129,17 @@ public class ScreenViewer extends JFrame implements HiLiteListener, HeatMapViewe
     }
 
     @Override
-    public JMenuBar getDefaultMenu() {
-        return getJMenuBar();
-    }
-
-
-    @Override
     public HeatMapModel2 getHeatMapModel() {
         return heatMapModel;
     }
 
     @Override
-    public void toggleColorbarVisibility(boolean flag) {
-        this.colorbar.setVisible(flag);
+    public HeatMapColorToolBar getColorBar() {
+        return this.colorbar;
     }
 
     @Override
-    public void toggleToolbarVisibility(boolean flag) {
-        this.toolbar.setVisible(flag);
+    public HeatMapInputToolbar getToolBar() {
+        return this.toolbar;
     }
-
 }

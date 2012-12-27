@@ -12,11 +12,12 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * User: Felix Meyenhofer
- * Date: 20/12/12
  *
  * Creates a window for a detailed plate view.
  * Replaces PlatePanel
+ *
+ * @author Felix Meyenhofer
+ *         created: 20/12/12
  */
 
 public class PlateViewer extends JFrame implements HeatMapModelChangeListener, HeatMapViewer {
@@ -27,9 +28,6 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     private JPanel heatMapContainer;
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
-    private PlateMenu menu;
-
-    private NodeModel node;
 
 
     /**
@@ -53,9 +51,8 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         model.setHiLite(parent.heatMapModel.getHiLite());
 
         if ( parent.heatMapModel.isGlobalScaling() ) {
-            this.menu.colorMenu.setEnabled(!parent.heatMapModel.isGlobalScaling());
-        model.setScreen(parent.heatMapModel.getScreen());
-        model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategy());
+            model.setScreen(parent.heatMapModel.getScreen());
+            model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategy());
         } else {
             model.setScreen(Arrays.asList(plate));
             model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategyInstance());
@@ -63,12 +60,21 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
 
         this.heatMapModel = model;
 
+        // Creating the menu
+        JMenuBar menu = new JMenuBar();
+        menu.add(new HiLiteMenu(this));
+        ViewMenu viewMenu = new ViewMenu(this);
+        menu.add(viewMenu);
+        if ( parent.heatMapModel.isGlobalScaling() )
+            viewMenu.getColorMenuItem().setEnabled(!parent.heatMapModel.isGlobalScaling());
+        setJMenuBar(menu);
+
         // Register the Viewer in the ChangeListeners
         parent.heatMapModel.addChangeListener(this);
         this.heatMapModel.addChangeListener(this);
 
         // Configure
-        this.menu.configure(this.heatMapModel);
+//        this.menu.configure(this.heatMapModel);
         this.toolbar.configure(this.heatMapModel);
         this.colorbar.configure(this.heatMapModel);
 
@@ -116,8 +122,8 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
      * Helper Methods
      */
     private void initialize() {
-        menu = new PlateMenu(this);
-        setJMenuBar(menu);
+//        menu = new PlateMenu(this);
+//        setJMenuBar(menu);
 
         setLayout(new BorderLayout());
 
@@ -152,22 +158,17 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
      */
     @Override
     public NodeModel getNodeModel() {
-        return node;
+        return null;
     }
 
     @Override
-    public JMenuBar getDefaultMenu() {
-        return this.getJMenuBar();
+    public HeatMapColorToolBar getColorBar() {
+        return colorbar;
     }
 
     @Override
-    public void toggleToolbarVisibility(boolean visibility) {
-        toolbar.setVisible(visibility);
-    }
-
-    @Override
-    public void toggleColorbarVisibility(boolean visibility) {
-        colorbar.setVisible(visibility);
+    public HeatMapInputToolbar getToolBar() {
+        return toolbar;
     }
 
     @Override

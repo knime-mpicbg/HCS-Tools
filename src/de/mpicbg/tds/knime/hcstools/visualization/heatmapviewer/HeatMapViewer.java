@@ -2,30 +2,21 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import org.knime.core.node.NodeModel;
 
-import javax.swing.*;
-
 /**
- * Interface define the minimum functionality the Viewers should provide for the Menu.
- *
- * @see PlateViewer
- * @see ScreenViewer
- * @see PlateMenu
- * @see ScreenMenu
+ * Interface between the Viewers one one side and the Menus and toolbars on the other.
  *
  * @author Felix Meyenhofer
- * Date: 12/19/12
+ *         creation: 12/27/12
  */
 
-public interface HeatMapViewer {
+interface HeatMapViewer {
 
-    public void toggleToolbarVisibility(boolean isVisible);
+    HeatMapColorToolBar getColorBar();
 
-    public void toggleColorbarVisibility(boolean isVisible);
+    HeatMapInputToolbar getToolBar();
 
-    public HeatMapModel2 getHeatMapModel();
+    HeatMapModel2 getHeatMapModel();
 
-    public NodeModel getNodeModel();
-
-    public JMenuBar getDefaultMenu();
+    NodeModel getNodeModel();
 
 }

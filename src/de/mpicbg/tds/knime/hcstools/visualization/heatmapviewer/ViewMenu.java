@@ -1,11 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.MinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.MinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileStrategy;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
-import org.knime.core.data.RowKey;
-import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,75 +10,40 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.Collection;
-import java.util.HashSet;
 
 /**
- * Author: Felix Meyenhofer
- * Date: 18/12/12
- *
- * Menu for the PlateViewer
+ * @author Felix Meyenhofer
+ *         creation: 12/27/12
  */
 
-public class PlateMenu extends JMenuBar {
+public class ViewMenu extends JMenu {
 
-    protected HeatMapModel2 heatMapModel;
-    protected HeatMapViewer window;
-    protected JMenuItem colorMenu;
+    /**
+     * Items for the gui, accessible by the {@link HeatMapViewer} interface that will be accessed by the menu actions.
+     */
+    private HeatMapModel2 heatMapModel;
+    private HeatMapInputToolbar toolbar;
+    private HeatMapColorToolBar colorbar;
+
+    /**
+     * This menu item must be accessed from outside (PlateViewer)
+     */
+    private JMenuItem colorMapMenu;
 
 
     /**
-     * Constructors
+     * Constructor of the view menu
+     * @param parent a HeatMapViewer object.
      */
-    public PlateMenu() {
-        this(null);
-    }
+    public ViewMenu(HeatMapViewer parent) {
+        // Make certain elements available for the menu actions
+        this.heatMapModel = parent.getHeatMapModel();
+        this.toolbar = parent.getToolBar();
+        this.colorbar = parent.getColorBar();
 
-    public PlateMenu(HeatMapViewer parent) {
-        this.window = parent;
-        if (parent == null) {
-            configure(new HeatMapModel2());
-        } else {
-            configure(parent.getHeatMapModel());
-            JMenuBar parentMenu = parent.getDefaultMenu();
-            if (parentMenu != null)
-                for (int i=0; i<parentMenu.getMenuCount(); i++)
-                    this.add(parentMenu.getMenu(i));
-        }
-
-        this.add(createHiLiteMenu());
-        this.add(createViewMenu());
-    }
-
-
-    /**
-     * Self configuration (overwritten by sub-classes)
-     * @param model parent window
-     */
-    protected void configure(HeatMapModel2 model) {
-        if (model != null) {
-            this.heatMapModel = model;
-        } else {
-            this.heatMapModel = new HeatMapModel2();
-        }
-    }
-
-
-    /**
-     * Methods for menu creation
-     */
-    protected ImageIcon createImageIcon(String path, String description) {
-        java.net.URL imgURL = getClass().getResource(path);
-        if (imgURL != null) {
-            return new ImageIcon(imgURL, description);
-        } else {
-            System.err.println("Couldn't find file: " + path);
-            return null;
-        }
-    }
-
-    protected JMenu createViewMenu() {
-        JMenu menu = new JMenu("View");
+        // Create the menu
+        this.setText("View");
+//        JMenu menu = new JMenu("View");
 
         JCheckBoxMenuItem alwaysOnTop = new JCheckBoxMenuItem("Always on Top");
         alwaysOnTop.addActionListener(new ActionListener() {
@@ -89,7 +51,7 @@ public class PlateMenu extends JMenuBar {
                 alwaysOnTopAction(e);
             }
         });
-        menu.add(alwaysOnTop);
+        this.add(alwaysOnTop);
 
         JCheckBoxMenuItem markSelection = new JCheckBoxMenuItem("Mark Selection");
         markSelection.setSelected(heatMapModel.doMarkSelection());
@@ -99,18 +61,52 @@ public class PlateMenu extends JMenuBar {
                 markSelectionAction(actionEvent);
             }
         });
-        menu.add(markSelection);
+        this.add(markSelection);
 
-        menu.add(createOverlaySubMenu());
-        menu.add(createOutlierSubMenu());
-        colorMenu = menu.add(createColorMapMenu());
-        colorMenu.setEnabled(!heatMapModel.isGlobalScaling());
-        menu.add(createToolBarMenu());
+        this.add(createOverlaySubMenu());
+        this.add(createOutlierSubMenu());
 
-        return menu;
+        colorMapMenu = this.add(createColorMapMenu());
+        colorMapMenu.setEnabled(!heatMapModel.isGlobalScaling());
+
+        this.add(createToolBarMenu());
     }
 
-    protected JMenu createOverlaySubMenu() {
+
+    /**
+     * Accessor to the color map menu item
+     * @return the color map item.
+     */
+    public JMenuItem getColorMenuItem() {
+        return colorMapMenu;
+    }
+
+
+    /**
+     * Returns an image icon created from the image indicated by path
+     *
+     * @param path reference path to the image icon
+     * @param description description of the icon
+     * @return image icon
+     *
+     * @see ImageIcon
+     */
+    private ImageIcon createImageIcon(String path, String description) {
+        java.net.URL imgURL = getClass().getResource(path);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL, description);
+        } else {
+            System.err.println("Couldn't find file: " + path);
+            return null;
+        }
+    }
+
+
+    /**
+     * Returns the overlay sub-menu
+     * @return overlay sub-menu
+     */
+    private JMenu createOverlaySubMenu() {
         JMenu menu = new JMenu("Overlay");
 
         JMenuItem overlayLegend = menu.add("Show Legend");
@@ -134,7 +130,12 @@ public class PlateMenu extends JMenuBar {
         return menu;
     }
 
-    protected JMenu createOutlierSubMenu() {
+
+    /**
+     * Returns the sub-menu for outlier handling in the color scale computation.
+     * @return outlier sub-menu
+     */
+    private JMenu createOutlierSubMenu() {
         JMenu menu = new JMenu("Outlier Handling");
         ButtonGroup group = new ButtonGroup();
 
@@ -154,36 +155,12 @@ public class PlateMenu extends JMenuBar {
         return menu;
     }
 
-    protected JMenu createHiLiteMenu() {
-        JMenu menu = new JMenu((HiLiteHandler.HILITE));
-        JMenuItem item = menu.add(HiLiteHandler.HILITE_SELECTED);
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                hiLiteAction();
-            }
-        });
-        item = menu.add(HiLiteHandler.UNHILITE_SELECTED);
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                unHiLiteAction();
-            }
-        });
-        item = menu.add(HiLiteHandler.CLEAR_HILITE);
-        item.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                clearHiLiteAction();
-            }
-        });
 
-        return menu;
-    }
-
-
-
-    protected JMenu createColorMapMenu() {
+    /**
+     * Returns the menu of the color map manipulations
+     * @return color map sub-menu
+     */
+    private JMenu createColorMapMenu() {
         JMenu lut = new JMenu("Colormap");
         ButtonGroup group = new ButtonGroup();
         String[] names = {"GB", "GBR", "HSV", "Jet", "Dark", "Custom"};
@@ -206,15 +183,19 @@ public class PlateMenu extends JMenuBar {
         return lut;
     }
 
-    protected JMenu createToolBarMenu() {
+
+    /**
+     * Returns the sub-menu to set the toolbar visibility
+     * @return toolbar sub-menu
+     */
+    private JMenu createToolBarMenu() {
         JMenu toolbar = new JMenu("Toolbars");
         JCheckBoxMenuItem item = new JCheckBoxMenuItem("Show Toolbar");
         item.setSelected(true);
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                JCheckBoxMenuItem mi = (JCheckBoxMenuItem) actionEvent.getSource();
-                window.toggleToolbarVisibility(mi.isSelected());
+                toggleToolbarVisibility(actionEvent);
             }
         });
         toolbar.add(item);
@@ -223,8 +204,7 @@ public class PlateMenu extends JMenuBar {
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                JCheckBoxMenuItem mi = (JCheckBoxMenuItem) actionEvent.getSource();
-                window.toggleColorbarVisibility(mi.isSelected());
+                toggleColorbarVisibility(actionEvent);
             }
         });
         toolbar.add(item);
@@ -232,11 +212,28 @@ public class PlateMenu extends JMenuBar {
     }
 
 
-   /**
-    * Actions
-    */
-    protected void toggleColorMapAction(ActionEvent actionEvent) {
-        JMenuItem source = (JMenuItem)actionEvent.getSource();
+
+    /**
+     * @param event menu action event
+     */
+    private void toggleColorbarVisibility(ActionEvent event) {
+        JCheckBoxMenuItem mi = (JCheckBoxMenuItem) event.getSource();
+        this.colorbar.setVisible(mi.isSelected());
+    }
+
+    /**
+     * @param event menu action event
+     */
+    private void toggleToolbarVisibility(ActionEvent event) {
+        JCheckBoxMenuItem mi = (JCheckBoxMenuItem) event.getSource();
+        this.toolbar.setVisible(mi.isSelected());
+    }
+
+    /**
+     * @param event menu action event
+     */
+    protected void toggleColorMapAction(ActionEvent event) {
+        JMenuItem source = (JMenuItem)event.getSource();
         LinearGradientPaint newGradient;
         if (source.getText().equals("Custom")) {
             ColorGradientDialog dialog = new ColorGradientDialog(heatMapModel);
@@ -249,6 +246,9 @@ public class PlateMenu extends JMenuBar {
         heatMapModel.fireModelChanged();
     }
 
+    /**
+     * Creates an overlay legend window.
+     */
     protected void showOverlayLegendAction() {
         Container parentContainer = HeatWell.getParentContainer(this);
 
@@ -264,12 +264,18 @@ public class PlateMenu extends JMenuBar {
         overlayLegend.setVisible(true);
     }
 
+    /**
+     * @param event menu action event
+     */
     protected void hideOverlayAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
         heatMapModel.setHideMostFreqOverlay(item.isSelected());
         heatMapModel.fireModelChanged();
     }
 
+    /**
+     * @param event menu action event
+     */
     protected void outlierHandlingAction(ActionEvent event) {
         JRadioButtonMenuItem menuItem = (JRadioButtonMenuItem) event.getSource();
         if ( menuItem.isSelected() ) {
@@ -284,79 +290,22 @@ public class PlateMenu extends JMenuBar {
         }
     }
 
+    /**
+     * @param event menu action event
+     */
     protected void markSelectionAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
         heatMapModel.setMarkSelection(item.isSelected());
         heatMapModel.fireModelChanged();
     }
 
-    protected void alwaysOnTopAction(ActionEvent e) {
-        JMenuItem item = (JMenuItem) e.getSource();
+    /**
+     * @param event menu action event
+     */
+    protected void alwaysOnTopAction(ActionEvent event) {
+        JMenuItem item = (JMenuItem) event.getSource();
         JFrame frame = (JFrame) getTopLevelAncestor();
         frame.setAlwaysOnTop(item.isSelected());
-    }
-
-    private void unHiLiteAction() {
-        Collection<Well> selection = heatMapModel.getWellSelection();
-        heatMapModel.removeHilLites(selection);
-        heatMapModel.fireModelChanged();
-
-        HashSet<RowKey> keys = new HashSet<RowKey>();
-        for (Well well : selection) {
-            keys.add(well.getKnimeTableRowKey());
-        }
-
-        if (window.getNodeModel() == null) {
-            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
-        } else {
-            window.getNodeModel().getInHiLiteHandler(0).fireUnHiLiteEvent(keys); //TODO: put the port number in a variable in the nodemodel
-        }
-    }
-
-    private void clearHiLiteAction() {
-        heatMapModel.clearHiLites();
-        heatMapModel.fireModelChanged();
-
-        if (window.getNodeModel() == null) {
-            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
-        } else {
-            window.getNodeModel().getInHiLiteHandler(0).fireClearHiLiteEvent(); //TODO: put the port number in a variable in the nodemodel
-        }
-    }
-
-    private void hiLiteAction() {
-        Collection<Well> selection = heatMapModel.getWellSelection();
-        heatMapModel.addHilLites(selection);
-        heatMapModel.fireModelChanged();
-
-        HashSet<RowKey> keys = new HashSet<RowKey>();
-        for (Well well : selection) {
-            keys.add(well.getKnimeTableRowKey());
-        }
-
-        if (window.getNodeModel() == null) {
-            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
-        } else {
-            window.getNodeModel().getInHiLiteHandler(0).fireHiLiteEvent(keys); //TODO: put the port number in a variable in the nodemodel
-        }
-    }
-
-
-    /**
-     * Testing
-     */
-    public static void main(String[] args) {
-        JFrame frame = new JFrame();
-        JPanel panel = new JPanel();
-        JTextArea text = new JTextArea("This is some text");
-        text.setEnabled(true);
-        text.setEditable(false);
-        panel.add(text);
-        frame.setContentPane(panel);
-        frame.setJMenuBar(new PlateMenu());
-        frame.pack();
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
 }

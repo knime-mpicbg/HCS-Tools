@@ -51,7 +51,7 @@ public class HeatMapInputToolbar extends JToolBar {
         add(overlaySelector);
 
         // Add the filter functionality for the ScreenViewer.
-        if ( (parent == null ) || (parent instanceof ScreenViewer) ) {
+        if ( (parent == null ) || !(parent instanceof PlateViewer) ) {
             addSeparator();
             add(new JLabel("Filter by:"));
             filterSelector = new JComboBox();
