@@ -122,10 +122,6 @@ public class ScreenExplorerFactory extends NodeFactory<ScreenExplorer> {
                 addDialogComponent(new DialogComponentColumnNameSelection(HCSSettingsFactory.createGroupBy(), GROUP_WELLS_BY_DESC, 0, StringValue.class, IntValue.class));
                 addDialogComponent(new DialogComponentColumnNameSelection(HCSSettingsFactory.createPropPlateRow(), "Plate Row", 0, new Class[]{IntValue.class, DoubleValue.class}));
                 addDialogComponent(new DialogComponentColumnNameSelection(HCSSettingsFactory.createPropPlateCol(), "Plate Column", 0, new Class[]{IntValue.class, DoubleValue.class}));
-
-                //TODO: Add a tab to select plate attributes.
-
-                //TODO: Add tab to select control populations.
             }
 
 
