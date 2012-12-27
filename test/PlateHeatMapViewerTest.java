@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.ScreenPanelFrame;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.ScreenViewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Conventions;
@@ -139,83 +140,92 @@ public class PlateHeatMapViewerTest {
         }*/
         // HACK for custom plate labels as requested by Martin
 
-        List<Plate> allPlates = new ArrayList<Plate>();
-        BarcodeParserFactory bpf = new BarcodeParserFactory(patterns);
-        //List<String> ignoreProps = Arrays.asList("barcode", "numrows", "numcolumns", "screenedat", "librarycode");
+        return HeatMapViewerNodeModel.parseIntoPlates(customPlateNameAttr,
+                readouts,
+                factors,
+                splitScreen,
+                attributeModel,
+                plateRowAttribute,
+                plateColAttribute,
+                new BarcodeParserFactory(patterns));
 
-        for (String barcode : splitScreen.keySet()) {
-            Plate curPlate = new Plate();
-            curPlate.setBarcode(barcode);
-            allPlates.add(curPlate);
-
-            //try to parse the barcode
-            try {
-                BarcodeParser barcodeParser = bpf.getParser(barcode);
-                if (barcodeParser != null)
-                    Plate.configurePlateByBarcode(curPlate, barcodeParser);
-            } catch (Throwable t) {
-                NodeLogger.getLogger(ScreenExplorer.class).error(t);
-            }
-
-            List<DataRow> wellRows = splitScreen.get(barcode);
-
-            // HACK for custom plate labels as requested by Martin
-            /*if (customPlateNameAttr != null) {
-                // collect all names
-                Set customPlateNames = new HashSet();
-                for (DataRow wellRow : wellRows) {
-                    customPlateNames.add(customPlateNameAttr.getValue(wellRow));
-                }
-
-                // condense it into a new plate name
-                String customName = Arrays.toString(customPlateNames.toArray()).toString().replace("[", "").replace("]", "");
-                curPlate.setBarcode(customName);
-            }*/
-            // HACK for custom plate labels as requested by Martin
-
-            for (DataRow tableRow : wellRows) {
-                Well well = new Well();
-                curPlate.getWells().add(well);
-                well.setKnimeTableRowKey(tableRow.getKey());
-                well.setPlate(curPlate);
-                well.setPlateRow(plateRowAttribute.getIntAttribute(tableRow));
-                well.setPlateColumn(plateColAttribute.getIntAttribute(tableRow));
-
-                for (Attribute attribute : attributeModel) {
-                    String attributeName = attribute.getName();
-
-                    /*if (ignoreProps.contains(attributeName)) {
-                        continue;
-                    }*/
-
-                    if (StringUtils.equalsIgnoreCase(Conventions.CBG.TREATMENT, attributeName)) {
-                        well.setTreatment(attribute.getNominalAttribute(tableRow));
-                    }
-
-                    if (readouts.contains(attributeName) && attribute.isNumerical()) {
-                        Double readoutValue = attribute.getDoubleAttribute(tableRow);
-                        well.getWellStatistics().put(attributeName, readoutValue);
-                    }
-
-                    if (factors.contains(attributeName)) {
-                        well.setAnnotation(attributeName, attribute.getRawValue(tableRow));
-                    }
-                }
-            }
-        }
-
-        // ensure plate integrity by requesting a well by coordinates (which will through an exception if the plate layout is not valid)
-        for (Plate plate : allPlates) {
-            plate.getWell(0, 0);
-        }
-
-        // fix the plate dimension if necessary, using some heuristics, which defaults to 384
-        for (Plate plate : allPlates) {
-            Plate.inferPlateDimFromWells(plate);
-        }
-
-        PlateUtils.unifyPlateDimensionsToLUB(allPlates);
-        return allPlates;
+//        List<Plate> allPlates = new ArrayList<Plate>();
+//        BarcodeParserFactory bpf = new BarcodeParserFactory(patterns);
+//        //List<String> ignoreProps = Arrays.asList("barcode", "numrows", "numcolumns", "screenedat", "librarycode");
+//
+//        for (String barcode : splitScreen.keySet()) {
+//            Plate curPlate = new Plate();
+//            curPlate.setBarcode(barcode);
+//            allPlates.add(curPlate);
+//
+//            //try to parse the barcode
+//            try {
+//                BarcodeParser barcodeParser = bpf.getParser(barcode);
+//                if (barcodeParser != null)
+//                    Plate.configurePlateByBarcode(curPlate, barcodeParser);
+//            } catch (Throwable t) {
+//                NodeLogger.getLogger(ScreenExplorer.class).error(t);
+//            }
+//
+//            List<DataRow> wellRows = splitScreen.get(barcode);
+//
+//            // HACK for custom plate labels as requested by Martin
+//            /*if (customPlateNameAttr != null) {
+//                // collect all names
+//                Set customPlateNames = new HashSet();
+//                for (DataRow wellRow : wellRows) {
+//                    customPlateNames.add(customPlateNameAttr.getValue(wellRow));
+//                }
+//
+//                // condense it into a new plate name
+//                String customName = Arrays.toString(customPlateNames.toArray()).toString().replace("[", "").replace("]", "");
+//                curPlate.setBarcode(customName);
+//            }*/
+//            // HACK for custom plate labels as requested by Martin
+//
+//            for (DataRow tableRow : wellRows) {
+//                Well well = new Well();
+//                curPlate.getWells().add(well);
+//                well.setKnimeTableRowKey(tableRow.getKey());
+//                well.setPlate(curPlate);
+//                well.setPlateRow(plateRowAttribute.getIntAttribute(tableRow));
+//                well.setPlateColumn(plateColAttribute.getIntAttribute(tableRow));
+//
+//                for (Attribute attribute : attributeModel) {
+//                    String attributeName = attribute.getName();
+//
+//                    /*if (ignoreProps.contains(attributeName)) {
+//                        continue;
+//                    }*/
+//
+//                    if (StringUtils.equalsIgnoreCase(Conventions.CBG.TREATMENT, attributeName)) {
+//                        well.setTreatment(attribute.getNominalAttribute(tableRow));
+//                    }
+//
+//                    if (readouts.contains(attributeName) && attribute.isNumerical()) {
+//                        Double readoutValue = attribute.getDoubleAttribute(tableRow);
+//                        well.getWellStatistics().put(attributeName, readoutValue);
+//                    }
+//
+//                    if (factors.contains(attributeName)) {
+//                        well.setAnnotation(attributeName, attribute.getRawValue(tableRow));
+//                    }
+//                }
+//            }
+//        }
+//
+//        // ensure plate integrity by requesting a well by coordinates (which will through an exception if the plate layout is not valid)
+//        for (Plate plate : allPlates) {
+//            plate.getWell(0, 0);
+//        }
+//
+//        // fix the plate dimension if necessary, using some heuristics, which defaults to 384
+//        for (Plate plate : allPlates) {
+//            Plate.inferPlateDimFromWells(plate);
+//        }
+//
+//        PlateUtils.unifyPlateDimensionsToLUB(allPlates);
+//        return allPlates;
     }
 
 
