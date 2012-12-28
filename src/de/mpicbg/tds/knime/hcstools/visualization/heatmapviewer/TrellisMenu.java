@@ -72,6 +72,8 @@ public class TrellisMenu extends JMenu {
         sortPlates.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK + InputEvent.ALT_DOWN_MASK));
         this.add(sortPlates);
 
+        this.add(createPlatViewerMenu());
+
         JCheckBoxMenuItem plateDimensions = new JCheckBoxMenuItem("Fix Plate Proportions");
         plateDimensions.setSelected(true);
         plateDimensions.addActionListener(new ActionListener() {
@@ -81,15 +83,6 @@ public class TrellisMenu extends JMenu {
             }
         });
         this.add(plateDimensions);
-
-        JMenuItem closeAll = new JMenuItem("Close All Plate Viewers");
-        closeAll.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                heatTrellis.closePlateViewers();
-            }
-        });
-        this.add(closeAll);
 
         JCheckBoxMenuItem globalScaling = new JCheckBoxMenuItem("Global Color Scale");
         globalScaling.setSelected(heatMapModel.isGlobalScaling());
@@ -102,7 +95,6 @@ public class TrellisMenu extends JMenu {
         this.add(globalScaling);
 
         this.add(createHiLiteFilterMenu());
-
     }
 
     /**
@@ -140,6 +132,30 @@ public class TrellisMenu extends JMenu {
             menu.add(anItem);
             group.add(anItem);
         }
+
+        return menu;
+    }
+
+    /**
+     * Returns a plate viewer menu to coordinate the PlateViewer windos
+     * @return plate viewer sub-menu
+     */
+    private JMenu createPlatViewerMenu() {
+        JMenu menu = new JMenu("PlateViewer");
+        JMenuItem item = menu.add(new JMenuItem("Close All"));
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                heatTrellis.closePlateViewers();
+            }
+        });
+        item = menu.add(new JMenuItem("Bring All to Front"));
+        item.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                heatTrellis.bringToFrontPlateViewers();
+            }
+        });
 
         return menu;
     }

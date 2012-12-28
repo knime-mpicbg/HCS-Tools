@@ -422,6 +422,18 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         plateViewers.clear();
     }
 
+    /**
+     * Handling of the PlateViewer windows
+     */
+    public void bringToFrontPlateViewers() {
+        for (PlateViewer viewer : plateViewers.values()) {
+            if ( viewer != null) {
+                viewer.toFront();
+                viewer.repaint();
+            }
+        }
+    }
+
 
 //    public List<HeatScreen> getFilteredHeatMap() {
 //
