@@ -43,7 +43,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     private JPanel containerPositioner;
 
     // List of PlateViewers.
-    Map<HeatScreen, PlateViewer> plateViewers = new HashMap<HeatScreen, PlateViewer>();
+    Map<UUID, PlateViewer> plateViewers = new HashMap<UUID, PlateViewer>();
 
 
     /**
@@ -502,13 +502,13 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
             HeatScreen heatMap = getHeatMap(mouseEvent);
             PlateViewer viewer = new PlateViewer(this, heatMap.getPlate());
 
-            if (plateViewers.containsKey(heatMap)) {
-                viewer = plateViewers.get(heatMap);
+            if (plateViewers.containsKey(heatMap.getPlate().getUuid())) {   // TODO: The heatMap key is not the same in the selected and unselected state.
+                viewer = plateViewers.get(heatMap.getPlate().getUuid());
                 viewer.toFront();
                 viewer.repaint();
             } else {
                 viewer.setVisible(true);
-                plateViewers.put(heatMap, viewer);
+                plateViewers.put(heatMap.getPlate().getUuid(), viewer);
                 heatMapModel.addChangeListener(viewer);
             }
         }

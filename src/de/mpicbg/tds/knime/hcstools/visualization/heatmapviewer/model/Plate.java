@@ -78,17 +78,25 @@ public class Plate implements Serializable{
     private String id;
 
     /**
+     * UUID for an easy plate identification
+     */
+    private UUID uuid;
+
+    /**
      * Constructor
      * @param barcode unique string containing plate information (at least across the experiment)
      */
     public Plate(String barcode) {
+        this();
         this.barcode = barcode;
     }
 
     /**
      * Constructor for an empty well.
      */
-    public Plate() {}
+    public Plate() {
+        this.uuid = UUID.randomUUID();
+    }
 
 //    @ManyToOne
 //    public Screen getScreen() {
@@ -209,6 +217,9 @@ public class Plate implements Serializable{
         return label;
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
 
     public HashMap<String, Object> getPlateStatistics() {
         // use a lazy initialization approach here
