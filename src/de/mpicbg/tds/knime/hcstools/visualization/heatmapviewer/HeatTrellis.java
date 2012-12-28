@@ -514,7 +514,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
             HeatScreen heatMap = getHeatMap(mouseEvent);
             PlateViewer viewer = new PlateViewer(this, heatMap.getPlate());
 
-            if (plateViewers.containsKey(heatMap.getPlate().getUuid())) {   // TODO: The heatMap key is not the same in the selected and unselected state.
+            if (plateViewers.containsKey(heatMap.getPlate().getUuid())) {
                 viewer = plateViewers.get(heatMap.getPlate().getUuid());
                 viewer.toFront();
                 viewer.repaint();
