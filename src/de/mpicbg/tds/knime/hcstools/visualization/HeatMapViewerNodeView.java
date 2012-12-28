@@ -5,6 +5,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.*;
 import org.knime.core.node.NodeView;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  *
@@ -34,6 +35,7 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
                 menu.add(new HiLiteMenu(screenView));
                 menu.add(new ViewMenu(screenView));
                 menu.add(new TrellisMenu(screenView));
+                this.getComponent().setSize(new Dimension(810,600));
             }
         }
     }
