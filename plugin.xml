@@ -69,7 +69,11 @@
               factory-class="de.mpicbg.tds.knime.hcstools.visualization.ScreenExplorerFactory"
               id="de.mpicbg.tds.knime.hcstools.visualization.ScreenExplorerFactory"/>
 
+        <node category-path="/community/hcstools/view"
+              factory-class="de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerFactory"
+              id="de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerFactory"/>
 
+        <!--quality control-->
         <node category-path="/community/hcstools/qc"
               factory-class="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesNxMFactory"
               id="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesNxMFactory"/>
