@@ -52,6 +52,7 @@ public class Plate implements Serializable{
          */
         private String replicate;
 
+
     /**
      * A free documentation field, which allows to add further comments about a plate.
      */
@@ -81,6 +82,8 @@ public class Plate implements Serializable{
      * UUID for an easy plate identification
      */
     private UUID uuid;
+
+
 
     /**
      * Constructor
