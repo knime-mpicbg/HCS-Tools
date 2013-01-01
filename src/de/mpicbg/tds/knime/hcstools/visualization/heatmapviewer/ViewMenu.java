@@ -167,7 +167,7 @@ public class ViewMenu extends JMenu {
         JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[names.length];
 
         for (int i = 0; i < names.length; i++) {
-            ImageIcon icon = createImageIcon("icons/" + names[i] + ".gif", names[i] + "color map");
+            ImageIcon icon = createImageIcon("icons/" + names[i] + ".png", names[i] + "color map");
             item[i] = new JRadioButtonMenuItem(names[i],icon);
             group.add(item[i]);
             lut.add(item[i]);
