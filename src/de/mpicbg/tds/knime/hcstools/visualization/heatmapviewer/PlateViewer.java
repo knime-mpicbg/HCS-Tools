@@ -108,7 +108,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         Dimension ms = heatMap.getPreferredSize();
         heatMapContainer.setPreferredSize(new Dimension(ms.width+10, ms.height+10));
         pack();
-        setResizable(false);
+//        setResizable(false);
 
         // Set the location of the new PlateViewer
         Random posJitter = new Random();

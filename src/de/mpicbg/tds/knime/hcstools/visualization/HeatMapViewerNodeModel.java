@@ -198,16 +198,19 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         // Put the info about the reference populations
         reference.put(propRefParameter.getStringValue(),  propRefNames.getStringArrayValue());
 
-        return parseIntoPlates(plateLabelAttribute,
+        return parseIntoPlates(input.getDataTableSpec(),
+                plateLabelAttribute,
                 parameters,
                 propFactors.getIncludeList(),
-                splitScreen, attributeModel,
+                splitScreen,
+                attributeModel,
                 plateRowAttribute,
                 plateColAttribute,
                 ExpandPlateBarcode.loadFactory());
     }
 
-    public static List<Plate> parseIntoPlates(Attribute plateLabel,
+    public static List<Plate> parseIntoPlates(DataTableSpec tableSpec,
+                                              Attribute plateLabel,
                                               List<String> readouts,
                                               List<String> factors,
                                               Map<String, List<DataRow>> splitScreen,
@@ -256,6 +259,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 well.setPlateRow(rowAttribute.getIntAttribute(tableRow));
                 well.setPlateColumn(colAttribute.getIntAttribute(tableRow));
                 well.setKnimeTableRowKey(tableRow.getKey());
+                well.setKnimeRowColor(tableSpec.getRowColor(tableRow).getColor());
+
 
                 for (Attribute attribute : attributeModel) {
                     String attributeName = attribute.getName();

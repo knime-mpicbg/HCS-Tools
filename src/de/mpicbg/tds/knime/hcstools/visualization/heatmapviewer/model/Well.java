@@ -2,11 +2,13 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model;
 
 import org.knime.core.data.RowKey;
 
+import java.awt.*;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.List;
 
 
 /**
@@ -63,6 +65,11 @@ public class Well implements Serializable {
      * The row key of the table that it is from
      */
     private RowKey knimeTableRowKey;
+
+    /**
+     * The color set by the knime color manager node
+     */
+    private Color knimeRowColor;
 
 
     /**
@@ -293,5 +300,13 @@ public class Well implements Serializable {
 
     public void setKnimeTableRowKey(RowKey knimeTableRowKey) {
         this.knimeTableRowKey = knimeTableRowKey;
+    }
+
+    public void setKnimeRowColor(Color color) {
+        this.knimeRowColor = color;
+    }
+
+    public Color getKnimeRowColor() {
+        return knimeRowColor;
     }
 }

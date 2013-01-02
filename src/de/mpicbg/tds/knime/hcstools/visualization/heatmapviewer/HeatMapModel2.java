@@ -54,6 +54,10 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     private Map<String, String> maxFreqOverlay;
     private String overlay = "";
 
+    private List<Well> mostFrequentColorWells = null;
+    private Set<Color> knimeColors;
+    protected static String KNIME_OVERLAY_NAME = "KNIME Color Model";
+
     //Plate Filtering
     private String plateFilterString = "";
     private PlateAttribute plateFilterAttribute = PlateAttribute.BARCODE;
@@ -160,7 +164,6 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         Map<String, Frequency> annotStats = new HashMap<String, Frequency>();
         for (String overlayName : overlayNames) {
             annotStats.put(overlayName, new Frequency());
-
         }
 
         for (Well well : wellCollection) {
@@ -195,6 +198,39 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         }
     }
 
+    private void updateKnimeColorFrequency() {                              // TODO: get the name of the attribute on which the color model is based. The worst case would be to implement a second port for a color model.
+        if (this.screen == null || this.screen.isEmpty())
+            return;
+
+        HashMap<Color, List<Well>> colors = new HashMap<Color, List<Well>>();
+        List<Well> wells;
+        Color color;
+        for (Well well : PlateUtils.flattenWells(this.screen)) {
+            color = well.getKnimeRowColor();
+            if (color != null) {
+                if ( colors.containsKey(color) ) {
+                    wells = colors.get(color);
+                    wells.add(well);
+                } else {
+                    wells = new ArrayList<Well>();
+                    wells.add(well);
+                }
+                colors.put(color, wells);
+            }
+        }
+
+        if ( (colors.size() <=1) )
+            return;
+
+        TreeMap<Integer, List<Well>> order = new TreeMap<Integer, List<Well>>();
+        for (Color key : colors.keySet()) {
+            order.put(colors.get(key).size(), colors.get(key));
+        }
+
+        this.mostFrequentColorWells = order.get(order.lastKey());
+        this.knimeColors = colors.keySet();
+    }
+
 
     /**
      * Data handling
@@ -213,6 +249,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
         readoutRescaleStrategy.configure(screen);
 
         updateMaxOverlayFreqs(screen);
+        updateKnimeColorFrequency();
     }
 
     public List<Plate> getScreen() {
@@ -313,6 +350,14 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     /**
      * Color handling
      */
+    public Set<Color> getKnimeColors() {
+        return knimeColors;
+    }
+
+    public boolean hasKnimeColorModel() {
+        return (mostFrequentColorWells != null) && !mostFrequentColorWells.isEmpty();
+    }
+
     public ScreenColorScheme getColorScheme() {
         return colorScheme;
     }
@@ -331,6 +376,15 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
 
     public Color getOverlayColor(Well well) {
         String overlayType = getOverlay();
+
+        if ( overlayType.equals(KNIME_OVERLAY_NAME) ) {
+            if ( doHideMostFreqOverlay() && mostFrequentColorWells.contains(well) ) {
+                return  null;
+            } else {
+                return well.getKnimeRowColor();
+            }
+        }
+
         if (overlayType == null || overlayType.isEmpty())
             return null;
 

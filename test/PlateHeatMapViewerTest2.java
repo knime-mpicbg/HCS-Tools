@@ -1,3 +1,4 @@
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,42 +28,117 @@ import javax.swing.*;
 //import static de.mpicbg.tds.core.model.Plate.inferPlateDimFromWells;
 
 /**
- * User: Felix Meyenhofer
- * Date: 11/27/12
- * Time: 14:41
+ *
+ * Reads a data set produced by the table writer node and passes it to the View.
+ *
+ * @author Felix Meyenhofer
+ *         creation: 1/1/13
  */
 
-public class PlateHeatMapViewerTest {
+public class PlateHeatMapViewerTest2 {
 
     // Information that usually would be provided from the KNIME configuration dialogs.
-    private String testDataPath = "/Users/turf/Sources/CBG/HCS-Tools/test/data/plateviewerinput.table";      //TODO put the testdata on a dropbox to not weigh down the package.
+    private String testDataPath = "/Users/turf/Sources/CBG/HCS-Tools/test/data/96well_color_image.table";      //TODO put the testdata on a dropbox to not weigh down the package.
     private static List<String> patterns = Arrays.asList(
             "(?<libplatenumber>[0-9]{3})(?<projectcode>[A-z]{2})(?<date>[0-9]{6})(?<replicate>[A-z]{1})-(?<libcode>[_A-z\\d]{3})(?<assay>[-_\\s\\w\\d]*)",
             "(?<libplatenumber>[0-9]{3})(?<libcode>[A-Z]{3})(?<concentration>[_\\d]{3})(?<concunit>[A-z_]{4})(?<customa>[\\d]{1})(?<customb>[A-z]{1})(?<customc>[A-z]{1})_(?<customd>[A-z_]{3})",
             "(?<libplatenumber>[0-9]{3})(?<projectcode>[A-z]{2})(?<libcode>[_A-z\\d]{3})(?<assay>[-_\\s\\w\\d]{3})(?<date>[0-9]{6})(?<replicate>[A-z]{1})"
     );
     private List<String> factors = Arrays.asList(
-            "date",
-            "transfection",
-            "concentration",
-            "left_right",
-            "top_bottom",
-            "inner_outer"
+            "barcode",
+            "BS_Controls",
+            "SBS_Doses"
     );
     private List<String> readouts = Arrays.asList(
-            "Nuclei Intensity",
-            "Calculation time (seconds)",
-            "Number of Cells",
-            "Ch2 Median of Maximum",
-            "Ch1 Median of Maximum",
-            "Median Syto Intensity",
-            "library plate number",
-            "concentration",
-            "Median Nuclei Intensity.poc",
-            "Number of Cells.poc",
-            "Ch2 Median of Maximum.poc",
-            "Ch1 Median of Maximum.poc",
-            "Median Syto Intensity.poc"
+            "Mean_Nuclei_AreaShape_Area",
+            "Mean_Nuclei_AreaShape_Compactness",
+            "Mean_Nuclei_AreaShape_Eccentricity",
+            "Mean_Nuclei_AreaShape_EulerNumber",
+            "Mean_Nuclei_AreaShape_Extent",
+            "Mean_Nuclei_AreaShape_FormFactor",
+            "Mean_Nuclei_AreaShape_Orientation",
+            "Mean_Nuclei_AreaShape_Perimeter",
+            "Mean_Nuclei_AreaShape_Solidity",
+            "Mean_Nuclei_Children_DistCytoplasm_Count",
+            "Mean_Nuclei_Children_DistanceCells_Count",
+            "Mean_Nuclei_Children_PropCells_Count",
+            "Mean_Nuclei_Children_PropCytoplasm_Count",
+            "Mean_Nuclei_Correlation_Correlation_CorrGreen_CorrBlue",
+            "Mean_Nuclei_Intensity_IntegratedIntensityEdge_CorrBlue",
+            "Mean_Nuclei_Intensity_IntegratedIntensityEdge_CorrGreen",
+            "Mean_Nuclei_Intensity_IntegratedIntensity_CorrBlue",
+            "Mean_Nuclei_Intensity_IntegratedIntensity_CorrGreen",
+            "Mean_Nuclei_Intensity_LowerQuartileIntensity_CorrBlue",
+            "Mean_Nuclei_Intensity_LowerQuartileIntensity_CorrGreen",
+            "Mean_Nuclei_Intensity_MassDisplacement_CorrBlue",
+            "Mean_Nuclei_Intensity_MassDisplacement_CorrGreen",
+            "Mean_Nuclei_Intensity_MaxIntensityEdge_CorrBlue",
+            "Mean_Nuclei_Intensity_MaxIntensityEdge_CorrGreen",
+            "Mean_Nuclei_Intensity_MaxIntensity_CorrBlue",
+            "Mean_Nuclei_Intensity_MaxIntensity_CorrGreen",
+            "Mean_Nuclei_Intensity_MeanIntensityEdge_CorrBlue",
+            "Mean_Nuclei_Intensity_MeanIntensityEdge_CorrGreen",
+            "Mean_Nuclei_Intensity_MeanIntensity_CorrBlue",
+            "Mean_Nuclei_Intensity_MeanIntensity_CorrGreen",
+            "Mean_Nuclei_Intensity_MedianIntensity_CorrBlue",
+            "Mean_Nuclei_Intensity_MedianIntensity_CorrGreen",
+            "Mean_Nuclei_Intensity_MinIntensityEdge_CorrBlue",
+            "Mean_Nuclei_Intensity_MinIntensityEdge_CorrGreen",
+            "Mean_Nuclei_Intensity_MinIntensity_CorrBlue",
+            "Mean_Nuclei_Intensity_MinIntensity_CorrGreen",
+            "Mean_Nuclei_Intensity_StdIntensityEdge_CorrBlue",
+            "Mean_Nuclei_Intensity_StdIntensityEdge_CorrGreen",
+            "Mean_Nuclei_Intensity_StdIntensity_CorrBlue",
+            "Mean_Nuclei_Intensity_StdIntensity_CorrGreen",
+            "Count_DistCytoplasm",
+            "Mean_Nuclei_Intensity_UpperQuartileIntensity_CorrBlue",
+            "Mean_Nuclei_Intensity_UpperQuartileIntensity_CorrGreen",
+            " Mean_Nuclei_Math_Ratio1",
+            "Mean_Nuclei_Math_Ratio2",
+            "Mean_PropCells_AreaShape_Area",
+            "Mean_PropCells_AreaShape_Compactness",
+            "Mean_PropCells_AreaShape_Eccentricity",
+            "Mean_PropCells_AreaShape_EulerNumber",
+            "Mean_PropCells_AreaShape_Extent",
+            "Mean_PropCells_AreaShape_FormFactor",
+            "Count_DistanceCells",
+            "Mean_PropCells_AreaShape_Orientation",
+            "Mean_PropCells_AreaShape_Perimeter",
+            "Mean_PropCells_AreaShape_Solidity",
+            "Mean_PropCells_Children_PropCytoplasm_Count",
+            "Mean_PropCells_Correlation_Correlation_CorrGreen_CorrBlue",
+            "Mean_PropCells_Intensity_IntegratedIntensityEdge_CorrBlue",
+            "Mean_PropCells_Intensity_IntegratedIntensityEdge_CorrGreen",
+            "Mean_PropCells_Intensity_IntegratedIntensity_CorrBlue",
+            "Mean_PropCells_Intensity_IntegratedIntensity_CorrGreen",
+            "Mean_PropCells_Intensity_LowerQuartileIntensity_CorrBlue",
+            "Count_Nuclei",
+            "Mean_PropCells_Intensity_LowerQuartileIntensity_CorrGreen",
+            "Mean_PropCells_Intensity_MassDisplacement_CorrBlue",
+            "Mean_PropCells_Intensity_MassDisplacement_CorrGreen",
+            "Mean_PropCells_Intensity_MaxIntensityEdge_CorrBlue",
+            "Mean_PropCells_Intensity_MaxIntensityEdge_CorrGreen",
+            "Mean_PropCells_Intensity_MaxIntensity_CorrBlue",
+            "Mean_PropCells_Intensity_MaxIntensity_CorrGreen",
+            "Mean_PropCells_Intensity_MeanIntensityEdge_CorrBlue",
+            "Mean_PropCells_Intensity_MeanIntensityEdge_CorrGreen",
+            "Mean_PropCells_Intensity_MeanIntensity_CorrBlue",
+            "Count_PropCells",
+            "Mean_PropCells_Intensity_MeanIntensity_CorrGreen",
+            "Mean_PropCells_Intensity_MedianIntensity_CorrBlue",
+            "Mean_PropCells_Intensity_MedianIntensity_CorrGreen",
+            "Mean_PropCells_Intensity_MinIntensityEdge_CorrBlue",
+            "Mean_PropCells_Intensity_MinIntensityEdge_CorrGreen",
+            "Mean_PropCells_Intensity_MinIntensity_CorrBlue",
+            "Mean_PropCells_Intensity_MinIntensity_CorrGreen",
+            "Mean_PropCells_Intensity_StdIntensityEdge_CorrBlue",
+            "Mean_PropCells_Intensity_StdIntensityEdge_CorrGreen",
+            "Mean_PropCells_Intensity_StdIntensity_CorrBlue",
+            "Count_PropCytoplasm",
+            "Mean_PropCells_Intensity_StdIntensity_CorrGreen",
+            "Mean_PropCells_Intensity_UpperQuartileIntensity_CorrBlue",
+            "Mean_PropCells_Intensity_UpperQuartileIntensity_CorrGreen",
+            "Mean_PropCells_Parent_Nuclei"
     );
 
 
@@ -143,89 +219,11 @@ public class PlateHeatMapViewerTest {
                 plateRowAttribute,
                 plateColAttribute,
                 new BarcodeParserFactory(patterns));
-
-//        List<Plate> allPlates = new ArrayList<Plate>();
-//        BarcodeParserFactory bpf = new BarcodeParserFactory(patterns);
-//        //List<String> ignoreProps = Arrays.asList("barcode", "numrows", "numcolumns", "screenedat", "librarycode");
-//
-//        for (String barcode : splitScreen.keySet()) {
-//            Plate curPlate = new Plate();
-//            curPlate.setBarcode(barcode);
-//            allPlates.add(curPlate);
-//
-//            //try to parse the barcode
-//            try {
-//                BarcodeParser barcodeParser = bpf.getParser(barcode);
-//                if (barcodeParser != null)
-//                    Plate.configurePlateByBarcode(curPlate, barcodeParser);
-//            } catch (Throwable t) {
-//                NodeLogger.getLogger(ScreenExplorer.class).error(t);
-//            }
-//
-//            List<DataRow> wellRows = splitScreen.get(barcode);
-//
-//            // HACK for custom plate labels as requested by Martin
-//            /*if (customPlateNameAttr != null) {
-//                // collect all names
-//                Set customPlateNames = new HashSet();
-//                for (DataRow wellRow : wellRows) {
-//                    customPlateNames.add(customPlateNameAttr.getValue(wellRow));
-//                }
-//
-//                // condense it into a new plate name
-//                String customName = Arrays.toString(customPlateNames.toArray()).toString().replace("[", "").replace("]", "");
-//                curPlate.setBarcode(customName);
-//            }*/
-//            // HACK for custom plate labels as requested by Martin
-//
-//            for (DataRow tableRow : wellRows) {
-//                Well well = new Well();
-//                curPlate.getWells().add(well);
-//                well.setKnimeTableRowKey(tableRow.getKey());
-//                well.setPlate(curPlate);
-//                well.setPlateRow(plateRowAttribute.getIntAttribute(tableRow));
-//                well.setPlateColumn(plateColAttribute.getIntAttribute(tableRow));
-//
-//                for (Attribute attribute : attributeModel) {
-//                    String attributeName = attribute.getName();
-//
-//                    /*if (ignoreProps.contains(attributeName)) {
-//                        continue;
-//                    }*/
-//
-//                    if (StringUtils.equalsIgnoreCase(Conventions.CBG.TREATMENT, attributeName)) {
-//                        well.setTreatment(attribute.getNominalAttribute(tableRow));
-//                    }
-//
-//                    if (readouts.contains(attributeName) && attribute.isNumerical()) {
-//                        Double readoutValue = attribute.getDoubleAttribute(tableRow);
-//                        well.getWellStatistics().put(attributeName, readoutValue);
-//                    }
-//
-//                    if (factors.contains(attributeName)) {
-//                        well.setAnnotation(attributeName, attribute.getRawValue(tableRow));
-//                    }
-//                }
-//            }
-//        }
-//
-//        // ensure plate integrity by requesting a well by coordinates (which will through an exception if the plate layout is not valid)
-//        for (Plate plate : allPlates) {
-//            plate.getWell(0, 0);
-//        }
-//
-//        // fix the plate dimension if necessary, using some heuristics, which defaults to 384
-//        for (Plate plate : allPlates) {
-//            Plate.inferPlateDimFromWells(plate);
-//        }
-//
-//        PlateUtils.unifyPlateDimensionsToLUB(allPlates);
-//        return allPlates;
     }
 
 
     public static void main(String[] args) {
-        PlateHeatMapViewerTest test = new PlateHeatMapViewerTest();
+        PlateHeatMapViewerTest2 test = new PlateHeatMapViewerTest2();
         DataTable table = test.loadTable();
         List<Plate> plates = test.parseIntoPlates(table);
 
