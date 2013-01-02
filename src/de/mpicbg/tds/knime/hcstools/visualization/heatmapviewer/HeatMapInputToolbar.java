@@ -84,7 +84,7 @@ public class HeatMapInputToolbar extends JToolBar {
 
 
     // Configure the gui components with the menu items.
-    protected void configure(HeatMapModel2 hmm) {
+    protected void configure(HeatMapModel2 hmm) {              //TODO: Find a better way for the component resizing (currently some components are not visible if the window size is small)
         heatMapModel = hmm;
 
         // populate the overlay menu based on the first plate
