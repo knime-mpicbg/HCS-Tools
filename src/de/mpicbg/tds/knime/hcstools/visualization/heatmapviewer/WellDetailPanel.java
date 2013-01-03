@@ -15,6 +15,8 @@ import java.awt.*;
 /**
  * @author Holger Brandl
  */
+
+@Deprecated
 public class WellDetailPanel extends JPanel {
 
     public WellDetailPanel(Well well) {

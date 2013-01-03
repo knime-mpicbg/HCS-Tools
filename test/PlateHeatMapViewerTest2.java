@@ -142,7 +142,7 @@ public class PlateHeatMapViewerTest2 {
     );
 
 
-    private DataTable loadTable() {
+    DataTable loadTable() {
         InputStream stream = null;
         try {
             stream = new FileInputStream(new File(testDataPath));
@@ -188,7 +188,7 @@ public class PlateHeatMapViewerTest2 {
     }
 
     // Method from the ScreenExplorer (node model) where the signature had to be changed (DataTable instead of the BufferedDataTable)
-    private List<Plate> parseIntoPlates(DataTable input) {
+    List<Plate> parseIntoPlates(DataTable input) {
         // grouping column
         Attribute<String> barcodeAttribute = new InputTableAttribute<String>(AbstractScreenTrafoModel.SCREEN_MODEL_BARCODE, input.getDataTableSpec());
 
