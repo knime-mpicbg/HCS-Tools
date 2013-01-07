@@ -2,3 +2,7 @@ TODO: I added some dependencies to the HCSTools during the development. Those ha
 TODO: The model (Plate, Well) should go back to the hcscore.
 TODO: The PlateComparators should go in the hcscore module at some point. For now I keep it in the hcstools, since I am more comfortable to the fool around with git than with svn and for easier compilation.
 TODO: Move all the main-testing methods in seperate test files (they currently work on seperate constructors, which is shiiiite)
+
+TODO: Move the imglib2, ij and loci jars from the lib folder to the corresponding one o the knutils.
+
+TODO: Clean the hcstools lib. there are jars that are not used.
