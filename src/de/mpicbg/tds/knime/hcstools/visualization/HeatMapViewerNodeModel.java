@@ -265,6 +265,10 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 for (Attribute attribute : attributeModel) {
                     String attributeName = attribute.getName();
 
+                    if ( attribute.isImageAttribute() ) {
+                        well.addImageField(attribute.getName(), attribute.getImageAttribute(tableRow));
+                    }
+
                     if (StringUtils.equalsIgnoreCase(Conventions.CBG.TREATMENT, attributeName)) {
                         well.setTreatment(attribute.getNominalAttribute(tableRow));
                     }

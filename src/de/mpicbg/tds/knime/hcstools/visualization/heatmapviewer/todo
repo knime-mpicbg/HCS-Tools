@@ -6,3 +6,4 @@ TODO: Move all the main-testing methods in seperate test files (they currently w
 TODO: Move the imglib2, ij and loci jars from the lib folder to the corresponding one o the knutils.
 
 TODO: Clean the hcstools lib. there are jars that are not used.
+TODO: remove Arttk deps

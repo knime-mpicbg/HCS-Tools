@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Creates a window with the well details.
@@ -30,21 +31,27 @@ public class WellViewer extends JPanel {
     private JTable table;
 
     private Font font = new Font("Arial", Font.PLAIN, 11);
+    private WellViewer.ImageMosaic imageMosaic;
 
 
     /**
+     * Constructor of the Well Viewer. This only creates a panel
+     * (that can also be used for the tooltip), to create a new window
+     * use the createViewerWindow method.
      *
      * @param well the {@link Well} object to create the details view for.
      */
     public WellViewer(Well well) {
         initialize();
         configure(well);
-        setMinimumSize(new Dimension(200, 250));
-        setPreferredSize(new Dimension(250, 400));               // TODO: This has to take effect (but doesn't yet)
+        setMinimumSize(new Dimension(150, 250));
+        setPreferredSize(new Dimension(200, 300));               // TODO: This has to take effect (but doesn't yet)
     }
 
 
     /**
+     * Create a Well Viewer window ({@link JFrame})
+     *
      * @return the Well detail viewer window
      */
     public JFrame createViewerWindow() {
@@ -58,11 +65,16 @@ public class WellViewer extends JPanel {
     }
 
 
+    /**
+     * Initialize the GUI components.
+     */
     private void initialize() {
+        // Initialize the description component
         description = new JTextArea();
         description.setBorder(BorderFactory.createEmptyBorder(0,5,3,5));
         description.setEnabled(false);
 
+        // Initialize the table component
         table = new JTable(new ReadoutTableModel()) {
             @Override
             public String getToolTipText(MouseEvent e) {
@@ -86,19 +98,24 @@ public class WellViewer extends JPanel {
         };
         table.setFont(font);
 
+        // Surround the table with a scroll pane
         scrollTable = new JScrollPane();
         scrollTable.setViewportView(table);
 
+        // Initialize the image mosaic surrounded by a scroll pane
         scrollMosaic = new JScrollPane();
-        scrollMosaic.setViewportView(new ImageMosaic());
+        imageMosaic = new ImageMosaic();
+        scrollMosaic.setViewportView(imageMosaic);
 
+        // Add the scroll panes to a split pane
         splitPane = new JSplitPane();
         splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setDividerSize(3);
-        splitPane.setResizeWeight(0.9);
+        splitPane.setDividerSize(5);
+        splitPane.setResizeWeight(0.5);
         splitPane.setTopComponent(scrollTable);
         splitPane.setBottomComponent(scrollMosaic);
 
+        // Add the description and the split pane to the main panel.
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -113,7 +130,14 @@ public class WellViewer extends JPanel {
         this.add(splitPane, constraints);
     }
 
+
+    /**
+     * Configure the GUI components, filling in the content from the {@link Well}.
+     *
+     * @param well {@link Well} object containing the data for the detailed view.
+     */
     private void configure(Well well) {
+        // Set the well description
         StringBuilder stringBuffer = new StringBuilder();
         stringBuffer.append("Plate: ").
                 append(well.getPlate().getBarcode()).
@@ -127,16 +151,16 @@ public class WellViewer extends JPanel {
                 append(well.getTreatment());
         description.setText(stringBuffer.toString());
 
-        //  append also all its readout values
-        StringBuffer readouts = new StringBuffer();
+        // Set all its readout values
         Object[][] tableData = new Object[well.getReadOutNames().size()][2];
-
         int counter = 0;
         FontMetrics metrics = table.getFontMetrics(font);
         DescriptiveStatistics stats = new DescriptiveStatistics();
+
         for (String readoutName : well.getReadOutNames()) {
             tableData[counter][0] = readoutName;
             Double value = well.getReadout(readoutName);
+
             if ( value == null ) {
                 tableData[counter++][1] = "";
             } else {
@@ -145,7 +169,7 @@ public class WellViewer extends JPanel {
             }
         }
 
-        // replace the model
+        // replace the table model
         ReadoutTableModel model = (ReadoutTableModel) table.getModel();
         model.setData(tableData);
         table.setModel(model);
@@ -156,6 +180,16 @@ public class WellViewer extends JPanel {
         table.getColumnModel().getColumn(1).setMaxWidth(width+30);
         table.getColumnModel().getColumn(1).setPreferredWidth(width);
         table.getColumnModel().getColumn(1).setMinWidth(width);
+
+//        scrollTable.setPreferredSize(new Dimension(180, metrics.getHeight()*counter));
+
+        // Put the images
+        imageMosaic.configure(well.getImageFields());
+        if ( well.getImageFields().isEmpty() ) {
+            splitPane.setResizeWeight(1);
+        } else {
+            splitPane.setResizeWeight(0.6);
+        }
     }
 
 
@@ -204,33 +238,41 @@ public class WellViewer extends JPanel {
      */
     private class ImageMosaic extends JPanel {
 
+        public ImageMosaic() {}
 
-        public ImageMosaic() {
-            setLayout(new GridBagLayout());
-            GridBagConstraints constraints = new GridBagConstraints();
-        }
+        public void configure(HashMap<String, PNGImageCell> images) {
+            if ( images.isEmpty() ) {
+                setLayout(new BorderLayout());
+                JLabel label = new JLabel("No image data to display.");
+                label.setHorizontalAlignment(JLabel.CENTER);
+                label.setFont(font);
+                add(label, BorderLayout.CENTER);
 
+            } else {
+                setLayout(new GridBagLayout());
+                GridBagConstraints constraints = new GridBagConstraints();
+                constraints.weighty = -1;
+                constraints.weightx = -1;
+                int x = 0;
 
-        private JLabel createImageComponent(Object object) {
+                for (String key : images.keySet()) {
+                    // Set the image title
+                    JLabel label = new JLabel(key);
+                    constraints.gridx = x;
+                    constraints.gridy = 0;
+                    constraints.fill = GridBagConstraints.HORIZONTAL;
+                    this.add(label, constraints);
 
-            BufferedImage image = null;
-
-            if ( object instanceof String ) {
-                File file = new File((String) object);
-                try {
-                    image = ImageIO.read(file);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    // Set the image
+                    JLabel image = new JLabel(new ImageIcon(images.get(key).getImageContent().getImage()));
+                    image.setPreferredSize(new Dimension(100,100));
+                    constraints.gridx = x++;
+                    constraints.gridy = 1;
+                    constraints.fill = GridBagConstraints.HORIZONTAL;
+                    this.add(image, constraints);
                 }
-
-            } else if ( object instanceof PNGImageCell) {
-                image = (BufferedImage) ((PNGImageCell) object).getImageContent().getImage();
-            } // TODO Add the kimp types: Image Reference, and something else.
-
-
-            return new JLabel(new ImageIcon(image));
+            }
         }
-
     }
 
 

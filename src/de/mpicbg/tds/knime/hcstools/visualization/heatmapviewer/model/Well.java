@@ -1,6 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model;
 
+import de.mpicbg.tds.knime.knutils.Attribute;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.image.png.PNGImageCell;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -18,69 +20,56 @@ import java.util.List;
  */
 public class Well implements Serializable {
 
+    /** Well position on the {@link Plate} */
     private Integer plateRow;
     private Integer plateColumn;
 
-    /**
-     * Numerical data.
-     */
+    /** Numerical data */
     private HashMap<String, Object> wellStatistics = new HashMap<String, Object>();
 
-    /**
-     * Nominal well attributes.
-     */
+    /** Nominal well attributes */
     private HashMap<String, String> annotations = new HashMap<String, String>();
 
     /**
      * A predefined string, which indicates the type of the well. Use the WELL_TYPE-constants is possible.    TODO: What? Where?
      */
 
-    /**
-     * The treatment (well condition).
-     */
+    /** The treatment (well condition) */
     private String treatment;
     private String compoundConcentration;
 
-    /**
-     * A short description of the well if present
-     */
+    /** A short description of the well if present */
     private String description;
 
-    /**
-     * Flag for the readount status.
-     */
+    /** Flag for the readount status */
     private Boolean readoutSuccess = true;
 
-    /**
-     * Parent plate
-     */
+    /** Parent plate */
     private Plate plate;
 
-    /**
-     * ID. TODO:Add a description (what id is it anyway? reader? db? what?)
-     */
+    /** ID */ //TODO:Add a description (what id is it anyway? reader? db? what?)
     private String id;
 
-    /**
-     * The row key of the table that it is from
-     */
+    /** The row key of the table that it is from */
     private RowKey knimeTableRowKey;
 
-    /**
-     * The color set by the knime color manager node
-     */
+    /** The color set by the knime color manager node */
     private Color knimeRowColor;
-
 
     /**
      * the list of well-fields imaged for this well. This maybe null or empty if single-field analysis was applied.  TODO: What? Where?
      */
+
+    /** Hasmap containing images and their title/description */
+    private HashMap<String, PNGImageCell> imageFields = new HashMap<String, PNGImageCell>();
+
 
 
     /**
      *  Constructor for an empty well
      */
     public Well() {}
+
 
     /**
      * Constructor of a Well (container of a microtiter plate)
@@ -91,6 +80,7 @@ public class Well implements Serializable {
         setPlateRow(plateRow);
         setPlateColumn(plateCol);
     }
+
 
 
     public Integer getPlateRow() {
@@ -201,7 +191,6 @@ public class Well implements Serializable {
             e.printStackTrace();
         }
 
-
 //        throw new IllegalArgumentException("no such readout");
         return null;
     }
@@ -294,19 +283,35 @@ public class Well implements Serializable {
         return id;
     }
 
+
     public RowKey getKnimeTableRowKey() {
         return knimeTableRowKey;
     }
+
 
     public void setKnimeTableRowKey(RowKey knimeTableRowKey) {
         this.knimeTableRowKey = knimeTableRowKey;
     }
 
+
     public void setKnimeRowColor(Color color) {
         this.knimeRowColor = color;
     }
 
+
     public Color getKnimeRowColor() {
         return knimeRowColor;
     }
+
+
+    public void addImageField(String key, PNGImageCell image) {
+        imageFields.put(key, image);
+    }
+
+
+    public HashMap<String, PNGImageCell> getImageFields() {
+        return imageFields;
+    }
+
+
 }
