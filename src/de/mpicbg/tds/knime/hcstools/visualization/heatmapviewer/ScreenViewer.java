@@ -2,18 +2,11 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
-import org.knime.core.data.RowKey;
 import org.knime.core.node.NodeModel;
-import org.knime.core.node.property.hilite.HiLiteListener;
-import org.knime.core.node.property.hilite.KeyEvent;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Creates a window containing all the heat-maps of a screen.
@@ -23,38 +16,36 @@ import java.util.Set;
  * Date: 10/4/12
  */
 
-public class ScreenViewer extends JPanel implements HiLiteListener, HeatMapViewer {
+public class ScreenViewer extends JPanel implements HeatMapViewer {
 
-//    // Window size factors
-//    public final int HEIGHT = 600;
-//    public final int WIDTH = 810;
-
-    // Component fields.
+    /** GUI components made accessible */
     private HeatTrellis heatTrellis;
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
 
-    // Data carrier
+    /** The {@link HeatMapModel2} object (data carrier) */
     private HeatMapModel2 heatMapModel;
 
-    // Parent node
+    /** Parent {@link NodeModel} */
     private HeatMapViewerNodeModel node;
 
 
     /**
      * Constructors for the node factory
+     *
      * @param nodeModel HeatMapViewerNodeModel
      */
     public ScreenViewer(HeatMapViewerNodeModel nodeModel) {
         this(nodeModel.getPlates());
         this.node = nodeModel;
         this.heatMapModel.setReferencePopulations(nodeModel.reference);
+        this.heatMapModel.setHiLiteHandler(nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.INPORT));
     }
 
     /**
      * Constructor for testing.
-     * @param plates list of plates
-     * @see de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate
+     *
+     * @param plates list of {@link Plate}s
      */
     public ScreenViewer(List<Plate> plates) {
         heatMapModel = new HeatMapModel2();
@@ -66,7 +57,9 @@ public class ScreenViewer extends JPanel implements HiLiteListener, HeatMapViewe
         setVisible(true);
     }
 
-
+    /**
+     * Initialize the GUI components
+     */
     private void initialize() {
         toolbar = new HeatMapInputToolbar(this);
         colorbar = new HeatMapColorToolBar();
@@ -78,62 +71,43 @@ public class ScreenViewer extends JPanel implements HiLiteListener, HeatMapViewe
         add(colorbar, BorderLayout.SOUTH);
     }
 
+    /**
+     * Configure the GUI components (pass on the {@link HeatMapModel2})
+     */
     private void configure() {
         heatTrellis.configure(this.heatMapModel);
         toolbar.configure(this.heatMapModel);
         colorbar.configure(this.heatMapModel);
     }
 
-
-    // HiLiteListener methods.
-    public void hiLite(final KeyEvent event) {
-        Set<RowKey> keys = event.keys();
-        Collection<Plate> plates = heatMapModel.getScreen();
-        for (Plate plate : plates){
-            for (Well well : plate.getWells()) {
-                if ( keys.contains(well.getKnimeTableRowKey()) ) {
-                    heatMapModel.addHilLites(well);
-                }
-            }
-        }
-        heatMapModel.fireModelChanged();
-    }
-
-    public void unHiLite(final KeyEvent event) {
-        Set<RowKey> keys = event.keys();
-        for (Well well : heatMapModel.getHiLite()) {
-            if ( keys.contains(well.getKnimeTableRowKey()) ) {
-                heatMapModel.removeHiLite(well);
-            }
-        }
-        heatMapModel.fireModelChanged();
-    }
-
-    public void unHiLiteAll(final KeyEvent event) {
-        heatMapModel.clearHiLites();
-        heatMapModel.fireModelChanged();
-    }
-
-
+    /**
+     * Returns the {@link HeatTrellis} object.
+     *
+     * @return {@link HeatTrellis}
+     */
     public HeatTrellis getHeatTrellis() {
         return heatTrellis;
     }
 
+    /** {@inheritDoc} */
     @Override
     public NodeModel getNodeModel() {
         return node;
     }
 
+    /** {@inheritDoc} */
     @Override
     public HeatMapModel2 getHeatMapModel() {
         return heatMapModel;
     }
 
+    /** {@inheritDoc} */
     @Override
     public HeatMapColorToolBar getColorBar() {
         return this.colorbar;
     }
 
+    /** {@inheritDoc} */
     @Override
     public HeatMapInputToolbar getToolBar() {
         return this.toolbar;

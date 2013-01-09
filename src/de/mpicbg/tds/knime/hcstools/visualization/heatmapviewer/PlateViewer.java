@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- *
  * Creates a window for a detailed plate view.
  * Replaces PlatePanel
  *
@@ -22,21 +21,34 @@ import java.util.Random;
 
 public class PlateViewer extends JFrame implements HeatMapModelChangeListener, HeatMapViewer {
 
+    /** The plate grid {@link HeatTrellis} holds the {@link HeatMapModel2} instance
+     *  containing the {@link HeatMapModelChangeListener} needed to update the GUIs */
     private HeatTrellis updater;
+
+    /** The {@link HeatMapModel2} object which is patially seperated for this instnance of the PlateViewer. */
     private HeatMapModel2 heatMapModel;
 
+    /** GUI components made accessible */
     private JPanel heatMapContainer;
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
 
 
     /**
-     * Constructors
+     * Constructor for the GUI component initialization.
      */
     public PlateViewer() {
         this.initialize();
     }
 
+
+    /**
+     * Constructor of the PlateViewer allowing to propagate the data from
+     * {@link ScreenViewer}.
+     *
+     * @param parent {@link HeatTrellis} is the plate grid from the {@link ScreenViewer}.
+     * @param plate {@link Plate} object containing the data for visualization.
+     */
     public PlateViewer(HeatTrellis parent, Plate plate) {
         this();
         this.updater = parent;
@@ -49,6 +61,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         model.setHideMostFreqOverlay(parent.heatMapModel.doHideMostFreqOverlay());
         model.setWellSelection(parent.heatMapModel.getWellSelection());
         model.setHiLite(parent.heatMapModel.getHiLite());
+        model.setHiLiteHandler(parent.heatMapModel.getHiLiteHandler());
 
         if ( parent.heatMapModel.isGlobalScaling() ) {
             model.setScreen(parent.heatMapModel.getScreen());
@@ -74,7 +87,6 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         this.heatMapModel.addChangeListener(this);
 
         // Configure
-//        this.menu.configure(this.heatMapModel);
         this.toolbar.configure(this.heatMapModel);
         this.colorbar.configure(this.heatMapModel);
 
@@ -108,18 +120,16 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         Dimension ms = heatMap.getPreferredSize();
         heatMapContainer.setPreferredSize(new Dimension(ms.width+10, ms.height+10));
         pack();
-//        setResizable(false);
 
         // Set the location of the new PlateViewer
         Random posJitter = new Random();
         double left = Toolkit.getDefaultToolkit().getScreenSize().getWidth() - this.getWidth() - 100;
         setLocation((int) left + posJitter.nextInt(100), 200 + posJitter.nextInt(100));
-//        setVisible(true);
     }
 
 
     /**
-     * Helper Methods
+     * GUI component initialization.
      */
     private void initialize() {
 //        menu = new PlateMenu(this);
@@ -138,6 +148,12 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         add(colorbar, BorderLayout.SOUTH);
     }
 
+
+    /**
+     * Getter for the {@link HeatTrellis} object.
+     *
+     * @return {@link HeatTrellis}
+     */
     public HeatTrellis getUpdater() {
         return updater;
     }
@@ -153,24 +169,25 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     }
 
 
-    /**
-     * Viewer interface
-     */
+    /** {@inheritDoc} */
     @Override
     public NodeModel getNodeModel() {
         return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public HeatMapColorToolBar getColorBar() {
         return colorbar;
     }
 
+    /** {@inheritDoc} */
     @Override
     public HeatMapInputToolbar getToolBar() {
         return toolbar;
     }
 
+    /** {@inheritDoc} */
     @Override
     public HeatMapModel2 getHeatMapModel() {
         return heatMapModel;

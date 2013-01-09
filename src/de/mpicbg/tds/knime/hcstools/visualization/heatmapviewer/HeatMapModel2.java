@@ -8,6 +8,10 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateCompa
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.Frequency;
+import org.knime.core.data.RowKey;
+import org.knime.core.node.property.hilite.HiLiteHandler;
+import org.knime.core.node.property.hilite.HiLiteListener;
+import org.knime.core.node.property.hilite.KeyEvent;
 
 import java.awt.*;
 import java.lang.reflect.Field;
@@ -20,7 +24,7 @@ import java.util.List;
  * Class to transport and synchronize information.
  */
 
-public class HeatMapModel2 {                   //TODO remove the 2 once the transition from the old to the new HeatMapModel is completed
+public class HeatMapModel2 implements HiLiteListener {                   //TODO remove the 2 once the transition from the old to the new HeatMapModel is completed
 
     // Reference populations
     public HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
@@ -40,6 +44,7 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     private boolean markSelection = true;
 
     // Hiliteing
+    private HiLiteHandler hiLiteHandler;
     Collection<Well> hiLite = new ArrayList<Well>();
     private HiLiteDisplayMode hiLiteDisplayModus = HiLiteDisplayMode.ALL;
 
@@ -532,6 +537,54 @@ public class HeatMapModel2 {                   //TODO remove the 2 once the tran
     /**
      * Knime Hiliting
      */
+    public HiLiteHandler getHiLiteHandler() {
+        return hiLiteHandler;
+    }
+
+    public void setHiLiteHandler(HiLiteHandler hiLiteHandler) {
+        this.hiLiteHandler = hiLiteHandler;
+
+
+    }
+
+    public boolean hasHiLiteHandler() {
+        return this.hiLiteHandler != null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void hiLite(final KeyEvent event) {
+        Set<RowKey> keys = event.keys();
+        Collection<Plate> plates = this.getScreen();
+        for (Plate plate : plates){
+            for (Well well : plate.getWells()) {
+                if ( keys.contains(well.getKnimeTableRowKey()) ) {
+                    this.addHilLites(well);
+                }
+            }
+        }
+        this.fireModelChanged();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void unHiLite(final KeyEvent event) {
+        Set<RowKey> keys = event.keys();
+        for (Well well : this.getHiLite()) {
+            if ( keys.contains(well.getKnimeTableRowKey()) ) {
+                this.removeHiLite(well);
+            }
+        }
+        this.fireModelChanged();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void unHiLiteAll(final KeyEvent event) {
+        this.clearHiLites();
+        this.fireModelChanged();
+    }
+
     public Collection<Well> getHiLite() {
         return hiLite;
     }

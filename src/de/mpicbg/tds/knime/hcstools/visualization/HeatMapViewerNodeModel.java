@@ -37,6 +37,8 @@ import java.util.*;
 
 public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
+    public static final int INPORT = 0;
+
     // Setting names
     static String READOUT_SETTING_NAME = "readout.setting";
     static String FACTOR_SETTING_NAME = "factor.setting";

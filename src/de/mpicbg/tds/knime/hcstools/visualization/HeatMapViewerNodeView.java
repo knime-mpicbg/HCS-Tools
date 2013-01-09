@@ -2,13 +2,17 @@ package de.mpicbg.tds.knime.hcstools.visualization;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.*;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
+import org.knime.core.data.RowKey;
 import org.knime.core.node.NodeView;
+import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Set;
 
 /**
- *
  * Node view of the HCS Heatmap Viewer.
  *
  * @author Felix Meyenhofer
@@ -17,8 +21,18 @@ import java.awt.*;
 
 public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
 
+    /** Store the node model for the HiLite registering */
+    private final HeatMapViewerNodeModel nodeModel;
+
+
+    /**
+     * Constructor for the Node view.
+     *
+     * @param nodeModel {@link HeatMapViewerNodeModel}
+     */
     public HeatMapViewerNodeView(HeatMapViewerNodeModel nodeModel) {
         super(nodeModel);
+        this.nodeModel = nodeModel;
 
         if (nodeModel.getPlates() == null) {
             nodeModel.setPlotWarning("You need to re-execute the node before the view will show up");
@@ -29,30 +43,48 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
                 nodeModel.setPlotWarning("Could not create view for empty input table!");
 
             } else {
+                // Create the ScreenViewer and add the menus
                 ScreenViewer screenView = new ScreenViewer(nodeModel);
                 this.setComponent(screenView);
                 JMenuBar menu = this.getJMenuBar();
                 menu.add(new HiLiteMenu(screenView));
                 menu.add(new ViewMenu(screenView));
                 menu.add(new TrellisMenu(screenView));
-                this.getComponent().setSize(new Dimension(810,600));
+                this.getComponent().setPreferredSize(new Dimension(810, 600));
+
+                // Register the HiLiteHandler
+                HeatMapModel2 heatMapModel = screenView.getHeatMapModel();
+                HiLiteHandler hiLiteHandler = nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.INPORT);
+                hiLiteHandler.addHiLiteListener(heatMapModel);
+
+                // ... and initialize the HiLites.
+                Set<RowKey> hiLites = hiLiteHandler.getHiLitKeys();
+                for (Well well : PlateUtils.flattenWells(heatMapModel.getScreen())) {
+                    if ( hiLites.contains(well.getKnimeTableRowKey()) )
+                        heatMapModel.addHilLites(well);
+                }
+                heatMapModel.fireModelChanged();
             }
         }
     }
 
 
+    /** {@inheritDoc} */
     @Override
     protected void onClose() {
+        // Close the PlateViewer windows.
         ((ScreenViewer)getComponent()).getHeatTrellis().closePlateViewers();
-
-        //TODO: un-register the hilitehandler
+        // Remove the HiLiteListeners.
+        nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.INPORT).removeAllHiLiteListeners();
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void onOpen() {
-        //blöterle
+        // blöterle
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void modelChanged() {
         HeatMapViewerNodeModel nodeModel = getNodeModel();
@@ -63,8 +95,6 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         HeatMapModel2 heatMapModel = ((ScreenViewer)getComponent()).getHeatMapModel();
         heatMapModel.setScreen(nodeModel.getPlates());
         heatMapModel.fireModelChanged();
-
-        //TODO: register the hilitehandler
     }
 
 }

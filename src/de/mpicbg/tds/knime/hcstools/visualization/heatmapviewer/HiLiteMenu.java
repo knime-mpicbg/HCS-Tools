@@ -20,10 +20,7 @@ import java.util.HashSet;
 
 public class HiLiteMenu extends JMenu {
 
-    /**
-     * Items for the gui, accessible by the {@link HeatMapViewer} interface that will be accessed by the menu actions.
-     */
-    private NodeModel nodeModel;
+    /** Heat Map data model {@link HeatMapModel2} */
     private HeatMapModel2 heatMapModel;
 
 
@@ -34,8 +31,6 @@ public class HiLiteMenu extends JMenu {
      * @see HeatMapViewer
      */
     public HiLiteMenu(HeatMapViewer parent) {
-        
-        this.nodeModel = parent.getNodeModel();
         this.heatMapModel = parent.getHeatMapModel();
         
 //        JMenu menu = new JMenu((HiLiteHandler.HILITE));
@@ -63,8 +58,9 @@ public class HiLiteMenu extends JMenu {
         });
     }
 
+
     /**
-     * Un-Hilite the current selection
+     * Un-HiLite the current selection
      */
     private void unHiLiteAction() {
         Collection<Well> selection = heatMapModel.getWellSelection();
@@ -76,10 +72,10 @@ public class HiLiteMenu extends JMenu {
             keys.add(well.getKnimeTableRowKey());
         }
 
-        if (nodeModel == null) {
-            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
+        if ( heatMapModel.hasHiLiteHandler() ) {
+            heatMapModel.getHiLiteHandler().fireUnHiLiteEvent(keys);
         } else {
-            nodeModel.getInHiLiteHandler(0).fireUnHiLiteEvent(keys); //TODO: put the port number in a variable in the nodemodel
+            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
         }
     }
 
@@ -90,15 +86,15 @@ public class HiLiteMenu extends JMenu {
         heatMapModel.clearHiLites();
         heatMapModel.fireModelChanged();
 
-        if (nodeModel == null) {
-            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
+        if ( heatMapModel.hasHiLiteHandler() ) {
+            heatMapModel.getHiLiteHandler().fireClearHiLiteEvent();
         } else {
-            nodeModel.getInHiLiteHandler(0).fireClearHiLiteEvent(); //TODO: put the port number in a variable in the nodemodel
+            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
         }
     }
 
     /**
-     * Hilite the current selection
+     * HiLite the current selection
      */
     private void hiLiteAction() {
         Collection<Well> selection = heatMapModel.getWellSelection();
@@ -110,10 +106,10 @@ public class HiLiteMenu extends JMenu {
             keys.add(well.getKnimeTableRowKey());
         }
 
-        if (nodeModel == null) {
-            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
+        if ( heatMapModel.hasHiLiteHandler() ) {
+            heatMapModel.getHiLiteHandler().fireHiLiteEvent(keys);
         } else {
-            nodeModel.getInHiLiteHandler(0).fireHiLiteEvent(keys); //TODO: put the port number in a variable in the nodemodel
+            System.err.println("Can't propagate the HiLite, because the HiLite handler form the node model is not available.");
         }
     }
 
