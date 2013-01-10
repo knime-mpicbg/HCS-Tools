@@ -50,7 +50,7 @@ public class Well implements Serializable {
     private String id;
 
     /** The row key of the table that it is from */
-    private RowKey knimeTableRowKey;
+    private String knimeTableRowKey;
 
     /** The color set by the knime color manager node */
     private Color knimeRowColor;
@@ -59,8 +59,8 @@ public class Well implements Serializable {
      * the list of well-fields imaged for this well. This maybe null or empty if single-field analysis was applied.  TODO: What? Where?
      */
 
-    /** Hasmap containing images and their title/description */
-    private DataContainer imageData;
+    /** DataTable object containing the image fields */
+    private transient DataContainer imageData;           // TODO: this should be a serializable too.
 
 
 
@@ -285,12 +285,12 @@ public class Well implements Serializable {
 
 
     public RowKey getKnimeTableRowKey() {
-        return knimeTableRowKey;
+        return new RowKey(this.knimeTableRowKey);
     }
 
 
     public void setKnimeTableRowKey(RowKey knimeTableRowKey) {
-        this.knimeTableRowKey = knimeTableRowKey;
+        this.knimeTableRowKey = knimeTableRowKey.getString();
     }
 
 
