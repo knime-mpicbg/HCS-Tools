@@ -1,3 +1,5 @@
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel2;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatWell;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.WellViewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
@@ -21,12 +23,15 @@ public class WellViewerTest {
         Plate plate = plates.get(0);
         Well well = plate.getWell(1,1);
 
-        WellViewer wellViewer = new WellViewer(well);
-        JFrame viewer = wellViewer.createViewerWindow();
-        viewer.pack();
-
+        WellViewer wellPane = new WellViewer(well);
+        JDialog viewer = wellPane.createDialog();
+//        viewer.pack();
         viewer.setVisible(true);
 
+        WellViewer wellViewer = new WellViewer(new HeatWell(well, new HeatMapModel2()), well);
+        JDialog viewer2 = wellViewer.createDialog();
+//        viewer2.pack();
+        viewer2.setVisible(true);
     }
 
 }

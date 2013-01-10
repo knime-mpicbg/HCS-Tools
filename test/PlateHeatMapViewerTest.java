@@ -134,15 +134,20 @@ public class PlateHeatMapViewerTest {
         }*/
         // HACK for custom plate labels as requested by Martin
 
-        return HeatMapViewerNodeModel.parseIntoPlates(input.getDataTableSpec(),
-                customPlateNameAttr,
+        // Get the image columns
+        ArrayList<Attribute> imageAttributes = new ArrayList<Attribute>();
+        for (Attribute attribute : attributeModel) {
+            if (attribute.isImageAttribute()) {
+                imageAttributes.add(attribute);
+            }
+        }
+        attributeModel.removeAll(imageAttributes);
+
+        return HeatMapViewerNodeModel.parseIntoPlates(splitScreen, input.getDataTableSpec(),
+                attributeModel, customPlateNameAttr,
+                plateRowAttribute, plateColAttribute, imageAttributes,
                 readouts,
-                factors,
-                splitScreen,
-                attributeModel,
-                plateRowAttribute,
-                plateColAttribute,
-                new BarcodeParserFactory(patterns));
+                factors, new BarcodeParserFactory(patterns));
 
 //        List<Plate> allPlates = new ArrayList<Plate>();
 //        BarcodeParserFactory bpf = new BarcodeParserFactory(patterns);

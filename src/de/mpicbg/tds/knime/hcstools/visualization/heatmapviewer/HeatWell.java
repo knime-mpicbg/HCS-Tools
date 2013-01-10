@@ -2,9 +2,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.util.Random;
+import java.awt.event.*;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
@@ -59,21 +57,42 @@ public class HeatWell extends JPanel {
     }
 
 
-    protected void openNewWellViewer() {
+    protected void openNewWellViewer(Point position) {
 //        JDialog jDialog = new JDialog(getParentDialog(this), false);
 ////        jDialog.add(new WellDetailPanel(this.well));
 //
-        Random random = new Random();
+//        Random random = new Random();
 //        jDialog.setBounds(random.nextInt(100) + 200, random.nextInt(100) + 200, 300, 500);
 //        jDialog.setVisible(true);
 
-        WellViewer wellViewer = new WellViewer(well);
-        JFrame viewer = wellViewer.createViewerWindow();
-        viewer.setLocation(random.nextInt(100) + 200, random.nextInt(100) + 200);
-//        viewer.setBounds(random.nextInt(100) + 200, random.nextInt(100) + 200, 300, 500);
-        viewer.pack();
+        // A small window, to show that something is happening, since it might take a moment to retrieve the images.
+        JWindow window = new JWindow();
+        window.setLayout(new BorderLayout());
+        JLabel label = new JLabel();
+        label.setText("Opening Well Viewer...");
+        label.setHorizontalAlignment(JLabel.CENTER);
+        window.getContentPane().add(label, BorderLayout.CENTER);
+        window.setLocation(position.x, position.y);
+        window.setSize(new Dimension(180,20));
+        window.setVisible(true);
 
+        // Create the WellViewer
+        WellViewer wellViewer = new WellViewer(this, well);
+        final JDialog viewer = wellViewer.createDialog();
+//        viewer.setLocation(random.nextInt(100) + 200, random.nextInt(100) + 200);
+//        viewer.setBounds(random.nextInt(100) + 200, random.nextInt(100) + 200, 300, 500);
+//        viewer.pack();
+
+        // Make sure the dialog exits if the PlateViewer is closed.
         viewer.setVisible(true);
+        ((JFrame) this.getTopLevelAncestor()).addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                viewer.setVisible(false);
+            }
+        });
+
+        window.setVisible(false);
     }
 
     public Well getWell() {
@@ -118,11 +137,12 @@ public class HeatWell extends JPanel {
     public JToolTip createToolTip() {
         JToolTip jToolTip = new JToolTip();
         jToolTip.setLayout(new BorderLayout());
-        jToolTip.setPreferredSize(new Dimension(350, 500));
+//        jToolTip.setPreferredSize(new Dimension(350, 500));
         WellViewer wellDetailsPanel = new WellViewer(well);
 
 //        WellDetailPanel wellDetailsPanel = new WellDetailPanel(well);
         jToolTip.add(wellDetailsPanel, BorderLayout.CENTER);
+        jToolTip.setPreferredSize(wellDetailsPanel.getPreferredSize());
 
         return jToolTip;
     }

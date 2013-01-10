@@ -186,7 +186,7 @@ public class HeatPlate extends JPanel implements MouseListener {
         // Open Plate details view on right click
         } else if ( (mouseEvent.getButton() == MouseEvent.BUTTON3) && mouseEvent.getSource() instanceof HeatWell ) {
             HeatWell heatWell = (HeatWell) mouseEvent.getSource();
-            heatWell.openNewWellViewer();
+            heatWell.openNewWellViewer(mouseEvent.getLocationOnScreen());
         }
     }
 

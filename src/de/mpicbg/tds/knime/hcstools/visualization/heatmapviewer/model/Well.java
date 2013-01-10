@@ -1,8 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model;
 
-import de.mpicbg.tds.knime.knutils.Attribute;
 import org.knime.core.data.RowKey;
-import org.knime.core.data.image.png.PNGImageCell;
+import org.knime.core.data.container.DataContainer;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -61,7 +60,7 @@ public class Well implements Serializable {
      */
 
     /** Hasmap containing images and their title/description */
-    private HashMap<String, PNGImageCell> imageFields = new HashMap<String, PNGImageCell>();
+    private DataContainer imageData;
 
 
 
@@ -73,6 +72,7 @@ public class Well implements Serializable {
 
     /**
      * Constructor of a Well (container of a microtiter plate)
+     *
      * @param plateRow row number/coordinate
      * @param plateCol column number/coordinate
      */
@@ -304,14 +304,13 @@ public class Well implements Serializable {
     }
 
 
-    public void addImageField(String key, PNGImageCell image) {
-        imageFields.put(key, image);
+    public DataContainer getImageData() {
+        return imageData;
     }
 
 
-    public HashMap<String, PNGImageCell> getImageFields() {
-        return imageFields;
+    public void setImageData(DataContainer imageData) {
+        this.imageData = imageData;
     }
-
 
 }
