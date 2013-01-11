@@ -22,9 +22,9 @@ public class HeatMapInputToolbar extends JToolBar {
 
     // The toolbar size influences the automatic size (pack()) of all windows it is used in.
     public final int TOOLBAR_HEIGHT = 30;
-    public final int READOUT_WIDTH = 250;
+    public final int READOUT_WIDTH = 150;
     public final int OVERLAY_WIDTH = 100;
-    public final int FILTER_WIDTH = 300;
+    public final int FILTER_WIDTH = 280;
 
     private HeatMapModel2 heatMapModel;
     private WellAttributeComboBox readoutSelector;
@@ -35,6 +35,7 @@ public class HeatMapInputToolbar extends JToolBar {
 
     // Constructor
     public HeatMapInputToolbar(HeatMapViewer parent) {
+        this.setPreferredSize(new Dimension(READOUT_WIDTH + OVERLAY_WIDTH +FILTER_WIDTH +100, -1));
         this.parent = parent;
 
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
@@ -42,12 +43,14 @@ public class HeatMapInputToolbar extends JToolBar {
         add(new JLabel("Readout:"));
         readoutSelector = new WellAttributeComboBox();
         readoutSelector.setPreferredSize(new Dimension(READOUT_WIDTH, -1));
+        readoutSelector.setMaximumSize(new Dimension(READOUT_WIDTH + 300, 50));
         add(readoutSelector);
         addSeparator();
 
         add(new JLabel("Overlay:"));
         overlaySelector = new WellAttributeComboBox();
         overlaySelector.setPreferredSize(new Dimension(OVERLAY_WIDTH, -1));
+        overlaySelector.setMaximumSize(new Dimension(OVERLAY_WIDTH+200, 50));
         add(overlaySelector);
 
         // Add the filter functionality for the ScreenViewer.
@@ -56,10 +59,11 @@ public class HeatMapInputToolbar extends JToolBar {
             add(new JLabel("Filter by:"));
             filterSelector = new JComboBox();
             filterSelector.setPreferredSize(new Dimension(FILTER_WIDTH/2, -1));
+            filterSelector.setMaximumSize(new Dimension(FILTER_WIDTH/2+50, 50));
             add(filterSelector);
             JFormattedTextField filterString = new JFormattedTextField();
             filterString.setPreferredSize(new Dimension(FILTER_WIDTH/2, (int) Math.round(TOOLBAR_HEIGHT/3.0*2)));
-            filterString.setMaximumSize(new Dimension(FILTER_WIDTH, (int) Math.round(TOOLBAR_HEIGHT/3.0*2)));
+            filterString.setMaximumSize(new Dimension(FILTER_WIDTH/2 +50, (int) Math.round(TOOLBAR_HEIGHT/3.0*2)));
             filterString.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
