@@ -185,6 +185,13 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     public List<Plate> parseInputData(BufferedDataTable input) {
         // Get chosen parameters to visualize
         List<String> parameters = propReadouts.getIncludeList();
+        if (parameters.isEmpty())
+            logger.warn("There are no readouts selected ('Readouts' tab in the configure dialog)!");
+
+        // Get the chosen factors to visualize
+        List<String> factors = propFactors.getIncludeList();
+        if (factors.isEmpty())
+            logger.warn("There are no factors selected ('Factors' tab in the configure dialog)!");
 
         // Split input table by grouping column
         Attribute<String> barcodeAttribute = new InputTableAttribute<String>(propGroupBy.getStringValue(), input);
@@ -211,6 +218,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
         // Put the info about the reference populations
         reference.put(propRefParameter.getStringValue(),  propRefNames.getStringArrayValue());
+        if (propRefNames.getStringArrayValue().length == 0)
+            logger.warn("There are no reference groups selected ('Control' tab in the configure dialog)!");
 
         return parseIntoPlates(splitScreen,
                                input.getDataTableSpec(),
