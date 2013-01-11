@@ -161,6 +161,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
                 // Read an object
                 plates = (List<Plate>) obj_in.readObject();
+
+                logger.warn("The image data is transient. To be able to visualize it the node needs to be re-executed!");
             }
 
         } catch (Throwable e) {
