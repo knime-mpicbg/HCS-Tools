@@ -1,9 +1,11 @@
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.List;
 
 import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.*;
@@ -246,6 +248,7 @@ public class PlateHeatMapViewerTest2 {
 
         // Create a frame to carry it.
         JFrame frame = new JFrame("Whatever");
+        frame.setSize(new Dimension(700,400));
 
         // Create the menu bar and populate it
         JMenuBar menu = new JMenuBar();
@@ -256,7 +259,7 @@ public class PlateHeatMapViewerTest2 {
 
         frame.add(view);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
+//        frame.pack();
         frame.setVisible(true);
     }
 

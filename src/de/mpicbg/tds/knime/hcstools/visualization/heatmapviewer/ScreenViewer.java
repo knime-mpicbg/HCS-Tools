@@ -7,6 +7,8 @@ import org.knime.core.node.NodeModel;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Creates a window containing all the heat-maps of a screen.
@@ -99,6 +101,11 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
     @Override
     public HeatMapModel2 getHeatMapModel() {
         return heatMapModel;
+    }
+
+    @Override
+    public Map<UUID, PlateViewer> getChildViews() {
+        return getHeatTrellis().plateViewers;
     }
 
     /** {@inheritDoc} */

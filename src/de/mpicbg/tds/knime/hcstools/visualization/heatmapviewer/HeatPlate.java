@@ -35,12 +35,10 @@ public class HeatPlate extends JPanel implements MouseListener {
     /**
      * Constructor
      */
-    public HeatPlate(PlateViewer parent) {
+    public HeatPlate(PlateViewer parent, Plate plate) {
         this.heatMapModel = parent.getHeatMapModel();
         this.setBorder(BorderFactory.createEmptyBorder());
         this.setBackground(ScreenColorScheme.getInstance().emptyReadOut);
-
-        Plate plate = heatMapModel.getScreen().get(0);
 
         // configure the actual grid
         TableLayout tableLayout = new TableLayout();

@@ -25,14 +25,16 @@ public class ViewMenu extends JMenu {
     private HeatMapInputToolbar toolbar;
     private HeatMapColorToolBar colorbar;
 
-    /**
-     * This menu item must be accessed from outside (PlateViewer)
-     */
+    /** This menu item must be accessed from outside (PlateViewer) */
     private JMenuItem colorMapMenu;
+
+    /** The updater holding the list of the PlateViewers */
+    private HeatMapViewer parent;
 
 
     /**
      * Constructor of the view menu
+     *
      * @param parent a HeatMapViewer object.
      */
     public ViewMenu(HeatMapViewer parent) {
@@ -40,6 +42,7 @@ public class ViewMenu extends JMenu {
         this.heatMapModel = parent.getHeatMapModel();
         this.toolbar = parent.getToolBar();
         this.colorbar = parent.getColorBar();
+        this.parent = parent;
 
         // Create the menu
         this.setText("View");
@@ -75,6 +78,7 @@ public class ViewMenu extends JMenu {
 
     /**
      * Accessor to the color map menu item
+     *
      * @return the color map item.
      */
     public JMenuItem getColorMenuItem() {
@@ -104,6 +108,7 @@ public class ViewMenu extends JMenu {
 
     /**
      * Returns the overlay sub-menu
+     *
      * @return overlay sub-menu
      */
     private JMenu createOverlaySubMenu() {
@@ -133,6 +138,7 @@ public class ViewMenu extends JMenu {
 
     /**
      * Returns the sub-menu for outlier handling in the color scale computation.
+     *
      * @return outlier sub-menu
      */
     private JMenu createOutlierSubMenu() {
@@ -158,6 +164,7 @@ public class ViewMenu extends JMenu {
 
     /**
      * Returns the menu of the color map manipulations
+     *
      * @return color map sub-menu
      */
     private JMenu createColorMapMenu() {
@@ -167,7 +174,7 @@ public class ViewMenu extends JMenu {
         JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[names.length];
 
         for (int i = 0; i < names.length; i++) {
-            ImageIcon icon = createImageIcon("icons/" + names[i] + ".png", names[i] + "color map");
+            ImageIcon icon = createImageIcon("./icons/" + names[i] + ".png", names[i] + "color map");
             item[i] = new JRadioButtonMenuItem(names[i],icon);
             group.add(item[i]);
             lut.add(item[i]);
@@ -243,6 +250,14 @@ public class ViewMenu extends JMenu {
             newGradient = LinearGradientTools.getStandardGradient(source.getText());
         }
         heatMapModel.setColorGradient(newGradient);
+
+        // Propagate the color map to the PlateViewers
+        if ((parent.getChildViews() != null) && heatMapModel.isGlobalScaling()) {
+            for (PlateViewer viewer : parent.getChildViews().values()){
+                viewer.getHeatMapModel().setColorGradient(newGradient);
+            }
+        }
+
         heatMapModel.fireModelChanged();
     }
 

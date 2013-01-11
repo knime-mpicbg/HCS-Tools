@@ -204,6 +204,9 @@ public class TrellisMenu extends JMenu {
     private void globalScalingAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
 
+        if (heatTrellis.plateViewers.isEmpty())
+            return;
+
         Object[] options = {"Cancel", "Proceed"};
         int optionIndex = JOptionPane.showOptionDialog(getTopLevelAncestor(),
                 "<html>To keep the windows consistent,<br/>" +

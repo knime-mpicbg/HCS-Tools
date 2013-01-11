@@ -9,7 +9,9 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Creates a window for a detailed plate view.
@@ -62,6 +64,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         model.setWellSelection(parent.heatMapModel.getWellSelection());
         model.setHiLite(parent.heatMapModel.getHiLite());
         model.setHiLiteHandler(parent.heatMapModel.getHiLiteHandler());
+        model.setColorGradient(parent.heatMapModel.getColorGradient());
 
         if ( parent.heatMapModel.isGlobalScaling() ) {
             model.setScreen(parent.heatMapModel.getScreen());
@@ -91,7 +94,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         this.colorbar.configure(this.heatMapModel);
 
         // Give a meaningful title.
-        this.setTitle("Plate Viewer (" + heatMapModel.getScreen().get(0).getBarcode() + ")");
+        this.setTitle("Plate Viewer (" + plate.getBarcode() + ")");
 
         // Remove the HeatMapModelChangeListener when closing the window.
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -110,7 +113,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         colorbar.configure(this.heatMapModel);
 
         // Add the plate heatmap
-        HeatPlate heatMap = new HeatPlate(this);
+        HeatPlate heatMap = new HeatPlate(this, plate);
         heatMapContainer.add(heatMap);
 
         // Add "save image" functionality
@@ -191,6 +194,11 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     @Override
     public HeatMapModel2 getHeatMapModel() {
         return heatMapModel;
+    }
+
+    @Override
+    public Map<UUID, PlateViewer> getChildViews() {
+        return null;
     }
 
 
