@@ -24,7 +24,7 @@ import java.util.List;
  * Class to transport and synchronize information.
  */
 
-public class HeatMapModel2 implements HiLiteListener {                   //TODO remove the 2 once the transition from the old to the new HeatMapModel is completed
+public class HeatMapModel implements HiLiteListener {
 
     // Reference populations
     public HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();

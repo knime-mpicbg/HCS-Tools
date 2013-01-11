@@ -28,7 +28,7 @@ public class HeatPlate extends JPanel implements MouseListener {
     public final int WELL_SIZE = 22;
 
     // Component fields.
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
     Map<Well, HeatWell> wellPanelGrid = new HashMap<Well, HeatWell>();
 
 

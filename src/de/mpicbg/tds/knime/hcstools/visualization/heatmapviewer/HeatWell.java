@@ -19,7 +19,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColo
 public class HeatWell extends JPanel {
 
     private Well well;
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
 
     public static int STROKE_WIDTH = 3;
     public static BasicStroke overlayStroke = new BasicStroke(STROKE_WIDTH);
@@ -28,7 +28,7 @@ public class HeatWell extends JPanel {
     protected boolean isPreselected = false;
 
 
-    public HeatWell(final Well well, HeatMapModel2 heatMapModel) {
+    public HeatWell(final Well well, HeatMapModel heatMapModel) {
         super();
 
         this.well = well;

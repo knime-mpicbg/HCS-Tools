@@ -2,7 +2,6 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import org.knime.core.data.RowKey;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
@@ -20,8 +19,8 @@ import java.util.HashSet;
 
 public class HiLiteMenu extends JMenu {
 
-    /** Heat Map data model {@link HeatMapModel2} */
-    private HeatMapModel2 heatMapModel;
+    /** Heat Map data model {@link HeatMapModel} */
+    private HeatMapModel heatMapModel;
 
 
     /**

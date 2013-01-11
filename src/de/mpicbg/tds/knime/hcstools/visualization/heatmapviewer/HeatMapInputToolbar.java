@@ -26,7 +26,7 @@ public class HeatMapInputToolbar extends JToolBar {
     public final int OVERLAY_WIDTH = 100;
     public final int FILTER_WIDTH = 280;
 
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
     private WellAttributeComboBox readoutSelector;
     private WellAttributeComboBox overlaySelector;
     private JComboBox filterSelector;
@@ -88,7 +88,7 @@ public class HeatMapInputToolbar extends JToolBar {
 
 
     // Configure the gui components with the menu items.
-    protected void configure(HeatMapModel2 hmm) {              //TODO: Find a better way for the component resizing (currently some components are not visible if the window size is small)
+    protected void configure(HeatMapModel hmm) {              //TODO: Find a better way for the component resizing (currently some components are not visible if the window size is small)
         heatMapModel = hmm;
 
         // populate the overlay menu based on the first plate

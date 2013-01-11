@@ -19,7 +19,7 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 public class ColorGradientDialog extends JDialog {
 
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
     private GradientSlider slider;
     private LinearGradientPaint currentGradient = LinearGradientTools.getStandardGradient("GB");
     private ArrayList<PopulationPanel> populationIndicators = new ArrayList<PopulationPanel>();
@@ -42,7 +42,7 @@ public class ColorGradientDialog extends JDialog {
         setModal(true);
     }
 
-    public ColorGradientDialog(HeatMapModel2 model) {
+    public ColorGradientDialog(HeatMapModel model) {
         this();
         configure(model);
     }
@@ -134,7 +134,7 @@ public class ColorGradientDialog extends JDialog {
         return contentPane;
     }
 
-    protected void configure(HeatMapModel2 model) {
+    protected void configure(HeatMapModel model) {
         heatMapModel = model;
         currentGradient = model.getColorGradient();
 
@@ -235,7 +235,7 @@ public class ColorGradientDialog extends JDialog {
     // Reveal yourself!
     public static void main(String[] args) {
 //        ColorGradientDialog dialog = new ColorGradientDialog("Color gradient dialog test");
-        ColorGradientDialog dialog = new ColorGradientDialog(new HeatMapModel2());
+        ColorGradientDialog dialog = new ColorGradientDialog(new HeatMapModel());
         dialog.setVisible(true);
         System.exit(0);
     }

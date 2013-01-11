@@ -56,7 +56,7 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
                 menu.getMenu(0).remove(0);
 
                 // Register the HiLiteHandler
-                HeatMapModel2 heatMapModel = screenView.getHeatMapModel();
+                HeatMapModel heatMapModel = screenView.getHeatMapModel();
                 HiLiteHandler hiLiteHandler = nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT);
                 hiLiteHandler.addHiLiteListener(heatMapModel);
 
@@ -95,7 +95,7 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         if (nodeModel == null || nodeModel.getPlates() == null)
             return;
 
-        HeatMapModel2 heatMapModel = ((ScreenViewer)getComponent()).getHeatMapModel();
+        HeatMapModel heatMapModel = ((ScreenViewer)getComponent()).getHeatMapModel();
         heatMapModel.setScreen(nodeModel.getPlates());
         heatMapModel.fireModelChanged();
     }

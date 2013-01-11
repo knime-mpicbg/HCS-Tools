@@ -24,7 +24,7 @@ public class RowColumnDialog extends JDialog implements ItemListener {
     private JPanel automaticPanel;
     private JPanel manualPanel;
 
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
 
     private final Border passiveBorder = BorderFactory.createEtchedBorder();
     private final Border activeBorder = BorderFactory.createBevelBorder(1);
@@ -54,7 +54,7 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    public RowColumnDialog(HeatMapModel2 model) {
+    public RowColumnDialog(HeatMapModel model) {
         this();
         this.heatMapModel = model;
         configure();

@@ -21,7 +21,7 @@ public class ViewMenu extends JMenu {
     /**
      * Items for the gui, accessible by the {@link HeatMapViewer} interface that will be accessed by the menu actions.
      */
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
     private HeatMapInputToolbar toolbar;
     private HeatMapColorToolBar colorbar;
 

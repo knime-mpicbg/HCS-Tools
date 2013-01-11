@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class OverlayLegend extends JDialog implements HeatMapModelChangeListener {
 
-	private HeatMapModel2 heatMapModel;
+	private HeatMapModel heatMapModel;
 	public LegendPanel legendPanel;
 
 
@@ -49,7 +49,7 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
 	}
 
-	public void setModel(HeatMapModel2 heatMapModel) {
+	public void setModel(HeatMapModel heatMapModel) {
 		this.heatMapModel = heatMapModel;
 		heatMapModel.addChangeListener(this);
 		legendPanel.setModel(heatMapModel);
@@ -75,7 +75,7 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
 
     public class LegendPanel extends JPanel implements HeatMapModelChangeListener {
 
-        private HeatMapModel2 heatMapModel;
+        private HeatMapModel heatMapModel;
         private int nullCounter = 0;
         private JDialog parent;
         private Font font = new Font("Arial", Font.PLAIN, 12);
@@ -87,7 +87,7 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
         }
 
 
-        public void setModel(HeatMapModel2 heatMapModel) {
+        public void setModel(HeatMapModel heatMapModel) {
             this.heatMapModel = heatMapModel;
             heatMapModel.addChangeListener(this);
             modelChanged();

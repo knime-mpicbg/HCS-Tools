@@ -20,7 +20,7 @@ import java.util.List;
 public class TrellisMenu extends JMenu {
 
     private HeatTrellis heatTrellis;
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
 
     /**
      * Constructor of the heatmap trellis menu
@@ -110,21 +110,21 @@ public class TrellisMenu extends JMenu {
         item[0].addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                displayModeAction(HeatMapModel2.HiLiteDisplayMode.ALL);
+                displayModeAction(HeatMapModel.HiLiteDisplayMode.ALL);
             }
         });
         item[1] = new JRadioButtonMenuItem("Show HiLite Only");
         item[1].addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                displayModeAction(HeatMapModel2.HiLiteDisplayMode.HILITE_ONLY);
+                displayModeAction(HeatMapModel.HiLiteDisplayMode.HILITE_ONLY);
             }
         });
         item[2] = new JRadioButtonMenuItem("Show UnHiLite Only");
         item[2].addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                displayModeAction(HeatMapModel2.HiLiteDisplayMode.UNHILITE_ONLY);
+                displayModeAction(HeatMapModel.HiLiteDisplayMode.UNHILITE_ONLY);
             }
         });
 
@@ -225,7 +225,7 @@ public class TrellisMenu extends JMenu {
         }
     }
 
-    private void displayModeAction(HeatMapModel2.HiLiteDisplayMode mode) {
+    private void displayModeAction(HeatMapModel.HiLiteDisplayMode mode) {
         heatMapModel.setHiLiteDisplayModus(mode);
         heatMapModel.fireModelChanged();
     }

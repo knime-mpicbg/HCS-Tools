@@ -1,6 +1,5 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateComparators;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
 import org.apache.commons.lang.ArrayUtils;
 
@@ -25,7 +24,7 @@ import java.util.List;
 public class PlateAttributeDialog extends JDialog {
 
     private TreeMap<Integer, String> selection = new TreeMap<Integer, String>();
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
     private JTable table;
     private String[][] tableData = new String[3][2];
     private ListSelectionModel listSelectionModel;
@@ -38,7 +37,7 @@ public class PlateAttributeDialog extends JDialog {
         this(null);
     }
 
-    public PlateAttributeDialog (HeatMapModel2 model) {
+    public PlateAttributeDialog (HeatMapModel model) {
         heatMapModel = model;
         setSize(new Dimension(300, 270));
         initialize();

@@ -18,7 +18,7 @@ interface HeatMapViewer {
 
     HeatMapInputToolbar getToolBar();
 
-    HeatMapModel2 getHeatMapModel();
+    HeatMapModel getHeatMapModel();
 
     Map<UUID, PlateViewer> getChildViews();
 

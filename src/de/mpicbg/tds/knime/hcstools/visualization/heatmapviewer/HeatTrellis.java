@@ -37,7 +37,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     private int PREFERRED_HEIGHT = 400;
 
     // Component fields.
-    protected HeatMapModel2 heatMapModel;
+    protected HeatMapModel heatMapModel;
     private JPanel heatMapsContainer;
     private JScrollPane heatMapScrollPane;
     private JPanel containerPositioner;
@@ -71,13 +71,13 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         new PanelImageExporter(this, true);
     }
 
-    public HeatTrellis(HeatMapModel2 model) {
+    public HeatTrellis(HeatMapModel model) {
         this();
         configure(model);
     }
 
 
-    public HeatMapModel2 getHeatMapModel() {
+    public HeatMapModel getHeatMapModel() {
         return this.heatMapModel;
     }
 
@@ -96,7 +96,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     /**
      * GUI creation helpers
      */
-    public void configure(HeatMapModel2 model) {
+    public void configure(HeatMapModel model) {
         this.heatMapModel = model;
         heatMapModel.addChangeListener(this);
 //        this.setPlates(plates);
@@ -585,7 +585,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.setSize(new Dimension(200, 500));
-        frame.add(new HeatTrellis(new HeatMapModel2()));
+        frame.add(new HeatTrellis(new HeatMapModel()));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }

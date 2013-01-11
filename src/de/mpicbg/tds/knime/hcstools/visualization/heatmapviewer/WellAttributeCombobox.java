@@ -13,11 +13,11 @@ import java.util.List;
  * Time: 13:42
  */
 public class WellAttributeComboBox extends JComboBox {
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
     private JPanel parent;
 
 
-    public void configure(List<String> options, final HeatMapModel2 heatMapModel, final AttributeType selType) {
+    public void configure(List<String> options, final HeatMapModel heatMapModel, final AttributeType selType) {
         this.heatMapModel = heatMapModel;
         this.parent = parent;
 
@@ -48,7 +48,7 @@ public class WellAttributeComboBox extends JComboBox {
         // register for readout changes
         addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent actionEvent) {
-                HeatMapModel2 mapModel = WellAttributeComboBox.this.heatMapModel;
+                HeatMapModel mapModel = WellAttributeComboBox.this.heatMapModel;
 
                 // apply the changed selection
                 switch (selType) {

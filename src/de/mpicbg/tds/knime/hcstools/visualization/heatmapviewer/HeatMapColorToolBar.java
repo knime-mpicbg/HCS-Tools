@@ -19,7 +19,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColo
 
 public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeListener{
 
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
     private LinearGradientTools.ColorGradientPanel gradientPanel;
     private JLabel minLabel = new JLabel("min");
     private JLabel medLabel = new JLabel("middle");
@@ -35,7 +35,7 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         initialize();
     }
 
-    public HeatMapColorToolBar(HeatMapModel2 model) {
+    public HeatMapColorToolBar(HeatMapModel model) {
         this();
         configure(model);
     }
@@ -124,7 +124,7 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         add(emptyLabel, constraints);
     }
 
-    protected void configure(HeatMapModel2 model) {
+    protected void configure(HeatMapModel model) {
         heatMapModel = model;
         heatMapModel.addChangeListener(this);
     }
@@ -140,7 +140,7 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
 
 
     public static void main(String[] args) {
-        HeatMapColorToolBar toolBar = new HeatMapColorToolBar(new HeatMapModel2());
+        HeatMapColorToolBar toolBar = new HeatMapColorToolBar(new HeatMapModel());
         JFrame frame = new JFrame();
         frame.add(toolBar);
         frame.setSize(500, 60);

@@ -25,8 +25,8 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
 
-    /** The {@link HeatMapModel2} object (data carrier) */
-    private HeatMapModel2 heatMapModel;
+    /** The {@link HeatMapModel} object (data carrier) */
+    private HeatMapModel heatMapModel;
 
     /** Parent {@link NodeModel} */
     private HeatMapViewerNodeModel node;
@@ -50,7 +50,7 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
      * @param plates list of {@link Plate}s
      */
     public ScreenViewer(List<Plate> plates) {
-        heatMapModel = new HeatMapModel2();
+        heatMapModel = new HeatMapModel();
         heatMapModel.setScreen(plates);
 
         initialize();
@@ -74,7 +74,7 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
     }
 
     /**
-     * Configure the GUI components (pass on the {@link HeatMapModel2})
+     * Configure the GUI components (pass on the {@link HeatMapModel})
      */
     private void configure() {
         heatTrellis.configure(this.heatMapModel);
@@ -99,7 +99,7 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
 
     /** {@inheritDoc} */
     @Override
-    public HeatMapModel2 getHeatMapModel() {
+    public HeatMapModel getHeatMapModel() {
         return heatMapModel;
     }
 

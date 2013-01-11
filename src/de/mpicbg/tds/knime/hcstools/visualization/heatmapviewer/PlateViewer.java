@@ -23,12 +23,12 @@ import java.util.UUID;
 
 public class PlateViewer extends JFrame implements HeatMapModelChangeListener, HeatMapViewer {
 
-    /** The plate grid {@link HeatTrellis} holds the {@link HeatMapModel2} instance
+    /** The plate grid {@link HeatTrellis} holds the {@link HeatMapModel} instance
      *  containing the {@link HeatMapModelChangeListener} needed to update the GUIs */
     private HeatTrellis updater;
 
-    /** The {@link HeatMapModel2} object which is patially seperated for this instnance of the PlateViewer. */
-    private HeatMapModel2 heatMapModel;
+    /** The {@link HeatMapModel} object which is patially seperated for this instnance of the PlateViewer. */
+    private HeatMapModel heatMapModel;
 
     /** GUI components made accessible */
     private JPanel heatMapContainer;
@@ -56,7 +56,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         this.updater = parent;
 
         // Create a new instance of the HeatMapModel and copy some attributes.
-        HeatMapModel2 model = new HeatMapModel2();
+        HeatMapModel model = new HeatMapModel();
         model.setCurrentReadout(parent.heatMapModel.getSelectedReadOut());
         model.setOverlay(parent.heatMapModel.getOverlay());
         model.setColorScheme(parent.heatMapModel.getColorScheme());
@@ -102,7 +102,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
             @Override
             public void windowClosing(WindowEvent windowEvent) {
                 PlateViewer viewer = (PlateViewer) windowEvent.getSource();
-                HeatMapModel2 model = viewer.updater.getHeatMapModel();
+                HeatMapModel model = viewer.updater.getHeatMapModel();
                 model.removeChangeListener(viewer);
                 viewer.setVisible(false);
             }
@@ -193,7 +193,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
 
     /** {@inheritDoc} */
     @Override
-    public HeatMapModel2 getHeatMapModel() {
+    public HeatMapModel getHeatMapModel() {
         return heatMapModel;
     }
 
@@ -208,7 +208,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
      */
     public static void main(String[] args) {
         PlateViewer plateViewer = new PlateViewer();
-        plateViewer.heatMapModel = new HeatMapModel2();
+        plateViewer.heatMapModel = new HeatMapModel();
         plateViewer.setSize(new Dimension(400, 250));
         plateViewer.setVisible(true);
     }

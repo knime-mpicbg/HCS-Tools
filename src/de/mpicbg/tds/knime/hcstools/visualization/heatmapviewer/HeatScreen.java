@@ -20,10 +20,10 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 public class HeatScreen extends JPanel {
 
     private Plate plate;
-    private HeatMapModel2 heatMapModel;
+    private HeatMapModel heatMapModel;
 
 
-    public HeatScreen(final Plate plate, HeatMapModel2 heatMapModel) {
+    public HeatScreen(final Plate plate, HeatMapModel heatMapModel) {
         this.plate = plate;
         this.heatMapModel = heatMapModel;
 
@@ -65,7 +65,7 @@ public class HeatScreen extends JPanel {
 
 //    protected void openNewPlateViewer() {
 //        // open a new detail-dialog for the plate
-//        HeatMapModel2 plateHeatMapModel = new HeatMapModel2();
+//        HeatMapModel plateHeatMapModel = new HeatMapModel();
 //        // todo if we want to use a global color scale also in the single plate view we ave to use te next line
 ////                plateHeatMapModel.setScreen(PlateOverviewHeatMap.this.heatMapModel.getScreen());
 //        plateHeatMapModel.setCurrentReadout(this.heatMapModel.getSelectedReadOut());
