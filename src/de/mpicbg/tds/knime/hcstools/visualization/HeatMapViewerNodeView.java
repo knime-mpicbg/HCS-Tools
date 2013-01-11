@@ -57,7 +57,7 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
 
                 // Register the HiLiteHandler
                 HeatMapModel2 heatMapModel = screenView.getHeatMapModel();
-                HiLiteHandler hiLiteHandler = nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.INPORT);
+                HiLiteHandler hiLiteHandler = nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT);
                 hiLiteHandler.addHiLiteListener(heatMapModel);
 
                 // ... and initialize the HiLites.
@@ -78,7 +78,7 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         // Close the PlateViewer windows.
         ((ScreenViewer)getComponent()).getHeatTrellis().closePlateViewers();
         // Remove the HiLiteListeners.
-        nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.INPORT).removeAllHiLiteListeners();
+        nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT).removeAllHiLiteListeners();
     }
 
     /** {@inheritDoc} */

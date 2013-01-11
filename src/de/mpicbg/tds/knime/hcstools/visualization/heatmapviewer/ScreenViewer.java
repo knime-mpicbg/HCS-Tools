@@ -41,7 +41,7 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
         this(nodeModel.getPlates());
         this.node = nodeModel;
         this.heatMapModel.setReferencePopulations(nodeModel.reference);
-        this.heatMapModel.setHiLiteHandler(nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.INPORT));
+        this.heatMapModel.setHiLiteHandler(nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT));
     }
 
     /**
