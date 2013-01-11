@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./plateviewer.png" type="Visualizer">
+
     <name>Plate Heatmap Viewer</name>
 
     <shortDescription>
@@ -18,13 +19,19 @@
             Mouse behaviour:<br/>
             The heatmap trellis and the individual plate view support single selection and drag-selection.<br/>
             Right click on a plate of the trellis opens an individual plate view. A right click on a well of the plate
-            view opens an a well detail panel.<br/>
+            view opens an a well detail view.<br/>
             <br/>
-            Supported <a href="http://en.wikipedia.org/wiki/Microtiter_plate">microtiter plate></a> formats:
+            Supported <a href="http://en.wikipedia.org/wiki/Microtiter_plate">microtiter plate</a> formats:<br/>
             6, 12, 24, 96, 384 and 1536. The viewer will try to make a guess about the proper plate dimension if not
-            all wells are present in the table (e.g. because outer rows are not used).
+            all wells are present in the table (e.g. because outer rows are not used).<br/>
+            <br/>
+            Image data:<br/>
+            Tables containing images allow visualization of the well images in the well detail view. Any cell of an image
+            data column will be visualized. So far the KNIME native PNG images are recognised, as well as the formats
+            provided by the <a href="http://tech.knime.org/community/image-processing">Image Processing</a> plugin.
+            Careful! the processing might take time and disk space. The best performance is achieved with the "Image
+            Reference" produced by the "Image File Linker" node of the image processing plugin.
         </intro>
-
         <option name="Readouts">
             A selection of readouts which should be displayed by the viewer. Especially for
             high-content screens with many readouts (100+), you may want to include just a subset them. This will help
