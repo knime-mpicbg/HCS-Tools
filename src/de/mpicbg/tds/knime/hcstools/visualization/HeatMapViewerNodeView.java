@@ -52,6 +52,9 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
                 menu.add(new TrellisMenu(screenView));
                 this.getComponent().setPreferredSize(new Dimension(810, 600));
 
+                // Remove the "Always on Top" menu item of the default File menu
+                menu.getMenu(0).remove(0);
+
                 // Register the HiLiteHandler
                 HeatMapModel2 heatMapModel = screenView.getHeatMapModel();
                 HiLiteHandler hiLiteHandler = nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.INPORT);
