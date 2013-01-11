@@ -135,6 +135,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
      * GUI component initialization.
      */
     private void initialize() {
+        setMinimumSize(new Dimension(400, 250));
 //        menu = new PlateMenu(this);
 //        setJMenuBar(menu);
 
@@ -208,7 +209,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     public static void main(String[] args) {
         PlateViewer plateViewer = new PlateViewer();
         plateViewer.heatMapModel = new HeatMapModel2();
-        plateViewer.setSize(new Dimension(600, 300));
+        plateViewer.setSize(new Dimension(400, 250));
         plateViewer.setVisible(true);
     }
 
