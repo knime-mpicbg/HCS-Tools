@@ -74,7 +74,7 @@ public class HeatWell extends JPanel {
         window.getContentPane().add(label, BorderLayout.CENTER);
         window.setLocation(position.x, position.y);
         window.setSize(new Dimension(180,20));
-        window.setVisible(true);
+        window.setVisible(true);    // TODO wait until this is rendered
 
         // Create the WellViewer
         WellViewer wellViewer = new WellViewer(this, well);
