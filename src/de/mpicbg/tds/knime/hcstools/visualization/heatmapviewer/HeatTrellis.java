@@ -217,7 +217,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
             heatMapPanel.addMouseListener(this);
 
             // Choose the background color.
-            Color backgroundColor = getRootPane().getBackground();
+            Color backgroundColor = heatMapModel.getBackgroundColor();//getRootPane().getBackground();
             if ( heatMapModel.doMarkSelection() ) {
                 if ( heatMapModel.isPlateHiLited(plate) && heatMapModel.isPlateSelected(plate) ) {
                     backgroundColor = ScreenColorScheme.getInstance().selectionAndHiLiteColor;
@@ -416,8 +416,10 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
      */
     public void closePlateViewers() {
         for (PlateViewer viewer : plateViewers.values()) {
-            if ( viewer != null)
-                viewer.setVisible(false);
+            if ( viewer != null) {
+                viewer.getToolkit().getSystemEventQueue().postEvent(new WindowEvent(viewer, WindowEvent.WINDOW_CLOSING));
+                viewer.dispose();
+            }
         }
         plateViewers.clear();
     }
