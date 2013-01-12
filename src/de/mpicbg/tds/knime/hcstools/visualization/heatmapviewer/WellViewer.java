@@ -77,7 +77,8 @@ public class WellViewer extends JPanel {
         // Initialize the image table
         imageTable = new TableView();
         imageTable.setShowColorInfo(false);
-        // TODO: hide rowid column
+        // Render the row id column invisible (no purpose here)
+        imageTable.getHeaderTable().getParent().setVisible(false);
 
         // Create a split pane for the image and readout table
         splitPane = new JSplitPane();
@@ -251,6 +252,7 @@ public class WellViewer extends JPanel {
                 imageTable.setDataTable(table.getTable());
                 imageTable.setShowIconInColumnHeader(false);
                 splitPane.setResizeWeight(0.9);
+                imageTable.getContentTable().setColumnWidth(nameWidth + numberWidth + 10);
             } else {
                 imageTable.setDataTable(well.getImageData().getTable());
             }
