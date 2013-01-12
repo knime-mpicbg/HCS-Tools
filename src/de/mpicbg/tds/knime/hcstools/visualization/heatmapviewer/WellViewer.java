@@ -26,7 +26,7 @@ public class WellViewer extends JPanel {
     /** Constraints for the panel dimensions (the width and height are also derived from the readout content */
     private static final int MINIMAL_WIDTH = 150;
     private static final int HEADER_HEIGHT = 80;
-    private static final int IMAGE_TABLE_HEIGHT = 75;
+    private static final int IMAGE_TABLE_HEIGHT = 130;
 
     /** Header panel containing the Well description. */
     private JTextArea description;
@@ -77,8 +77,6 @@ public class WellViewer extends JPanel {
         // Initialize the image table
         imageTable = new TableView();
         imageTable.setShowColorInfo(false);
-        // Render the row id column invisible (no purpose here)
-        imageTable.getHeaderTable().getParent().setVisible(false);
 
         // Create a split pane for the image and readout table
         splitPane = new JSplitPane();
@@ -236,7 +234,7 @@ public class WellViewer extends JPanel {
         nameWidth = (nameWidth > 300) ? 300 : nameWidth;
 
         // Compute the panel height
-        int PREFFERRED_HEIGHT = HEADER_HEIGHT + counter * readoutTable.getRowHeight();//metrics.getHeight();
+        int PREFFERRED_HEIGHT = HEADER_HEIGHT + counter * readoutTable.getRowHeight();
 
         // Configure the image table if it was initialized.
         if (imageTable != null) {
@@ -257,6 +255,10 @@ public class WellViewer extends JPanel {
                 imageTable.setDataTable(well.getImageData().getTable());
             }
 
+            // Render the row id column invisible (no purpose here)
+            imageTable.getHeaderTable().getParent().setVisible(false);
+
+            // Add the image table height to the viewer height.
             PREFFERRED_HEIGHT += IMAGE_TABLE_HEIGHT;
         }
 
