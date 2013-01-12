@@ -66,6 +66,7 @@ public class HeatWell extends JPanel {
 //        jDialog.setVisible(true);
 
         // A small window, to show that something is happening, since it might take a moment to retrieve the images.
+        // TODO wait until this is rendered
         JWindow window = new JWindow();
         window.setLayout(new BorderLayout());
         JLabel label = new JLabel();
@@ -74,7 +75,7 @@ public class HeatWell extends JPanel {
         window.getContentPane().add(label, BorderLayout.CENTER);
         window.setLocation(position.x, position.y);
         window.setSize(new Dimension(180,20));
-        window.setVisible(true);    // TODO wait until this is rendered
+        window.setVisible(true);
 
         // Create the WellViewer
         WellViewer wellViewer = new WellViewer(this, well);
