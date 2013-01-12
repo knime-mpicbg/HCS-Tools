@@ -2,16 +2,12 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
-import org.knime.core.node.NodeModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Creates a window for a detailed plate view.
@@ -175,12 +171,6 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
 
     /** {@inheritDoc} */
     @Override
-    public NodeModel getNodeModel() {
-        return null;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public HeatMapColorToolBar getColorBar() {
         return colorbar;
     }
@@ -197,6 +187,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         return heatMapModel;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Map<UUID, PlateViewer> getChildViews() {
         return null;
