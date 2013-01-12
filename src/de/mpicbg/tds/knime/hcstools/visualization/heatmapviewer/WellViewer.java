@@ -26,7 +26,7 @@ public class WellViewer extends JPanel {
     /** Constraints for the panel dimensions (the width and height are also derived from the readout content */
     private static final int MINIMAL_WIDTH = 150;
     private static final int HEADER_HEIGHT = 80;
-    private static final int IMAGE_TABLE_HEIGHT = 130;
+    private static final int IMAGE_TABLE_HEIGHT = 140;
 
     /** Header panel containing the Well description. */
     private JTextArea description;
