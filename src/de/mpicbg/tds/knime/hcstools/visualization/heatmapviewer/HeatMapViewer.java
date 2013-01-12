@@ -1,7 +1,5 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import org.knime.core.node.NodeModel;
-
 import java.util.Map;
 import java.util.UUID;
 
@@ -14,14 +12,34 @@ import java.util.UUID;
 
 interface HeatMapViewer {
 
+    /**
+     * Access the colormap toolbar.
+     *
+     * @return colormap
+     * @see {@link javax.swing.JToolBar}
+     */
     HeatMapColorToolBar getColorBar();
 
+    /**
+     * Access the toolbar containing the input selection popupmenus.
+     *
+     * @return toolbar
+     * @see {@link javax.swing.JToolBar}
+     */
     HeatMapInputToolbar getToolBar();
 
+    /**
+     * Access the data model.
+     *
+     * @return the data model
+     */
     HeatMapModel getHeatMapModel();
 
+    /**
+     * Access the child views
+     *
+     * @return child views [Identifier, Viewer]
+     */
     Map<UUID, PlateViewer> getChildViews();
-
-    NodeModel getNodeModel();
 
 }
