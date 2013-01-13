@@ -95,8 +95,8 @@ public class ViewMenu extends JMenu {
      *
      * @see ImageIcon
      */
-    private ImageIcon createImageIcon(String path, String description) {
-        java.net.URL imgURL = getClass().getResource(path);
+    private Icon createImageIcon(String path, String description) {
+        java.net.URL imgURL = this.getClass().getResource(path);
         if (imgURL != null) {
             return new ImageIcon(imgURL, description);
         } else {
@@ -174,7 +174,8 @@ public class ViewMenu extends JMenu {
         JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[names.length];
 
         for (int i = 0; i < names.length; i++) {
-            ImageIcon icon = createImageIcon("./icons/" + names[i] + ".png", names[i] + "color map");
+            Icon icon = createImageIcon("icons/" + names[i].toLowerCase() + ".png", names[i] + "color map");
+//            ImageIcon icon = (ImageIcon) ViewUtils.loadIcon(ViewMenu.class, "icons/" + names[i] + ".png");
             item[i] = new JRadioButtonMenuItem(names[i],icon);
             group.add(item[i]);
             lut.add(item[i]);
