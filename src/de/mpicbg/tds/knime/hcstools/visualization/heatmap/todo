@@ -3,8 +3,8 @@ TODO: The model (Plate, Well) should go back to the hcscore.
 TODO: The PlateComparators should go in the hcscore module at some point. For now I keep it in the hcstools, since I am more comfortable to the fool around with git than with svn and for easier compilation.
 TODO: Move all the main-testing methods in seperate test files (they currently work on seperate constructors, which is shiiiite)
 
-TODO: make packages dialog, renderer, menu, etc.
-
 TODO: create an Abstract class or interface for all viewers to handle the access to parent and child viewers, the invokation of the view (check if it exists) and the closing of the view.
 
 TODO: Add load and save menu items to the file menu to save view configurations.
+
+TODO: Work the ScreenColorScheme over

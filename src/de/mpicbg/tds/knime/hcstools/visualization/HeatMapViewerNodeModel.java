@@ -71,7 +71,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     protected SettingsModelString propRefParameter = createTreatmentAttributeSelector();
 
     /** Data model */
-    private HeatMapModel heatMapModel;
+    private HeatMapModel heatMapModel = new HeatMapModel();
 
     /** Used for delayed deserialization of plate-dump-file */
     private File internalBinFile;
@@ -102,7 +102,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected void reset() {
-        heatMapModel = null;
+        heatMapModel.setScreen(null);
     }
 
     /** {@inheritDoc} */
@@ -145,7 +145,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     protected void loadInternals(File nodeDir, ExecutionMonitor executionMonitor) throws IOException, CanceledExecutionException {
         super.loadInternals(nodeDir, executionMonitor);
 
-        // Initialze the files in the node folder, so the data can be loaded when requested
+        // Initialize the files in the node folder, so the data can be loaded when requested
         internalBinFile = new File(nodeDir, PLATE_BIN_FILE);
         viewConfigFile = new File(nodeDir, VIEW_BIN_FILE);
     }
@@ -248,15 +248,14 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      * @return a list of all the available {@link Plate}s
      */
     public HeatMapModel getDataModel() {
-        if ((heatMapModel == null) && (internalBinFile != null) && internalBinFile.isFile()) {
+        if ((heatMapModel.getScreen() == null) && (internalBinFile != null) && internalBinFile.isFile()) {
             try {
-                heatMapModel = new HeatMapModel();
                 logger.warn("Restoring plates from disk. This might take a few seconds...");
                 deserializePlateData();
                 deserializeViewConfiguration();
                 logger.debug("Loaded internal data.");
             } catch (IOException e) {
-                heatMapModel = null;
+                heatMapModel.setScreen(null);
                 logger.error(e.getCause().toString() + " during deserialization of the plate data.");
             }
         }

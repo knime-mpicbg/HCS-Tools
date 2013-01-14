@@ -269,8 +269,8 @@ public class HeatMapModel implements HiLiteListener {
     public void setScreen(List<Plate> screen) {
         this.screen = screen;
 
-//        // just to test sorting mechanism
-//        Collections.sort(screen, PlateComparators.getDateComparator());
+        if (screen == null)
+            return;
 
         for(Plate p : screen) {
             plateFiltered.put(p, true);
