@@ -1,5 +1,5 @@
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatWell;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatWell;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.WellViewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;

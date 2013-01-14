@@ -1,9 +1,11 @@
-package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.WellViewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
 

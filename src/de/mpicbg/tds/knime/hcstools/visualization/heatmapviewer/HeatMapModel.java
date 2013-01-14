@@ -530,7 +530,7 @@ public class HeatMapModel implements HiLiteListener {
     /**
      * Helpers for selection handling
      */
-    protected void updateWellSelection(Well well) {
+    public void updateWellSelection(Well well) {
         Collection<Well> currentSelection = getWellSelection();
 
         if ( isWellSelected(well) )
@@ -542,7 +542,7 @@ public class HeatMapModel implements HiLiteListener {
         setWellSelection(currentSelection);
     }
 
-    protected void updateWellSelection(List<Well> wells) {
+    public void updateWellSelection(List<Well> wells) {
         for (Well well : wells) {
             updateWellSelection(well);
         }

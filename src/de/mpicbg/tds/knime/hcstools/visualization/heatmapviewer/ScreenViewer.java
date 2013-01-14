@@ -1,6 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatTrellis;
 
 import javax.swing.*;
 import java.awt.*;

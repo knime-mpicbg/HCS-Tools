@@ -2,6 +2,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatWell;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.knime.core.data.*;
 import org.knime.core.data.container.DataContainer;
@@ -43,7 +44,7 @@ public class WellViewer extends JPanel {
     /** Font used for the {@link #readoutTable} */
     private Font font = new Font("Arial", Font.PLAIN, 11);
 
-    /** The parent {@link HeatWell} used to position the WellViewer window */
+    /** The parent {@link de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatWell} used to position the WellViewer window */
     private HeatWell parent;
 
     /**

@@ -2,6 +2,8 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatPlate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatTrellis;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +21,7 @@ import java.util.*;
 
 public class PlateViewer extends JFrame implements HeatMapModelChangeListener, HeatMapViewer {
 
-    /** The plate grid {@link HeatTrellis} holds the {@link HeatMapModel} instance
+    /** The plate grid {@link de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatTrellis} holds the {@link HeatMapModel} instance
      *  containing the {@link HeatMapModelChangeListener} needed to update the GUIs */
     private HeatTrellis updater;
 

@@ -1,10 +1,11 @@
-package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 import javax.swing.*;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 

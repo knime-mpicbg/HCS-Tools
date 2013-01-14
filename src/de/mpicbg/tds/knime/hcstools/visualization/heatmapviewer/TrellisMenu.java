@@ -3,6 +3,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.dialog.RowColumnDialog;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateAttribute;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatTrellis;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

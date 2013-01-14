@@ -1,6 +1,9 @@
-package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer;
 
 import de.mpicbg.tds.core.Utils;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModelChangeListener;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.PlateViewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
@@ -37,13 +40,13 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     private int PREFERRED_HEIGHT = 400;
 
     // Component fields.
-    protected HeatMapModel heatMapModel;
+    public HeatMapModel heatMapModel;
     private JPanel heatMapsContainer;
     private JScrollPane heatMapScrollPane;
     private JPanel containerPositioner;
 
     // List of PlateViewers.
-    Map<UUID, PlateViewer> plateViewers = new HashMap<UUID, PlateViewer>();
+    public Map<UUID, PlateViewer> plateViewers = new HashMap<UUID, PlateViewer>();
 
 
     /**
@@ -156,7 +159,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
      * Method to scale up and down the heatmaps.
      * @param zoomFactor zoom or scale factor applied to the heatmap size
      */
-    protected void zoom(double zoomFactor) {
+    public void zoom(double zoomFactor) {
         HEATMAP_WIDTH *= zoomFactor;
         // Make sure the new size does not exceed the limits.
         HEATMAP_WIDTH = (HEATMAP_WIDTH < MIN_HEATMAP_WIDTH) ? MIN_HEATMAP_WIDTH : HEATMAP_WIDTH;

@@ -4,6 +4,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGrad
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.MinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.dialog.ColorGradientDialog;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatWell;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,4 +1,4 @@
-package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,6 +7,8 @@ import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.PlateViewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
