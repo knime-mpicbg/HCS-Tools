@@ -26,54 +26,72 @@ import java.util.List;
 
 public class HeatMapModel implements HiLiteListener {
 
-    // Reference populations
+    /** Reference populations */
     public HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
 
-    // Coloring attributes
+    /** Color rescale strategy */
     private RescaleStrategy readoutRescaleStrategy = new MinMaxStrategy();
+    /** Color global scaling flag */
     private boolean globalScaling = false;
-    ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();
-    LinearGradientPaint colorGradient = LinearGradientTools.getStandardGradient("GBR");
+    /** Color screen color scheme */
+    private ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();
+    /** Color gradient (color map) */
+    private LinearColorGradient colorGradient = new LinearColorGradient();
+    /** Background color */
+    private Color backgroundColor = Color.LIGHT_GRAY;
 
-    // contains all plates
+    /** Screen data container */
     private List<Plate> screen;
+    /** Screen current reatout */
     private String currentReadout;
 
-    // Well selection
-    Collection<Well> selection = new ArrayList<Well>();
+    /** Well selection */
+    private Collection<Well> selection = new ArrayList<Well>();
+    /** Well selection marker flag (to display or not the selection dots) */
     private boolean markSelection = true;
 
-    // Hiliteing
+    /** HiLite handler of the node (for convenient access) */
     private HiLiteHandler hiLiteHandler;
-    Collection<Well> hiLite = new ArrayList<Well>();
+    /** HiLite selection */
+    private Collection<Well> hiLite = new ArrayList<Well>();
+    /** HiLite display modus (HiLite filter) */
     private HiLiteDisplayMode hiLiteDisplayModus = HiLiteDisplayMode.ALL;
 
-    // Trellis settings
+    /** Trellis automatic layout flag */
     private boolean automaticTrellisConfiguration = true;
+    /** Trellis: number of plate rows */
     private int numberOfTrellisRows;
+    /** Trellis: number of plate columns */
     private int numberOfTrellisColumns;
+    /** Trellis plate proportion flag */
     private boolean fixPlateProportions = true;
 
-    // Overlay attributes
+    /** Overlay flag for hiding the most frequent overlay */
     private boolean hideMostFrequentOverlay = false;
+    /** Map with the most frequent overlays for all the factors */
     private Map<String, String> maxFreqOverlay;
+    /** Currently selected overlay factor */
     private String overlay = "";
 
+    /** KNIME Colors: list with the wells belonging to the most frequent KNIME overlay color */
     private List<Well> mostFrequentColorWells = null;
+    /** KNIME overlay color set */
     private Set<Color> knimeColors;
+    /** KNIME overlay color menu item name */
     protected static String KNIME_OVERLAY_NAME = "KNIME Color Model";
 
-    //Plate Filtering
+    /** Plate filtering string */
     private String plateFilterString = "";
+    /** Plate filtering attribute */
     private PlateAttribute plateFilterAttribute = PlateAttribute.BARCODE;
+    /** Plate filtering record of plates */
     HashMap<Plate, Boolean> plateFiltered = new HashMap<Plate, Boolean>();
-//    public static final String OVERLAY_COLOR_CACHE = "overlay_col_cache";
 
-    // Plate sorting;
+    /** List of {@link PlateAttribute}s used for plate sorting */
     private List<PlateAttribute> sortAttributeSelection;
 
-    // List of objects that can be updated from this central place.
-    List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
+    /** List of the ChangeListeners */
+    private List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
 
 
     /**
@@ -133,6 +151,9 @@ public class HeatMapModel implements HiLiteListener {
     }
 
     public void setSortAttributeSelectionByTiles(String[] titles) {
+        if ( titles == null )
+            return;
+
         sortAttributeSelection = new ArrayList<PlateAttribute>();
         for (String title : titles)
             sortAttributeSelection.add(PlateUtils.getPlateAttributeByTitle(title));
@@ -203,12 +224,13 @@ public class HeatMapModel implements HiLiteListener {
         }
     }
 
-    private void updateKnimeColorFrequency() {                              // TODO: get the name of the attribute on which the color model is based. The worst case would be to implement a second port for a color model.
+    // TODO: get the name of the attribute on which the color model is based. The worst case would be to implement a second port for a color model.
+    private void updateKnimeColorFrequency() {
         if (this.screen == null || this.screen.isEmpty())
             return;
 
-        HashMap<Color, List<Well>> colors = new HashMap<Color, List<Well>>();
-        List<Well> wells;
+        HashMap<Color, ArrayList<Well>> colors = new HashMap<Color, ArrayList<Well>>();
+        ArrayList<Well> wells;
         Color color;
         for (Well well : PlateUtils.flattenWells(this.screen)) {
             color = well.getKnimeRowColor();
@@ -355,6 +377,14 @@ public class HeatMapModel implements HiLiteListener {
     /**
      * Color handling
      */
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
     public Set<Color> getKnimeColors() {
         return knimeColors;
     }
@@ -371,12 +401,16 @@ public class HeatMapModel implements HiLiteListener {
         this.colorScheme = colorScheme;
     }
 
-    public LinearGradientPaint getColorGradient() {
+    public LinearColorGradient getColorGradient() {
         return colorGradient;
     }
 
-    public void setColorGradient(LinearGradientPaint gradient) {
+    public void setColorGradient(LinearColorGradient gradient) {
         colorGradient = gradient;
+    }
+
+    public void setColorGradient(String name, LinearGradientPaint gradient) {
+        colorGradient = new LinearColorGradient(name, gradient);
     }
 
     public Color getOverlayColor(Well well) {
@@ -424,7 +458,7 @@ public class HeatMapModel implements HiLiteListener {
         if (displayNormReadOut == null) {
             return colorScheme.errorReadOut;
         }
-        return LinearGradientTools.getColorAt(colorGradient, displayNormReadOut.floatValue());
+        return LinearGradientTools.getColorAt(colorGradient.getGradient(), displayNormReadOut.floatValue());
     }
 
     public RescaleStrategy getReadoutRescaleStrategy() {

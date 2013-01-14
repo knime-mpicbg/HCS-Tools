@@ -3,6 +3,9 @@ package de.mpicbg.tds.knime.hcstools.visualization;
 import de.mpicbg.tds.barcodes.BarcodeParser;
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
 import de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcode;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearColorGradient;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.RescaleStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Conventions;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
@@ -41,8 +44,11 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** Input port number */
     public static final int IN_PORT = 0;
 
-    /** File name to save internal data */
-    public static final String INTERNAL_BIN_FILENAME = "heatmap_model.bin";
+    /** File name to save internal plate data */
+    private static final String PLATE_BIN_FILE = "plate_data.bin";
+
+    /** File name to dump the view configuration */
+    private static final String VIEW_BIN_FILE = "view_config.bin";
 
     /** Setting names */
     static String READOUT_SETTING_NAME = "readout.setting";
@@ -64,14 +70,14 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     protected SettingsModelStringArray propRefNames = createSettingModelStringArray(REFERENCE_POPULATIONS_SETTING_NAME);
     protected SettingsModelString propRefParameter = createTreatmentAttributeSelector();
 
-    /** Data container */
-    public List<Plate> plates;
+    /** Data model */
+    private HeatMapModel heatMapModel;
 
     /** Used for delayed deserialization of plate-dump-file */
-    public File internalBinFile;
+    private File internalBinFile;
 
-    /** Parameter name and group names of the reference populations. */
-    public HashMap<String, String[]> reference = new HashMap<String, String[]>();
+    /** Used for delayed deserialization of the view configuration.*/
+    private File viewConfigFile;
 
 
     /**
@@ -96,7 +102,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected void reset() {
-        plates = null;
+        heatMapModel = null;
     }
 
     /** {@inheritDoc} */
@@ -111,27 +117,26 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
-        BufferedDataTable input = inData[0];
-        plates = parseInputData(input);
+        heatMapModel = new HeatMapModel();
+        parseInputData(inData[0]);
 
-        return new BufferedDataTable[]{input};
+        return inData;
     }
 
     /** {@inheritDoc} */
     @Override
     protected void saveInternals(File nodeDir, ExecutionMonitor executionMonitor) throws IOException, CanceledExecutionException {
+        // Make sure the data model is loaded.
+        getDataModel();
 
-        if (getPlates() != null) {
-            File f = new File(nodeDir, INTERNAL_BIN_FILENAME);
-            FileOutputStream f_out = new FileOutputStream(f);
-
-            // Write object with ObjectOutputStream
-            ObjectOutputStream obj_out = new ObjectOutputStream(new BufferedOutputStream(f_out));
-
-            // Write object out to disk
-            obj_out.writeObject(getPlates());
-            obj_out.flush();
-            obj_out.close();
+        if ( heatMapModel == null ) {
+            logger.info("No node internal data to save.");
+        } else {
+            internalBinFile = new File(nodeDir, PLATE_BIN_FILE);
+            viewConfigFile = new File(nodeDir, VIEW_BIN_FILE);
+            serializePlateData();
+            serializeViewConfiguration();
+            logger.debug("Node internal data was saved.");
         }
     }
 
@@ -140,45 +145,123 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     protected void loadInternals(File nodeDir, ExecutionMonitor executionMonitor) throws IOException, CanceledExecutionException {
         super.loadInternals(nodeDir, executionMonitor);
 
-        internalBinFile = new File(nodeDir, INTERNAL_BIN_FILENAME);
+        // Initialze the files in the node folder, so the data can be loaded when requested
+        internalBinFile = new File(nodeDir, PLATE_BIN_FILE);
+        viewConfigFile = new File(nodeDir, VIEW_BIN_FILE);
     }
 
 
     /**
-     * Deserialize the the internal data.
+     * Serialize the parts of the {@link HeatMapModel} ({@link #getDataModel()})
+     *
+     * @throws IOException
      */
-    private void deserializePlates() {
-        try {
-            if (internalBinFile.isFile()) {
+    private void serializePlateData() throws IOException {
+        FileOutputStream f_out = new FileOutputStream(internalBinFile);
+        ObjectOutputStream obj_out = new ObjectOutputStream(new BufferedOutputStream(f_out));
+
+        // Write object out to disk
+        obj_out.writeObject(heatMapModel.getScreen());
+
+        // Cleanup
+        obj_out.flush();
+        obj_out.close();
+    }
+
+    /**
+     * Deserialize the the internal data. This method deserializes the data upon demand when {@link #getDataModel()}
+     * is called.
+     *
+     * @throws IOException
+     * @see {@link #getDataModel()}
+     */
+    private void deserializePlateData() throws IOException {
+        if (internalBinFile.isFile()) {
+            try {
                 FileInputStream f_in = new FileInputStream(internalBinFile);
-
-                // Read object using ObjectInputStream
                 ObjectInputStream obj_in = new ObjectInputStream(new BufferedInputStream(f_in));
+                heatMapModel.setScreen((List<Plate>) obj_in.readObject());
+                obj_in.close();
 
-                // Read an object
-                plates = (List<Plate>) obj_in.readObject();
-
-                logger.warn("The image data is transient. To be able to visualize it the node needs to be re-executed!");
+            } catch (ClassNotFoundException e) {
+                logger.debug(e.getCause().toString() + " during deserialization of the plate data.");
             }
 
-        } catch (Throwable e) {
-            logger.error("The loading of the internal data failed.");
-            logger.debug(e.getStackTrace());
+            logger.warn("The image data is transient. To be able to visualize it the node needs to be re-executed!");
         }
     }
 
     /**
-     * Get the {@link Plate} data objects containing the data for display.
+     * Dumps the parts of the {@link HeatMapModel} that concern view settings
+     * to a binary file.
+     *
+     * @throws IOException
+     */
+    protected void serializeViewConfiguration() throws IOException {
+        FileOutputStream sout = new FileOutputStream(viewConfigFile);
+        ObjectOutputStream oout = new ObjectOutputStream(sout);
+
+        oout.writeObject(heatMapModel.getColorGradient());
+        oout.writeObject(heatMapModel.getSortAttributesSelectionTitles());
+        oout.writeObject(heatMapModel.getWellSelection());
+        oout.writeObject(heatMapModel.getNumberOfTrellisRows());
+        oout.writeObject(heatMapModel.getNumberOfTrellisColumns());
+        oout.writeObject(heatMapModel.doHideMostFreqOverlay());
+        oout.writeObject(heatMapModel.isGlobalScaling());
+        oout.writeObject(heatMapModel.isFixedPlateProportion());
+        oout.writeObject(heatMapModel.getReadoutRescaleStrategy());
+
+        oout.flush();
+        oout.close();
+    }
+
+    /**
+     * De-serializes the parts of the {@link HeatMapModel} that concern the view settings
+     * and parses it back to the object.
+     *
+     * @throws IOException
+     */
+    protected void deserializeViewConfiguration() throws IOException {
+        FileInputStream sin = new FileInputStream(viewConfigFile);
+        ObjectInputStream oin = new ObjectInputStream(sin);
+
+        try {
+            heatMapModel.setColorGradient((LinearColorGradient) oin.readObject());
+            heatMapModel.setSortAttributeSelectionByTiles((String[]) oin.readObject());
+            heatMapModel.setWellSelection((Collection<Well>) oin.readObject());
+            heatMapModel.setNumberOfTrellisRows((Integer) oin.readObject());
+            heatMapModel.setNumberOfTrellisColumns((Integer) oin.readObject());
+            heatMapModel.setHideMostFreqOverlay((Boolean) oin.readObject());
+            heatMapModel.setGlobalScaling((Boolean) oin.readObject());
+            heatMapModel.setPlateProportionMode((Boolean) oin.readObject());
+            heatMapModel.setReadoutRescaleStrategy((RescaleStrategy) oin.readObject());
+            oin.close();
+        } catch (ClassNotFoundException e) {
+            logger.debug(e.getCause().toString() + " during serialization of the plate data.");
+        }
+    }
+
+    /**
+     * Get the {@link Plate} data objects containing the data for display. The method takes
+     * care of loading the data on demand.
      *
      * @return a list of all the available {@link Plate}s
      */
-    public List<Plate> getPlates() {
-        if (plates == null && internalBinFile != null && internalBinFile.isFile()) {
-            logger.warn("Restoring plates from disk. This might take a few seconds...");
-            deserializePlates();
+    public HeatMapModel getDataModel() {
+        if ((heatMapModel == null) && (internalBinFile != null) && internalBinFile.isFile()) {
+            try {
+                heatMapModel = new HeatMapModel();
+                logger.warn("Restoring plates from disk. This might take a few seconds...");
+                deserializePlateData();
+                deserializeViewConfiguration();
+                logger.debug("Loaded internal data.");
+            } catch (IOException e) {
+                heatMapModel = null;
+                logger.error(e.getCause().toString() + " during deserialization of the plate data.");
+            }
         }
 
-        return plates;
+        return heatMapModel;
     }
 
     /**
@@ -194,9 +277,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      * Parse the configuration dialog input.
      *
      * @param input node input table
-     * @return a list of all the available {@link Plate}s
      */
-    public List<Plate> parseInputData(BufferedDataTable input) {
+    public void parseInputData(BufferedDataTable input) {
         // Get chosen parameters to visualize
         List<String> parameters = propReadouts.getIncludeList();
         if (parameters.isEmpty())
@@ -231,24 +313,27 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         Attribute plateLabelAttribute = new InputTableAttribute(propPlateLabel.getStringValue(), input);
 
         // Put the info about the reference populations
+        HashMap<String, String[]> reference = new HashMap<String, String[]>();
         reference.put(propRefParameter.getStringValue(),  propRefNames.getStringArrayValue());
+        heatMapModel.setReferencePopulations(reference);
         if (propRefNames.getStringArrayValue().length == 0)
             logger.warn("There are no reference groups selected ('Control' tab in the configure dialog)!");
 
-        return parseIntoPlates(splitScreen,
-                               input.getDataTableSpec(),
-                               attributeModel,
-                               plateLabelAttribute,
-                               plateRowAttribute,
-                               plateColAttribute,
-                               imageAttributes,
-                               parameters,
-                               propFactors.getIncludeList(),
-                               ExpandPlateBarcode.loadFactory());
+        // Parse the plate data.
+        heatMapModel.setScreen(parseIntoPlates(splitScreen,
+                input.getDataTableSpec(),
+                attributeModel,
+                plateLabelAttribute,
+                plateRowAttribute,
+                plateColAttribute,
+                imageAttributes,
+                parameters,
+                propFactors.getIncludeList(),
+                ExpandPlateBarcode.loadFactory()));
     }
 
     /**
-     * Parse the data from the {@link BufferedDataTable} into the internal data model
+     * Parse the data from the {@link BufferedDataTable} into the internal data model.
      *
      * @param splitScreen the table rows mapped according the factor allowing to distinguish the plates
      * @param tableSpec input table specs
@@ -260,6 +345,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      * @param readouts list of readout names.
      * @param factors list of factor names
      * @param bpf barcode parser factory
+     *
      * @return a list of all the available {@link Plate}s
      */
     public static List<Plate> parseIntoPlates(Map<String, List<DataRow>> splitScreen,

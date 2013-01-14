@@ -10,6 +10,7 @@ import org.knime.core.node.property.hilite.HiLiteHandler;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -34,57 +35,75 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         super(nodeModel);
         this.nodeModel = nodeModel;
 
-        if (nodeModel.getPlates() == null) {
+        HeatMapModel heatMapModel= nodeModel.getDataModel();
+        if (heatMapModel == null) {
             nodeModel.setPlotWarning("You need to re-execute the node before the view will show up");
-
-        } else {
-
-            if (nodeModel.getPlates().isEmpty()) {
-                nodeModel.setPlotWarning("Could not create view for empty input table!");
-
-            } else {
-                // Create the ScreenViewer and add the menus
-                ScreenViewer screenView = new ScreenViewer(nodeModel);
-                this.setComponent(screenView);
-                JMenuBar menu = this.getJMenuBar();
-                menu.add(new HiLiteMenu(screenView));
-                menu.add(new ViewMenu(screenView));
-                menu.add(new TrellisMenu(screenView));
-                this.getComponent().setPreferredSize(new Dimension(810, 600));
-
-                // Remove the "Always on Top" menu item of the default File menu
-                menu.getMenu(0).remove(0);
-
-                // Register the HiLiteHandler
-                HeatMapModel heatMapModel = screenView.getHeatMapModel();
-                HiLiteHandler hiLiteHandler = nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT);
-                hiLiteHandler.addHiLiteListener(heatMapModel);
-
-                // ... and initialize the HiLites.
-                Set<RowKey> hiLites = hiLiteHandler.getHiLitKeys();
-                for (Well well : PlateUtils.flattenWells(heatMapModel.getScreen())) {
-                    if ( hiLites.contains(well.getKnimeTableRowKey()) )
-                        heatMapModel.addHilLites(well);
-                }
-                heatMapModel.fireModelChanged();
-            }
+            heatMapModel = new HeatMapModel();
         }
+
+        if ((heatMapModel.getScreen() == null) || heatMapModel.getScreen().isEmpty()) {
+            nodeModel.setPlotWarning("Could not create view for empty input table!");
+        }
+
+        // Propagate the views background color
+        heatMapModel.setBackgroundColor(this.getComponent().getBackground());
+
+        // Create the ScreenViewer and add the menus
+        ScreenViewer screenView = new ScreenViewer(heatMapModel);
+        this.setComponent(screenView);
+        JMenuBar menu = this.getJMenuBar();
+        menu.add(new HiLiteMenu(screenView));
+        menu.add(new ViewMenu(screenView));
+        menu.add(new TrellisMenu(screenView));
+        this.getComponent().setPreferredSize(new Dimension(810, 600));
+
+        // Remove the "Always on Top" menu item of the default File menu
+        menu.getMenu(0).remove(0);
     }
 
 
     /** {@inheritDoc} */
     @Override
     protected void onClose() {
+        ScreenViewer screenView = (ScreenViewer)getComponent();
+
         // Close the PlateViewer windows.
-        ((ScreenViewer)getComponent()).getHeatTrellis().closePlateViewers();
+        screenView.getHeatTrellis().closePlateViewers();
+
         // Remove the HiLiteListeners.
         nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT).removeAllHiLiteListeners();
+
+        // Remove the HiLiteHandler
+        screenView.getHeatMapModel().setHiLiteHandler(null);
+
+        // Save the view configuration
+        try {
+            nodeModel.serializeViewConfiguration();
+        } catch (IOException e) {
+            nodeModel.setPlotWarning("Saving the view configuation failed.");
+            nodeModel.setPlotWarning(e.toString());
+        }
     }
 
     /** {@inheritDoc} */
     @Override
     protected void onOpen() {
-        // blöterle
+        ScreenViewer screenView = (ScreenViewer)getComponent();
+
+        // Set the HiLiteHandler
+        screenView.getHeatMapModel().setHiLiteHandler(nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT));
+
+        // Register the HiLiteHandler
+        HeatMapModel heatMapModel = screenView.getHeatMapModel();
+        HiLiteHandler hiLiteHandler = nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT);
+        hiLiteHandler.addHiLiteListener(heatMapModel);
+
+        // ... and initialize the HiLites.
+        Set<RowKey> hiLites = hiLiteHandler.getHiLitKeys();
+        for (Well well : PlateUtils.flattenWells(heatMapModel.getScreen())) {
+            if ( hiLites.contains(well.getKnimeTableRowKey()) )
+                heatMapModel.addHilLites(well);
+        }
     }
 
     /** {@inheritDoc} */
@@ -92,12 +111,20 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
     protected void modelChanged() {
         HeatMapViewerNodeModel nodeModel = getNodeModel();
 
-        if (nodeModel == null || nodeModel.getPlates() == null)
+        ScreenViewer viewer;
+        try {
+            viewer = (ScreenViewer)getComponent();
+        } catch (ClassCastException e) {
+            getLogger().warn("The node was not executed/saved properly. Please re-execute!");
             return;
+        }
 
-        HeatMapModel heatMapModel = ((ScreenViewer)getComponent()).getHeatMapModel();
-        heatMapModel.setScreen(nodeModel.getPlates());
-        heatMapModel.fireModelChanged();
+        if (nodeModel == null || nodeModel.getDataModel() == null) {
+            viewer.getHeatTrellis().closePlateViewers();
+            return;
+        }
+
+        viewer.setHeatMapModel(nodeModel.getDataModel());
     }
 
 }

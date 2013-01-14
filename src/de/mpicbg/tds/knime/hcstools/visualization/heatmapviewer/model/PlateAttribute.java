@@ -9,7 +9,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model;
  * TODO: There is surly a neater way to do this. I don't like the fact, that if the Plate class changes, this might fail...
  */
 
-public enum PlateAttribute {
+public enum PlateAttribute implements java.io.Serializable {
 
     SCREENED_AT             ("screenedAt", "Date of Acquisition"),
     LIBRARY_PLATE_NUMBER    ("libraryPlateNumber", "Library Plate Number"),

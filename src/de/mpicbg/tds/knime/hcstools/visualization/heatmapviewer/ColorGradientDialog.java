@@ -136,7 +136,7 @@ public class ColorGradientDialog extends JDialog {
 
     protected void configure(HeatMapModel model) {
         heatMapModel = model;
-        currentGradient = model.getColorGradient();
+        currentGradient = model.getColorGradient().getGradient();
 
         // Update the sliders gradient.
         slider.setValues(currentGradient.getFractions(), currentGradient.getColors());

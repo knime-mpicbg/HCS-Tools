@@ -1,8 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
-import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
-import org.knime.core.node.NodeModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,23 +23,22 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
 
+
     /** The {@link HeatMapModel} object (data carrier) */
     private HeatMapModel heatMapModel;
-
-    /** Parent {@link NodeModel} */
-    private HeatMapViewerNodeModel node;
 
 
     /**
      * Constructors for the node factory
      *
-     * @param nodeModel HeatMapViewerNodeModel
+     * @param model HeatMapViewerNodeModel
      */
-    public ScreenViewer(HeatMapViewerNodeModel nodeModel) {
-        this(nodeModel.getPlates());
-        this.node = nodeModel;
-        this.heatMapModel.setReferencePopulations(nodeModel.reference);
-        this.heatMapModel.setHiLiteHandler(nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT));
+    public ScreenViewer(HeatMapModel model) {
+        this.heatMapModel = model;
+
+        initialize();
+        configure();
+        setVisible(true);
     }
 
     /**
@@ -55,7 +52,6 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
 
         initialize();
         configure();
-//        setBounds(50, 150, WIDTH, HEIGHT);
         setVisible(true);
     }
 
@@ -91,18 +87,22 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
         return heatTrellis;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public NodeModel getNodeModel() {
-        return node;
+    /**
+     * Set the data model
+     *
+     * @param heatMapModel {@link HeatMapModel}
+     */
+    public void setHeatMapModel(HeatMapModel heatMapModel) {
+        this.heatMapModel = heatMapModel;
     }
 
     /** {@inheritDoc} */
     @Override
     public HeatMapModel getHeatMapModel() {
-        return heatMapModel;
+        return this.heatMapModel;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Map<UUID, PlateViewer> getChildViews() {
         return getHeatTrellis().plateViewers;
@@ -119,4 +119,5 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
     public HeatMapInputToolbar getToolBar() {
         return this.toolbar;
     }
+
 }

@@ -46,7 +46,6 @@ public class ViewMenu extends JMenu {
 
         // Create the menu
         this.setText("View");
-//        JMenu menu = new JMenu("View");
 
         JCheckBoxMenuItem alwaysOnTop = new JCheckBoxMenuItem("Always on Top");
         alwaysOnTop.addActionListener(new ActionListener() {
@@ -156,7 +155,13 @@ public class ViewMenu extends JMenu {
                 }
             });
         }
-        menu.getItem(0).setSelected(true);
+
+        // Set the selected item
+        if ((heatMapModel != null) && heatMapModel.getReadoutRescaleStrategy().getClass().equals(MinMaxStrategy.class)) {
+            menu.getItem(0).setSelected(true);
+        } else {
+            menu.getItem(1).setSelected(true);
+        }
 
         return menu;
     }
@@ -175,7 +180,6 @@ public class ViewMenu extends JMenu {
 
         for (int i = 0; i < names.length; i++) {
             Icon icon = createImageIcon("icons/" + names[i].toLowerCase() + ".png", names[i] + "color map");
-//            ImageIcon icon = (ImageIcon) ViewUtils.loadIcon(ViewMenu.class, "icons/" + names[i] + ".png");
             item[i] = new JRadioButtonMenuItem(names[i],icon);
             group.add(item[i]);
             lut.add(item[i]);
@@ -185,8 +189,11 @@ public class ViewMenu extends JMenu {
                     toggleColorMapAction(actionEvent);
                 }
             });
+
+            // Set the active item.
+            if ((heatMapModel != null) && heatMapModel.getColorGradient().getGradientName().equals(names[i]))
+                item[i].setSelected(true);
         }
-        item[0].setSelected(true);
 
         return lut;
     }
@@ -243,19 +250,20 @@ public class ViewMenu extends JMenu {
     protected void toggleColorMapAction(ActionEvent event) {
         JMenuItem source = (JMenuItem)event.getSource();
         LinearGradientPaint newGradient;
-        if (source.getText().equals("Custom")) {
+        String gradientName = source.getText();
+        if (gradientName.equals("Custom")) {
             ColorGradientDialog dialog = new ColorGradientDialog(heatMapModel);
             dialog.setVisible(true);
             newGradient = dialog.getGradientPainter();
         } else {
             newGradient = LinearGradientTools.getStandardGradient(source.getText());
         }
-        heatMapModel.setColorGradient(newGradient);
+        heatMapModel.setColorGradient(gradientName, newGradient);
 
         // Propagate the color map to the PlateViewers
         if ((parent.getChildViews() != null) && heatMapModel.isGlobalScaling()) {
             for (PlateViewer viewer : parent.getChildViews().values()){
-                viewer.getHeatMapModel().setColorGradient(newGradient);
+                viewer.getHeatMapModel().setColorGradient(gradientName, newGradient);
             }
         }
 

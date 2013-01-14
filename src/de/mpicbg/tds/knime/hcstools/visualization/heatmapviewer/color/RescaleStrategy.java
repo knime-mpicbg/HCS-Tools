@@ -2,6 +2,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 
@@ -11,7 +12,7 @@ import java.util.Collection;
  * @author Holger Brandl
  */
 
-public interface RescaleStrategy {
+public interface RescaleStrategy extends Serializable {
 
 	void configure(Collection<Plate> screen);
 
