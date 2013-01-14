@@ -14,7 +14,7 @@ import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoDialog;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Conventions;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Conventions;
 import static de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel.*;
 
 /**

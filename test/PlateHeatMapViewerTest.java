@@ -7,11 +7,11 @@ import java.io.InputStream;
 import java.util.*;
 
 import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.*;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HiLiteMenu;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.TrellisMenu;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.ViewMenu;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.*;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.menu.HiLiteMenu;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.menu.TrellisMenu;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.menu.ViewMenu;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Plate;
 
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;

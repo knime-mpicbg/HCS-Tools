@@ -1,8 +1,8 @@
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatWell;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.WellViewer;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModel;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.renderer.HeatWell;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.WellViewer;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Plate;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Well;
 import org.knime.core.data.DataTable;
 
 import javax.swing.*;
