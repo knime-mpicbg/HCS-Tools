@@ -1,9 +1,15 @@
-package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapViewer;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.LegendViewer;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.PlateViewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.MinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.dialog.ColorGradientDialog;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HeatMapColorToolBar;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HeatMapInputToolbar;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatWell;
 
 import javax.swing.*;
@@ -21,7 +27,7 @@ import java.awt.event.KeyEvent;
 public class ViewMenu extends JMenu {
 
     /**
-     * Items for the gui, accessible by the {@link HeatMapViewer} interface that will be accessed by the menu actions.
+     * Items for the gui, accessible by the {@link de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapViewer} interface that will be accessed by the menu actions.
      */
     private HeatMapModel heatMapModel;
     private HeatMapInputToolbar toolbar;

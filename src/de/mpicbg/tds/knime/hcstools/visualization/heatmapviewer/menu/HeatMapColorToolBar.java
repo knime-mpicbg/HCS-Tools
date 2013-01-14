@@ -1,9 +1,11 @@
-package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu;
 
 import javax.swing.*;
 import java.awt.*;
 import java.text.DecimalFormat;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModelChangeListener;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.RescaleStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColorScheme;
@@ -17,7 +19,7 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.ScreenColo
  * TODO: When changing the orientation of the toolbar, the layout should be changed and the color gradient rotated.
  */
 
-public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeListener{
+public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeListener {
 
     private HeatMapModel heatMapModel;
     private LinearGradientTools.ColorGradientPanel gradientPanel;
@@ -124,7 +126,7 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         add(emptyLabel, constraints);
     }
 
-    protected void configure(HeatMapModel model) {
+    public void configure(HeatMapModel model) {
         heatMapModel = model;
         heatMapModel.addChangeListener(this);
     }

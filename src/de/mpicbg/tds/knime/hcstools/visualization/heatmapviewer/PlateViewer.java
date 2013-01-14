@@ -1,5 +1,9 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HeatMapColorToolBar;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HeatMapInputToolbar;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HiLiteMenu;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.ViewMenu;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.renderer.HeatPlate;

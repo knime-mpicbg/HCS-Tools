@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 import com.bric.swing.GradientSlider;
 import com.bric.swing.MultiThumbSlider;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapColorToolBar;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HeatMapColorToolBar;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;

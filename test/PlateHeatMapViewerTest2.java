@@ -9,6 +9,9 @@ import java.util.List;
 
 import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.*;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HiLiteMenu;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.TrellisMenu;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.ViewMenu;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 
 import org.knime.core.data.DataRow;

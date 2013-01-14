@@ -2,6 +2,9 @@ package de.mpicbg.tds.knime.hcstools.visualization;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.*;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HiLiteMenu;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.TrellisMenu;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.ViewMenu;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import org.knime.core.data.RowKey;

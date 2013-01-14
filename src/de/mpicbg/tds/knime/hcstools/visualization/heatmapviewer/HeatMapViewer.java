@@ -1,5 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HeatMapColorToolBar;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu.HeatMapInputToolbar;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -10,7 +13,7 @@ import java.util.UUID;
  *         creation: 12/27/12
  */
 
-interface HeatMapViewer {
+public interface HeatMapViewer {
 
     /**
      * Access the colormap toolbar.

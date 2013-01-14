@@ -78,7 +78,7 @@ public class HeatMapModel implements HiLiteListener {
     /** KNIME overlay color set */
     private Set<Color> knimeColors;
     /** KNIME overlay color menu item name */
-    protected static String KNIME_OVERLAY_NAME = "KNIME Color Model";
+    public static String KNIME_OVERLAY_NAME = "KNIME Color Model";
 
     /** Plate filtering string */
     private String plateFilterString = "";
@@ -775,6 +775,6 @@ public class HeatMapModel implements HiLiteListener {
 
 
 
-    protected enum HiLiteDisplayMode {HILITE_ONLY, UNHILITE_ONLY, ALL}
+    public enum HiLiteDisplayMode {HILITE_ONLY, UNHILITE_ONLY, ALL}
 
 }

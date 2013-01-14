@@ -1,4 +1,4 @@
-package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,6 +7,10 @@ import java.util.*;
 import java.util.List;
 import javax.swing.*;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapViewer;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.PlateViewer;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.ScreenViewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateUtils;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateAttribute;
@@ -88,7 +92,7 @@ public class HeatMapInputToolbar extends JToolBar {
 
 
     // Configure the gui components with the menu items.
-    protected void configure(HeatMapModel hmm) {              //TODO: Find a better way for the component resizing (currently some components are not visible if the window size is small)
+    public void configure(HeatMapModel hmm) {              //TODO: Find a better way for the component resizing (currently some components are not visible if the window size is small)
         heatMapModel = hmm;
 
         // populate the overlay menu based on the first plate

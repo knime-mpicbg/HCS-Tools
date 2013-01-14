@@ -1,5 +1,7 @@
-package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.menu;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.ScreenViewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.dialog.PlateAttributeDialog;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.dialog.RowColumnDialog;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.PlateAttribute;
