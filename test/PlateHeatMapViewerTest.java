@@ -1,3 +1,5 @@
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -66,7 +68,7 @@ public class PlateHeatMapViewerTest {
     );
 
 
-    private DataTable loadTable() {
+    DataTable loadTable() {
         InputStream stream = null;
         try {
             stream = new FileInputStream(new File(testDataPath));
@@ -112,7 +114,7 @@ public class PlateHeatMapViewerTest {
     }
 
     // Method from the ScreenExplorer (node model) where the signature had to be changed (DataTable instead of the BufferedDataTable)
-    private List<Plate> parseIntoPlates(DataTable input) {
+    List<Plate> parseIntoPlates(DataTable input) {
         // grouping column
         Attribute<String> barcodeAttribute = new InputTableAttribute<String>(AbstractScreenTrafoModel.SCREEN_MODEL_BARCODE, input.getDataTableSpec());
 
@@ -256,8 +258,15 @@ public class PlateHeatMapViewerTest {
         menu.add(new TrellisMenu(view));
         frame.setJMenuBar(menu);
 
-        frame.add(view);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setContentPane(view);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent windowEvent) {
+                ScreenViewer viewer = (ScreenViewer)((JFrame) windowEvent.getComponent()).getContentPane();
+                viewer.getHeatTrellis().closePlateViewers();
+            }
+        });
         frame.pack();
         frame.setVisible(true);
     }
