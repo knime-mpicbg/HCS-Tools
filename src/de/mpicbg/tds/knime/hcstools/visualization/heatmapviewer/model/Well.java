@@ -60,7 +60,7 @@ public class Well implements Serializable {
      */
 
     /** DataTable object containing the image fields */
-    private transient DataContainer imageData;           // TODO: this should be a serializable too.
+    private transient DataContainer imageData;
 
 
 
