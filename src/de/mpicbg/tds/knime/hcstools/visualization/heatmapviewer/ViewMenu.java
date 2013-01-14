@@ -278,11 +278,11 @@ public class ViewMenu extends JMenu {
     protected void showOverlayLegendAction() {
         Container parentContainer = HeatWell.getParentContainer(this);
 
-        OverlayLegend overlayLegend;
+        LegendViewer overlayLegend;
         if (parentContainer instanceof Dialog) {
-            overlayLegend = new OverlayLegend((Dialog) parentContainer);
+            overlayLegend = new LegendViewer((Dialog) parentContainer);
         } else {
-            overlayLegend = new OverlayLegend((Frame) parentContainer);
+            overlayLegend = new LegendViewer((Frame) parentContainer);
         }
 
         overlayLegend.setModel(heatMapModel);

@@ -17,18 +17,18 @@ import org.apache.commons.lang.StringUtils;
  * Create a Legend window.
  */
 
-public class OverlayLegend extends JDialog implements HeatMapModelChangeListener {
+public class LegendViewer extends JDialog implements HeatMapModelChangeListener {
 
 	private HeatMapModel heatMapModel;
 	public LegendPanel legendPanel;
 
 
-	public OverlayLegend(Frame owner) {
+	public LegendViewer(Frame owner) {
 		super(owner);
 		initComponents();
 	}
 
-	public OverlayLegend(Dialog owner) {
+	public LegendViewer(Dialog owner) {
 		super(owner);
 		initComponents();
 	}
@@ -67,7 +67,7 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
         window.setSize(200, 200);
         window.setVisible(true);
         window.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        OverlayLegend frame = new OverlayLegend(window);
+        LegendViewer frame = new LegendViewer(window);
         frame.setVisible(true);
     }
 
@@ -109,7 +109,7 @@ public class OverlayLegend extends JDialog implements HeatMapModelChangeListener
             constraints.fill = GridBagConstraints.BOTH;
             int index = 0;
 
-            if ( heatMapModel.getOverlay().equals(heatMapModel.KNIME_OVERLAY_NAME) ){        // TODO: Retrieve proper group names.
+            if ( heatMapModel.getOverlay().equals(HeatMapModel.KNIME_OVERLAY_NAME) ){        // TODO: Retrieve proper group names.
                 for (Color color : heatMapModel.getKnimeColors()) {
                     constraints.gridy = index++;
                     add(createLegendEntry("Nominal " + index, color), constraints);
