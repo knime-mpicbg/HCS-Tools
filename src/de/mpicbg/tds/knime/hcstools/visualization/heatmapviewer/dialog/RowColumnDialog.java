@@ -1,4 +1,6 @@
-package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.dialog;
+
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
 
 import javax.swing.*;
 import javax.swing.border.Border;

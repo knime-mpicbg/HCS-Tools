@@ -3,6 +3,7 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.MinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.QuantileStrategy;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.dialog.ColorGradientDialog;
 
 import javax.swing.*;
 import java.awt.*;

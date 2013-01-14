@@ -1,4 +1,4 @@
-package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer;
+package de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.dialog;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -10,6 +10,8 @@ import java.util.HashMap;
 
 import com.bric.swing.GradientSlider;
 import com.bric.swing.MultiThumbSlider;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapColorToolBar;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.HeatMapModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmapviewer.color.LinearGradientTools;
@@ -190,7 +192,7 @@ public class ColorGradientDialog extends JDialog {
         HashMap<String, Double[]> groupDescriptors = new HashMap<String, Double[]>();
         for (String group : groups) {
             for (Plate plate : heatMapModel.getScreen()) {
-                if (heatMapModel.plateFiltered.get(plate)) {
+                if (heatMapModel.isPlateFiltered(plate)) {
                     for (Well well : plate.getWells()) {
                         if (well.getAnnotation(factor).equals(group))
                             stats.addValue(well.getReadout(readout));

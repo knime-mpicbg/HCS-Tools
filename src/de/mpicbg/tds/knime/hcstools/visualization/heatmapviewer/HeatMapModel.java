@@ -137,6 +137,10 @@ public class HeatMapModel implements HiLiteListener {
         filterPlates(pfs);
     }
 
+    public boolean isPlateFiltered(Plate plate) {
+        return plateFiltered.get(plate);
+    }
+
 
     /**
      * Plate Sorting
