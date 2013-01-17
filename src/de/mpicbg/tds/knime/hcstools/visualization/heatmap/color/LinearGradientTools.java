@@ -6,15 +6,16 @@ import java.awt.geom.Point2D;
 import java.util.Arrays;
 
 /**
- * User: Felix Meyenhofer
- * Date: 12/10/12
- * Time: 24:50
- *
  * Useful manipulations for a LinearGradientPaint instance.
+ *
+ * @author Felix Meyenhofer
+ *         12/10/12
  */
-
 public abstract class LinearGradientTools {
 
+    /**
+     * Available default color maps.
+     */
     public static final String[] MAP_GB = {"GB", "green-black"};
     public static final String[] MAP_HSV = {"HSV", "hsv"};
     public static final String[] MAP_GBR = {"GBR", "green-black-red"};
@@ -22,6 +23,13 @@ public abstract class LinearGradientTools {
     public static final String[] MAP_DARK = {"Dark", "dark"};
 
 
+    /**
+     * Get a color at a particular fraction of the gradient.
+     *
+     * @param painter to fetch the color from
+     * @param input fraction [0...1]
+     * @return the color at the input fraction
+     */
     public static Color getColorAt(LinearGradientPaint painter, float input) {
         int lowerIndex = 0;
         int upperIndex = 1;
@@ -57,6 +65,15 @@ public abstract class LinearGradientTools {
         return interpolateColor(colors[lowerIndex], colors[upperIndex], rescaled);
     }
 
+
+    /**
+     * Linear interpolator between two colors
+     *
+     * @param color1 first bound
+     * @param color2 second bound
+     * @param fraction [0...1]
+     * @return interpolation: color2+(color2-color1) * fraction
+     */
     public static Color interpolateColor(final Color color1, final Color color2, final float fraction) {
         assert(Float.compare(fraction, 0f) >= 0 && Float.compare(fraction, 1f) <= 0);
 
@@ -91,9 +108,16 @@ public abstract class LinearGradientTools {
         alpha = alpha < 0f ? 0f : alpha;
         alpha = alpha > 1f ? 1f : alpha;
 
-        return new java.awt.Color(red, green, blue, alpha);
+        return new Color(red, green, blue, alpha);
     }
 
+
+    /**
+     * Get a predefined color gradient
+     *
+     * @param str abbreviation or name of the gradient.
+     * @return predefined gradient
+     */
     public static LinearGradientPaint getStandardGradient(String str) {
         LinearGradientPaint gradient = null;
         if (Arrays.asList(MAP_GB).contains(str)) {
@@ -141,50 +165,40 @@ public abstract class LinearGradientTools {
         return gradient;
     }
 
+
+
+
     /**
-     * User: Felix Meyenhofer
-     * Date: 12/7/12
-     * Time: 21:09
-     *
      * Class to create a panel with a color gradient for display
      */
-
     public static class ColorGradientPanel extends JPanel {
 
-        // Defaults
+        /**
+         * Defaults
+         */
         private static final Dimension dimension = new Dimension(400, 30);
         private LinearGradientPaint gradientPainter = getStandardGradient("GBR");
 
 
-        // Constructors
+        /**
+         * Constructor
+         */
         public ColorGradientPanel() {
-            initialize();
-        }
-
-        public ColorGradientPanel(LinearGradientPaint paint) {
-            this();
-            configure(paint);
-        }
-
-
-        // Utilities
-        private void initialize() {
             setMinimumSize(dimension);
         }
 
+
+        /**
+         * Configure the gradient panel.
+         *
+         * @param painter color gradient to display.
+         */
         public void configure(LinearGradientPaint painter) {
-            setGradientPainter(painter);
+            this.gradientPainter = painter;
         }
 
-        public void setGradientPainter(LinearGradientPaint painter) {
-            gradientPainter = painter;
-        }
 
-        public LinearGradientPaint getGradientPainter() {
-            return gradientPainter;
-        }
-
-        // Overwrite the JPanel renderer
+        /** {@inheritDoc} */
         @Override
         public void paintComponent(Graphics graphics) {
             // Create the 2D copy
@@ -206,6 +220,11 @@ public abstract class LinearGradientTools {
         }
 
 
+        /**
+         * Quick testing
+         *
+         * @param args whatever
+         */
         public static void main(String[] args) {
             ColorGradientPanel bar = new ColorGradientPanel();
             JFrame frame = new JFrame("ColorGradientToolBar Test");
@@ -214,6 +233,7 @@ public abstract class LinearGradientTools {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);
         }
-
     }
+
+
 }
