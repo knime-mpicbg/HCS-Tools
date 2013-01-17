@@ -19,7 +19,8 @@ public class WellViewerTest {
 
         PlateHeatMapViewerTest2 test = new PlateHeatMapViewerTest2();
         DataTable table = test.loadTable();
-        List<Plate> plates = test.parseIntoPlates(table);
+        HeatMapModel model = test.parseBufferedTable(table);
+        List<Plate> plates = model.getScreen();
         Plate plate = plates.get(0);
         Well well = plate.getWell(1,1);
 

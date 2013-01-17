@@ -193,7 +193,7 @@ public class PlateHeatMapViewerTest2 {
     }
 
     // Method from the ScreenExplorer (node model) where the signature had to be changed (DataTable instead of the BufferedDataTable)
-    List<Plate> parseIntoPlates(DataTable input) {
+    HeatMapModel parseBufferedTable(DataTable input) {
         // grouping column
         Attribute<String> barcodeAttribute = new InputTableAttribute<String>(AbstractScreenTrafoModel.SCREEN_MODEL_BARCODE, input.getDataTableSpec());
 
@@ -224,30 +224,40 @@ public class PlateHeatMapViewerTest2 {
         }
         attributeModel.removeAll(imageAttributes);
 
-        return HeatMapViewerNodeModel.parseIntoPlates(splitScreen, input.getDataTableSpec(),
-                attributeModel, customPlateNameAttr,
-                plateRowAttribute, plateColAttribute, imageAttributes,
-                readouts,
-                factors, new BarcodeParserFactory(patterns));
-    }
-
-
-    public static void main(String[] args) {
-        PlateHeatMapViewerTest2 test = new PlateHeatMapViewerTest2();
-        DataTable table = test.loadTable();
-        List<Plate> plates = test.parseIntoPlates(table);
-
-//        new ScreenViewer(plates);
-//        new ScreenPanelFrame(plates);
-
-
-        // Create screen view panel
-        ScreenViewer view = new ScreenViewer(plates);
+        // Create the viewers data model
+        HeatMapModel model = new HeatMapModel();
 
         // Set some reference populations.
         HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
         referencePopulations.put("transfection",new String[]{"Mock", "Tox3", "Neg5"});
-        view.getHeatMapModel().setReferencePopulations(referencePopulations);
+        model.setReferencePopulations(referencePopulations);
+
+        // Set the knime color column
+        Attribute<Object> knimeColor =  AttributeUtils.getKnimeColorAttribute(input.getDataTableSpec());
+        if (knimeColor != null)
+            model.setKnimeColorAttribute(knimeColor.getName());
+
+        // Set the plate data.
+        List<Plate> plates = HeatMapViewerNodeModel.parseIntoPlates(splitScreen, input.getDataTableSpec(),
+                attributeModel, customPlateNameAttr,
+                plateRowAttribute, plateColAttribute, imageAttributes,
+                readouts,
+                factors, new BarcodeParserFactory(patterns));
+
+        model.setScreen(plates);
+
+        return model;
+    }
+
+
+    public static void main(String[] args) {
+        // Parse the test data.
+        PlateHeatMapViewerTest2 test = new PlateHeatMapViewerTest2();
+        DataTable table = test.loadTable();
+        HeatMapModel model = test.parseBufferedTable(table);
+
+        // Create screen view panel
+        ScreenViewer view = new ScreenViewer(model);
 
         // Create a frame to carry it.
         JFrame frame = new JFrame("Whatever");
