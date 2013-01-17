@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateUtils;
@@ -147,10 +148,11 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
             constraints.fill = GridBagConstraints.BOTH;
             int index = 0;
 
-            if ( heatMapModel.getOverlay().equals(HeatMapModel.KNIME_OVERLAY_NAME) ){        // TODO: Retrieve proper group names.
-                for (Color color : heatMapModel.getKnimeColors()) {
+            if ( heatMapModel.getOverlay().contains(HeatMapModel.KNIME_OVERLAY_NAME) ){
+                HashMap<Color, String> legend = heatMapModel.getKnimeColors();
+                for (Color color : legend.keySet()) {
                     constraints.gridy = index++;
-                    add(createLegendEntry("Nominal " + index, color), constraints);
+                    add(createLegendEntry(legend.get(color), color), constraints);
                 }
 
             } else {

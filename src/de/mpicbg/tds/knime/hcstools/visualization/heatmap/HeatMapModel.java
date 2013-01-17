@@ -76,9 +76,11 @@ public class HeatMapModel implements HiLiteListener {
     /** KNIME Colors: list with the wells belonging to the most frequent KNIME overlay color */
     private List<Well> mostFrequentColorWells = null;
     /** KNIME overlay color set */
-    private Set<Color> knimeColors;
+    private HashMap<Color, String> knimeColors;
+    /** KNIE color column attribute */
+    private String knimeColorAttribute;
     /** KNIME overlay color menu item name */
-    public static String KNIME_OVERLAY_NAME = "KNIME Color Model";
+    public static String KNIME_OVERLAY_NAME = "Color Settings";
 
     /** Plate filtering string */
     private String plateFilterString = "";
@@ -228,11 +230,12 @@ public class HeatMapModel implements HiLiteListener {
         }
     }
 
-    // TODO: get the name of the attribute on which the color model is based. The worst case would be to implement a second port for a color model.
+
     private void updateKnimeColorFrequency() {
         if (this.screen == null || this.screen.isEmpty())
             return;
 
+        // Assign wells to colors
         HashMap<Color, ArrayList<Well>> colors = new HashMap<Color, ArrayList<Well>>();
         ArrayList<Well> wells;
         Color color;
@@ -253,13 +256,24 @@ public class HeatMapModel implements HiLiteListener {
         if ( (colors.size() <=1) )
             return;
 
+        // Use a tree map to find out which color holds the most wells
         TreeMap<Integer, List<Well>> order = new TreeMap<Integer, List<Well>>();
         for (Color key : colors.keySet()) {
             order.put(colors.get(key).size(), colors.get(key));
         }
 
         this.mostFrequentColorWells = order.get(order.lastKey());
-        this.knimeColors = colors.keySet();
+
+        // Create a hash-map holding colors and the corresponding attribute value (legend)
+        HashMap<Color, String> knimeLegend = new HashMap<Color, String>();
+        int index = 1;
+        for (Color key : colors.keySet()) {
+            String title = "Nominal " + index++;
+            if (this.knimeColorAttribute != null)
+                title = colors.get(key).get(0).getAnnotation(this.knimeColorAttribute);
+            knimeLegend.put(key, title);
+        }
+        this.knimeColors = knimeLegend;
     }
 
 
@@ -389,12 +403,29 @@ public class HeatMapModel implements HiLiteListener {
         this.backgroundColor = backgroundColor;
     }
 
-    public Set<Color> getKnimeColors() {
+    public HashMap<Color, String> getKnimeColors() {
         return knimeColors;
     }
 
     public boolean hasKnimeColorModel() {
         return (mostFrequentColorWells != null) && !mostFrequentColorWells.isEmpty();
+    }
+
+    public String getKnimeColorAttributeTitle() {
+        if (knimeColorAttribute == null) {
+            return KNIME_OVERLAY_NAME;
+        } else {
+            return KNIME_OVERLAY_NAME + " (" + knimeColorAttribute + ")";
+
+        }
+    }
+
+    public void setKnimeColorAttribute(String knimeColorAttribute) {
+        this.knimeColorAttribute = knimeColorAttribute;
+    }
+
+    public String getKnimeColorAttribute() {
+        return this.knimeColorAttribute;
     }
 
     public ScreenColorScheme getColorScheme() {
@@ -420,7 +451,7 @@ public class HeatMapModel implements HiLiteListener {
     public Color getOverlayColor(Well well) {
         String overlayType = getOverlay();
 
-        if ( overlayType.equals(KNIME_OVERLAY_NAME) ) {
+        if ( overlayType.contains(KNIME_OVERLAY_NAME) ) {
             if ( doHideMostFreqOverlay() && mostFrequentColorWells.contains(well) ) {
                 return  null;
             } else {

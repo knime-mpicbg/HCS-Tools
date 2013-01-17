@@ -318,6 +318,11 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         if (propRefNames.getStringArrayValue().length == 0)
             logger.warn("There are no reference groups selected ('Control' tab in the configure dialog)!");
 
+        // Set the knime color column
+        Attribute<Object> knimeColor =  AttributeUtils.getKnimeColorAttribute(input.getDataTableSpec());
+        if (knimeColor != null)
+            heatMapModel.setKnimeColorAttribute(knimeColor.getName());
+
         // Parse the plate data.
         heatMapModel.setScreen(parseIntoPlates(splitScreen,
                 input.getDataTableSpec(),
@@ -397,7 +402,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             // Fill plate with wells.
             for (DataRow tableRow : wellRows) {
                 Well well = new Well();
-                curPlate.getWells().add(well); // TODO: Why is the well with no data added?
+                curPlate.getWells().add(well);
 
                 well.setPlate(curPlate);
                 well.setPlateRow(rowAttribute.getIntAttribute(tableRow));

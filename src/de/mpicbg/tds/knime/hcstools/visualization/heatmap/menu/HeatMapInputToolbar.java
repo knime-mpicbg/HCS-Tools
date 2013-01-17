@@ -106,7 +106,7 @@ public class HeatMapInputToolbar extends JToolBar {
         // reconfigure the selectors
         List<String> annotations = PlateUtils.flattenAnnotationTypes(subScreen);
         if ( heatMapModel.hasKnimeColorModel() )
-            annotations.add(0, heatMapModel.KNIME_OVERLAY_NAME);
+            annotations.add(0, heatMapModel.getKnimeColorAttributeTitle());
         annotations.add(0, "");
         overlaySelector.configure(annotations, heatMapModel, AttributeType.OVERLAY_ANNOTATION);
 
