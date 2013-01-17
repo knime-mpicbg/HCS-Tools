@@ -111,29 +111,29 @@ public class HeatWell extends JPanel {
 //        this.showGrid = showGrid;
 //    }
 
-    public static Dialog getParentDialog(Container component) {
-        while (component != null) {
-            if (component instanceof JDialog) {
-                return (Dialog) component;
-            }
+//    public static Dialog getParentDialog(Container component) {
+//        while (component != null) {
+//            if (component instanceof JDialog) {
+//                return (Dialog) component;
+//            }
+//
+//            component = component.getParent();
+//        }
+//
+//        return null;
+//    }
 
-            component = component.getParent();
-        }
-
-        return null;
-    }
-
-    public static Container getParentContainer(Container component) {
-        while (component != null) {
-            if (component instanceof JDialog || component instanceof JFrame) {
-                return component;
-            }
-
-            component = component.getParent();
-        }
-
-        return null;
-    }
+//    public static Container getParentContainer(Container component) {
+//        while (component != null) {
+//            if (component instanceof JDialog || component instanceof JFrame) {
+//                return component;
+//            }
+//
+//            component = component.getParent();
+//        }
+//
+//        return null;
+//    }
 
 
     @Override

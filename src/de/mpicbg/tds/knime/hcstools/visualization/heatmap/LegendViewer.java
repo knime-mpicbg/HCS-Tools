@@ -12,29 +12,34 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * @author Holger Brandl
+ * Create a Legend window for the heat map overlay colors.
  *
- * Create a Legend window.
+ * @author Holger Brandl
  */
 
 public class LegendViewer extends JDialog implements HeatMapModelChangeListener {
 
+    /** Data model */
 	private HeatMapModel heatMapModel;
+    /** {@link JPanel}  containing the legend entries*/
 	public LegendPanel legendPanel;
 
 
-	public LegendViewer(Frame owner) {
-		super(owner);
-		initComponents();
-	}
+    /**
+     * Constructor of the LegendViewer
+     *
+     * @param owner of the legend
+     */
+    public LegendViewer(Window owner) {
+        super(owner);
+        initialize();
+    }
 
-	public LegendViewer(Dialog owner) {
-		super(owner);
-		initComponents();
-	}
 
-
-	private void initComponents() {
+    /**
+     * initialize the UI components
+     */
+	private void initialize() {
         setLayout(new BorderLayout());
         legendPanel = new LegendPanel(this);
         legendPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
@@ -49,20 +54,33 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
 	}
 
-	public void setModel(HeatMapModel heatMapModel) {
+    /**
+     * configure the UI components (set the data)
+     *
+     * @param heatMapModel containing the data for display
+     */
+	public void configure(HeatMapModel heatMapModel) {
 		this.heatMapModel = heatMapModel;
 		heatMapModel.addChangeListener(this);
-		legendPanel.setModel(heatMapModel);
+		legendPanel.configure(heatMapModel);
 		modelChanged();
 	}
 
+    /** {@inheritDoc} */
+    @Override
 	public void modelChanged() {
 		setTitle(StringUtils.isBlank(heatMapModel.getOverlay()) ? "No Overlay" : heatMapModel.getOverlay());
 		repaint();
 	}
 
+
+    /**
+     * Quick testing
+     *
+     * @param args whatever
+     */
     public static void main(String[] args) {
-        JFrame window = new JFrame();
+        JDialog window = new JDialog();
         window.add(new JLabel("just some text"));
         window.setSize(200, 200);
         window.setVisible(true);
@@ -73,31 +91,51 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
 
 
 
+    /**
+     * Panel containing the legend entry (renderer)
+     */
     public class LegendPanel extends JPanel implements HeatMapModelChangeListener {
 
+        /** data model containing the data for display */
         private HeatMapModel heatMapModel;
+        /** TODO */
         private int nullCounter = 0;
+        /** Parent dialog */
         private JDialog parent;
+        /** Font for the legend entries */
         private Font font = new Font("Arial", Font.PLAIN, 12);
 
 
+        /**
+         * Constructor of the legend panel
+         *
+         * @param component enclosing this panel
+         */
         protected LegendPanel(JDialog component) {
             super();
             parent = component;
         }
 
 
-        public void setModel(HeatMapModel heatMapModel) {
+        /**
+         * configure the UI components
+         *
+         * @param heatMapModel containing the legend entries
+         */
+        public void configure(HeatMapModel heatMapModel) {
             this.heatMapModel = heatMapModel;
             heatMapModel.addChangeListener(this);
             modelChanged();
         }
 
+        /** {@inheritDoc} */
         @Override
         protected void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
         }
 
+        /** {@inheritDoc} */
+        @Override
         public void modelChanged() {
             removeAll();
 
@@ -153,6 +191,12 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
             repaint();
         }
 
+
+        /**
+         * fetch the color cache from the data model
+         *
+         * @return map with a bunch of colors
+         */
         private Map<String, Color> getColorCache() {
             Map<String, Color> cache = heatMapModel.getColorScheme().getNameColorCache(heatMapModel.getOverlay());
 
@@ -183,6 +227,13 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
             return cache;
         }
 
+        /**
+         * helper method to create a legend component
+         *
+         * @param title of the legend entry
+         * @param color of the legend entry
+         * @return legend component
+         */
         private JLabel createLegendEntry(String title, Color color) {
             JLabel legendEntry = new JLabel();
             legendEntry.setFont(font);
@@ -197,9 +248,5 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
             return legendEntry;
         }
     }
-
-
-
-
 
 }

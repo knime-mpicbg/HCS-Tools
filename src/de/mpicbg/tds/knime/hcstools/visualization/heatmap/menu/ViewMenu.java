@@ -8,7 +8,6 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.LinearGradientTo
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.MinMaxStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.QuantileStrategy;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.dialog.ColorGradientDialog;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.renderer.HeatWell;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,6 +17,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 /**
+ * Menu for the view manipulation.
+ *
  * @author Felix Meyenhofer
  *         creation: 12/27/12
  */
@@ -280,16 +281,8 @@ public class ViewMenu extends JMenu {
      * Creates an overlay legend window.
      */
     protected void showOverlayLegendAction() {
-        Container parentContainer = HeatWell.getParentContainer(this);
-
-        LegendViewer overlayLegend;
-        if (parentContainer instanceof Dialog) {
-            overlayLegend = new LegendViewer((Dialog) parentContainer);
-        } else {
-            overlayLegend = new LegendViewer((Frame) parentContainer);
-        }
-
-        overlayLegend.setModel(heatMapModel);
+        LegendViewer overlayLegend = new LegendViewer((Window) this.getTopLevelAncestor());
+        overlayLegend.configure(heatMapModel);
         overlayLegend.setModal(false);
         overlayLegend.setVisible(true);
     }
