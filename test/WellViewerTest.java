@@ -14,12 +14,13 @@ import java.util.List;
  */
 
 public class WellViewerTest {
+    private static String testDataPath = "/Users/turf/Sources/CBG/HCS-Tools/test/data/96well_color_image.table";      //TODO put the testdata on a dropbox to not weigh down the package.
 
     public static void main(String[] args) {
 
-        PlateHeatMapViewerTest2 test = new PlateHeatMapViewerTest2();
-        DataTable table = test.loadTable();
-        HeatMapModel model = test.parseBufferedTable(table);
+//        HeatMapViewerTest2 test = new HeatMapViewerTest2();
+        DataTable table = PseudoHeatMapViewerNodeModel.loadTable(HeatMapViewerTest2.testDataPath);
+        HeatMapModel model = PseudoHeatMapViewerNodeModel.parseBufferedTable(table, HeatMapViewerTest2.readouts, HeatMapViewerTest2.factors);
         List<Plate> plates = model.getScreen();
         Plate plate = plates.get(0);
         Well well = plate.getWell(1,1);
