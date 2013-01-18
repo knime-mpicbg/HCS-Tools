@@ -92,7 +92,7 @@ public class RowColumnDialog extends JDialog implements ItemListener {
             columnSpinner.setValue(heatMapModel.getNumberOfTrellisColumns());
             rowSpinner.setValue(heatMapModel.getNumberOfTrellisRows());
 
-            if (heatMapModel.getAutomaticTrellisConfiguration()) {
+            if (heatMapModel.isAutomaticTrellisConfiguration()) {
                 toggleRadioButtons(automaticRadioButton);
                 automaticRadioButton.setSelected(true);
             } else {

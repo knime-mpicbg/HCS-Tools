@@ -275,7 +275,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
      */
     private int[] calculateTrellisDimensions(int numberOfPlates) {
         int numRows, numColumns;
-        if ( heatMapModel.getAutomaticTrellisConfiguration() ) {
+        if ( heatMapModel.isAutomaticTrellisConfiguration() ) {
             numColumns = (int) Math.floor(getWidth() *1.0 / (HEATMAP_WIDTH + cellGap) );
             numRows = (int) Math.ceil(numberOfPlates/ (double) numColumns);
             heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);

@@ -15,9 +15,9 @@ import java.util.*;
 import java.util.List;
 
 /**
- * @author Holger Brandl
+ * Class to transport and synchronize information between the objects of the UI
  *
- * Class to transport and synchronize information.
+ * @author Holger Brandl, Felix Meyenhofer
  */
 
 public class HeatMapModel implements HiLiteListener {
@@ -94,6 +94,8 @@ public class HeatMapModel implements HiLiteListener {
 
     /**
      * Plate filtering
+     *
+     * @param pfs filter string
      */
     public void filterPlates(String pfs) {
         setPlateFilterString(pfs);
@@ -130,11 +132,23 @@ public class HeatMapModel implements HiLiteListener {
         }
     }
 
+    /**
+     * Plate filtering
+     *
+     * @param pfs filter string
+     * @param pfa plate attribute
+     */
     public void filterPlates(String pfs, PlateAttribute pfa) {
         setPlateFilterAttribute(pfa);
         filterPlates(pfs);
     }
 
+    /**
+     * Getter for the plate filtering status
+     *
+     * @param plate to retrieve the status from
+     * @return status
+     */
     public boolean isPlateFiltered(Plate plate) {
         return plateFiltered.get(plate);
     }
@@ -142,16 +156,29 @@ public class HeatMapModel implements HiLiteListener {
 
     /**
      * Plate Sorting
+     *
+     * @param attribute to sort along
      */
     public void sortPlates(PlateAttribute attribute) {
         sortPlates(attribute, false);
     }
 
+    /**
+     * Plate sorting
+     *
+     * @param attribute to sort along
+     * @param descending sorting flag (ture-> descending order, false-> ascending order)
+     */
     public void sortPlates(PlateAttribute attribute, boolean descending) {
         Collections.sort(screen, PlateComparators.getComparator(attribute));
         if (!descending) { Collections.reverse(screen); }
     }
 
+    /**
+     * Use the attribute names to update the attribute list
+     *
+     * @param titles of the plate attributes
+     */
     public void setSortAttributeSelectionByTiles(String[] titles) {
         if ( titles == null )
             return;
@@ -161,6 +188,11 @@ public class HeatMapModel implements HiLiteListener {
             sortAttributeSelection.add(PlateUtils.getPlateAttributeByTitle(title));
     }
 
+    /**
+     * Get a list of the {@link PlateAttribute}s names/titles
+     *
+     * @return title list
+     */
     public String[] getSortAttributesSelectionTitles() {
         if (sortAttributeSelection == null) {
             return null;
@@ -171,20 +203,39 @@ public class HeatMapModel implements HiLiteListener {
 
 
     /**
-     * Overlay partial hiding.
+     * Overlay partial hiding
+     *
+     * @param overlayType (overlay, readout)
+     * @param overlay name
+     * @return flag
      */
     private boolean isMostFrequent(String overlayType, String overlay) {
         return maxFreqOverlay.containsKey(overlayType) && maxFreqOverlay.get(overlayType).equals(overlay);
     }
 
+    /**
+     * Getter for the flag controlling the display or hiding of the most frequent overlay
+     *
+     * @return flag
+     */
     public boolean doHideMostFreqOverlay() {
         return hideMostFrequentOverlay;
     }
 
+    /**
+     * Setter for the flag controlling the display or the hiding of the most frequent overlay
+     *
+     * @param useBckndForLibraryWells flag
+     */
     public void setHideMostFreqOverlay(boolean useBckndForLibraryWells) {
         this.hideMostFrequentOverlay = useBckndForLibraryWells;
     }
 
+    /**
+     * Update the map assigning the attributes and their most frequent value
+     *
+     * @param screen plate list
+     */
     private void updateMaxOverlayFreqs(List<Plate> screen) {
         Collection<Well> wellCollection = new ArrayList<Well>(PlateUtils.flattenWells(screen));
         List<String> overlayNames = PlateUtils.flattenAnnotationTypes(screen);
@@ -227,6 +278,9 @@ public class HeatMapModel implements HiLiteListener {
     }
 
 
+    /**
+     * Update the list of well containing the most frequent color defined in the knime color settings.
+     */
     private void updateKnimeColorFrequency() {
         if (this.screen == null || this.screen.isEmpty())
             return;
@@ -274,7 +328,9 @@ public class HeatMapModel implements HiLiteListener {
 
 
     /**
-     * Data handling
+     * Set the plate data to be displayed
+     *
+     * @param screen list of plates
      */
     public void setScreen(List<Plate> screen) {
         this.screen = screen;
@@ -293,14 +349,27 @@ public class HeatMapModel implements HiLiteListener {
         updateKnimeColorFrequency();
     }
 
+    /**
+     * Get the currently loaded plate data
+     *
+     * @return screen
+     */
     public List<Plate> getScreen() {
         return screen;
     }
 
+    /**
+     * Revert the plate order.
+     */
     public void revertScreen() {
         Collections.reverse(screen);
     }
 
+    /**
+     * Get the number of displayed plates (filtered ones)
+     *
+     * @return number of plates
+     */
     public int getCurrentNumberOfPlates() {
         int number = 0;
         for (boolean state: plateFiltered.values()) {
@@ -310,6 +379,11 @@ public class HeatMapModel implements HiLiteListener {
         return number;
     }
 
+    /**
+     * Get the plates to display (filtered ones)
+     *
+     * @return plates for display
+     */
     public List<Plate> getPlatesToDisplay() {
         List<Plate> subset = new ArrayList<Plate>();
 
@@ -338,8 +412,10 @@ public class HeatMapModel implements HiLiteListener {
 
 
     /**
-     * Attribute stuff.
+     * Get the available plate attributes
      * TODO: This should be solved via the configuration dialog of the node eventually
+     *
+     * @return available plate attributes
      */
     public Collection<PlateAttribute> getPlateAttributes() {
         Collection<PlateAttribute> availableAttributes = new HashSet<PlateAttribute>();
@@ -367,46 +443,97 @@ public class HeatMapModel implements HiLiteListener {
         return availableAttributes;
     }
 
+    /**
+     * Get the currently selected readout
+     *
+     * @return readout
+     */
     public String getSelectedReadOut() {
         return currentReadout;
     }
 
+    /**
+     * Set the current readout.
+     *
+     * @param currentReadout readout attribute name
+     */
     public void setCurrentReadout(String currentReadout) {
         this.currentReadout = currentReadout;
     }
 
+    /**
+     * Get the current overlay attribute
+     * @return overlay attribute name
+     */
     public String getOverlay() {
         return overlay;
     }
 
+    /**
+     * Set the overlay attribute name
+     *
+     * @param overlay attribute name
+     */
     public void setOverlay(String overlay) {
         this.overlay = overlay;
     }
 
+    /**
+     * Get the attribute value of the current overlay attribute
+     * for a particular well
+     *
+     * @param well to get the value from
+     * @return attribute value
+     */
     public String getOverlayValue(Well well) {
         return well.getAnnotation(getOverlay());
     }
 
 
     /**
-     * Color handling
+     * Get the UI background color
+     *
+     * @return background
      */
     public Color getBackgroundColor() {
         return backgroundColor;
     }
 
+    /**
+     * Set the UI background color
+     *
+     * @param backgroundColor color for UI background
+     */
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
 
+    /**
+     * Get the map assigning colors to attribute values
+     * (KNIME color settings)
+     *
+     * @return {color and attribute values}
+     */
     public HashMap<Color, String> getKnimeColors() {
         return knimeColors;
     }
 
+    /**
+     * Check if the knime color settings were parsed
+     * from the {@link org.knime.core.node.BufferedDataTable}
+     *
+     * @return flag
+     */
     public boolean hasKnimeColorModel() {
         return (mostFrequentColorWells != null) && !mostFrequentColorWells.isEmpty();
     }
 
+    /**
+     * Get the title for the combobox menu item representing the
+     * KNIME color settings
+     *
+     * @return title
+     */
     public String getKnimeColorAttributeTitle() {
         if (knimeColorAttribute == null) {
             return KNIME_OVERLAY_NAME;
@@ -416,34 +543,76 @@ public class HeatMapModel implements HiLiteListener {
         }
     }
 
+    /**
+     * Set the attribute that was used to assign the KNIME colors
+     *
+     * @param knimeColorAttribute holding the nominal values for the legend
+     */
     public void setKnimeColorAttribute(String knimeColorAttribute) {
         this.knimeColorAttribute = knimeColorAttribute;
     }
 
+    /**
+     * Get the KNIME color attribute
+     *
+     * @return attribute name
+     */
     public String getKnimeColorAttribute() {
         return this.knimeColorAttribute;
     }
 
+    /**
+     * Get the overlay color scheme
+     *
+     * @return for the overlay
+     */
     public ColorScheme getColorScheme() {
         return colorScheme;
     }
 
+    /**
+     * Set the color scheme for the overlays
+     *
+     * @param colorScheme for the overlays
+     */
     public void setColorScheme(ColorScheme colorScheme) {
         this.colorScheme = colorScheme;
     }
 
+    /**
+     * Get the current colormap
+     *
+     * @return colormap
+     */
     public LinearColorGradient getColorGradient() {
         return colorGradient;
     }
 
+    /**
+     * Set the colormap
+     *
+     * @param gradient colormap
+     */
     public void setColorGradient(LinearColorGradient gradient) {
         colorGradient = gradient;
     }
 
+    /**
+     * Set the colormap
+     *
+     * @param name of the colormap
+     * @param gradient colormap
+     */
     public void setColorGradient(String name, LinearGradientPaint gradient) {
         colorGradient = new LinearColorGradient(name, gradient);
     }
 
+    /**
+     * Get the overlay color of a particular well
+     *
+     * @param well to get the overlay color for
+     * @return overlay color
+     */
     public Color getOverlayColor(Well well) {
         String overlayType = getOverlay();
 
@@ -455,7 +624,7 @@ public class HeatMapModel implements HiLiteListener {
             }
         }
 
-        if (overlayType == null || overlayType.isEmpty())
+        if (overlayType.isEmpty())
             return null;
 
         String overlay = well.getAnnotation(overlayType);
@@ -466,6 +635,12 @@ public class HeatMapModel implements HiLiteListener {
         return this.colorScheme.getOverlayColor(overlayType, overlay);
     }
 
+    /**
+     * Get the readout color (well color in the heatmap)
+     *
+     * @param well to get the color for
+     * @return well color
+     */
     public Color getReadoutColor(Well well) {
         if (!well.isReadoutSuccess()) {
             return ColorScheme.ERROR_READOUT;
@@ -478,6 +653,13 @@ public class HeatMapModel implements HiLiteListener {
         return getReadOutColor(selectedReadOut, wellReadout);
     }
 
+    /**
+     * Get the readout color (well color in the heatmap)
+     *
+     * @param selectedReadOut readout attribute name
+     * @param wellReadout readout attribute value
+     * @return well color
+     */
     public Color getReadOutColor(String selectedReadOut, Double wellReadout) {
         // also show the fallback color in cases when a single readout is not available
         if (wellReadout == null) {
@@ -492,10 +674,20 @@ public class HeatMapModel implements HiLiteListener {
         return LinearGradientTools.getColorAt(colorGradient.getGradient(), displayNormReadOut.floatValue());
     }
 
+    /**
+     * Get the readout rescale strategy
+     *
+     * @return rescaling object
+     */
     public RescaleStrategy getReadoutRescaleStrategy() {
         return readoutRescaleStrategy;
     }
 
+    /**
+     * Get a new instance of the current rescale strategy
+     *
+     * @return rescaling object
+     */
     public RescaleStrategy getReadoutRescaleStrategyInstance() {
         if ( readoutRescaleStrategy instanceof MinMaxStrategy ) {
             return new MinMaxStrategy();
@@ -504,6 +696,11 @@ public class HeatMapModel implements HiLiteListener {
         }
     }
 
+    /**
+     * Set the rescale strategy
+     *
+     * @param readoutRescaleStrategy to map the values on the color scale
+     */
     public void setReadoutRescaleStrategy(RescaleStrategy readoutRescaleStrategy) {
         readoutRescaleStrategy.configure(screen);
         this.readoutRescaleStrategy = readoutRescaleStrategy;
@@ -520,15 +717,30 @@ public class HeatMapModel implements HiLiteListener {
         }
     }
 
+    /**
+     * Remove a change listener
+     *
+     * @param listener for removal
+     */
     public void removeChangeListener(HeatMapModelChangeListener listener) {
         changeListeners.remove(listener);
     }
 
+    /**
+     * Add a list of change listener
+     *
+     * @param listeners to add
+     */
     public void addChangeListener(List<HeatMapModelChangeListener> listeners) {
         for (HeatMapModelChangeListener listener : listeners)
             addChangeListener(listener);
     }
 
+    /**
+     * Add a change listener
+     *
+     * @param listener to add
+     */
     public void addChangeListener(HeatMapModelChangeListener listener) {
         if (!changeListeners.contains(listener))
             changeListeners.add(listener);
@@ -536,26 +748,45 @@ public class HeatMapModel implements HiLiteListener {
 
 
     /**
-     * Well selection handling.
+     * Set the flag controlling the selection markers display
+     *
+     * @param markSelection flag
      */
     public void setMarkSelection(boolean markSelection) {
         this.markSelection = markSelection;
     }
 
+    /**
+     * Getter for the flag controlling the selection makers display
+     *
+     * @return flag
+     */
     public boolean doMarkSelection() {
         return markSelection;
     }
 
+    /**
+     * Get the currently selected wells
+     *
+     * @return currently selected wells
+     */
     public Collection<Well> getWellSelection() {
         return selection;
     }
 
+    /**
+     * Set the well selection
+     *
+     * @param selection replacing the previous one
+     */
     public void setWellSelection(Collection<Well> selection) {
         this.selection = selection;
     }
 
     /**
-     * Helpers for selection handling
+     * Update the well selection
+     *
+     * @param well to be updated (removed or added)
      */
     public void updateWellSelection(Well well) {
         Collection<Well> currentSelection = getWellSelection();
@@ -569,16 +800,30 @@ public class HeatMapModel implements HiLiteListener {
         setWellSelection(currentSelection);
     }
 
+    /**
+     * Update the current well selection
+     *
+     * @param wells to be updated
+     */
     public void updateWellSelection(List<Well> wells) {
         for (Well well : wells) {
             updateWellSelection(well);
         }
     }
 
+    /**
+     * Clear the well selection
+     */
     public void clearWellSelection() {
         this.selection.clear();
     }
 
+    /**
+     * Check a plate if it figures in the current selection
+     *
+     * @param plate to check
+     * @return flag
+     */
     public boolean isPlateSelected(Plate plate) {
         for (Well well : plate.getWells()) {
             if ( isWellSelected(well) ) { return true; }
@@ -586,6 +831,12 @@ public class HeatMapModel implements HiLiteListener {
         return false;
     }
 
+    /**
+     * Check a well if it figures in the current selection
+     *
+     * @param well to check
+     * @return flag
+     */
     public boolean isWellSelected(Well well) {
         if ( (selection == null) || selection.isEmpty() )
             return false;
@@ -599,19 +850,34 @@ public class HeatMapModel implements HiLiteListener {
         return false;
     }
 
+
     /**
-     * Knime Hiliting
+     * Getter for the {@link org.knime.core.node.NodeModel}s
+     * HiliteHandler
+     *
+     * @return Hilite handler from the node
      */
     public HiLiteHandler getHiLiteHandler() {
         return hiLiteHandler;
     }
 
+    /**
+     * Set the HiLiteHandler
+     *
+     * @param hiLiteHandler from the node
+     */
     public void setHiLiteHandler(HiLiteHandler hiLiteHandler) {
         this.hiLiteHandler = hiLiteHandler;
 
 
     }
 
+    /**
+     * Check if a {@link HiLiteHandler} was passed on from the
+     * {@link org.knime.core.node.NodeModel}
+     *
+     * @return flag
+     */
     public boolean hasHiLiteHandler() {
         return this.hiLiteHandler != null;
     }
@@ -650,35 +916,73 @@ public class HeatMapModel implements HiLiteListener {
         this.fireModelChanged();
     }
 
+    /**
+     * Get the currently hilited wells
+     *
+     * @return hilited wells
+     */
     public Collection<Well> getHiLite() {
         return hiLite;
     }
 
+    /**
+     * Set the collection of currently hilited wells
+     *
+     * @param hiLite new set of hilited wells replacing the current one
+     */
     public void setHiLite(Collection<Well> hiLite) {
         this.hiLite = hiLite;
     }
 
+    /**
+     * Add a Collection of wells to the current hilites
+     *
+     * @param wells to add to the hilite
+     */
     public void addHilLites(Collection<Well> wells) {
         this.hiLite.addAll(wells);
-
     }
 
+    /**
+     * Add a well to the current hilites
+     *
+     * @param well to add to the current hilites
+     */
     public void addHilLites(Well well) {
         this.hiLite.add(well);
     }
 
+    /**
+     * Remove a Collection of wells from the current hilites
+     *
+     * @param wells to remove from the current hilites
+     */
     public void removeHilLites(Collection<Well> wells) {
         this.hiLite.removeAll(wells);
     }
 
+    /**
+     * Remove a well from the current hilites
+     *
+     * @param well to remove from the hilites
+     */
     public void removeHiLite(Well well) {
         this.hiLite.remove(well);
     }
 
+    /**
+     * Clear the current hilites
+     */
     public void clearHiLites() {
         this.hiLite.clear();
     }
 
+    /**
+     * Check for a plate if it is hilited
+     *
+     * @param plate to check for
+     * @return flag
+     */
     public boolean isPlateHiLited(Plate plate) {
         for (Well well : plate.getWells()) {
             if ( isWellHiLited(well) ) { return true; }
@@ -686,6 +990,12 @@ public class HeatMapModel implements HiLiteListener {
         return false;
     }
 
+    /**
+     * Check for a well if it is hilited
+     *
+     * @param well to check for
+     * @return flag
+     */
     public boolean isWellHiLited(Well well) {
         if ( (hiLite == null) || hiLite.isEmpty() )
             return false;
@@ -699,56 +1009,109 @@ public class HeatMapModel implements HiLiteListener {
         return false;
     }
 
+    /**
+     * Set the hilite display modus
+     *
+     * @param mode to update to
+     */
     public void setHiLiteDisplayModus(HiLiteDisplayMode mode) {
         this.hiLiteDisplayModus = mode;
     }
 
 
     /**
-     * Plate Filtering.
+     * Set the filter string
+     *
+     * @param fs filter string
      */
     public void setPlateFilterString(String fs) {
         this.plateFilterString = fs;
     }
 
-
+    /**
+     * Set the attribute which is used for plate filtering
+     *
+     * @param fa filtering attribute
+     */
     public void setPlateFilterAttribute(PlateAttribute fa) {
         this.plateFilterAttribute = fa;
     }
 
 
     /**
-     * Trellis grid configuration.
+     * Get the flag controlling how the number of rows and columns
+     * are determined (the only alternative is manual configuration)
+     *
+     * @return flag
      */
-    public boolean getAutomaticTrellisConfiguration() {
+    public boolean isAutomaticTrellisConfiguration() {
         return automaticTrellisConfiguration;
     }
 
+    /**
+     * Set the flag controlling how the number of rows and columns
+     * of the heatmap trellis are determined
+     *
+     * @param flag to updated to
+     */
     public void setAutomaticTrellisConfiguration(boolean flag) {
         this.automaticTrellisConfiguration = flag;
     }
 
+    /**
+     * Get the number of heatmap trellis rows
+     *
+     * @return number of rows
+     */
     public Integer getNumberOfTrellisRows() {
         return numberOfTrellisRows;
     }
 
+    /**
+     * Set the number of heatmap trellis rows
+     *
+     * @param numberOfTrellisRows to set
+     */
     public void setNumberOfTrellisRows(int numberOfTrellisRows) {
         this.numberOfTrellisRows = numberOfTrellisRows;
     }
 
+    /**
+     * Get the number of heatmap trellis columns
+     *
+     * @return number of columns
+     */
     public Integer getNumberOfTrellisColumns() {
         return numberOfTrellisColumns;
     }
 
+    /**
+     * Set the number of heatmap trellis columns
+     *
+     * @param numberOfTrellisColumns to set to
+     */
     public void setNumberOfTrellisColumns(int numberOfTrellisColumns) {
         this.numberOfTrellisColumns = numberOfTrellisColumns;
     }
 
+    /**
+     * Update the heatmap trellis configuration
+     *
+     * @param rows number of rows
+     * @param columns number of columns
+     * @param flag true->automatic, false->manual configuration
+     */
     public void updateTrellisConfiguration(int rows, int columns, boolean flag) {
         this.setAutomaticTrellisConfiguration(flag);
         updateTrellisConfiguration(rows, columns);
     }
 
+    /**
+     * Update the heatmap trellis configuration
+     *
+     * @param rows number of rows
+     * @param columns number of columns
+     */
     public void updateTrellisConfiguration(int rows, int columns) {
         this.setNumberOfTrellisRows(rows);
         this.setNumberOfTrellisColumns(columns);
@@ -756,50 +1119,84 @@ public class HeatMapModel implements HiLiteListener {
 
 
     /**
-     * Plate propotions.
+     * Get the flag that determines if the plates are rigid and
+     * have real world proportions or if the plate size is determined
+     * to fill out the space of the trellis as good as possible.
+     *
+     * @return flag
      */
     public boolean isFixedPlateProportion() {
         return fixPlateProportions;
     }
 
+    /**
+     * Set the flag that determines if the plates are rigid and
+     * have real world proportions or if the plate size is determined
+     * to fill out the space of the trellis as good as possible.
+     *
+     * @param plateDimensionMode true->fixed/rigid/real proportions, false->elastic proportions
+     */
     public void setPlateProportionMode(boolean plateDimensionMode) {
         this.fixPlateProportions = plateDimensionMode;
     }
 
 
     /**
-     * Reference populations.
+     * Get the reference populations
+     *
+     * @return attribute values of the population
      */
     public String[] getReferencePopulationNames() {
         if ( (referencePopulations == null) || referencePopulations.isEmpty() )
             return null;
 
-        return referencePopulations.get(getReferencePopulationParameter());
+        return referencePopulations.get(getReferencePopulationAttribute());
     }
 
-    public String getReferencePopulationParameter() {
+    /**
+     * Get the attribute used to identify the populations
+     *
+     * @return attribute name
+     */
+    public String getReferencePopulationAttribute() {
         if ( (referencePopulations == null) || referencePopulations.isEmpty() )
             return null;
 
         return (String) referencePopulations.keySet().toArray()[0];
     }
 
+    /**
+     * Get all the reference population information.
+     *
+     * @return attribute name and list of population identification values
+     */
     public HashMap<String, String[]> getReferencePopulations() {
         return this.referencePopulations;
     }
 
+    /**
+     * Set the reference population information
+     *
+     * @param referencePopulations contains attribute name and list of population identification values
+     */
     public void setReferencePopulations(HashMap<String, String[]> referencePopulations) {
         this.referencePopulations = referencePopulations;
     }
 
 
     /**
-     * Global color scaling.
+     * Get the flag controlling if the color scaling is done globally or for the data of each viewer
+     *
+     * @return flag
      */
     public boolean isGlobalScaling() {
         return globalScaling;
     }
 
+    /**
+     * Set the flag controlling if the color scaling is done globally or for the data of each viewer
+     * @param globalScaling
+     */
     public void setGlobalScaling(boolean globalScaling) {
         this.globalScaling = globalScaling;
     }

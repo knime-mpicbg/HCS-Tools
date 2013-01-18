@@ -230,7 +230,7 @@ public class ColorGradientDialog extends JDialog {
     private HashMap<String, Double[]> getDescriptors() {
         DescriptiveStatistics stats = new DescriptiveStatistics();
         String readout = heatMapModel.getSelectedReadOut();
-        String factor = heatMapModel.getReferencePopulationParameter();
+        String factor = heatMapModel.getReferencePopulationAttribute();
         String[] groups = heatMapModel.getReferencePopulationNames();
         HashMap<String, Double[]> groupDescriptors = new HashMap<String, Double[]>();
         for (String group : groups) {
