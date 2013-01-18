@@ -17,6 +17,7 @@ import java.util.List;
  *
  * @author Holger Brandl
  */
+
 public class Well implements Serializable {
 
     /** Well position on the {@link Plate} */

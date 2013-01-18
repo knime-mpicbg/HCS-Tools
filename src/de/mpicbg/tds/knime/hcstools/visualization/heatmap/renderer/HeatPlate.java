@@ -17,25 +17,35 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Well;
 import info.clearthought.layout.TableLayout;
 
 /**
- * @author Holger Brandl
- *
  * Implements a more detailed view for a single plate which also includes compounds, concentration, etc.
  * Replaces PlateDetailsHeatMap
  * TODO: clean out commented methods.
+ *
+ * @author Holger Brandl, Felix Meyenhofer
  */
 
 public class HeatPlate extends JPanel implements MouseListener {
 
-    // The well size determines the heat map size (panel) and influences the PlateViewers size.
+    /** The well size determines the heat map size (panel) and influences the PlateViewers size */
     public final int WELL_SIZE = 22;
 
-    // Component fields.
+    /** Data model */
     private HeatMapModel heatMapModel;
+    /** Container for the assignment Well to HeatWell (renderer) */
     Map<Well, HeatWell> wellPanelGrid = new HashMap<Well, HeatWell>();
+
+    /** Component where the mouse was pressed on */
+    private Component pressedComponent;
+    /** Component the mouse entered */
+    private Component currentComponent;
+    /** List of HeatWells from the previous selection */
+    private List<HeatWell> previousPreSelection = new ArrayList<HeatWell>();
+    /** Flag to know if the mouse was released or is dragging */
+    private boolean drag = false;
 
 
     /**
-     * Constructor
+     * Constructor a plate heatmap
      */
     public HeatPlate(PlateViewer parent, Plate plate) {
         this.heatMapModel = parent.getHeatMapModel();
@@ -107,21 +117,10 @@ public class HeatPlate extends JPanel implements MouseListener {
     }
 
 
-//    public void setSelection(Collection<Well> highlightWells) {
-//        for (Well highlightWell : highlightWells) {
-//            wellPanelGrid.get(highlightWell).setSelected(true);
-//        }
-//    }
-
-
-//    public void showGrid(boolean doShowGrid) {
-//        for (HeatWell heatWellPanel : wellPanelGrid.values()) {
-//            heatWellPanel.setShowGrid(doShowGrid);
-//        }
-//    }
-
     /**
-     * Helper methods for the heatmap selection with the mouse on the trellis
+     * Returns the list of available {@link HeatWell}s
+     *
+     * @return list of HeatWells
      */
     private List<HeatWell> getHeatWells() {
         Component[] components = this.getComponents();
@@ -135,6 +134,13 @@ public class HeatPlate extends JPanel implements MouseListener {
         return heatWells;
     }
 
+    /**
+     * Finds the HeatWells included in the square defined by mouse drag start and stop
+     *
+     * @param start point of the mouse drag
+     * @param stop point of the mouse drag
+     * @return List of selected HeatWells
+     */
     private List<HeatWell> calculateHeatWellSelection(Component start, Component stop) {
         List<HeatWell> components = getHeatWells();
 
@@ -160,17 +166,12 @@ public class HeatPlate extends JPanel implements MouseListener {
     }
 
 
-    /**
-     * MouseListener stuff and helper methods.
-     */
-    private Component pressedComponent;
-    private Component currentComponent;
-    private List<HeatWell> previousPreSelection = new ArrayList<HeatWell>();
-    private boolean drag = false;
 
+    /** {@inheritDoc} */
     @Override
     public void mouseClicked(MouseEvent mouseEvent) { /** Do Nothing */ }
 
+    /** {@inheritDoc} */
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
         // Left click selection action.
@@ -190,6 +191,7 @@ public class HeatPlate extends JPanel implements MouseListener {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void mouseReleased(MouseEvent mouseEvent) {
         // Mouse released is used only in the selection process, thus only listens to the first mouse button
@@ -214,6 +216,7 @@ public class HeatPlate extends JPanel implements MouseListener {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void mouseEntered(MouseEvent mouseEvent) {
         // Register the map the mouse pointer last skidded in.
@@ -242,6 +245,7 @@ public class HeatPlate extends JPanel implements MouseListener {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void mouseExited(MouseEvent mouseEvent) { /** Do Nothing */ }
 
