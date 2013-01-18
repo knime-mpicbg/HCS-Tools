@@ -11,42 +11,57 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.LinearGradientTo
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.RescaleStrategy;
 
 /**
- * User: Felix Meyenhofer
- * Date: 12/8/12
- * Time: 1:35
- *
  * Colorbar to integrate in a heatmap frame.
  * TODO: When changing the orientation of the toolbar, the layout should be changed and the color gradient rotated.
+ *
+ * @author Felix Meyenhofer
+ *         12/8/12
  */
 
 public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeListener {
 
+    /** Data model */
     private HeatMapModel heatMapModel;
+    /** Color map */
     private LinearGradientTools.ColorGradientPanel gradientPanel;
+    /** Label for the lower bound of the color scale */
     private JLabel minLabel = new JLabel("min");
+    /** Label for mean of the color scale */
     private JLabel medLabel = new JLabel("middle");
+    /** Label for the upper bound of the color scale */
     private JLabel maxLabel = new JLabel("max");
 
+    /** Formating of the scale labels */
     public static final DecimalFormat scienceFormat = new DecimalFormat("0.###E0");
     public static final DecimalFormat basicFormat = new DecimalFormat("######.###");
 
 
-    // Constructors
+    /**
+     * Constructor for the initialization of the toolbar
+     */
     public HeatMapColorToolBar() {
         initialize();
     }
 
+    /**
+     * Constructor for the initialization and the configuration of the toolbar
+     *
+     * @param model delivering the data
+     */
     public HeatMapColorToolBar(HeatMapModel model) {
         this();
         configure(model);
     }
 
+    /** {@inheritDoc} */
+    @Override
     public void modelChanged() {
         if (isVisible() && getWidth() > 0) {
             repaint();
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     protected synchronized void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
@@ -69,6 +84,9 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         maxLabel.setText(format(maxValue));
     }
 
+    /**
+     * Initialization of the UI components
+     */
     private void initialize() {
         // Create a panel with the labels for the colorbar.
         JPanel labelPanel = new JPanel();
@@ -125,11 +143,22 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         add(emptyLabel, constraints);
     }
 
+    /**
+     * Configuration of the UI components
+     *
+     * @param model delivering the data
+     */
     public void configure(HeatMapModel model) {
         heatMapModel = model;
         heatMapModel.addChangeListener(this);
     }
 
+    /**
+     * Return a formated string of the scale value
+     *
+     * @param value for a label
+     * @return string representing the value
+     */
     public static String format(double value) {
         if (value == 0) {
             return basicFormat.format(value);
@@ -140,6 +169,10 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
     }
 
 
+    /**
+     * Quick testing
+     * @param args whatever
+     */
     public static void main(String[] args) {
         HeatMapColorToolBar toolBar = new HeatMapColorToolBar(new HeatMapModel());
         JFrame frame = new JFrame();
