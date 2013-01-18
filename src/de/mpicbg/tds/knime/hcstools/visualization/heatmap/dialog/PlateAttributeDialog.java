@@ -16,28 +16,43 @@ import java.util.*;
 import java.util.List;
 
 /**
- * User: Felix Meyenhofer
- * Date: 12/12/12
+ * Small dialog to select plate attributes for plate sorting
  *
- * Small dialog to select plate attributes.
+ * @author Felix Meyenhofer
+ *         12/12/12
  */
 
 public class PlateAttributeDialog extends JDialog {
 
-    private TreeMap<Integer, String> selection = new TreeMap<Integer, String>();
+    /** Data model */
     private HeatMapModel heatMapModel;
-    private JTable table;
-    private String[][] tableData = new String[3][2];
-    private ListSelectionModel listSelectionModel;
-    private JRadioButton descending;
 
+    /** Attribute Names in the order of selection */
+    private TreeMap<Integer, String> selection = new TreeMap<Integer, String>();
+    /** Table with the selection order and the attribute name */
+    private JTable table;
+    /** Data of the table */
+    private String[][] tableData = new String[3][2];
+    /** Selection listener of the table */
+    private ListSelectionModel listSelectionModel;
+    /** Radio button to determine the sorting direction */
+    private JRadioButton descending;
+    /** Column names of the table */
     private static final String[] columnNames = {"order", "Attribute"};
 
 
+    /**
+     * Constructor for testing
+     */
     public PlateAttributeDialog() {
         this(null);
     }
 
+    /**
+     * Dialog constructor
+     *
+     * @param model data model
+     */
     public PlateAttributeDialog (HeatMapModel model) {
         heatMapModel = model;
         setSize(new Dimension(300, 270));
@@ -50,15 +65,24 @@ public class PlateAttributeDialog extends JDialog {
     }
 
 
+    /**
+     * Action called on pressing the ok button
+     */
     private void onOK() {
         selection = getSelectionFromTable();
         dispose();
     }
 
+    /**
+     * Action called on pressing the cancel button
+     */
     private void onCancel() {
         dispose();
     }
 
+    /**
+     * initialization of the UI components
+     */
     private void initialize() {
         // Ok and cancel buttons
         JPanel buttonPanel = new JPanel();
@@ -121,6 +145,7 @@ public class PlateAttributeDialog extends JDialog {
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }
@@ -128,16 +153,27 @@ public class PlateAttributeDialog extends JDialog {
 
         // call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 onCancel();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
+    /**
+     * Getter of the selection status of the radiobutton
+     *
+     * @return selection status
+     */
     public boolean isDescending() {
         return descending.isSelected();
     }
 
+    /**
+     * Returns the selected attribute names
+     *
+     * @return list of selected attribute names
+     */
     public String[] getSelectedAttributeTitles() {
         String[] attributes = new String[selection.size()];
         int index = 0;
@@ -147,6 +183,11 @@ public class PlateAttributeDialog extends JDialog {
         return attributes;
     }
 
+    /**
+     * Returns the treemap with the selected attributes in the order of selection
+     *
+     * @return ordered selection
+     */
     public TreeMap<Integer, String> getSelectionFromTable() {
         TreeMap<Integer, String> sel = new TreeMap<Integer, String>();
         for (int i=0; i<table.getRowCount(); i++) {
@@ -157,6 +198,11 @@ public class PlateAttributeDialog extends JDialog {
         return sel;
     }
 
+    /**
+     * Create the attribute table
+     *
+     * @return scrollable table
+     */
     private JScrollPane createTable() {
         DefaultTableModel model = new DefaultTableModel(tableData, columnNames);
         table = new JTable(model){
@@ -176,6 +222,9 @@ public class PlateAttributeDialog extends JDialog {
         return pane;
     }
 
+    /**
+     * Configure the attribute table
+     */
     private void configureTable() {
 
         if ( !(heatMapModel == null) ) {
@@ -216,6 +265,11 @@ public class PlateAttributeDialog extends JDialog {
     }
 
 
+    /**
+     * Quick testing
+     *
+     * @param args whatever
+     */
     public static void main(String[] args) {
         PlateAttributeDialog dialog = new PlateAttributeDialog();
         dialog.setVisible(true);
@@ -223,9 +277,13 @@ public class PlateAttributeDialog extends JDialog {
     }
 
 
-
+    /**
+     * Selection handler
+     */
     private class SelectionHandler implements ListSelectionListener {
 
+        /** {@inheritDoc} */
+        @Override
         public void valueChanged(ListSelectionEvent event) {
             ListSelectionModel lsm = (ListSelectionModel) event.getSource();
 
