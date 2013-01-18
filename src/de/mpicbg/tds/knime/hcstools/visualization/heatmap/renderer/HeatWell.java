@@ -7,47 +7,44 @@ import java.awt.event.*;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.WellViewer;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.ColorScheme;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Conventions;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Well;
 
 /**
- * @author Holger Brandl
- *
  * A JPanel which renders a detailed view on a single well within a heat-map.
  * replaces HeatWellPanel
- * TODO: clean out commented methods.
- * TODO: reintegrate the well detail panel.
+ *
+ * @author Holger Brandl
  */
 
 public class HeatWell extends JPanel {
 
+    /** Data model with the stuff for display */
     private Well well;
+
+    /** Data model of the entire UI */
     private HeatMapModel heatMapModel;
 
+    /** Stroke width of the overlay */
     public static int STROKE_WIDTH = 3;
     public static BasicStroke overlayStroke = new BasicStroke(STROKE_WIDTH);
-//    private boolean isSelected;
+
+    /** flag for the plate grid */
     private boolean showGrid = false;
+    /** flag for pre-selection */
     protected boolean isPreselected = false;
 
 
+    /**
+     * Constructor of the one colored well
+     *
+     * @param well data for display
+     * @param heatMapModel data model of the entire UI
+     */
     public HeatWell(final Well well, HeatMapModel heatMapModel) {
         super();
 
         this.well = well;
         this.heatMapModel = heatMapModel;
-
-//        // Mouse listener for the well details view. A well details dialog is opened with a double click
-//        addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent mouseEvent) {
-//                // Open well detail panel on right click.
-//                if (mouseEvent.getButton() == MouseEvent.BUTTON3) {
-//                    openNewWellViewer();
-//                    mouseEvent.consume();
-//                }
-//            }
-//        });
 
         // Mouse listener for the tooltip, which is the well details.
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -60,14 +57,13 @@ public class HeatWell extends JPanel {
     }
 
 
+    /**
+     * Open a new well details view
+     *
+     * @param position from where the command was fired
+     * @see {@link WellViewer}
+     */
     protected void openNewWellViewer(Point position) {
-//        JDialog jDialog = new JDialog(getParentDialog(this), false);
-////        jDialog.add(new WellDetailPanel(this.well));
-//
-//        Random random = new Random();
-//        jDialog.setBounds(random.nextInt(100) + 200, random.nextInt(100) + 200, 300, 500);
-//        jDialog.setVisible(true);
-
         // A small window, to show that something is happening, since it might take a moment to retrieve the images.
         // TODO wait until this is rendered
         JWindow window = new JWindow();
@@ -83,9 +79,6 @@ public class HeatWell extends JPanel {
         // Create the WellViewer
         WellViewer wellViewer = new WellViewer(this, well);
         final JDialog viewer = wellViewer.createDialog();
-//        viewer.setLocation(random.nextInt(100) + 200, random.nextInt(100) + 200);
-//        viewer.setBounds(random.nextInt(100) + 200, random.nextInt(100) + 200, 300, 500);
-//        viewer.pack();
 
         // Make sure the dialog exits if the PlateViewer is closed.
         viewer.setVisible(true);
@@ -99,59 +92,28 @@ public class HeatWell extends JPanel {
         window.setVisible(false);
     }
 
+    /**
+     * Getter for the displayed data
+     *
+     * @return data in display
+     */
     public Well getWell() {
         return well;
     }
 
-//    public void setSelected(boolean isSelected) {
-//        this.isSelected = isSelected;
-//        repaint();
-//    }
-
-//    public void setShowGrid(boolean showGrid) {
-//        this.showGrid = showGrid;
-//    }
-
-//    public static Dialog getParentDialog(Container component) {
-//        while (component != null) {
-//            if (component instanceof JDialog) {
-//                return (Dialog) component;
-//            }
-//
-//            component = component.getParent();
-//        }
-//
-//        return null;
-//    }
-
-//    public static Container getParentContainer(Container component) {
-//        while (component != null) {
-//            if (component instanceof JDialog || component instanceof JFrame) {
-//                return component;
-//            }
-//
-//            component = component.getParent();
-//        }
-//
-//        return null;
-//    }
-
-
+    /** {@inheritDoc} */
     @Override
     public JToolTip createToolTip() {
         JToolTip jToolTip = new JToolTip();
         jToolTip.setLayout(new BorderLayout());
-//        jToolTip.setPreferredSize(new Dimension(350, 500));
         WellViewer wellDetailsPanel = new WellViewer(well);
-
-//        WellDetailPanel wellDetailsPanel = new WellDetailPanel(well);
         jToolTip.add(wellDetailsPanel, BorderLayout.CENTER);
         jToolTip.setPreferredSize(wellDetailsPanel.getPreferredSize());
 
         return jToolTip;
     }
 
-
+    /** {@inheritDoc} */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -161,7 +123,6 @@ public class HeatWell extends JPanel {
         if (isPreselected) {
             setBackground(ColorScheme.SELECTING);
             return;
-//            setOpaque(true);
         }
 
         // Border handling.
