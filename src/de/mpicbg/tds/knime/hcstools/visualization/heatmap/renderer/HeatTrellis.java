@@ -17,40 +17,55 @@ import java.util.*;
 import java.util.List;
 
 /**
- * User: Felix Meyenhofer
- * Date: 11/27/12
+ * A panel to create a trellis of plate heat-maps.
  *
- * A panel to create a trellis of plate heat-maps, a toolbar to select what readout to display and another toolbar
- * containing the color-bar.
- *
- * TODO: Clean out the commented methods.
+ * @author Felix Meyenhofer
+ *         11/27/12
  */
 
 public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, MouseListener {
 
-    // Panel size factors
+    /** Minimal heatmap width */
     public final int MIN_HEATMAP_WIDTH = 80;
+    /** Gap between heatmaps */
     public final int cellGap = 5;
 
-    // The current heatmap size (width/height = 1.5 is the real microtiter plate proportions)
-    private int HEATMAP_WIDTH = 180;
-    private int HEATMAP_HEIGHT = 120;
+    /** The current heatmap size (width/height = 1.5 is the real microtiter plate proportions) */
+        /** Heatmap width */
+        private int HEATMAP_WIDTH = 180;
+        /** heatmap height */
+        private int HEATMAP_HEIGHT = 120;
+        /** Preferred heatmap width */
+        private int PREFERRED_WITH = 600;
+        /** Preferred heatmap height */
+        private int PREFERRED_HEIGHT = 400;
 
-    private int PREFERRED_WITH = 600;
-    private int PREFERRED_HEIGHT = 400;
-
-    // Component fields.
+    /** Data model */
     public HeatMapModel heatMapModel;
-    private JPanel heatMapsContainer;
-    private JScrollPane heatMapScrollPane;
-    private JPanel containerPositioner;
 
-    // List of PlateViewers.
+    /** Collector container for all the heatmaps */
+    private JPanel heatMapsContainer;
+    /** Panel that is is buffer between the {@link #heatMapsContainer} and the {@link #heatMapScrollPane}
+     * allowing the constraint of the real plate proportions */
+    private JPanel containerPositioner;
+    /** Scrollpane around the heatmap trellis. */
+    private JScrollPane heatMapScrollPane;
+
+    /** Container for all the child views */
     public Map<UUID, PlateViewer> plateViewers = new HashMap<UUID, PlateViewer>();
+
+    /** Heatmap where the mouse draggig started */
+    private HeatScreen pressedHeatMap;
+    /** Heatmap where the mouse is just dragging accross */
+    private HeatScreen currentHeatMap;
+    /** Flag to recognise dragging events */
+    private boolean drag = false;
+    /** List of the previously selected heatmpas */
+    private List<HeatScreen> previousPreSelection = new ArrayList<HeatScreen>();
 
 
     /**
-     *  Constructors
+     *  Constructor for initialization
      */
     public HeatTrellis() {
         initialize();
@@ -74,20 +89,18 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         new PanelImageExporter(this, true);
     }
 
+    /**
+     * Constructor for initialization and configuration of the UI components.
+     *
+     * @param model devlivering the data
+     */
     public HeatTrellis(HeatMapModel model) {
         this();
         configure(model);
     }
 
 
-    public HeatMapModel getHeatMapModel() {
-        return this.heatMapModel;
-    }
-
-
-    /**
-     * HeatMapModelChangeListener method.
-     */
+    /** {@inheritDoc} */
     @Override
     public void modelChanged() {
         if (isVisible() && getWidth() > 0) {
@@ -95,16 +108,28 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         }
     }
 
+    /**
+     * Accessor for the data model
+     *
+     * @return data model
+     */
+    public HeatMapModel getHeatMapModel() {
+        return this.heatMapModel;
+    }
 
     /**
-     * GUI creation helpers
+     * Configuration of the UI components
+     *
+     * @param model delivering the data.
      */
     public void configure(HeatMapModel model) {
         this.heatMapModel = model;
         heatMapModel.addChangeListener(this);
-//        this.setPlates(plates);
     }
 
+    /**
+     * Initialization of the UI components
+     */
     private void initialize() {
         heatMapsContainer = new JPanel();
         heatMapsContainer.setPreferredSize(new Dimension(PREFERRED_WITH-10,PREFERRED_HEIGHT-10));
@@ -130,33 +155,9 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         add(heatMapScrollPane, BorderLayout.CENTER);
     }
 
-//    public void setPlates(List<Plate> plates) {
-//        if ( plates == null ) {
-//            return;
-//        }
-//
-//        heatMaps = new ArrayList<HeatScreen>();
-//        for (Plate plate : plates) {
-//            heatMaps.add(new HeatScreen(plate, heatMapModel));
-//        }
-//
-//        // pre-configure the heatmap configuration model
-////        heatMapModel.setScreen(plates);
-//        parsePlateBarCodes();
-////        toolbar.configure(heatMapModel);
-////        colorbar.configure(heatMapModel); // Careful the toolbar has to be configured first, since the colorbar needs the readout for its configuration.
-//    }
-
-//    public List<HeatScreen> getHeatMaps() {
-//        return heatMaps;
-//    }
-//
-//    public void setHeatMaps(List<HeatScreen> heatMaps) {
-//        this.heatMaps = heatMaps;
-//    }
-
     /**
      * Method to scale up and down the heatmaps.
+     *
      * @param zoomFactor zoom or scale factor applied to the heatmap size
      */
     public void zoom(double zoomFactor) {
@@ -169,13 +170,10 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         repopulatePlateGrid();
     }
 
-
     /**
      * Creating the heatmap trellis (renderer)
      */
     private void repopulatePlateGrid() {
-//            sortHeatmaps();
-//        List<HeatScreen> heatmapSelection = getFilteredHeatMap();
         List<HeatScreen> heatmapSelection = createHeatMaps();
 
         // Figure out how many rows an columns are needed.
@@ -188,10 +186,6 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
 
         // Recalculate the Table layout of the heatMapContainer panel.
         numColumns = updateTrellisTableLayout(numRows, numColumns);
-
-//        // track changes of the batch; this allows to alter the background color of the heatmaps
-//        String lastBatchName = "bubabuba";
-//        Color batchBcknd = Color.GRAY;
 
         // populate the view with plates
         int plateNameFontSize = Utils.isWindowsPlatform() ? 8 : 12;
@@ -235,16 +229,6 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
             // Truncate the barcode.
             titledBorder.setTitle(truncateBarcode(plate.getBarcode(), plateContainer.getFontMetrics(barcodeFont)));
 
-//            // change the background according to the batch
-//            String curBatchName = plate.getBatchName();
-//            if (curBatchName != null) {
-//                if ((curBatchName == null && lastBatchName != null) || !curBatchName.equals(lastBatchName)) {
-//                    lastBatchName = curBatchName;
-//                    batchBcknd = batchBcknd.equals(Color.GRAY) ? Color.LIGHT_GRAY : Color.GRAY;
-//                }
-//            }
-//            plateContainer.setBackground(batchBcknd);
-
             plateContainer.add(heatMapPanel, BorderLayout.CENTER);
             heatMapsContainer.add(plateContainer, gridPosition);
         }
@@ -265,10 +249,12 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         repaint();
     }
 
-
-
     /**
-     * Helper methods for repopulatePlateGrid
+     * Truncating the barcodes if they are too long for the heatmaps
+     *
+     * @param barcode string representing the barcode
+     * @param metric barcode string font metrics
+     * @return truncated barcode
      */
     private String truncateBarcode(String barcode, FontMetrics metric) {
         if ( metric.stringWidth(barcode) >= HEATMAP_WIDTH ) {
@@ -281,16 +267,15 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         return barcode;
     }
 
+    /**
+     * Compute the size of the trellis
+     *
+     * @param numberOfPlates total number of rendered plates
+     * @return [width height]
+     */
     private int[] calculateTrellisDimensions(int numberOfPlates) {
         int numRows, numColumns;
         if ( heatMapModel.getAutomaticTrellisConfiguration() ) {
-//            JPanel firstPlate = getFistPlate();
-//            int plateWidth;
-//            if ( !(firstPlate == null) && firstPlate.getWidth() > HEATMAP_WIDTH) {
-//                plateWidth = firstPlate.getWidth();
-//            } else {
-//                plateWidth = HEATMAP_WIDTH;
-//            }
             numColumns = (int) Math.floor(getWidth() *1.0 / (HEATMAP_WIDTH + cellGap) );
             numRows = (int) Math.ceil(numberOfPlates/ (double) numColumns);
             heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -307,6 +292,11 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         return new int[]{numRows, numColumns};
     }
 
+    /**
+     * Returns the first HeatScreen (plate)
+     *
+     * @return first plate of the trellis
+     */
     private JPanel getFistPlate() {
         try {
             return (JPanel) heatMapsContainer.getComponent(0);
@@ -315,6 +305,13 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         }
     }
 
+    /**
+     * Update the table layout of the {@link #heatMapsContainer}
+     *
+     * @param numRows number of rows
+     * @param numColumns number of columns
+     * @return new number of columns
+     */
     private int updateTrellisTableLayout(int numRows, int numColumns) {
 
         double[] columnConfig = new double[numColumns];
@@ -343,6 +340,14 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         return numColumns;
     }
 
+    /**
+     * Recalculate the {@link #heatMapsContainer} dimensions
+     *
+     * @param numRows number of rows in the trellis
+     * @param numColumns number of columns in the trellis
+     * @param hmarging horizontal margin
+     * @param vmarging vertical margin
+     */
     private void updateContainerDimensions(int numRows, int numColumns, int hmarging, int vmarging) {
         int containerWidth = numColumns * HEATMAP_WIDTH + (numColumns-1) * cellGap + hmarging * numColumns;
         int containerHeight = numRows * HEATMAP_HEIGHT + (numRows - 1) * cellGap + vmarging * numRows;
@@ -364,35 +369,23 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         }
     }
 
+    /**
+     * Recalculate the {@link #heatMapsContainer} dimensions (without margins)
+     *
+     * @param numRows number of rows in the trellis
+     * @param numColumns number of columns in the trellis
+     */
     private void updateContainerDimensions(int numRows, int numColumns) {
         updateContainerDimensions(numRows, numColumns, 0, 0);
     }
 
-//        private void sortHeatmaps() {
-//            heatMaps.clear();
-//            List<Plate> plates = heatMapModel.getScreen();
-//            heatMaps = new ArrayList<HeatScreen>();
-//            for (Plate plate : plates) {
-//                heatMaps.add(new HeatScreen(plate, heatMapModel));
-//            }
-//        }
 
-//    private void parsePlateBarCodes() {
-//        for (HeatScreen heatmap : heatMaps) {
-//            Plate plate = heatmap.getPlate();
-//            if (plate.getScreenedAt() != null) {
-//                continue;
-//            }
-//
-//            try {
-//                Plate.configurePlateByBarcode(plate, BarcodeParserFactory.getAssayPlateBarcodeOLDParser(plate.getBarcode()));
-//            } catch (Throwable t) {
-//                // do nothing here
-////                heatMapViewerMenu.setSortingEnabled(false);
-//            }
-//        }
-//    }
-
+    /**
+     * Fetching the available plate data (not filtered, etc.)
+     * and creating {@link HeatScreen} heatmaps
+     *
+     * @return rendered heatmaps
+     */
     private List<HeatScreen> createHeatMaps() {
         List<HeatScreen> currentHeatMaps = new ArrayList<HeatScreen>();
 
@@ -402,6 +395,11 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         return currentHeatMaps;
     }
 
+    /**
+     * Get the currently displayed heatmaps
+     *
+     * @return list of displayed heatmaps
+     */
     private List<HeatScreen> getHeatMaps() {
         Component[] components = heatMapsContainer.getComponents();
         List<HeatScreen> heatMaps = new ArrayList<HeatScreen>();
@@ -415,46 +413,10 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
 
 
     /**
-     * Handling of the PlateViewer windows
-     */
-    public void closePlateViewers() {
-        for (PlateViewer viewer : plateViewers.values()) {
-            if ( viewer != null) {
-                viewer.getToolkit().getSystemEventQueue().postEvent(new WindowEvent(viewer, WindowEvent.WINDOW_CLOSING));
-                viewer.dispose();
-            }
-        }
-        plateViewers.clear();
-    }
-
-    /**
-     * Handling of the PlateViewer windows
-     */
-    public void bringToFrontPlateViewers() {
-        for (PlateViewer viewer : plateViewers.values()) {
-            if ( viewer != null) {
-                viewer.toFront();
-                viewer.repaint();
-            }
-        }
-    }
-
-
-//    public List<HeatScreen> getFilteredHeatMap() {
-//
-//        List<HeatScreen> heatMapSelection = new ArrayList<HeatScreen>();
-//        for (HeatScreen heatmap : heatMaps) {
-//            Plate plate = heatmap.getPlate();
-//            if(heatMapModel.isSelected(plate)) {
-//                heatMapSelection.add(heatmap);
-//            }
-//        }
-//        return heatMapSelection;
-//    }
-
-
-    /**
-     * Helper methods for the heatmap selection with the mouse on the trellis
+     * Get the heatmap firing the mouseEvent
+     *
+     * @param mouseEvent fired by a heatmap
+     * @return the heatmaps that fired the event
      */
     private HeatScreen getHeatMap(MouseEvent mouseEvent) {
         HeatScreen heatMap = null;
@@ -469,6 +431,38 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         return heatMap;
     }
 
+    /**
+     * Close all the {@link PlateViewer}s opened from this trellis
+     */
+    public void closePlateViewers() {
+        for (PlateViewer viewer : plateViewers.values()) {
+            if ( viewer != null) {
+                viewer.getToolkit().getSystemEventQueue().postEvent(new WindowEvent(viewer, WindowEvent.WINDOW_CLOSING));
+                viewer.dispose();
+            }
+        }
+        plateViewers.clear();
+    }
+
+    /**
+     * Bring all {@link PlateViewer}s produced by this trellis to the front
+     */
+    public void bringToFrontPlateViewers() {
+        for (PlateViewer viewer : plateViewers.values()) {
+            if ( viewer != null) {
+                viewer.toFront();
+                viewer.repaint();
+            }
+        }
+    }
+
+    /**
+     * Calculate the heatmap selection by the mouse drag action
+     *
+     * @param start heatmap the dragging started on
+     * @param stop heatmap where the mouse was released
+     * @return list of the heatmaps included by the square defined by input heatmaps
+     */
     private List<HeatScreen> calculateHeatMapSelection(HeatScreen start, HeatScreen stop) {
         List<HeatScreen> heatmaps = getHeatMaps();
 
@@ -492,18 +486,11 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         return selection;
     }
 
-
-    /**
-     * MouseListener stuff and helper methods.
-     */
-    private HeatScreen pressedHeatMap;
-    private HeatScreen currentHeatMap;
-    private boolean drag = false;
-    private List<HeatScreen> previousPreSelection = new ArrayList<HeatScreen>();
-
+    /** {@inheritDoc} */
     @Override
     public void mouseClicked(MouseEvent mouseEvent) { /** Do Nothing */ }
 
+    /** {@inheritDoc} */
     @Override
     public void mousePressed(MouseEvent mouseEvent) {
         // Left click selection action.
@@ -531,6 +518,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void mouseReleased(MouseEvent mouseEvent) {
         // Mouse released is used only in the selection process, thus only listens to the first mouse button
@@ -551,6 +539,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void mouseEntered(MouseEvent mouseEvent) {
         // Register the map the mouse pointer last skidded in.
@@ -579,6 +568,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void mouseExited(MouseEvent mouseEvent) { /** Do Nothing */ }
 
