@@ -1,12 +1,12 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmap.model;
 
 /**
- * Author: Felix Meyenhofer
- * Date: 12/22/12
- *
  * This class makes the connection between the Plate attribute names and the something readable. It's also a way to
  * what attributes are available (Could not find a decent way to derive this directly form the Plate class.
  * TODO: There is surly a neater way to do this. I don't like the fact, that if the Plate class changes, this might fail...
+ *
+ * @author Felix Meyenofer
+ *         12/22/12
  */
 
 public enum PlateAttribute implements java.io.Serializable {
