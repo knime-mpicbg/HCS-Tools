@@ -18,17 +18,23 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * Menu acting on the {@link HeatTrellis}
+ *
  * @author Felix Meyenhofer
  *         creation: 12/27/12
  */
 
 public class TrellisMenu extends JMenu {
 
+    /** plate heatmap trellis */
     private HeatTrellis heatTrellis;
+    /** data model */
     private HeatMapModel heatMapModel;
+
 
     /**
      * Constructor of the heatmap trellis menu
+     *
      * @param parent a HeatMapViewer object
      */
     public TrellisMenu(ScreenViewer parent) {
@@ -102,8 +108,10 @@ public class TrellisMenu extends JMenu {
         this.add(createHiLiteFilterMenu());
     }
 
+
     /**
      * Returns the HiLite filter sub-menu.
+     *
      * @return sub-menu
      */
     private JMenu createHiLiteFilterMenu() {
@@ -142,7 +150,8 @@ public class TrellisMenu extends JMenu {
     }
 
     /**
-     * Returns a plate viewer menu to coordinate the PlateViewer windos
+     * Returns a plate viewer menu to coordinate the PlateViewer windows
+     *
      * @return plate viewer sub-menu
      */
     private JMenu createPlatViewerMenu() {
@@ -167,7 +176,7 @@ public class TrellisMenu extends JMenu {
 
 
     /**
-     * Actions
+     * Action executed when selecting the sort plate function
      */
     private void sortPlatesAction() {
         PlateAttributeDialog dialog = new PlateAttributeDialog(heatMapModel);
@@ -185,6 +194,9 @@ public class TrellisMenu extends JMenu {
         heatMapModel.setSortAttributeSelectionByTiles(selectedAttributes);
     }
 
+    /**
+     * Row-column configuration action
+     */
     private void rowsColumnsAction() {
         RowColumnDialog dialog = new RowColumnDialog(heatMapModel);
         dialog.setVisible(true);
@@ -192,20 +204,36 @@ public class TrellisMenu extends JMenu {
         heatMapModel.fireModelChanged();
     }
 
+    /**
+     * Action to make the plate heatmaps smaller
+     */
     private void zoomOutAction() {
         heatTrellis.zoom(0.75);
     }
 
+    /**
+     * Action to enlarge the plate heatmaps
+     */
     private void zoomInAction() {
         heatTrellis.zoom(1.25);
     }
 
+    /**
+     * Action to set the flag for the fixed plate dimensions
+     *
+     * @param event fired by the "Fix Plate Dimension" menu item
+     */
     private void plateDimensionsAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
         heatMapModel.setPlateProportionMode(item.isSelected());
         heatMapModel.fireModelChanged();
     }
 
+    /**
+     * Action to control the flag for the global color scale for the heatmaps
+     *
+     * @param event fired by the menu item
+     */
     private void globalScalingAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
 
@@ -230,6 +258,11 @@ public class TrellisMenu extends JMenu {
         }
     }
 
+    /**
+     * Action controlling the HiLite display mode
+     *
+     * @param mode HiLite display modus
+     */
     private void displayModeAction(HeatMapModel.HiLiteDisplayMode mode) {
         heatMapModel.setHiLiteDisplayModus(mode);
         heatMapModel.fireModelChanged();
