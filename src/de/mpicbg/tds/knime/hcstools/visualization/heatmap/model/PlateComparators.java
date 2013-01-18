@@ -3,16 +3,22 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmap.model;
 import java.util.Comparator;
 
 /**
- * User: Felix Meyenhofer
- * Date: 12/13/12
- *
  * Class providing the plate comparators. It's a wrapper class, that groups the Comparators for the Plate class in one
  * location. Furthermore it provides easy selection.
+ *
+ * @author Felix Meyenhofer
+ *         12/13/12
  */
 
 public abstract class PlateComparators {
 
 
+    /**
+     * Constructor accepting the plate attribute as input to choose the correct comparator
+     *
+     * @param type of the attribute
+     * @return attribute comparator
+     */
     public static Comparator<Plate> getComparator(PlateAttribute type){
 
         switch (type) {
