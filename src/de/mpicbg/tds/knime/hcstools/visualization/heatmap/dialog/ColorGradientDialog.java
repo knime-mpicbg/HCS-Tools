@@ -18,23 +18,42 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.LinearGradientTo
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.RescaleStrategy;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
+/**
+ * Dialog to edit the color map
+ *
+ * @author Felix Meyenhofer
+ *         11/22/12
+ */
 
 public class ColorGradientDialog extends JDialog {
 
+    /** Data model */
     private HeatMapModel heatMapModel;
-    private GradientSlider slider;
-    private LinearGradientPaint currentGradient = LinearGradientTools.getStandardGradient("GB");
-    private ArrayList<PopulationPanel> populationIndicators = new ArrayList<PopulationPanel>();
-    private JPanel populationPanel;
 
+    /** Gradient slider component */
+    private GradientSlider slider;
+    /** List of PopulationPanels indicating the range of reference distributions */
+    private ArrayList<PopulationPanel> populationIndicators = new ArrayList<PopulationPanel>();
+    /** Container holding the PopulationPanels */
+    private JPanel populationPanel;
+    /** Label for the minimum value of the colormap */
     private JLabel minLabel = new JLabel("");
+    /** Label for the mean value of the colormap */
     private JLabel medLabel = new JLabel("");
+    /** Label for the maximum value of the population panel */
     private JLabel maxLabel = new JLabel("");
+
+    /** current colormap */
+    private LinearGradientPaint currentGradient = LinearGradientTools.getStandardGradient("GB");
+    /** minimum value of the color scale */
     protected float minScaleValue = 0;
+    /** maximum value of the color scale */
     protected float maxScaleValue = 100;
 
 
-    // Constructors
+    /**
+     * Constructor for initialization
+     */
     public ColorGradientDialog() {
         setContentPane(initialize());
         setTitle("Color Gradient Editor");
@@ -44,13 +63,22 @@ public class ColorGradientDialog extends JDialog {
         setModal(true);
     }
 
+    /**
+     * Constructor for a given data set
+     *
+     * @param model holding the data
+     */
     public ColorGradientDialog(HeatMapModel model) {
         this();
         configure(model);
     }
 
 
-    // Utilities
+    /**
+     * Initialize the UI components
+     *
+     * @return content panel
+     */
     private JPanel initialize() {
         // Create the cancel and ok buttons in a separate panel
         JPanel buttonPanel = new JPanel();
@@ -121,6 +149,7 @@ public class ColorGradientDialog extends JDialog {
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }
@@ -128,6 +157,7 @@ public class ColorGradientDialog extends JDialog {
 
         // call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 onCancel();
             }
@@ -136,6 +166,11 @@ public class ColorGradientDialog extends JDialog {
         return contentPane;
     }
 
+    /**
+     * Configure the content panels components
+     *
+     * @param model holding the data
+     */
     protected void configure(HeatMapModel model) {
         heatMapModel = model;
         currentGradient = model.getColorGradient().getGradient();
@@ -163,7 +198,7 @@ public class ColorGradientDialog extends JDialog {
             constraints.weightx = 1;
             constraints.weighty = -1;
             constraints.gridx = 0;
-            String[] populations = heatMapModel.getReferencePopulations();
+            String[] populations = heatMapModel.getReferencePopulationNames();
             if (populations != null) {
                 HashMap<String, Double[]> descriptors = getDescriptors();
                 int index = 0;
@@ -180,15 +215,23 @@ public class ColorGradientDialog extends JDialog {
         }
     }
 
+    /**
+     * Set the dialog size in function of the number of PopulationPanels
+     */
     private void updateDialogDimensions() {
         setSize(new Dimension(600, 200 + 30 * populationIndicators.size()));
     }
 
+    /**
+     * Get the population descriptors of a distribution
+     *
+     * @return the population names with the descriptors {mean, std}
+     */
     private HashMap<String, Double[]> getDescriptors() {
         DescriptiveStatistics stats = new DescriptiveStatistics();
         String readout = heatMapModel.getSelectedReadOut();
         String factor = heatMapModel.getReferencePopulationParameter();
-        String[] groups = heatMapModel.getReferencePopulations();
+        String[] groups = heatMapModel.getReferencePopulationNames();
         HashMap<String, Double[]> groupDescriptors = new HashMap<String, Double[]>();
         for (String group : groups) {
             for (Plate plate : heatMapModel.getScreen()) {
@@ -204,12 +247,19 @@ public class ColorGradientDialog extends JDialog {
         return groupDescriptors;
     }
 
+    /**
+     * Getter for the colormap
+     *
+     * @return colormap
+     */
     public LinearGradientPaint getGradientPainter() {
         return currentGradient;
     }
 
 
-    // Actions
+    /**
+     * Action executed on pressing the ok button
+     */
     private void onOK() {
         Color[] colors = slider.getColors();
         float[] positions = slider.getThumbPositions();
@@ -219,10 +269,18 @@ public class ColorGradientDialog extends JDialog {
         dispose();
     }
 
+    /**
+     * Action executed after pressing the cancel button
+     */
     private void onCancel() {
         dispose();
     }
 
+    /**
+     * Add thumbnails to the {@link GradientSlider}
+     *
+     * @param scaleValue position of the thumbnail
+     */
     public void addThumbnail(float scaleValue) {
         float pos = (scaleValue - minScaleValue) / (maxScaleValue-minScaleValue);
         for (float exi : slider.getThumbPositions() ) {
@@ -234,7 +292,11 @@ public class ColorGradientDialog extends JDialog {
     }
 
 
-    // Reveal yourself!
+    /**
+     * Quick testing
+     *
+     * @param args whatever
+     */
     public static void main(String[] args) {
 //        ColorGradientDialog dialog = new ColorGradientDialog("Color gradient dialog test");
         ColorGradientDialog dialog = new ColorGradientDialog(new HeatMapModel());
@@ -244,25 +306,66 @@ public class ColorGradientDialog extends JDialog {
 
 
 
+    /**
+     * Panels to indicate the bounds of a given reference population
+     */
     class PopulationPanel extends JPanel {
 
+        /** mean of the population */
         public float mean = 50;
+        /** standard deviation of the population */
         public float sd = 10;
+        /** lower bound of the color scale */
         public float minScale = 0;
+        /** upper bound of the color scale */
         public float maxScale = 100;
+        /** panel name (population name) */
         public String panelName = "test";
+        /** factor to calculate the population bounds (3 std) */
         private final float factor = 3;
+        /** parent */
         private ColorGradientDialog parent;
 
 
+        /**
+         * Constructor for initialization
+         */
         public PopulationPanel() {
             super();
-            MouseListener popupListener = new PopupListener(createPopupMenu());
-            addMouseListener(popupListener);
+
+            // Add the mouse listener for the popup menu
+            addMouseListener(new MouseAdapter() {
+                JPopupMenu popup = createPopupMenu();
+
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    maybeShowPopup(e);
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    maybeShowPopup(e);
+                }
+
+                private void maybeShowPopup(MouseEvent e) {
+                    if (e.isPopupTrigger()) {
+                        popup.show(e.getComponent(),
+                                e.getX(), e.getY());
+                    }
+                }
+            });
+
+            // Set the tooltip
             setToolTipText("<html>The colored rectangle indicates the parameters mean&plusmn;" + factor + "&middot;sd.<br/>" +
                     "Use right click to pass descriptor values as thumbs to the color gradient");
         }
 
+        /**
+         * Constructor for initialization and configuration of the UI components
+         *
+         * @param dialog parent
+         * @param name population name
+         */
         public PopulationPanel(ColorGradientDialog dialog, String name) {
             this();
             parent = dialog;
@@ -272,6 +375,15 @@ public class ColorGradientDialog extends JDialog {
         }
 
 
+        /**
+         * Configure the panel
+         *
+         * @param name of the population
+         * @param m mean of the population
+         * @param s standard deviation of the population
+         * @param mis lower bound of the color scale
+         * @param mas upper bound of the color scale
+         */
         public void configure(String name, float m, float s, float mis, float mas) {
             panelName = name;
             setName(panelName);
@@ -282,6 +394,7 @@ public class ColorGradientDialog extends JDialog {
             repaint();
         }
 
+        /** {@inheritDoc} */
         @Override
         public void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
@@ -329,6 +442,11 @@ public class ColorGradientDialog extends JDialog {
         }
 
 
+        /**
+         * Create a popup menu allowing to add thumbnails for the population descriptors
+         *
+         *  @return context menu
+         */
         private JPopupMenu createPopupMenu() {
             JPopupMenu menu = new JPopupMenu();
             JMenuItem option1 = new JMenuItem("Add Thumb for mean");
@@ -362,31 +480,6 @@ public class ColorGradientDialog extends JDialog {
             return menu;
         }
 
-    }
-
-
-
-    class PopupListener extends MouseAdapter {
-        JPopupMenu popup;
-
-        PopupListener(JPopupMenu popupMenu) {
-            popup = popupMenu;
-        }
-
-        public void mousePressed(MouseEvent e) {
-            maybeShowPopup(e);
-        }
-
-        public void mouseReleased(MouseEvent e) {
-            maybeShowPopup(e);
-        }
-
-        private void maybeShowPopup(MouseEvent e) {
-            if (e.isPopupTrigger()) {
-                popup.show(e.getComponent(),
-                        e.getX(), e.getY());
-            }
-        }
     }
 
 }
