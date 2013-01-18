@@ -16,6 +16,8 @@ import java.util.*;
 
 /**
  * A collection of utility methods which have not yet been refactored into proper services.
+ * (Replacing the TdsUtils of the hcscore)
+ * TODO: add docs
  *
  * @author Holger Brandl
  */
