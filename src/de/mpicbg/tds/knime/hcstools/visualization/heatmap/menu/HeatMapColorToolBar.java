@@ -6,9 +6,9 @@ import java.text.DecimalFormat;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModelChangeListener;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.ColorScheme;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.LinearGradientTools;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.RescaleStrategy;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.ScreenColorScheme;
 
 /**
  * User: Felix Meyenhofer
@@ -26,7 +26,6 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
     private JLabel minLabel = new JLabel("min");
     private JLabel medLabel = new JLabel("middle");
     private JLabel maxLabel = new JLabel("max");
-    private final ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();
 
     public static final DecimalFormat scienceFormat = new DecimalFormat("0.###E0");
     public static final DecimalFormat basicFormat = new DecimalFormat("######.###");
@@ -85,7 +84,7 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
 
         // Add the panel indicating the missing value color.
         JPanel errorPanel = new JPanel();
-        errorPanel.setBackground(colorScheme.errorReadOut);
+        errorPanel.setBackground(ColorScheme.ERROR_READOUT);
 
         // Create a label for the panel indicating the missing value color.
         JLabel errorLabel = new JLabel(" Err ");
@@ -93,7 +92,7 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
 
         // Add the panel indicating the missing value color.
         JPanel emptyPanel = new JPanel();
-        emptyPanel.setBackground(colorScheme.emptyReadOut);
+        emptyPanel.setBackground(ColorScheme.EMPTY_READOUT);
 
         // Create a label for the panel indicating the missing value color.
         JLabel emptyLabel = new JLabel(" Empty ");
