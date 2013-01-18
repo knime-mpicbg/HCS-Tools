@@ -13,74 +13,44 @@ import java.util.*;
  */
 public class Plate implements Serializable{
 
-    /**
-     * Number of well rows and well columns in the plate.
-     */
+    /** Number of well rows in the plate */
     private int numRows = 16;
+    /** Number of well columns in the plate */
     private int numColumns = 24;
 
 //    private Screen screen;
 
-    /**
-     * Barcode of the plate
-     */
+    /** Barcode of the plate */
     private String barcode;
-
-        /**
-         * Date of meansurement / cell passage (Usually part of the barcode)
-         */
+        /** Date of meansurement / cell passage (Usually part of the barcode) */
         private Date screenedAt;
-
-        /**
-         * ? (Usually part of the barcode)
-         */
+        /** ? (Usually part of the barcode) */
         private String batchName;
-
-        /**
-         * Code/ID of the molecule library and the number of the library plate (Usually part of the barcode)
-         */
+        /** Code/ID of the molecule library */
         private String libraryCode;
+        /** number of the library plate (Usually part of the barcode) */
         private Integer libraryPlateNumber;
-
-        /**
-         * Contains the assay description part of the barcode (Usually part of the barcode)
-         */
+        /** Contains the assay description part of the barcode (Usually part of the barcode) */
         private String assay;
-
-        /**
-         * Replicate indicator (A,B,C...)
-         */
+        /** Replicate indicator (A,B,C...) */
         private String replicate;
 
-
-    /**
-     * A free documentation field, which allows to add further comments about a plate.
-     */
+    /** A free documentation field, which allows to add further comments about a plate */
     private String description;
 
-    /**
-     * Plate label for display purposes.
-     */
+    /** Plate label for display purposes */
     private String label;
 
-    /**
-     * List of wells containing additional well information, annotations, and readouts.
-     */
+    /** List of wells containing additional well information, annotations, and readouts */
     private List<Well> wells = new ArrayList<Well>();
 
-    /**
-     * A transient property map for analysis caching
-     */
+    /** A transient property map for analysis caching */
     private HashMap<String, Object> plateStatistics;
 
-    /**
-     * ID (from where? what id?) TODO: add proper description
-     */
+    /** ID (from where? what id?) TODO: add proper description */
     private String id;
 
-    /**
-     * UUID for an easy plate identification
-     */
+    /** UUID for an easy plate identification */
     private UUID uuid;
 
 
