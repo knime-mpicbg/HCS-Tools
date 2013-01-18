@@ -63,10 +63,10 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** Setting models */
     protected SettingsModelFilterString propReadouts = createSettingsModelFilterString(READOUT_SETTING_NAME);
     protected SettingsModelFilterString propFactors = createSettingsModelFilterString(FACTOR_SETTING_NAME);
-    protected SettingsModelString propPlateLabel = createSettingsModelString(PLATE_LABEL_SETTING_NAME, Conventions.CBG.BARCODE);
-    protected SettingsModelString propGroupBy = createSettingsModelString(GROUP_BY_SETTING_NAME, Conventions.CBG.BARCODE);
-    protected SettingsModelString propPlateRow = createSettingsModelString(PLATE_ROW_SETTING_NAME, Conventions.CBG.WELL_ROW);
-    protected SettingsModelString propPlateCol = createSettingsModelString(PLATE_COLUMN_SETTING_NAME, Conventions.CBG.WELL_COLUMN);
+    protected SettingsModelString propPlateLabel = createSettingsModelString(PLATE_LABEL_SETTING_NAME, Conventions.CBG.Attr.Name.BARCODE);
+    protected SettingsModelString propGroupBy = createSettingsModelString(GROUP_BY_SETTING_NAME, Conventions.CBG.Attr.Name.BARCODE);
+    protected SettingsModelString propPlateRow = createSettingsModelString(PLATE_ROW_SETTING_NAME, Conventions.CBG.Attr.Name.WELL_ROW);
+    protected SettingsModelString propPlateCol = createSettingsModelString(PLATE_COLUMN_SETTING_NAME, Conventions.CBG.Attr.Name.WELL_COLUMN);
     protected SettingsModelStringArray propRefNames = createSettingModelStringArray(REFERENCE_POPULATIONS_SETTING_NAME);
     protected SettingsModelString propRefParameter = createTreatmentAttributeSelector();
 
@@ -414,7 +414,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 for (Attribute attribute : attributes) {
                     String attributeName = attribute.getName();
 
-                    if (StringUtils.equalsIgnoreCase(Conventions.CBG.TREATMENT, attributeName)) {
+                    if (StringUtils.equalsIgnoreCase(Conventions.CBG.Attr.Name.TREATMENT, attributeName)) {
                         well.setTreatment(attribute.getNominalAttribute(tableRow));
                     }
 

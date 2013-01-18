@@ -75,7 +75,7 @@ public  class PlateUtils {
     }
 
     public static Collection<String> collectTreatments(Collection<Plate> plates) {
-        return collectAnnotationLevels(plates, Conventions.CBG.TREATMENT);
+        return collectAnnotationLevels(plates, Conventions.CBG.Attr.Name.TREATMENT);
     }
 
     public static Collection<String> collectAnnotationLevels(Collection<Plate> plates, String overlayName) {
@@ -228,8 +228,8 @@ public  class PlateUtils {
             int colCounter = 0;
             sheet.addCell(new Label(colCounter++, 0, "row"));
             sheet.addCell(new Label(colCounter++, 0, "column"));
-            sheet.addCell(new Label(colCounter++, 0, Conventions.CBG.TREATMENT));
-            sheet.addCell(new Label(colCounter++, 0, Conventions.CBG.BARCODE));
+            sheet.addCell(new Label(colCounter++, 0, Conventions.CBG.Attr.Name.TREATMENT));
+            sheet.addCell(new Label(colCounter++, 0, Conventions.CBG.Attr.Name.BARCODE));
 
             // write header
             for (String readoutName : readouts) {

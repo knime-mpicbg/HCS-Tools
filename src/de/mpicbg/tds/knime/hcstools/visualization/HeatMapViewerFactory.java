@@ -77,14 +77,14 @@ public class HeatMapViewerFactory extends NodeFactory<HeatMapViewerNodeModel> {
 
                 createNewTab("Plate");
                 createNewGroup("Definition/Identification");
-                SettingsModelString groupBySetting = createSettingsModelString(GROUP_BY_SETTING_NAME, Conventions.CBG.BARCODE);
+                SettingsModelString groupBySetting = createSettingsModelString(GROUP_BY_SETTING_NAME, Conventions.CBG.Attr.Name.BARCODE);
                 addDialogComponent(new DialogComponentColumnNameSelection(groupBySetting, "Group Wells By", 0, groupByTypes));
-                SettingsModelString rowSetting = createSettingsModelString(PLATE_ROW_SETTING_NAME, Conventions.CBG.WELL_ROW);
+                SettingsModelString rowSetting = createSettingsModelString(PLATE_ROW_SETTING_NAME, Conventions.CBG.Attr.Name.WELL_ROW);
                 addDialogComponent(new DialogComponentColumnNameSelection(rowSetting, "Plate Row", 0, rowColTypes));
-                SettingsModelString columnSetting = createSettingsModelString(PLATE_COLUMN_SETTING_NAME, Conventions.CBG.WELL_COLUMN);
+                SettingsModelString columnSetting = createSettingsModelString(PLATE_COLUMN_SETTING_NAME, Conventions.CBG.Attr.Name.WELL_COLUMN);
                 addDialogComponent(new DialogComponentColumnNameSelection(columnSetting, "Plate Column", 0, rowColTypes));
                 createNewGroup("Plate Label");
-                SettingsModelString labelSetting = createSettingsModelString(PLATE_LABEL_SETTING_NAME, Conventions.CBG.BARCODE);
+                SettingsModelString labelSetting = createSettingsModelString(PLATE_LABEL_SETTING_NAME, Conventions.CBG.Attr.Name.BARCODE);
                 addDialogComponent(new DialogComponentColumnNameSelection(labelSetting, "Column for Plate Labeling", 0, new Class[]{StringValue.class}));
 
                 createNewTab("Controls");
