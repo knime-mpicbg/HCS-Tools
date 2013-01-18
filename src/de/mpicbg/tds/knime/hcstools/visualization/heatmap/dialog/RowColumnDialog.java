@@ -10,28 +10,41 @@ import java.awt.*;
 import java.awt.event.*;
 
 /**
- * User: Felix Meyenhofer
- * Date: 13/12/12
- *
  * Small dialog to choose between the automatic trellis layout in the screen view or to fix the row and column number.
+ *
+ * @author Felix Meyenhofer
+ *         13/12/12
  */
 
 public class RowColumnDialog extends JDialog implements ItemListener {
 
+    /** Panel enclosing all the UI components */
     private JPanel contentPane;
+    /** Radio button for the automatic row-column configuration of the {@link de.mpicbg.tds.knime.hcstools.visualization.heatmap.renderer.HeatTrellis} */
     private JRadioButton automaticRadioButton;
+    /** Radio button for the manual (custom) row-column configuration of the {@link de.mpicbg.tds.knime.hcstools.visualization.heatmap.renderer.HeatTrellis} */
     private JRadioButton manualRadioButton;
+    /** Spinner to input the row number */
     private JSpinner rowSpinner;
+    /** Spinner for the column number input */
     private JSpinner columnSpinner;
+    /** Panel enclosing the Automatic radio button */
     private JPanel automaticPanel;
+    /** Panel enclosing the components for the manual configuration */
     private JPanel manualPanel;
 
+    /** Data model */
     private HeatMapModel heatMapModel;
 
+    /** Border indicating the passive panel */
     private final Border passiveBorder = BorderFactory.createEtchedBorder();
+    /** Border indicating the active panel */
     private final Border activeBorder = BorderFactory.createBevelBorder(1);
 
 
+    /**
+     * Constructor for the initialization of the dialog
+     */
     public RowColumnDialog() {
         initialize();
         setContentPane(contentPane);
@@ -43,6 +56,7 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }
@@ -50,12 +64,19 @@ public class RowColumnDialog extends JDialog implements ItemListener {
 
         // call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 onCancel();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
+
+    /**
+     * Constructor for the initialization and configuration of the dialog
+     *
+     * @param model data model delivering the content
+     */
     public RowColumnDialog(HeatMapModel model) {
         this();
         this.heatMapModel = model;
@@ -63,7 +84,9 @@ public class RowColumnDialog extends JDialog implements ItemListener {
     }
 
 
-    // GUI utilities
+    /**
+     * fire the configuration of the UI components.
+     */
     private void configure() {
         if ( !(heatMapModel == null) ) {
             columnSpinner.setValue(heatMapModel.getNumberOfTrellisColumns());
@@ -79,6 +102,9 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         }
     }
 
+    /**
+     * Initialize the UI components
+     */
     private void initialize() {
         automaticRadioButton = new JRadioButton();
         automaticRadioButton.setName("Automatic");
@@ -178,6 +204,11 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         contentPane.add(buttonPanel);
     }
 
+    /**
+     * Action executed when the radio buttons change state
+     *
+     * @param source radio button that fired the event
+     */
     private void toggleRadioButtons(JRadioButton source) {
         if (source == manualRadioButton) {
             columnSpinner.setEnabled(true);
@@ -193,21 +224,39 @@ public class RowColumnDialog extends JDialog implements ItemListener {
     }
 
 
-    // Getters
+    /**
+     * Getter for the number of rows from the spinner
+     *
+     * @return number of rows
+     */
     public int getNumberOfRows() {
         return (Integer) rowSpinner.getValue();
     }
 
+    /**
+     * Getter for the number of columns from the spinner
+     *
+     * @return number of columns
+     */
     public int getNumberOfColumns() {
         return (Integer) columnSpinner.getValue();
     }
 
+    /**
+     * Getter for the state of the "Automatic" radio button
+     *
+     * @return state
+     */
     public boolean isAutomatic() {
         return automaticRadioButton.isSelected();
     }
 
 
-    // Action methods
+    /**
+     * Action executed when the row spinner changed its value
+     *
+     * @param event from the listener
+     */
     private void updateRowSpinnerValues(ChangeEvent event) {
         JSpinner spinner = (JSpinner) event.getSource();
         if (! (heatMapModel == null) ) {
@@ -216,6 +265,11 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         }
     }
 
+    /**
+     * Action event when the column spinner changed its value
+     *
+     * @param event from the listener
+     */
     private void updateColumnSpinnerValues(ChangeEvent event) {
         JSpinner spinner = (JSpinner) event.getSource();
         if (! (heatMapModel == null) ) {
@@ -224,21 +278,33 @@ public class RowColumnDialog extends JDialog implements ItemListener {
         }
     }
 
+    /** {@inheritDoc} */
+    @Override
     public void itemStateChanged(ItemEvent itemEvent) {
         JRadioButton source = (JRadioButton) itemEvent.getSource();
         toggleRadioButtons(source);
     }
 
+    /**
+     * Action executed after the ok button was pressed
+     */
     private void onOK() {
         dispose();
     }
 
+    /**
+     * Action executed after the cancel button was pressed
+     */
     private void onCancel() {
         dispose();
     }
 
 
-    // Test
+    /**
+     * Quick testing
+     *
+     * @param args whatever
+     */
     public static void main(String[] args) {
         RowColumnDialog dialog = new RowColumnDialog();
         dialog.setVisible(true);
