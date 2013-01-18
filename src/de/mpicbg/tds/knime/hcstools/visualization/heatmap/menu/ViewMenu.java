@@ -236,6 +236,8 @@ public class ViewMenu extends JMenu {
 
 
     /**
+     * Action to control the toolbar visibility
+     *
      * @param event menu action event
      */
     private void toggleColorbarVisibility(ActionEvent event) {
@@ -244,6 +246,8 @@ public class ViewMenu extends JMenu {
     }
 
     /**
+     * Action to control the colorbar visibility
+     *
      * @param event menu action event
      */
     private void toggleToolbarVisibility(ActionEvent event) {
@@ -252,6 +256,8 @@ public class ViewMenu extends JMenu {
     }
 
     /**
+     * Action updating the colormap
+     *
      * @param event menu action event
      */
     protected void toggleColorMapAction(ActionEvent event) {
@@ -278,6 +284,7 @@ public class ViewMenu extends JMenu {
     }
 
     /**
+     * Action to control the legend visibility.
      * Creates an overlay legend window.
      */
     protected void showOverlayLegendAction() {
@@ -288,6 +295,8 @@ public class ViewMenu extends JMenu {
     }
 
     /**
+     * Action controlling the overlay visibility
+     *
      * @param event menu action event
      */
     protected void hideOverlayAction(ActionEvent event) {
@@ -297,6 +306,8 @@ public class ViewMenu extends JMenu {
     }
 
     /**
+     * Action controlling the color scaling
+     *
      * @param event menu action event
      */
     protected void outlierHandlingAction(ActionEvent event) {
@@ -314,6 +325,8 @@ public class ViewMenu extends JMenu {
     }
 
     /**
+     * Action controlling the visibility of the selection dots/frame
+     *
      * @param event menu action event
      */
     protected void markSelectionAction(ActionEvent event) {
@@ -323,6 +336,8 @@ public class ViewMenu extends JMenu {
     }
 
     /**
+     * Widow behavior
+     *
      * @param event menu action event
      */
     protected void alwaysOnTopAction(ActionEvent event) {

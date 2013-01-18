@@ -10,18 +10,26 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 /**
- * User: Felix Meyenhofer
- * Date: 12/10/12
- * Time: 13:42
+ * Combobox to select the well attributes (factors and readouts)
+ *
+ * @author Felix Meyenhofer
+ *         12/10/12
  */
 public class WellAttributeComboBox extends JComboBox {
+
+    /** Data model */
     private HeatMapModel heatMapModel;
-    private JPanel parent;
 
 
+    /**
+     * Configure the UI components
+     *
+     * @param options List of attribute values
+     * @param heatMapModel data model delivering the data
+     * @param selType type of attribute (factor or readout)
+     */
     public void configure(List<String> options, final HeatMapModel heatMapModel, final AttributeType selType) {
         this.heatMapModel = heatMapModel;
-        this.parent = parent;
 
         // populate the readout selector with readout-types of the given well-type
         //        Collections.sort(readoutNames);
@@ -71,8 +79,13 @@ public class WellAttributeComboBox extends JComboBox {
     }
 
 
+    /**
+     * Renderer class
+     */
     class MyComboBoxRenderer extends BasicComboBoxRenderer {
 
+        /** {@inheritDoc} */
+        @Override
         public Component getListCellRendererComponent(JList list, Object value,
                                                       int index, boolean isSelected, boolean cellHasFocus) {
             if (isSelected) {
@@ -98,6 +111,9 @@ public class WellAttributeComboBox extends JComboBox {
 }
 
 
+/**
+ * The two allowed attribute types
+ */
 enum AttributeType {
 
     READOUT, OVERLAY_ANNOTATION
