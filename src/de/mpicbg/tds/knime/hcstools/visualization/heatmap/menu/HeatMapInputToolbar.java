@@ -82,6 +82,10 @@ public class HeatMapInputToolbar extends JToolBar {
                     filterPlatesAction(actionEvent);
                 }
             });
+            filterString.setToolTipText("<html>The date format needs to one of the following:<br/>" +
+                    "yyMMdd<br/>" +
+                    "yyyyMMdd<br/>" +
+                    "separators are filtered out (-_;:. etc.)");
             add(filterString);
 
             setPreferredSize(new Dimension(READOUT_WIDTH + OVERLAY_WIDTH + FILTER_WIDTH, TOOLBAR_HEIGHT));

@@ -11,6 +11,8 @@ import org.knime.core.node.property.hilite.KeyEvent;
 
 import java.awt.*;
 import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -115,7 +117,7 @@ public class HeatMapModel implements HiLiteListener {
                 case BARCODE:
                     if(p.getBarcode().contains(plateFilterString)) { keep = true; } break;
                 case SCREENED_AT:
-                    if(p.getScreenedAt().equals(new Date(plateFilterString))) { keep = true; } break;
+                    if(p.getScreenedAt().equals(parseDateString(plateFilterString))) { keep = true; } break;
                 case BATCH_NAME:
                     if(p.getBatchName().contains(plateFilterString)) { keep = true; } break;
                 case LIBRARY_CODE:
@@ -130,6 +132,25 @@ public class HeatMapModel implements HiLiteListener {
 
             plateFiltered.put(p,keep);
         }
+    }
+
+    private Date parseDateString(String str) {
+        String dateStr = str.replaceAll("[^0-9]", "");
+        SimpleDateFormat format = new SimpleDateFormat("yyMMdd");
+
+        try {
+            return format.parse(dateStr);
+        } catch (ParseException e) {
+            try {
+                format = new SimpleDateFormat("yyyyMMdd");
+                return format.parse(dateStr);
+            } catch (ParseException e1) {
+                System.err.println("Can't match any of the date formats (yyMMdd, yyyyMMdd) to this string: "
+                        + str + " (" + dateStr + ")." );
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1195,7 +1216,8 @@ public class HeatMapModel implements HiLiteListener {
 
     /**
      * Set the flag controlling if the color scaling is done globally or for the data of each viewer
-     * @param globalScaling
+     *
+     * @param globalScaling flag
      */
     public void setGlobalScaling(boolean globalScaling) {
         this.globalScaling = globalScaling;
