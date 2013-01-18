@@ -140,8 +140,6 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
      */
     private void initialize() {
         setMinimumSize(new Dimension(400, 250));
-//        menu = new PlateMenu(this);
-//        setJMenuBar(menu);
 
         setLayout(new BorderLayout());
 
