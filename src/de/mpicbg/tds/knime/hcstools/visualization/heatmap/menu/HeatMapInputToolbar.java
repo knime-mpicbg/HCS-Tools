@@ -16,28 +16,36 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateAttribute;
 
 /**
- * Author: Felix Meyenhofer
- * Date: 10/12/12
+ * HeatMapViewer toolbar to select the parameter that determine the displayed content
  *
- * HeatMapViewer Toolbar
+ * @author Felix Meyenhofer
+ *         10/12/12
  */
 
 public class HeatMapInputToolbar extends JToolBar {
 
-    // The toolbar size influences the automatic size (pack()) of all windows it is used in.
+    /** The toolbar size influences the automatic size (pack()) of all windows it is used in. */
     public final int TOOLBAR_HEIGHT = 30;
     public final int READOUT_WIDTH = 150;
     public final int OVERLAY_WIDTH = 100;
     public final int FILTER_WIDTH = 280;
 
+    /** Data model */
     private HeatMapModel heatMapModel;
+
+    /** Combobox to select the readout attribute */
     private WellAttributeComboBox readoutSelector;
+    /** Combobox to select the overlay factor */
     private WellAttributeComboBox overlaySelector;
+    /** Combobox to select the plate attribute for plate filtering */
     private JComboBox filterSelector;
+    /** Parent viewer */
     private HeatMapViewer parent;
 
 
-    // Constructor
+    /**
+     * Constructor for initialization and configuration of the UI components
+     */
     public HeatMapInputToolbar(HeatMapViewer parent) {
         this.setPreferredSize(new Dimension(READOUT_WIDTH + OVERLAY_WIDTH +FILTER_WIDTH +100, -1));
         this.parent = parent;
@@ -83,6 +91,11 @@ public class HeatMapInputToolbar extends JToolBar {
     }
 
 
+    /**
+     * Action executed on presssing enter in the filter string text edit box
+     *
+     * @param event filter event
+     */
     private void filterPlatesAction(ActionEvent event) {
         String filterString = event.getActionCommand();
         String filterAttribute = (String) filterSelector.getSelectedItem();
@@ -91,7 +104,11 @@ public class HeatMapInputToolbar extends JToolBar {
     }
 
 
-    // Configure the gui components with the menu items.
+    /**
+     * Configure the gui components with the menu items.
+     *
+     * @param hmm data model delivering the content
+     */
     public void configure(HeatMapModel hmm) {              //TODO: Find a better way for the component resizing (currently some components are not visible if the window size is small)
         heatMapModel = hmm;
 
@@ -122,7 +139,11 @@ public class HeatMapInputToolbar extends JToolBar {
     }
 
 
-    // Reveal yourself!
+    /**
+     * Quick testing
+     *
+     * @param args whatever
+     */
     public static void main(String[] args) {
         JFrame frame = new JFrame("HeatMapInputToolbar Test");
         JPanel panel = new JPanel();
