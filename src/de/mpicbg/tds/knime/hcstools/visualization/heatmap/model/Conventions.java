@@ -1,11 +1,11 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmap.model;
 
 /**
- * Author: Felix Meyenhofer
- * Date: 12/22/12
- *
  * This class is a collection of arbitrary conventions. This class can be used to try and guess some typical table
  * columns names or attribute names.
+ *
+ * @author Felix Meyenhofer
+ *         12/22/12
  */
 
 public abstract class Conventions {
@@ -33,6 +33,7 @@ public abstract class Conventions {
             }
 
             public abstract class Value {
+                /** Typical layout values */
                 public static final String TREATMENT_LIBRARY = "library";
                 public static final String TREATMENT_UNTREATED = "untreated";
             }
