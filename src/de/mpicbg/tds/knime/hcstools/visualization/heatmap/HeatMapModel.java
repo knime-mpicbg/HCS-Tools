@@ -1,10 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmap;
 
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateUtils;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Plate;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Well;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateAttribute;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateComparators;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.*;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.Frequency;
@@ -34,7 +30,7 @@ public class HeatMapModel implements HiLiteListener {
     /** Color global scaling flag */
     private boolean globalScaling = false;
     /** Color screen color scheme */
-    private ScreenColorScheme colorScheme = ScreenColorScheme.getInstance();
+    private ColorScheme colorScheme = new ColorScheme();
     /** Color gradient (color map) */
     private LinearColorGradient colorGradient = new LinearColorGradient();
     /** Background color */
@@ -428,11 +424,11 @@ public class HeatMapModel implements HiLiteListener {
         return this.knimeColorAttribute;
     }
 
-    public ScreenColorScheme getColorScheme() {
+    public ColorScheme getColorScheme() {
         return colorScheme;
     }
 
-    public void setColorScheme(ScreenColorScheme colorScheme) {
+    public void setColorScheme(ColorScheme colorScheme) {
         this.colorScheme = colorScheme;
     }
 
@@ -467,12 +463,12 @@ public class HeatMapModel implements HiLiteListener {
         if (overlay == null || (doHideMostFreqOverlay() && isMostFrequent(overlayType, overlay)))
             return null;
 
-        return getColorScheme().getColorFromCache(overlayType, overlay);
+        return this.colorScheme.getOverlayColor(overlayType, overlay);
     }
 
     public Color getReadoutColor(Well well) {
         if (!well.isReadoutSuccess()) {
-            return colorScheme.errorReadOut;
+            return ColorScheme.ERROR_READOUT;
         }
 
         String selectedReadOut = getSelectedReadOut();
@@ -485,13 +481,13 @@ public class HeatMapModel implements HiLiteListener {
     public Color getReadOutColor(String selectedReadOut, Double wellReadout) {
         // also show the fallback color in cases when a single readout is not available
         if (wellReadout == null) {
-            return colorScheme.emptyReadOut;
+            return ColorScheme.EMPTY_READOUT;
         }
 
         // check if we can normalize the value (this maybe impossible if there's just a single well
         Double displayNormReadOut = readoutRescaleStrategy.normalize(wellReadout, selectedReadOut);
         if (displayNormReadOut == null) {
-            return colorScheme.errorReadOut;
+            return ColorScheme.ERROR_READOUT;
         }
         return LinearGradientTools.getColorAt(colorGradient.getGradient(), displayNormReadOut.floatValue());
     }

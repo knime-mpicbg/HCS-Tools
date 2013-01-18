@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter;
 import javax.swing.*;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModel;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.ColorScheme;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Plate;
 
@@ -28,7 +29,7 @@ public class HeatScreen extends JPanel {
         this.plate = plate;
         this.heatMapModel = heatMapModel;
 
-        setBackground(heatMapModel.getColorScheme().emptyReadOut);
+        setBackground(ColorScheme.EMPTY_READOUT);
         setDoubleBuffered(true);
         setMinimumSize(new Dimension(100, 100));
         setToolTipText(plate.getBarcode());

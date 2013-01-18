@@ -4,9 +4,9 @@ import de.mpicbg.tds.core.Utils;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModelChangeListener;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.PlateViewer;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.ColorScheme;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.ScreenColorScheme;
 import info.clearthought.layout.TableLayout;
 
 import javax.swing.*;
@@ -223,11 +223,11 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
             Color backgroundColor = heatMapModel.getBackgroundColor();//getRootPane().getBackground();
             if ( heatMapModel.doMarkSelection() ) {
                 if ( heatMapModel.isPlateHiLited(plate) && heatMapModel.isPlateSelected(plate) ) {
-                    backgroundColor = ScreenColorScheme.getInstance().selectionAndHiLiteColor;
+                    backgroundColor = ColorScheme.HILITED_AND_SELECTED;
                 } else if ( heatMapModel.isPlateHiLited(plate) ) {
-                    backgroundColor = ScreenColorScheme.getInstance().HilLiteColor;
+                    backgroundColor = ColorScheme.HILITED;
                 } else if ( heatMapModel.isPlateSelected(plate) ) {
-                    backgroundColor = ScreenColorScheme.getInstance().selectionColor;
+                    backgroundColor = ColorScheme.SELECTED;
                 }
             }
             plateContainer.setBackground(backgroundColor);
@@ -572,7 +572,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
             for (HeatScreen select : selectedHeatMaps) {
                 if (!heatMapModel.isPlateSelected(select.getPlate())) {
                     JPanel container = (JPanel) select.getParent();
-                    container.setBackground(ScreenColorScheme.getInstance().preselectionColor);
+                    container.setBackground(ColorScheme.SELECTING);
                 }
             }
             previousPreSelection = selectedHeatMaps;

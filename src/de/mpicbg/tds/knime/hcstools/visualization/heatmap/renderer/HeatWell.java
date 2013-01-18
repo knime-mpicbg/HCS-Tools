@@ -6,8 +6,9 @@ import java.awt.event.*;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.WellViewer;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.ColorScheme;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Conventions;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Well;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.ScreenColorScheme;
 
 /**
  * @author Holger Brandl
@@ -158,7 +159,7 @@ public class HeatWell extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
 
         if (isPreselected) {
-            setBackground(ScreenColorScheme.getInstance().preselectionColor);
+            setBackground(ColorScheme.SELECTING);
             return;
 //            setOpaque(true);
         }
@@ -186,11 +187,11 @@ public class HeatWell extends JPanel {
         if ( heatMapModel.doMarkSelection() ) {
             Color dotColor = null;
             if ( heatMapModel.isWellHiLited(well) && heatMapModel.isWellSelected(well)) {
-                dotColor = ScreenColorScheme.getInstance().selectionAndHiLiteColor;
+                dotColor = ColorScheme.HILITED_AND_SELECTED;
             } else if ( heatMapModel.isWellHiLited(well) ) {
-                dotColor = ScreenColorScheme.getInstance().HilLiteColor;
+                dotColor = ColorScheme.HILITED;
             } else if ( heatMapModel.isWellSelected(well)) {
-                dotColor = ScreenColorScheme.getInstance().selectionColor;
+                dotColor = ColorScheme.SELECTED;
             }
             if (dotColor != null) {
                 g2d.setColor(dotColor);

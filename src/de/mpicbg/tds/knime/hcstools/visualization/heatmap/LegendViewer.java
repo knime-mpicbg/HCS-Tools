@@ -99,8 +99,8 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
 
         /** data model containing the data for display */
         private HeatMapModel heatMapModel;
-        /** TODO */
-        private int nullCounter = 0;
+//        /** TODO */
+//        private int nullCounter = 0;
         /** Parent dialog */
         private JDialog parent;
         /** Font for the legend entries */
@@ -156,7 +156,7 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
                 }
 
             } else {
-                Map<String, Color> cache = getColorCache();
+                Map<String, Color> cache = heatMapModel.getColorScheme().getColorCache(heatMapModel.getOverlay());//getColorCache();
                 if (cache == null)
                     return;
 
@@ -194,40 +194,40 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
         }
 
 
-        /**
-         * fetch the color cache from the data model
-         *
-         * @return map with a bunch of colors
-         */
-        private Map<String, Color> getColorCache() {
-            Map<String, Color> cache = heatMapModel.getColorScheme().getNameColorCache(heatMapModel.getOverlay());
-
-            if (nullCounter < 1 && (cache == null || cache.isEmpty())) {
-                nullCounter++;
-                new Thread() {
-                    @Override
-                    public void run() {
-                        super.run();
-                        try {
-                            sleep(500);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-                        LegendPanel.this.modelChanged();
-                    }
-                }.start();
-
-                return null;
-            }
-
-            nullCounter = 0;
-
-            if (cache == null || cache.isEmpty()) {
-                return null;
-            }
-            return cache;
-        }
+//        /**
+//         * fetch the color cache from the data model
+//         *
+//         * @return map with a bunch of colors
+//         */
+//        private Map<String, Color> getColorCache() {
+//            Map<String, Color> cache = heatMapModel.getColorScheme().getColorCache(heatMapModel.getOverlay());
+//
+//            if (nullCounter < 1 && (cache == null || cache.isEmpty())) {
+//                nullCounter++;
+//                new Thread() {
+//                    @Override
+//                    public void run() {
+//                        super.run();
+//                        try {
+//                            sleep(500);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        LegendPanel.this.modelChanged();
+//                    }
+//                }.start();
+//
+//                return null;
+//            }
+//
+//            nullCounter = 0;
+//
+//            if (cache == null || cache.isEmpty()) {
+//                return null;
+//            }
+//            return cache;
+//        }
 
         /**
          * helper method to create a legend component

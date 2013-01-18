@@ -9,11 +9,11 @@ import java.util.List;
 
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.PlateViewer;
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.ColorScheme;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateUtils;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Well;
 
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.ScreenColorScheme;
 import info.clearthought.layout.TableLayout;
 
 /**
@@ -40,7 +40,7 @@ public class HeatPlate extends JPanel implements MouseListener {
     public HeatPlate(PlateViewer parent, Plate plate) {
         this.heatMapModel = parent.getHeatMapModel();
         this.setBorder(BorderFactory.createEmptyBorder());
-        this.setBackground(ScreenColorScheme.getInstance().emptyReadOut);
+        this.setBackground(ColorScheme.EMPTY_READOUT);
 
         // configure the actual grid
         TableLayout tableLayout = new TableLayout();
