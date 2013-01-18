@@ -19,7 +19,6 @@ import info.clearthought.layout.TableLayout;
 /**
  * Implements a more detailed view for a single plate which also includes compounds, concentration, etc.
  * Replaces PlateDetailsHeatMap
- * TODO: clean out commented methods.
  *
  * @author Holger Brandl, Felix Meyenhofer
  */

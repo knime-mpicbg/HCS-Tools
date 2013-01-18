@@ -38,6 +38,7 @@ public class HeatScreen extends JPanel {
         setToolTipText(plate.getBarcode());
     }
 
+
     /** {@inheritDoc} */
     @Override
     protected synchronized void paintComponent(Graphics g) {
