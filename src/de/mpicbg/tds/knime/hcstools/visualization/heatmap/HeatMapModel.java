@@ -770,7 +770,7 @@ public class HeatMapModel implements HiLiteListener {
     /**
      * Reference populations.
      */
-    public String[] getReferencePopulations() {
+    public String[] getReferencePopulationNames() {
         if ( (referencePopulations == null) || referencePopulations.isEmpty() )
             return null;
 
@@ -782,6 +782,10 @@ public class HeatMapModel implements HiLiteListener {
             return null;
 
         return (String) referencePopulations.keySet().toArray()[0];
+    }
+
+    public HashMap<String, String[]> getReferencePopulations() {
+        return this.referencePopulations;
     }
 
     public void setReferencePopulations(HashMap<String, String[]> referencePopulations) {

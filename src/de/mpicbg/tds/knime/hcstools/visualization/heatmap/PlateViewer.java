@@ -68,6 +68,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         model.setHiLiteHandler(parent.heatMapModel.getHiLiteHandler());
         model.setColorGradient(parent.heatMapModel.getColorGradient());
         model.setKnimeColorAttribute(parent.heatMapModel.getKnimeColorAttribute());
+        model.setReferencePopulations(parent.heatMapModel.getReferencePopulations());
 
         if ( parent.heatMapModel.isGlobalScaling() ) {
             model.setScreen(parent.heatMapModel.getScreen());
