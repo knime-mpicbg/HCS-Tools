@@ -10,20 +10,25 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
- * Document me!
+ * Class to rescale a screen consisting of a {@link Collection} of {@link Plate}s
+ * between the lower and upper quartile of the value distribution.
  *
  * @author Holger Brandl
  */
+
 public class QuantileStrategy implements RescaleStrategy {
 
+    /** maps minimum values to readout names */
     Map<String, Double> minMap = new HashMap<String, Double>();
+    /** maps maximum values to readout names */
     Map<String, Double> maxMap = new HashMap<String, Double>();
-
+    /** data to be scaled */
     private Collection<Plate> screen;
 
 
+    /** {@inheritDoc */
+    @Override
     public void configure(Collection<Plate> screen) {
         this.screen = screen;
 
@@ -31,7 +36,8 @@ public class QuantileStrategy implements RescaleStrategy {
         maxMap.clear();
     }
 
-
+    /** {@inheritDoc */
+    @Override
     public Double getMinValue(final String selectedReadOut) {
         if (!minMap.containsKey(selectedReadOut)) {
             updateMinMaxForReadOut(selectedReadOut);
@@ -40,7 +46,8 @@ public class QuantileStrategy implements RescaleStrategy {
         return minMap.get(selectedReadOut);
     }
 
-
+    /** {@inheritDoc */
+    @Override
     public Double getMaxValue(String selectedReadOut) {
         if (!maxMap.containsKey(selectedReadOut)) {
             updateMinMaxForReadOut(selectedReadOut);
@@ -49,7 +56,11 @@ public class QuantileStrategy implements RescaleStrategy {
         return maxMap.get(selectedReadOut);
     }
 
-
+    /**
+     * Calculate the distribution descriptors of a given readout
+     *
+     * @param selectedReadOut readout to calculate the descriptors for
+     */
     private void updateMinMaxForReadOut(final String selectedReadOut) {
 
         DescriptiveStatistics sumStats = new DescriptiveStatistics();
@@ -85,7 +96,8 @@ public class QuantileStrategy implements RescaleStrategy {
         maxMap.put(selectedReadOut, max);
     }
 
-
+    /** {@inheritDoc */
+    @Override
     public Double normalize(Double wellReadout, String selectedReadOut) {
         if (wellReadout == null)
             return null;
@@ -109,4 +121,5 @@ public class QuantileStrategy implements RescaleStrategy {
 
         return (wellReadout - minValue) / (maxValue - minValue);
     }
+
 }

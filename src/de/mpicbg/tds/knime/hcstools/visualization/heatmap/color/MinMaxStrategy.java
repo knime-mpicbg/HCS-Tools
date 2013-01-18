@@ -7,19 +7,23 @@ import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Well;
 import java.util.*;
 
 /**
- * Document me!
+ * Class to rescale a screen consisting of a {@link Collection} of {@link Plate}s
+ * between the minimum and maximum values of the distribution
  *
  * @author Holger Brandl
  */
 
 public class MinMaxStrategy implements RescaleStrategy {
 
+    /** maps minimum values to readout names */
     Map<String, Double> minMap = new HashMap<String, Double>();
+    /** maps maximum values to readout names */
     Map<String, Double> maxMap = new HashMap<String, Double>();
-
+    /** data to be scaled */
     private Collection<Plate> screen;
 
-
+    /** {@inheritDoc */
+    @Override
     public void configure(Collection<Plate> screen) {
         this.screen = screen;
 
@@ -28,6 +32,8 @@ public class MinMaxStrategy implements RescaleStrategy {
     }
 
 
+    /** {@inheritDoc */
+    @Override
     public Double getMinValue(final String selectedReadOut) {
         if (!minMap.containsKey(selectedReadOut)) {
             updateMinMaxForReadOut(selectedReadOut);
@@ -36,7 +42,8 @@ public class MinMaxStrategy implements RescaleStrategy {
         return minMap.get(selectedReadOut);
     }
 
-
+    /** {@inheritDoc */
+    @Override
     public Double getMaxValue(String selectedReadOut) {
         if (!maxMap.containsKey(selectedReadOut)) {
             updateMinMaxForReadOut(selectedReadOut);
@@ -45,7 +52,11 @@ public class MinMaxStrategy implements RescaleStrategy {
         return maxMap.get(selectedReadOut);
     }
 
-
+    /**
+     * Calculate the distribution descriptors of a given readout
+     *
+     * @param selectedReadOut readout to calculate the descriptors for
+     */
     private void updateMinMaxForReadOut(final String selectedReadOut) {
 
         List<Double> doubles = new ArrayList<Double>();
@@ -75,7 +86,8 @@ public class MinMaxStrategy implements RescaleStrategy {
         maxMap.put(selectedReadOut, doubles.get(doubles.size() - 1));
     }
 
-
+    /** {@inheritDoc */
+    @Override
     public Double normalize(Double wellReadout, String selectedReadOut) {
         if (wellReadout == null) {
             return null;
@@ -91,4 +103,5 @@ public class MinMaxStrategy implements RescaleStrategy {
 
         return (wellReadout - minValue) / (maxValue - minValue);
     }
+
 }
