@@ -1,3 +1,5 @@
+package de.mpicbg.tds.knime.hcstools.visualization;
+
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.renderer.HeatWell;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.WellViewer;
@@ -18,7 +20,7 @@ public class WellViewerTest {
 
     public static void main(String[] args) {
 
-//        HeatMapViewerTest2 test = new HeatMapViewerTest2();
+//        de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerTest2 test = new de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerTest2();
         DataTable table = PseudoHeatMapViewerNodeModel.loadTable(HeatMapViewerTest2.testDataPath);
         HeatMapModel model = PseudoHeatMapViewerNodeModel.parseBufferedTable(table, HeatMapViewerTest2.readouts, HeatMapViewerTest2.factors);
         List<Plate> plates = model.getScreen();

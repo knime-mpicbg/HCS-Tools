@@ -1,3 +1,5 @@
+package de.mpicbg.tds.knime.hcstools.visualization;
+
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel;
 import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;

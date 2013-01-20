@@ -1,3 +1,4 @@
+package de.mpicbg.tds.knime.hcstools.visualization;
 
 import java.awt.*;
 import java.util.*;
