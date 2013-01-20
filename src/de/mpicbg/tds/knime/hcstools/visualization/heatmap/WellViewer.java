@@ -253,7 +253,7 @@ public class WellViewer extends JPanel {
                 splitPane.setResizeWeight(0.9);
                 imageTable.getContentTable().setColumnWidth(nameWidth + numberWidth + 10);
             } else {
-                imageTable.setDataTable(well.getImageData().getTable());
+                imageTable.setDataTable(((DataContainer)well.getImageData()).getTable());
             }
 
             // Render the row id column invisible (no purpose here)

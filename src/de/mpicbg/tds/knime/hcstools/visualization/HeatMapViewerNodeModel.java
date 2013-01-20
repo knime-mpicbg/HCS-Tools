@@ -407,7 +407,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 well.setPlate(curPlate);
                 well.setPlateRow(rowAttribute.getIntAttribute(tableRow));
                 well.setPlateColumn(colAttribute.getIntAttribute(tableRow));
-                well.setKnimeTableRowKey(tableRow.getKey());
+                well.setKnimeTableRowKey(tableRow.getKey().getString());
                 well.setKnimeRowColor(tableSpec.getRowColor(tableRow).getColor());
 
 

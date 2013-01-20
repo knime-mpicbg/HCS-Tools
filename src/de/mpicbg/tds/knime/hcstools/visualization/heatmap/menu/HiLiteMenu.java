@@ -70,7 +70,7 @@ public class HiLiteMenu extends JMenu {
 
         HashSet<RowKey> keys = new HashSet<RowKey>();
         for (Well well : selection) {
-            keys.add(well.getKnimeTableRowKey());
+            keys.add(new RowKey(well.getKnimeTableRowKey()));
         }
 
         if ( heatMapModel.hasHiLiteHandler() ) {
@@ -104,7 +104,7 @@ public class HiLiteMenu extends JMenu {
 
         HashSet<RowKey> keys = new HashSet<RowKey>();
         for (Well well : selection) {
-            keys.add(well.getKnimeTableRowKey());
+            keys.add(new RowKey(well.getKnimeTableRowKey()));
         }
 
         if ( heatMapModel.hasHiLiteHandler() ) {

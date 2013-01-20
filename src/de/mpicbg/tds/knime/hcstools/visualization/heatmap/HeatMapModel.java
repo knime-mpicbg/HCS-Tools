@@ -910,7 +910,7 @@ public class HeatMapModel implements HiLiteListener {
         Collection<Plate> plates = this.getScreen();
         for (Plate plate : plates){
             for (Well well : plate.getWells()) {
-                if ( keys.contains(well.getKnimeTableRowKey()) ) {
+                if ( keys.contains(new RowKey(well.getKnimeTableRowKey())) ) {
                     this.addHilLites(well);
                 }
             }
@@ -923,7 +923,7 @@ public class HeatMapModel implements HiLiteListener {
     public void unHiLite(final KeyEvent event) {
         Set<RowKey> keys = event.keys();
         for (Well well : this.getHiLite()) {
-            if ( keys.contains(well.getKnimeTableRowKey()) ) {
+            if ( keys.contains(new RowKey(well.getKnimeTableRowKey())) ) {
                 this.removeHiLite(well);
             }
         }

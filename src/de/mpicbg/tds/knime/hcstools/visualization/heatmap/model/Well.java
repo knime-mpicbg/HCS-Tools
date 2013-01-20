@@ -1,8 +1,5 @@
 package de.mpicbg.tds.knime.hcstools.visualization.heatmap.model;
 
-import org.knime.core.data.RowKey;
-import org.knime.core.data.container.DataContainer;
-
 import java.awt.*;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -10,7 +7,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
-
 
 /**
  * For computational convenience plate positions are encoded as integers and not using "B7"-notation.
@@ -60,8 +56,8 @@ public class Well implements Serializable {
      * the list of well-fields imaged for this well. This maybe null or empty if single-field analysis was applied.  TODO: What? Where?
      */
 
-    /** DataTable object containing the image fields */
-    private transient DataContainer imageData;
+    /** DataTable object containing the image fields. Here we just reference the Object to avoid the dependency */
+    private transient Object imageData;
 
 
 
@@ -285,13 +281,13 @@ public class Well implements Serializable {
     }
 
 
-    public RowKey getKnimeTableRowKey() {
-        return new RowKey(this.knimeTableRowKey);
+    public String getKnimeTableRowKey() {
+        return this.knimeTableRowKey;
     }
 
 
-    public void setKnimeTableRowKey(RowKey knimeTableRowKey) {
-        this.knimeTableRowKey = knimeTableRowKey.getString();
+    public void setKnimeTableRowKey(String knimeTableRowKey) {
+        this.knimeTableRowKey = knimeTableRowKey;
     }
 
 
@@ -305,12 +301,12 @@ public class Well implements Serializable {
     }
 
 
-    public DataContainer getImageData() {
+    public Object getImageData() {
         return imageData;
     }
 
 
-    public void setImageData(DataContainer imageData) {
+    public void setImageData(Object imageData) {
         this.imageData = imageData;
     }
 
