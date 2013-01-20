@@ -22,14 +22,31 @@ import java.util.*;
  * @author Holger Brandl
  */
 
-public  class PlateUtils {
+public abstract class PlateUtils {
+
+    /** Well attributes */
+    public static final String SCREEN_MODEL_WELL = "well";
+    public static final String SCREEN_MODEL_WELL_COLUMN = "plateColumn";
+    public static final String SCREEN_MODEL_WELL_ROW = "plateRow";
+
+    /** Barcode and derived information */
+    public static final String SCREEN_MODEL_BARCODE = "barcode";
+    public static final String SCREEN_MODEL_LIB_CODE = "library code";
+    public static final String SCREEN_MODEL_LIB_PLATE_NUMBER = "library plate number";
+
+    /** Common column names */
+    public static final String SCREEN_MODEL_TREATMENT = "treatment";
+    public static final String SCREEN_MODEL_CONCENTRATION = "concentration";
+    public static final String SCREEN_MODEL_CONCENTRATION_UNIT = "unit of concentration";
+    public static final String SCREEN_MODEL_COMPOUND_ID = "compound id";
+
+    /** Typical layout values */
+    public static final String TREATMENT_LIBRARY = "library";
+    public static final String TREATMENT_UNTREATED = "untreated";
 
 
-    /**
-     * row labels up to 1536 well plate ('A','B',...'Z','AA','AB',...)
-     */
+    /** row labels up to 1536 well plate ('A','B',...'Z','AA','AB',...) */
     public static final List<String> rowLabels;
-
     static {
         List<String> list = new ArrayList<String>();
 
@@ -49,6 +66,7 @@ public  class PlateUtils {
 
         rowLabels = Collections.unmodifiableList(list);
     }
+
 
     /**
      * Converts 1 to A, 2 to B and so on.   Note: this conflicts with the usual array notation in java which start with
@@ -77,7 +95,7 @@ public  class PlateUtils {
     }
 
     public static Collection<String> collectTreatments(Collection<Plate> plates) {
-        return collectAnnotationLevels(plates, Conventions.CBG.Attr.Name.TREATMENT);
+        return collectAnnotationLevels(plates, PlateUtils.SCREEN_MODEL_TREATMENT);
     }
 
     public static Collection<String> collectAnnotationLevels(Collection<Plate> plates, String overlayName) {
@@ -230,8 +248,8 @@ public  class PlateUtils {
             int colCounter = 0;
             sheet.addCell(new Label(colCounter++, 0, "row"));
             sheet.addCell(new Label(colCounter++, 0, "column"));
-            sheet.addCell(new Label(colCounter++, 0, Conventions.CBG.Attr.Name.TREATMENT));
-            sheet.addCell(new Label(colCounter++, 0, Conventions.CBG.Attr.Name.BARCODE));
+            sheet.addCell(new Label(colCounter++, 0, PlateUtils.SCREEN_MODEL_TREATMENT));
+            sheet.addCell(new Label(colCounter++, 0, PlateUtils.SCREEN_MODEL_BARCODE));
 
             // write header
             for (String readoutName : readouts) {

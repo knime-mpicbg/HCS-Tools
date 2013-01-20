@@ -3,6 +3,7 @@ package de.mpicbg.tds.knime.hcstools.visualization;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateUtils;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
@@ -14,7 +15,6 @@ import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoDialog;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Conventions;
 import static de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel.*;
 
 /**
@@ -77,14 +77,14 @@ public class HeatMapViewerFactory extends NodeFactory<HeatMapViewerNodeModel> {
 
                 createNewTab("Plate");
                 createNewGroup("Definition/Identification");
-                SettingsModelString groupBySetting = createSettingsModelString(GROUP_BY_SETTING_NAME, Conventions.CBG.Attr.Name.BARCODE);
+                SettingsModelString groupBySetting = createSettingsModelString(GROUP_BY_SETTING_NAME, PlateUtils.SCREEN_MODEL_BARCODE);
                 addDialogComponent(new DialogComponentColumnNameSelection(groupBySetting, "Group Wells By", 0, groupByTypes));
-                SettingsModelString rowSetting = createSettingsModelString(PLATE_ROW_SETTING_NAME, Conventions.CBG.Attr.Name.WELL_ROW);
+                SettingsModelString rowSetting = createSettingsModelString(PLATE_ROW_SETTING_NAME, PlateUtils.SCREEN_MODEL_WELL_ROW);
                 addDialogComponent(new DialogComponentColumnNameSelection(rowSetting, "Plate Row", 0, rowColTypes));
-                SettingsModelString columnSetting = createSettingsModelString(PLATE_COLUMN_SETTING_NAME, Conventions.CBG.Attr.Name.WELL_COLUMN);
+                SettingsModelString columnSetting = createSettingsModelString(PLATE_COLUMN_SETTING_NAME, PlateUtils.SCREEN_MODEL_WELL_COLUMN);
                 addDialogComponent(new DialogComponentColumnNameSelection(columnSetting, "Plate Column", 0, rowColTypes));
                 createNewGroup("Plate Label");
-                SettingsModelString labelSetting = createSettingsModelString(PLATE_LABEL_SETTING_NAME, Conventions.CBG.Attr.Name.BARCODE);
+                SettingsModelString labelSetting = createSettingsModelString(PLATE_LABEL_SETTING_NAME, PlateUtils.SCREEN_MODEL_BARCODE);
                 addDialogComponent(new DialogComponentColumnNameSelection(labelSetting, "Column for Plate Labeling", 0, new Class[]{StringValue.class}));
 
                 createNewTab("Controls");

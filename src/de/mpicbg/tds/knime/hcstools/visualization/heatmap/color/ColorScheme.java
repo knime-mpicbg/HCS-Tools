@@ -3,9 +3,8 @@ package de.mpicbg.tds.knime.hcstools.visualization.heatmap.color;
 import java.awt.*;
 import java.util.*;
 
+import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateUtils;
 import org.knime.core.data.property.ColorAttr;
-
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Conventions;
 
 /**
  * Defines a screen-dependent color set. Subclasses may override parts of it to adapt it to project specific needs.
@@ -71,7 +70,7 @@ public class ColorScheme {
                                     blackOffset + r.nextInt(255 - blackOffset),
                                     blackOffset + r.nextInt(255 - blackOffset));
 
-        if (keyValue.equals(Conventions.CBG.Attr.Value.TREATMENT_LIBRARY)) {
+        if (keyValue.equals(PlateUtils.TREATMENT_LIBRARY)) {
             nextColor = ColorScheme.LIBRARY;//Color.YELLOW;
         }
 

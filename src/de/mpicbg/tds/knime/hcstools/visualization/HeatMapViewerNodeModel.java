@@ -6,7 +6,6 @@ import de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcode;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.LinearColorGradient;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.color.RescaleStrategy;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Conventions;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Plate;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateUtils;
 import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Well;
@@ -63,10 +62,10 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** Setting models */
     protected SettingsModelFilterString propReadouts = createSettingsModelFilterString(READOUT_SETTING_NAME);
     protected SettingsModelFilterString propFactors = createSettingsModelFilterString(FACTOR_SETTING_NAME);
-    protected SettingsModelString propPlateLabel = createSettingsModelString(PLATE_LABEL_SETTING_NAME, Conventions.CBG.Attr.Name.BARCODE);
-    protected SettingsModelString propGroupBy = createSettingsModelString(GROUP_BY_SETTING_NAME, Conventions.CBG.Attr.Name.BARCODE);
-    protected SettingsModelString propPlateRow = createSettingsModelString(PLATE_ROW_SETTING_NAME, Conventions.CBG.Attr.Name.WELL_ROW);
-    protected SettingsModelString propPlateCol = createSettingsModelString(PLATE_COLUMN_SETTING_NAME, Conventions.CBG.Attr.Name.WELL_COLUMN);
+    protected SettingsModelString propPlateLabel = createSettingsModelString(PLATE_LABEL_SETTING_NAME, PlateUtils.SCREEN_MODEL_BARCODE);
+    protected SettingsModelString propGroupBy = createSettingsModelString(GROUP_BY_SETTING_NAME, PlateUtils.SCREEN_MODEL_BARCODE);
+    protected SettingsModelString propPlateRow = createSettingsModelString(PLATE_ROW_SETTING_NAME, PlateUtils.SCREEN_MODEL_WELL_ROW);
+    protected SettingsModelString propPlateCol = createSettingsModelString(PLATE_COLUMN_SETTING_NAME, PlateUtils.SCREEN_MODEL_WELL_COLUMN);
     protected SettingsModelStringArray propRefNames = createSettingModelStringArray(REFERENCE_POPULATIONS_SETTING_NAME);
     protected SettingsModelString propRefParameter = createTreatmentAttributeSelector();
 
@@ -414,7 +413,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 for (Attribute attribute : attributes) {
                     String attributeName = attribute.getName();
 
-                    if (StringUtils.equalsIgnoreCase(Conventions.CBG.Attr.Name.TREATMENT, attributeName)) {
+                    if (StringUtils.equalsIgnoreCase(PlateUtils.SCREEN_MODEL_TREATMENT, attributeName)) {
                         well.setTreatment(attribute.getNominalAttribute(tableRow));
                     }
 
