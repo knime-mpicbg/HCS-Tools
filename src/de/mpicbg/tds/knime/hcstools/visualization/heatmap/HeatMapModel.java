@@ -191,7 +191,7 @@ public class HeatMapModel implements HiLiteListener {
      * @param descending sorting flag (ture-> descending order, false-> ascending order)
      */
     public void sortPlates(PlateAttribute attribute, boolean descending) {
-        Collections.sort(screen, PlateComparators.getComparator(attribute));
+        Collections.sort(screen, new PlateComparator(attribute));
         if (!descending) { Collections.reverse(screen); }
     }
 
