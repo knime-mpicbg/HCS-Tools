@@ -1,4 +1,0 @@
-To reintegrate this back to the hcscore
-- There is a PlateComparator hanging around already. This one should be tested and the other once removed.
-- PlateUtils and PlateConvetions replaces PlateUtils. There are two classes now to separate arbitrary conventions from
-  actual utility methods.
