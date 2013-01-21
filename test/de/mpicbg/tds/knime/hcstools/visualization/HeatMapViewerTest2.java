@@ -4,10 +4,10 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.*;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.menu.HiLiteMenu;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.menu.TrellisMenu;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.menu.ViewMenu;
+import de.mpicbg.tds.knime.heatmap.*;
+import de.mpicbg.tds.knime.heatmap.menu.HiLiteMenu;
+import de.mpicbg.tds.knime.heatmap.menu.TrellisMenu;
+import de.mpicbg.tds.knime.heatmap.menu.ViewMenu;
 
 import org.knime.core.data.DataTable;
 import javax.swing.*;

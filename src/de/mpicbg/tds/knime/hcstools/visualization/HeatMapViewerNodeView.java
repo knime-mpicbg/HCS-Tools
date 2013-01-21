@@ -1,12 +1,12 @@
 package de.mpicbg.tds.knime.hcstools.visualization;
 
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.*;
+import de.mpicbg.tds.knime.heatmap.*;
 
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.menu.HiLiteMenu;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.menu.TrellisMenu;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.menu.ViewMenu;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.PlateUtils;
-import de.mpicbg.tds.knime.hcstools.visualization.heatmap.model.Well;
+import de.mpicbg.tds.knime.heatmap.menu.HiLiteMenu;
+import de.mpicbg.tds.knime.heatmap.menu.TrellisMenu;
+import de.mpicbg.tds.knime.heatmap.menu.ViewMenu;
+import de.mpicbg.tds.knime.heatmap.model.PlateUtils;
+import de.mpicbg.tds.knime.heatmap.model.Well;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.property.hilite.HiLiteHandler;
