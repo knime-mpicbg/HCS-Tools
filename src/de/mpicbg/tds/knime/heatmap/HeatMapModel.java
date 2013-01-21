@@ -1,6 +1,6 @@
 package de.mpicbg.tds.knime.heatmap;
 
-import de.mpicbg.tds.knime.heatmap.model.*;
+import de.mpicbg.tds.core.model.*;
 import de.mpicbg.tds.knime.heatmap.color.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.Frequency;

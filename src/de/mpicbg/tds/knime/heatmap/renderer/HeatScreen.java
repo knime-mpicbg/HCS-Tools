@@ -5,8 +5,8 @@ import javax.swing.*;
 
 import de.mpicbg.tds.knime.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.heatmap.color.ColorScheme;
-import de.mpicbg.tds.knime.heatmap.model.Well;
-import de.mpicbg.tds.knime.heatmap.model.Plate;
+import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.core.model.Plate;
 
 /**
  * Implements a memory-efficient and fast heatmap-preview panel for a single screening plate.

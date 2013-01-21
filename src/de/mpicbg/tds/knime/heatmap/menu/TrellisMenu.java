@@ -4,8 +4,8 @@ import de.mpicbg.tds.knime.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.heatmap.ScreenViewer;
 import de.mpicbg.tds.knime.heatmap.dialog.PlateAttributeDialog;
 import de.mpicbg.tds.knime.heatmap.dialog.RowColumnDialog;
-import de.mpicbg.tds.knime.heatmap.model.PlateAttribute;
-import de.mpicbg.tds.knime.heatmap.model.PlateUtils;
+import de.mpicbg.tds.core.model.PlateAttribute;
+import de.mpicbg.tds.core.model.PlateUtils;
 import de.mpicbg.tds.knime.heatmap.renderer.HeatTrellis;
 
 import javax.swing.*;

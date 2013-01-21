@@ -3,8 +3,8 @@ package de.mpicbg.tds.knime.hcstools.visualization;
 import de.mpicbg.tds.knime.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.heatmap.renderer.HeatWell;
 import de.mpicbg.tds.knime.heatmap.WellViewer;
-import de.mpicbg.tds.knime.heatmap.model.Plate;
-import de.mpicbg.tds.knime.heatmap.model.Well;
+import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.tds.core.model.Well;
 import org.knime.core.data.DataTable;
 
 import javax.swing.*;

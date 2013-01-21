@@ -3,7 +3,7 @@ package de.mpicbg.tds.knime.hcstools.visualization;
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel;
 import de.mpicbg.tds.knime.heatmap.HeatMapModel;
-import de.mpicbg.tds.knime.heatmap.model.Plate;
+import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.knime.knutils.Attribute;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;

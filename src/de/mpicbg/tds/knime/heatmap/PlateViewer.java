@@ -4,7 +4,7 @@ import de.mpicbg.tds.knime.heatmap.menu.HeatMapColorToolBar;
 import de.mpicbg.tds.knime.heatmap.menu.HeatMapInputToolbar;
 import de.mpicbg.tds.knime.heatmap.menu.HiLiteMenu;
 import de.mpicbg.tds.knime.heatmap.menu.ViewMenu;
-import de.mpicbg.tds.knime.heatmap.model.Plate;
+import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
 import de.mpicbg.tds.knime.heatmap.renderer.HeatPlate;
 import de.mpicbg.tds.knime.heatmap.renderer.HeatTrellis;

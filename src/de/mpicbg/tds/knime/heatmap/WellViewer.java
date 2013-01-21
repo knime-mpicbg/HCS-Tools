@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.heatmap;
 
-import de.mpicbg.tds.knime.heatmap.model.PlateUtils;
-import de.mpicbg.tds.knime.heatmap.model.Well;
+import de.mpicbg.tds.core.model.PlateUtils;
+import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.knime.heatmap.renderer.HeatWell;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.knime.core.data.*;
@@ -51,7 +51,7 @@ public class WellViewer extends JPanel {
      * Constructor of the Well Viewer. This only creates a panel containing the
      * description and the readout table and is intended for tooltips.
      * To create a complete WellViewer use
-     * {@link #WellViewer(HeatWell, de.mpicbg.tds.knime.heatmap.model.Well)}
+     * {@link #WellViewer(HeatWell, de.mpicbg.tds.core.model.Well)}
      * followed by {@link #createDialog()}.
      *
      * @param well the {@link Well} object to create the details view for.

@@ -10,9 +10,9 @@ import java.util.List;
 import de.mpicbg.tds.knime.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.heatmap.PlateViewer;
 import de.mpicbg.tds.knime.heatmap.color.ColorScheme;
-import de.mpicbg.tds.knime.heatmap.model.PlateUtils;
-import de.mpicbg.tds.knime.heatmap.model.Plate;
-import de.mpicbg.tds.knime.heatmap.model.Well;
+import de.mpicbg.tds.core.model.PlateUtils;
+import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.tds.core.model.Well;
 
 import info.clearthought.layout.TableLayout;
 

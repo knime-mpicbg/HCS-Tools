@@ -1,8 +1,8 @@
 package de.mpicbg.tds.knime.heatmap.color;
 
-import de.mpicbg.tds.knime.heatmap.model.PlateUtils;
-import de.mpicbg.tds.knime.heatmap.model.Plate;
-import de.mpicbg.tds.knime.heatmap.model.Well;
+import de.mpicbg.tds.core.model.PlateUtils;
+import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.tds.core.model.Well;
 
 import java.util.*;
 

@@ -3,7 +3,7 @@ package de.mpicbg.tds.knime.hcstools.visualization;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import de.mpicbg.tds.knime.heatmap.model.PlateUtils;
+import de.mpicbg.tds.core.model.PlateUtils;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;

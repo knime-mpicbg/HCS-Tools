@@ -5,7 +5,7 @@ import de.mpicbg.tds.knime.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.heatmap.HeatMapModelChangeListener;
 import de.mpicbg.tds.knime.heatmap.PlateViewer;
 import de.mpicbg.tds.knime.heatmap.color.ColorScheme;
-import de.mpicbg.tds.knime.heatmap.model.Plate;
+import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.util.PanelImageExporter;
 import info.clearthought.layout.TableLayout;
 

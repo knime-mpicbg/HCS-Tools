@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.mpicbg.tds.knime.heatmap.model.PlateUtils;
+import de.mpicbg.tds.core.model.PlateUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**

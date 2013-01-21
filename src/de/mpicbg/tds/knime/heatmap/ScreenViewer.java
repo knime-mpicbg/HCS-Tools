@@ -2,7 +2,7 @@ package de.mpicbg.tds.knime.heatmap;
 
 import de.mpicbg.tds.knime.heatmap.menu.HeatMapColorToolBar;
 import de.mpicbg.tds.knime.heatmap.menu.HeatMapInputToolbar;
-import de.mpicbg.tds.knime.heatmap.model.Plate;
+import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.knime.heatmap.renderer.HeatTrellis;
 
 import javax.swing.*;
