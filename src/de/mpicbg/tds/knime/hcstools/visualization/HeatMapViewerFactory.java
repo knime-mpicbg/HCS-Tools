@@ -21,11 +21,6 @@ import static de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel.
  * Creating the HCS Heat Map Viewer node.
  *
  * @author Holger Brandl (MPI-CBG)
- *
- * TODO: The hiliting works only in one direction (other views catch it if the trellis does modifications)
- * TODO: firing hilite actions from the plate view does not work. (the internal hilites seem to be sync though)
- * TODO: hilite filtering chokes the view
- * TODO: The color map menu does not work properly. It's also missing the icons.
  */
 
 public class HeatMapViewerFactory extends NodeFactory<HeatMapViewerNodeModel> {

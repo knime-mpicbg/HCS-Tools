@@ -21,6 +21,8 @@ import java.util.Set;
  *
  * @author Felix Meyenhofer
  * creation: 12/27/12
+ *
+ * TODO: The HiLite has some random behaviour. Clearing the HiLites is not in sync between views of different nodes when using the HeatMapViewer+ImageFileLinker workflow.
  */
 
 public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
