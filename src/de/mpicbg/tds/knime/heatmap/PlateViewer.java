@@ -93,10 +93,6 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         parent.heatMapModel.addChangeListener(this);
         this.heatMapModel.addChangeListener(this);
 
-        // Configure
-        this.toolbar.configure(this.heatMapModel);
-        this.colorbar.configure(this.heatMapModel);
-
         // Give a meaningful title.
         this.setTitle("Plate Viewer (" + plate.getBarcode() + ")");
 
