@@ -111,6 +111,9 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
             if ( hiLites.contains(well.getKnimeTableRowKey()) )
                 heatMapModel.addHilLites(well);
         }
+
+        // Set the focus on the menu of the screen viewer so the keyboard shortcuts take effect immediately (without first manipulating the view)
+        screenView.setRequestFocusEnabled(true);
     }
 
     /** {@inheritDoc} */
