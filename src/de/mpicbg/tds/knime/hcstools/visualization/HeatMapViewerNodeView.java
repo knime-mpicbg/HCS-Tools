@@ -23,6 +23,7 @@ import java.util.Set;
  * creation: 12/27/12
  *
  * TODO: The HiLite has some random behaviour. Clearing the HiLites is not in sync between views of different nodes when using the HeatMapViewer+ImageFileLinker workflow.
+ * TODO: The view saves internals when closing. Since this is not instantanious, there should be a dialog to inform the user and giving him the option to cancel the process.
  */
 
 public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
@@ -83,9 +84,10 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
 
         // Save the view configuration
         try {
+            nodeModel.setPlotWarning("Saving view configuration. This might take a moment.");
             nodeModel.serializeViewConfiguration();
         } catch (IOException e) {
-            nodeModel.setPlotWarning("Saving the view configuation failed.");
+            nodeModel.setPlotWarning("Saving the view configuration failed.");
             nodeModel.setPlotWarning(e.toString());
         }
     }
