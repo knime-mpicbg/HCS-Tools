@@ -21,6 +21,8 @@ import java.util.*;
  *
  * @author Felix Meyenhofer
  *         created: 20/12/12
+ *
+ * TODO: I would be a nice thing to have the option to keep the plate dimensions during resizing.
  */
 
 public class PlateViewer extends JFrame implements HeatMapModelChangeListener, HeatMapViewer {
@@ -29,7 +31,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
      *  containing the {@link HeatMapModelChangeListener} needed to update the GUIs */
     private HeatTrellis updater;
 
-    /** The {@link HeatMapModel} object which is patially seperated for this instnance of the PlateViewer. */
+    /** The {@link HeatMapModel} object which is partially separated for this instance of the PlateViewer. */
     private HeatMapModel heatMapModel;
 
     /** GUI components made accessible */
@@ -142,7 +144,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         toolbar = new HeatMapInputToolbar(this);
         add(toolbar, BorderLayout.NORTH);
 
-        heatMapContainer = new JPanel(new FlowLayout(FlowLayout.CENTER, 0,0));
+        heatMapContainer = new JPanel(new BorderLayout());
         heatMapContainer.setBorder(BorderFactory.createEmptyBorder(0,0,10,10));
         add(heatMapContainer, BorderLayout.CENTER);
 

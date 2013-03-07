@@ -30,8 +30,6 @@ public class HeatPlate extends JPanel implements MouseListener {
 
     /** Data model */
     private HeatMapModel heatMapModel;
-    /** Container for the assignment Well to HeatWell (renderer) */
-    Map<Well, HeatWell> wellPanelGrid = new HashMap<Well, HeatWell>();
 
     /** Component where the mouse was pressed on */
     private Component pressedComponent;
@@ -49,7 +47,7 @@ public class HeatPlate extends JPanel implements MouseListener {
     public HeatPlate(PlateViewer parent, Plate plate) {
         this.heatMapModel = parent.getHeatMapModel();
         this.setBorder(BorderFactory.createEmptyBorder());
-        this.setBackground(ColorScheme.EMPTY_READOUT);
+        this.setBackground(parent.getBackground());
 
         // configure the actual grid
         TableLayout tableLayout = new TableLayout();
@@ -106,12 +104,26 @@ public class HeatPlate extends JPanel implements MouseListener {
         }
 
         // 3) actual well renderer (by iterating over the plate as it's much more efficient compared to using the service)
+        List<String> filledPositions = new ArrayList<String>();
         for (Well well : plate.getWells()) {
             String insertPosition = (well.getPlateColumn()) + ", " + (well.getPlateRow());
             HeatWell heatWellPanel = new HeatWell(well, heatMapModel);
             heatWellPanel.addMouseListener(this);
-            wellPanelGrid.put(well, heatWellPanel);
             add(heatWellPanel, insertPosition);
+            filledPositions.add(insertPosition);
+        }
+
+        // 4) fill the empty cells with a label having the "empty readout" color.
+        for (int r = 0; r <= numRows; r++) {
+            for (int c = 0; c <= numColumns; c++) {
+                String insertPosition = (c+1) + ", " + (r+1);
+                if (!filledPositions.contains(insertPosition)){
+                    JLabel bgLabel = new JLabel("");
+                    bgLabel.setBackground(ColorScheme.EMPTY_READOUT);
+                    bgLabel.setOpaque(true);
+                    add(bgLabel, insertPosition);
+                }
+            }
         }
     }
 
@@ -248,4 +260,19 @@ public class HeatPlate extends JPanel implements MouseListener {
     @Override
     public void mouseExited(MouseEvent mouseEvent) { /** Do Nothing */ }
 
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame();
+        frame.setVisible(true);
+
+        Plate plate = new Plate();
+        plate.setNumColumns(24);
+        plate.setNumRows(16);
+
+        HeatPlate heatmap = new HeatPlate(new PlateViewer(), plate);
+
+        frame.add(heatmap);
+        frame.pack();
+
+    }
 }
