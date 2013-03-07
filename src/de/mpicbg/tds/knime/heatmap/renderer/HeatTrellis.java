@@ -166,14 +166,14 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         HEATMAP_WIDTH = (HEATMAP_WIDTH < MIN_HEATMAP_WIDTH) ? MIN_HEATMAP_WIDTH : HEATMAP_WIDTH;
         HEATMAP_WIDTH = (HEATMAP_WIDTH > getWidth()) ? getWidth()-cellGap : HEATMAP_WIDTH;
         // Derive the heatmap height.
-        HEATMAP_HEIGHT = (int) Math.round(HEATMAP_WIDTH *(16.0/24.0));
+        HEATMAP_HEIGHT = (int) Math.round(HEATMAP_WIDTH * (16.0/24.0));
         repopulatePlateGrid();
     }
 
     /**
      * Creating the heatmap trellis (renderer)
      */
-    private void repopulatePlateGrid() {
+    public void repopulatePlateGrid() {
         List<HeatScreen> heatmapSelection = createHeatMaps();
 
         // Figure out how many rows an columns are needed.
@@ -236,14 +236,6 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         // Estimate the panel size.
         updateContainerDimensions(numRows, numColumns);
 
-        // Now That the approximate size is right, get the plate container insets and adjust.
-        JPanel firstPlate = getFistPlate();
-        if ( !(firstPlate == null) ) {
-            Insets plateInsets = firstPlate.getInsets();
-            updateContainerDimensions(numRows, numColumns, (plateInsets.left + plateInsets.right),
-                                                           (plateInsets.top + plateInsets.bottom));
-        }
-
         invalidate();
         updateUI();
         repaint();
@@ -275,8 +267,10 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
      */
     private int[] calculateTrellisDimensions(int numberOfPlates) {
         int numRows, numColumns;
+        int panelWidth = getWidth() - heatMapScrollPane.getVerticalScrollBar().getWidth();
+
         if ( heatMapModel.isAutomaticTrellisConfiguration() ) {
-            numColumns = (int) Math.floor(getWidth() *1.0 / (HEATMAP_WIDTH + cellGap) );
+            numColumns = (int) Math.floor((panelWidth- cellGap) / (HEATMAP_WIDTH + cellGap));
             numRows = (int) Math.ceil(numberOfPlates/ (double) numColumns);
             heatMapScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         } else {
@@ -290,19 +284,6 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
             numColumns = numberOfPlates;
 
         return new int[]{numRows, numColumns};
-    }
-
-    /**
-     * Returns the first HeatScreen (plate)
-     *
-     * @return first plate of the trellis
-     */
-    private JPanel getFistPlate() {
-        try {
-            return (JPanel) heatMapsContainer.getComponent(0);
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     /**
@@ -345,12 +326,10 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
      *
      * @param numRows number of rows in the trellis
      * @param numColumns number of columns in the trellis
-     * @param hmarging horizontal margin
-     * @param vmarging vertical margin
      */
-    private void updateContainerDimensions(int numRows, int numColumns, int hmarging, int vmarging) {
-        int containerWidth = numColumns * HEATMAP_WIDTH + (numColumns-1) * cellGap + hmarging * numColumns;
-        int containerHeight = numRows * HEATMAP_HEIGHT + (numRows - 1) * cellGap + vmarging * numRows;
+    private void updateContainerDimensions(int numRows, int numColumns) {
+        int containerWidth = numColumns * HEATMAP_WIDTH + (numColumns + 1) * cellGap;
+        int containerHeight = numRows * HEATMAP_HEIGHT + (numRows + 1) * cellGap;
         Dimension containerDimensions = new Dimension(containerWidth, containerHeight);
         heatMapsContainer.setPreferredSize(containerDimensions);
 
@@ -368,17 +347,6 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
             heatMapScrollPane.setViewportView(heatMapsContainer);
         }
     }
-
-    /**
-     * Recalculate the {@link #heatMapsContainer} dimensions (without margins)
-     *
-     * @param numRows number of rows in the trellis
-     * @param numColumns number of columns in the trellis
-     */
-    private void updateContainerDimensions(int numRows, int numColumns) {
-        updateContainerDimensions(numRows, numColumns, 0, 0);
-    }
-
 
     /**
      * Fetching the available plate data (not filtered, etc.)
