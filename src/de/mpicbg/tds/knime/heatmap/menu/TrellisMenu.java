@@ -13,9 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Menu acting on the {@link HeatTrellis}
@@ -182,10 +179,8 @@ public class TrellisMenu extends JMenu {
         PlateAttributeDialog dialog = new PlateAttributeDialog(heatMapModel);
         dialog.setVisible(true);
         String[] selectedAttributes = dialog.getSelectedAttributeTitles();
-        List<String> inverted = Arrays.asList(selectedAttributes);
-        Collections.reverse(inverted);
-        for (String key : inverted) {
-            PlateAttribute attribute = PlateUtils.getPlateAttributeByTitle(key);
+        for (int i=selectedAttributes.length-1; i>=0; i--) {
+            PlateAttribute attribute = PlateUtils.getPlateAttributeByTitle(selectedAttributes[i]);
             heatMapModel.sortPlates(attribute);
         }
 
