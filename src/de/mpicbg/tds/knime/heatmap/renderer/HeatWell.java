@@ -101,12 +101,21 @@ public class HeatWell extends JPanel {
         return well;
     }
 
+    /**
+     *  Getter for the data model
+     *
+     * @return the data model
+     */
+    public HeatMapModel getHeatMapModel() {
+        return this.heatMapModel;
+    }
+
     /** {@inheritDoc} */
     @Override
     public JToolTip createToolTip() {
         JToolTip jToolTip = new JToolTip();
         jToolTip.setLayout(new BorderLayout());
-        WellViewer wellDetailsPanel = new WellViewer(well);
+        WellViewer wellDetailsPanel = new WellViewer(this, well);
         jToolTip.add(wellDetailsPanel, BorderLayout.CENTER);
         jToolTip.setPreferredSize(wellDetailsPanel.getPreferredSize());
 

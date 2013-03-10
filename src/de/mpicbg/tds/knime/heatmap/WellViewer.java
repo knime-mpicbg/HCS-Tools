@@ -26,22 +26,22 @@ public class WellViewer extends JPanel {
 
     /** Constraints for the panel dimensions (the width and height are also derived from the readout content */
     private static final int MINIMAL_WIDTH = 150;
-    private static final int HEADER_HEIGHT = 80;
+    private static final int HEADER_HEIGHT = 34;
     private static final int IMAGE_TABLE_HEIGHT = 140;
 
     /** Header panel containing the Well description. */
     private JTextArea description;
 
     /** 2 column table with readout names and values */
-    private JTable readoutTable;
+    private JTable wellTable;
 
     /** Table where with the image data beloning to the {@link Well} */
     private TableView imageTable;
 
-    /** Splitpane used to separate the {@link #imageTable} and the {@link #readoutTable} */
+    /** Splitpane used to separate the {@link #imageTable} and the {@link #wellTable} */
     private JSplitPane splitPane;
 
-    /** Font used for the {@link #readoutTable} */
+    /** Font used for the {@link #wellTable} */
     private Font font = new Font("Arial", Font.PLAIN, 11);
 
     /** The parent {@link de.mpicbg.tds.knime.heatmap.renderer.HeatWell} used to position the WellViewer window */
@@ -64,7 +64,7 @@ public class WellViewer extends JPanel {
 
 
     /**
-     * Constructor of the complete WellViewer including {@link #description}, {@link #readoutTable}
+     * Constructor of the complete WellViewer including {@link #description}, {@link #wellTable}
      * and {@link #imageTable} components.
      * Since this class is an extension of {@link JPanel} use {@link #createDialog()} to obtain
      * a new WellViewer window.
@@ -121,7 +121,7 @@ public class WellViewer extends JPanel {
         description.setBorder(BorderFactory.createEmptyBorder(0, 5, 3, 5));
         description.setEnabled(false);
 
-        // Add the description and the readoutTable component to the main panel.
+        // Add the description and the wellTable component to the main panel.
         this.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -144,8 +144,8 @@ public class WellViewer extends JPanel {
      * @return scrollable table.
      */
     private JScrollPane createReadoutTable() {
-        // Initialize the readoutTable component
-        readoutTable = new JTable(new ReadoutTableModel()) {
+        // Initialize the wellTable component
+        wellTable = new JTable(new ReadoutTableModel()) {
             @Override
             public String getToolTipText(MouseEvent e) {
                 String tip = null;
@@ -153,24 +153,21 @@ public class WellViewer extends JPanel {
 
                 int rowIndex = rowAtPoint(p);
                 int colIndex = columnAtPoint(p);
-                int realColumnIndex = convertColumnIndexToModel(colIndex);
-                if ( realColumnIndex == 0 ) {
-                    Object value = getValueAt(rowIndex, colIndex);
-                    if ( value instanceof String ) {
-                        tip = (String) value;
-                    } else if ( value instanceof Double ) {
-                        tip = value.toString();
-                    }
+                Object value = getValueAt(rowIndex, colIndex);
+                if ( value instanceof String ) {
+                    tip = (String) value;
+                } else if ( value instanceof Double ) {
+                    tip = value.toString();
                 }
 
                 return tip;
             }
         };
-        readoutTable.setFont(font);
+        wellTable.setFont(font);
 
-        // Surround the readoutTable with a scroll pane
+        // Surround the wellTable with a scroll pane
         JScrollPane scrollTable = new JScrollPane();
-        scrollTable.setViewportView(readoutTable);
+        scrollTable.setViewportView(wellTable);
 
         return scrollTable;
     }
@@ -191,19 +188,20 @@ public class WellViewer extends JPanel {
                 append(PlateUtils.mapPlateRowNumberToString(well.getPlateRow())).
                 append(",").
                 append(well.getPlateColumn()).
-                append("]\n");
-        stringBuffer.append("Treatment: ").
-                append(well.getTreatment());
+                append("]");
         description.setText(stringBuffer.toString());
 
-        // Set all its readout values
-        Object[][] tableData = new Object[well.getReadOutNames().size()][2];
+        // Create an table array (and some variables to measure the string length) ...
+        int tableRows = parent.getHeatMapModel().getReadouts().size() +
+                parent.getHeatMapModel().getAnnotations().size();
+        Object[][] tableData = new Object[tableRows][2];
         int counter = 0;
-        FontMetrics metrics = readoutTable.getFontMetrics(font);
+        FontMetrics metrics = wellTable.getFontMetrics(font);
         DescriptiveStatistics valueStats = new DescriptiveStatistics();
         DescriptiveStatistics nameStats = new DescriptiveStatistics();
 
-        for (String readoutName : well.getReadOutNames()) {
+        // ...Fill in the readout values
+        for (String readoutName : parent.getHeatMapModel().getReadouts()) {
             tableData[counter][0] = readoutName;
             Double value = well.getReadout(readoutName);
             nameStats.addValue(metrics.stringWidth(readoutName));
@@ -216,18 +214,33 @@ public class WellViewer extends JPanel {
             }
         }
 
-        // Replace the readoutTable model
-        ReadoutTableModel model = (ReadoutTableModel) readoutTable.getModel();
+        // ...Fill in the annotations
+        for (String annotation : parent.getHeatMapModel().getAnnotations()) {
+            tableData[counter][0] = annotation;
+            String value = well.getAnnotation(annotation);
+
+            nameStats.addValue(metrics.stringWidth(annotation));
+
+            if ( value == null ) {
+                tableData[counter++][1] = "";
+            } else {
+                tableData[counter++][1] = value;
+                valueStats.addValue(metrics.stringWidth(value));
+            }
+        }
+
+        // Replace the wellTable model
+        ReadoutTableModel model = (ReadoutTableModel) wellTable.getModel();
         model.setData(tableData);
-        readoutTable.setModel(model);
+        wellTable.setModel(model);
 
         // Fix the number column width.
         int numberWidth = (int) valueStats.getMax() + 5;
         numberWidth = (numberWidth < 50) ? 50 : numberWidth;
         numberWidth = (numberWidth > 300) ? 300 : numberWidth;
-        readoutTable.getColumnModel().getColumn(1).setMaxWidth(numberWidth+70);
-        readoutTable.getColumnModel().getColumn(1).setPreferredWidth(numberWidth);
-        readoutTable.getColumnModel().getColumn(1).setMinWidth(numberWidth);
+        wellTable.getColumnModel().getColumn(1).setMaxWidth(numberWidth+70);
+        wellTable.getColumnModel().getColumn(1).setPreferredWidth(numberWidth);
+        wellTable.getColumnModel().getColumn(1).setMinWidth(numberWidth);
 
         // Determine the name column width.
         int nameWidth = (int) nameStats.getMax() + 5;
@@ -235,7 +248,7 @@ public class WellViewer extends JPanel {
         nameWidth = (nameWidth > 300) ? 300 : nameWidth;
 
         // Compute the panel height
-        int PREFFERRED_HEIGHT = HEADER_HEIGHT + counter * readoutTable.getRowHeight();
+        int PREFERRED_HEIGHT = HEADER_HEIGHT + counter * wellTable.getRowHeight();
 
         // Configure the image table if it was initialized.
         if (imageTable != null) {
@@ -260,17 +273,19 @@ public class WellViewer extends JPanel {
             imageTable.getHeaderTable().getParent().setVisible(false);
 
             // Add the image table height to the viewer height.
-            PREFFERRED_HEIGHT += IMAGE_TABLE_HEIGHT;
+            PREFERRED_HEIGHT += IMAGE_TABLE_HEIGHT;
         }
 
+        // Make sure the WellViewer is not to big (high)
+        PREFERRED_HEIGHT = (PREFERRED_HEIGHT > 600) ? 600 : PREFERRED_HEIGHT;
+
         // Set the panel dimensions.
-        PREFFERRED_HEIGHT = (PREFFERRED_HEIGHT > 600) ? 600 : PREFFERRED_HEIGHT;
-        this.setPreferredSize(new Dimension(nameWidth + numberWidth + 20, PREFFERRED_HEIGHT));
+        this.setPreferredSize(new Dimension(nameWidth + numberWidth + 20, PREFERRED_HEIGHT));
     }
 
 
     /**
-     * Simple 2 column readoutTable for the attributes and their values
+     * Simple 2 column wellTable for the attributes and their values
      */
     private class ReadoutTableModel extends AbstractTableModel {
 
