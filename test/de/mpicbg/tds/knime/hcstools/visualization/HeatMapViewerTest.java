@@ -40,7 +40,7 @@ public class HeatMapViewerTest {
             "inner_outer"
     );
     private static List<String> readouts = Arrays.asList(
-            "Nuclei Intensity",
+//            "Nuclei Intensity",
             "Calculation time (seconds)",
             "Number of Cells",
             "Ch2 Median of Maximum",

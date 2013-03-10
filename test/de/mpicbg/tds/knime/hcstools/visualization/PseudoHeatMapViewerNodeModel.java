@@ -113,6 +113,10 @@ public abstract class PseudoHeatMapViewerNodeModel {
         // Create the viewers data model
         HeatMapModel model = new HeatMapModel();
 
+        // Store the oder of parameters and factors as in the configuration dialog
+        model.setReadouts(readouts);
+        model.setAnnotations(factors);
+
         // Set some reference populations.
         HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
         referencePopulations.put("transfection",new String[]{"Mock", "Tox3", "Neg5"});

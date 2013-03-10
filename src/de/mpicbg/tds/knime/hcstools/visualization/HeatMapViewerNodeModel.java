@@ -287,6 +287,10 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         if (factors.isEmpty())
             logger.warn("There are no factors selected ('Factors' tab in the configure dialog)!");
 
+        // Store the oder of parameters and factors as in the configuration dialog
+        heatMapModel.setReadouts(parameters);
+        heatMapModel.setAnnotations(propFactors.getIncludeList());
+
         // Split input table by grouping column
         Attribute<String> barcodeAttribute = new InputTableAttribute<String>(propGroupBy.getStringValue(), input);
         Map<String, List<DataRow>> splitScreen = AttributeUtils.splitRows(input, barcodeAttribute);

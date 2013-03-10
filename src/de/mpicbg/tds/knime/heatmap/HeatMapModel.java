@@ -42,6 +42,8 @@ public class HeatMapModel implements HiLiteListener {
     private List<Plate> screen;
     /** Screen current readout */
     private String currentReadout;
+    /** List of available readouts (in order of selection) */
+    private List<String> readouts = new ArrayList<String>();
 
     /** Well selection */
     private Collection<Well> selection = new ArrayList<Well>();
@@ -66,10 +68,12 @@ public class HeatMapModel implements HiLiteListener {
 
     /** Overlay flag for hiding the most frequent overlay */
     private boolean hideMostFrequentOverlay = false;
-    /** Map with the most frequent overlays for all the factors */
+    /** Map with the most frequent overlays for all the annotations */
     private Map<String, String> maxFreqOverlay;
     /** Currently selected overlay factor */
     private String currentOverlay = "";
+    /** List of available overlays (order as selected) */
+    private List<String> annotations = new ArrayList<String>();
 
     /** KNIME Colors: list with the wells belonging to the most frequent KNIME overlay color */
     private List<Well> mostFrequentColorWells = null;
@@ -465,6 +469,26 @@ public class HeatMapModel implements HiLiteListener {
     }
 
     /**
+     * Set the list of available readouts
+     *
+     * @param readouts available
+     */
+    public void setReadouts(List<String> readouts) {
+        this.readouts.clear();
+        for (String readout : readouts)
+            this.readouts.add(readout);
+    }
+
+    /**
+     * Get the list of available annotations
+     *
+     * @return list of available annotations
+     */
+    public List<String> getReadouts() {
+        return this.readouts;
+    }
+
+    /**
      * Get the currently selected readout
      *
      * @return readout
@@ -480,6 +504,26 @@ public class HeatMapModel implements HiLiteListener {
      */
     public void setCurrentReadout(String currentReadout) {
         this.currentReadout = currentReadout;
+    }
+
+    /**
+     * Set the list of available annotations
+     *
+     * @param annotations available
+     */
+    public void setAnnotations(List<String> annotations) {
+        this.annotations.clear();
+        for (String annotation : annotations)
+            this.annotations.add(annotation);
+    }
+
+    /**
+     * Get the list of available annotations
+     *
+     * @return list of available annotations
+     */
+    public List<String> getAnnotations() {
+        return this.annotations;
     }
 
     /**
