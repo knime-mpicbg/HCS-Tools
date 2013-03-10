@@ -259,7 +259,7 @@ public class TrellisMenu extends JMenu {
      * @param mode HiLite display modus
      */
     private void displayModeAction(HeatMapModel.HiLiteDisplayMode mode) {
-        heatMapModel.setHiLiteDisplayModus(mode);
+        heatMapModel.setHiLiteDisplayMode(mode);
         heatMapModel.fireModelChanged();
     }
 

@@ -40,7 +40,7 @@ public class HeatMapModel implements HiLiteListener {
 
     /** Screen data container */
     private List<Plate> screen;
-    /** Screen current reatout */
+    /** Screen current readout */
     private String currentReadout;
 
     /** Well selection */
@@ -52,8 +52,8 @@ public class HeatMapModel implements HiLiteListener {
     private HiLiteHandler hiLiteHandler;
     /** HiLite selection */
     private Collection<Well> hiLite = new ArrayList<Well>();
-    /** HiLite display modus (HiLite filter) */
-    private HiLiteDisplayMode hiLiteDisplayModus = HiLiteDisplayMode.ALL;
+    /** HiLite display mode (HiLite filter) */
+    private HiLiteDisplayMode hiLiteDisplayMode = HiLiteDisplayMode.ALL;
 
     /** Trellis automatic layout flag */
     private boolean automaticTrellisConfiguration = true;
@@ -408,7 +408,7 @@ public class HeatMapModel implements HiLiteListener {
     public List<Plate> getPlatesToDisplay() {
         List<Plate> subset = new ArrayList<Plate>();
 
-        switch (this.hiLiteDisplayModus) {
+        switch (this.hiLiteDisplayMode) {
             case HILITE_ONLY:
                 for (Plate plate : this.screen)
                     if ( isPlateHiLited(plate) && plateFiltered.get(plate) )
@@ -1035,8 +1035,8 @@ public class HeatMapModel implements HiLiteListener {
      *
      * @param mode to update to
      */
-    public void setHiLiteDisplayModus(HiLiteDisplayMode mode) {
-        this.hiLiteDisplayModus = mode;
+    public void setHiLiteDisplayMode(HiLiteDisplayMode mode) {
+        this.hiLiteDisplayMode = mode;
     }
 
 
