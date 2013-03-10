@@ -253,14 +253,11 @@ public class PlateAttributeDialog extends JDialog {
             }
         }
 
-        // TODO: find a neat way to set the column widths. This does not work for some reason.
-//        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-//        TableColumnModel columnModel = table.getColumnModel();
-//        columnModel.getColumn(0).setPreferredWidth(40);
-//        columnModel.getColumn(0).setWidth(40);
-//        columnModel.getColumn(1).setPreferredWidth(getWidth()-54);
-//        columnModel.getColumn(1).setWidth(getWidth()-54);
-//        table.setColumnModel(columnModel);
+        // Set the order column width.
+        table.getColumnModel().getColumn(0).setMaxWidth(40);
+        table.getColumnModel().getColumn(0).setPreferredWidth(40);
+        table.getColumnModel().getColumn(0).setMinWidth(40);
+
         repaint();
     }
 
