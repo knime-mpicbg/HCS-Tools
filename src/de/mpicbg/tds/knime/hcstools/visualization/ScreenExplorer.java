@@ -32,6 +32,7 @@ import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoMode
  *
  * @author Holger Brandl (MPI-CBG)
  */
+@Deprecated
 public class ScreenExplorer extends AbstractNodeModel {
 
     public SettingsModelFilterString propReadouts = createPropReadoutSelection();

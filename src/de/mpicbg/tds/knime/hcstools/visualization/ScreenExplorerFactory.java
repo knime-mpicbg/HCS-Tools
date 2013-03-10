@@ -25,6 +25,7 @@ import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoMode
 /**
  * @author Holger Brandl (MPI-CBG)
  */
+@Deprecated
 public class ScreenExplorerFactory extends NodeFactory<ScreenExplorer> {
 
 
