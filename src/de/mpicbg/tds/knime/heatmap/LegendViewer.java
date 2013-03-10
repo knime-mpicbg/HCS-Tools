@@ -5,9 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import de.mpicbg.tds.core.model.PlateUtils;
 import org.apache.commons.lang.StringUtils;
@@ -147,19 +145,35 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
             int index = 0;
 
             if ( heatMapModel.getCurrentOverlay().contains(HeatMapModel.KNIME_OVERLAY_NAME) ){
+                // Fetch the KNIME color model
                 HashMap<Color, String> legend = heatMapModel.getKnimeColors();
+
+                // Create the group labels
                 for (Color color : legend.keySet()) {
                     constraints.gridy = index++;
                     add(createLegendEntry(legend.get(color), color), constraints);
                 }
 
             } else {
+                // Get the cached colors
                 Map<String, Color> cache = heatMapModel.getColorScheme().getColorCache(heatMapModel.getCurrentOverlay());//getColorCache();
                 if (cache == null)
                     return;
 
+                // Sort the group names
+                java.util.List<String> cachedOverlays = new ArrayList<String>(cache.keySet());
+                Collections.sort(cachedOverlays, new Comparator<String>() {
+                    @Override
+                    public int compare(String s, String s2) {
+                        return s.compareToIgnoreCase(s2);
+                    }
+                });
+
+                // Get all available group names for the currently displayed subset
                 Collection<String> allOverlayValues = PlateUtils.collectAnnotationLevels(heatMapModel.getScreen(), heatMapModel.getCurrentOverlay());
-                for (String overlayValue : cache.keySet()) {
+
+                // Create the group labels
+                for (String overlayValue : cachedOverlays) {
                     if (!allOverlayValues.contains(overlayValue) || StringUtils.isBlank(overlayValue))
                         continue;
                     constraints.gridy = index++;
@@ -168,7 +182,7 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
                 }
             }
 
-            // Make sure the window is not too small nor too big.
+            // Make sure the window is not too small nor too big
             parent.pack();
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
