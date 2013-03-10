@@ -409,7 +409,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 well.setKnimeTableRowKey(tableRow.getKey().getString());
                 well.setKnimeRowColor(tableSpec.getRowColor(tableRow).getColor());
 
-
+                // Parse the attributes and factors
                 for (Attribute attribute : attributes) {
                     String attributeName = attribute.getName();
 
@@ -437,7 +437,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                         imageIndex++;
                     }
 
-                    // Create a DataContainer (Bufferable) for the image data.
+                    // Create a DataContainer (Bufferedtable) for the image data.
                     DataContainer table = new DataContainer(new DataTableSpec(columnNames, columnTypes));
                     table.addRowToTable(new DefaultRow(new RowKey(""), imageCells));
                     table.close();
