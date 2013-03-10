@@ -70,7 +70,7 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
     /** {@inheritDoc} */
     @Override
 	public void modelChanged() {
-		setTitle(StringUtils.isBlank(heatMapModel.getOverlay()) ? "No Overlay" : heatMapModel.getOverlay());
+		setTitle(StringUtils.isBlank(heatMapModel.getCurrentOverlay()) ? "No Overlay" : heatMapModel.getCurrentOverlay());
 		repaint();
 	}
 
@@ -146,7 +146,7 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
             constraints.fill = GridBagConstraints.BOTH;
             int index = 0;
 
-            if ( heatMapModel.getOverlay().contains(HeatMapModel.KNIME_OVERLAY_NAME) ){
+            if ( heatMapModel.getCurrentOverlay().contains(HeatMapModel.KNIME_OVERLAY_NAME) ){
                 HashMap<Color, String> legend = heatMapModel.getKnimeColors();
                 for (Color color : legend.keySet()) {
                     constraints.gridy = index++;
@@ -154,11 +154,11 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
                 }
 
             } else {
-                Map<String, Color> cache = heatMapModel.getColorScheme().getColorCache(heatMapModel.getOverlay());//getColorCache();
+                Map<String, Color> cache = heatMapModel.getColorScheme().getColorCache(heatMapModel.getCurrentOverlay());//getColorCache();
                 if (cache == null)
                     return;
 
-                Collection<String> allOverlayValues = PlateUtils.collectAnnotationLevels(heatMapModel.getScreen(), heatMapModel.getOverlay());
+                Collection<String> allOverlayValues = PlateUtils.collectAnnotationLevels(heatMapModel.getScreen(), heatMapModel.getCurrentOverlay());
                 for (String overlayValue : cache.keySet()) {
                     if (!allOverlayValues.contains(overlayValue) || StringUtils.isBlank(overlayValue))
                         continue;

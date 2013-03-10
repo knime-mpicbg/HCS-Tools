@@ -46,10 +46,10 @@ public class WellAttributeComboBox extends JComboBox {
                 }
                 break;
             case OVERLAY_ANNOTATION:
-                if (heatMapModel.getOverlay() != null) {
-                    setSelectedItem(heatMapModel.getOverlay());
+                if (heatMapModel.getCurrentOverlay() != null) {
+                    setSelectedItem(heatMapModel.getCurrentOverlay());
                 } else {
-                    heatMapModel.setOverlay((String) getSelectedItem());
+                    heatMapModel.setCurrentOverlay((String) getSelectedItem());
                 }
                 break;
         }
@@ -66,7 +66,7 @@ public class WellAttributeComboBox extends JComboBox {
                         mapModel.setCurrentReadout((String) getModel().getSelectedItem());
                         break;
                     case OVERLAY_ANNOTATION:
-                        mapModel.setOverlay((String) getModel().getSelectedItem());
+                        mapModel.setCurrentOverlay((String) getModel().getSelectedItem());
                         break;
                 }
 

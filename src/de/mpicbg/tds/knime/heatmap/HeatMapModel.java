@@ -69,7 +69,7 @@ public class HeatMapModel implements HiLiteListener {
     /** Map with the most frequent overlays for all the factors */
     private Map<String, String> maxFreqOverlay;
     /** Currently selected overlay factor */
-    private String overlay = "";
+    private String currentOverlay = "";
 
     /** KNIME Colors: list with the wells belonging to the most frequent KNIME overlay color */
     private List<Well> mostFrequentColorWells = null;
@@ -484,19 +484,19 @@ public class HeatMapModel implements HiLiteListener {
 
     /**
      * Get the current overlay attribute
-     * @return overlay attribute name
+     * @return currentOverlay attribute name
      */
-    public String getOverlay() {
-        return overlay;
+    public String getCurrentOverlay() {
+        return currentOverlay;
     }
 
     /**
      * Set the overlay attribute name
      *
-     * @param overlay attribute name
+     * @param currentOverlay attribute name
      */
-    public void setOverlay(String overlay) {
-        this.overlay = overlay;
+    public void setCurrentOverlay(String currentOverlay) {
+        this.currentOverlay = currentOverlay;
     }
 
     /**
@@ -507,7 +507,7 @@ public class HeatMapModel implements HiLiteListener {
      * @return attribute value
      */
     public String getOverlayValue(Well well) {
-        return well.getAnnotation(getOverlay());
+        return well.getAnnotation(getCurrentOverlay());
     }
 
 
@@ -585,7 +585,7 @@ public class HeatMapModel implements HiLiteListener {
     /**
      * Get the overlay color scheme
      *
-     * @return for the overlay
+     * @return for the currentOverlay
      */
     public ColorScheme getColorScheme() {
         return colorScheme;
@@ -629,13 +629,13 @@ public class HeatMapModel implements HiLiteListener {
     }
 
     /**
-     * Get the overlay color of a particular well
+     * Get the currentOverlay color of a particular well
      *
-     * @param well to get the overlay color for
-     * @return overlay color
+     * @param well to get the currentOverlay color for
+     * @return currentOverlay color
      */
     public Color getOverlayColor(Well well) {
-        String overlayType = getOverlay();
+        String overlayType = getCurrentOverlay();
 
         if ( overlayType.contains(KNIME_OVERLAY_NAME) ) {
             if ( doHideMostFreqOverlay() && mostFrequentColorWells.contains(well) ) {
