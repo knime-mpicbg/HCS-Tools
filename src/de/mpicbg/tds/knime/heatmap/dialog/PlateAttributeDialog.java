@@ -232,24 +232,24 @@ public class PlateAttributeDialog extends JDialog {
             String[] attributes = PlateUtils.getPlateAttributeTitles(heatMapModel.getPlateAttributes());
             String[] selectedAttributes = heatMapModel.getSortAttributesSelectionTitles();
 
-            // initialize the table
+            // Initialize the table.
             tableData = new String[attributes.length][1];
             DefaultTableModel model = new DefaultTableModel(tableData, columnNames);
             table.setModel(model);
 
+            // Fill the table with some content.
             int index = 0;
-            List<Integer> selectionIndex = new ArrayList<Integer>();
             for (String attribute : attributes) {
-                if (ArrayUtils.contains(selectedAttributes, attribute)) {
-                    selectionIndex.add(index);
-                }
                 model.setValueAt("-", index,0);
                 model.setValueAt(attribute,index++,1);
             }
 
             // Restore the previous selection.
-            for (Integer position : selectionIndex) {
-                listSelectionModel.addSelectionInterval(position, position);
+            if (selectedAttributes != null) {
+                for (String attribute : selectedAttributes) {
+                    int position = ArrayUtils.indexOf(attributes, attribute);
+                    listSelectionModel.addSelectionInterval(position, position);
+                }
             }
         }
 
