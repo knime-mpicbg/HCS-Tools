@@ -419,7 +419,6 @@ public class ColorGradientDialog extends JDialog {
                 width += left;
                 left = 0;
             }
-//            left = left < 0 ? 0 : left;
             width = width > this.getWidth() ? this.getWidth() : width;
 
             // Draw the rectangles
@@ -429,12 +428,17 @@ public class ColorGradientDialog extends JDialog {
 
             // Draw the labels
             g2d.setColor(new Color(0, 0, 0));
-            String s = HeatMapColorToolBar.format(lowerBound);
+            String s = middle-left < 50 ? "" : HeatMapColorToolBar.format(lowerBound);
             g2d.drawString(s, left+metrics.stringWidth(" "), halfHeight);
             s = HeatMapColorToolBar.format(mean);
             g2d.drawString(s, middle-metrics.stringWidth(s)/2, halfHeight);
-            s = HeatMapColorToolBar.format(upperBound);
+            s = right-middle < 200 ? "" : HeatMapColorToolBar.format(upperBound);
             g2d.drawString(s, right-metrics.stringWidth(s+" "), halfHeight);
+
+            // Add the bounds to the tooltip
+            setToolTipText("<html>The colored rectangle indicates the parameters mean&plusmn;" + factor + "&middot;sd.<br/>" +
+                    "[" + lowerBound + "..." + mean + "..." + upperBound + "]<br/>" +
+                    "Use right click to pass descriptor values as thumbs to the color gradient");
         }
 
 
