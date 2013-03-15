@@ -292,19 +292,6 @@ public class ColorGradientDialog extends JDialog {
     }
 
 
-    /**
-     * Quick testing
-     *
-     * @param args whatever
-     */
-    public static void main(String[] args) {
-//        ColorGradientDialog dialog = new ColorGradientDialog("Color gradient dialog test");
-        ColorGradientDialog dialog = new ColorGradientDialog(new HeatMapModel());
-        dialog.setVisible(true);
-        System.exit(0);
-    }
-
-
 
     /**
      * Panels to indicate the bounds of a given reference population

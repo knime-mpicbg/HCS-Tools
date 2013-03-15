@@ -29,9 +29,9 @@ import javax.swing.*;
 public class HeatMapViewerTest {
 
     // Information that usually would be provided from the KNIME configuration dialogs.
-    private static String testDataPath = "/Users/turf/Sources/CBG/HCS-Tools/test/data/plateviewerinput.table";      //TODO put the testdata on a dropbox to not weigh down the package.
+    public static String testDataPath = "/Users/turf/Sources/CBG/HCS-Tools/test/data/plateviewerinput.table";      //TODO put the testdata on a dropbox to not weigh down the package.
 
-    private static List<String> factors = Arrays.asList(
+    public static List<String> factors = Arrays.asList(
             "date",
             "transfection",
             "concentration",
@@ -39,7 +39,7 @@ public class HeatMapViewerTest {
             "top_bottom",
             "inner_outer"
     );
-    private static List<String> readouts = Arrays.asList(
+    public static List<String> readouts = Arrays.asList(
 //            "Nuclei Intensity",
             "Calculation time (seconds)",
             "Number of Cells",
