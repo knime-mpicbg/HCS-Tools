@@ -282,7 +282,12 @@ public class ColorGradientDialog extends JDialog {
      * @param scaleValue position of the thumbnail
      */
     public void addThumbnail(float scaleValue) {
-        float pos = (scaleValue - minScaleValue) / (maxScaleValue-minScaleValue);
+        float pos = (scaleValue - minScaleValue) / (maxScaleValue - minScaleValue);
+        if (pos < 0 || 1 < pos){
+            System.err.println("The thumb at position " + pos + " lies outside the color scale and will not be added.");
+            return;
+        }
+
         for (float exi : slider.getThumbPositions() ) {
             if (pos == exi) {
                 System.err.println("The Thumbs at the position " + pos + "already exists.");
@@ -410,7 +415,11 @@ public class ColorGradientDialog extends JDialog {
             int halfHeight = StrictMath.round(height/2+top+5);
 
             // Make sure the we don't try to paint over the panel borders.
-            left = left < 0 ? 0 : left;
+            if (left < 0) {
+                width += left;
+                left = 0;
+            }
+//            left = left < 0 ? 0 : left;
             width = width > this.getWidth() ? this.getWidth() : width;
 
             // Draw the rectangles
