@@ -160,6 +160,9 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         ObjectOutputStream obj_out = new ObjectOutputStream(new BufferedOutputStream(f_out));
 
         // Write object out to disk
+        obj_out.writeObject(heatMapModel.getAnnotations());
+        obj_out.writeObject(heatMapModel.getReadouts());
+        obj_out.writeObject(heatMapModel.getReferencePopulations());
         obj_out.writeObject(heatMapModel.getScreen());
 
         // Cleanup
@@ -179,6 +182,9 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             try {
                 FileInputStream f_in = new FileInputStream(internalBinFile);
                 ObjectInputStream obj_in = new ObjectInputStream(new BufferedInputStream(f_in));
+                heatMapModel.setAnnotations((List<String>) obj_in.readObject());
+                heatMapModel.setReadouts((List<String>) obj_in.readObject());
+                heatMapModel.setReferencePopulations((HashMap<String, String[]>) obj_in.readObject());
                 heatMapModel.setScreen((List<Plate>) obj_in.readObject());
                 obj_in.close();
 
