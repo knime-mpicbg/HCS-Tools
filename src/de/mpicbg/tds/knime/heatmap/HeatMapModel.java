@@ -79,7 +79,7 @@ public class HeatMapModel implements HiLiteListener {
     private List<Well> mostFrequentColorWells = null;
     /** KNIME overlay color set */
     private HashMap<Color, String> knimeColors;
-    /** KNIE color column attribute */
+    /** KNIME color column attribute */
     private String knimeColorAttribute;
     /** KNIME overlay color menu item name */
     public static String KNIME_OVERLAY_NAME = "Color Settings";
