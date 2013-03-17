@@ -2,10 +2,11 @@ package de.mpicbg.tds.knime.heatmap.dialog;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.bric.swing.GradientSlider;
@@ -32,8 +33,6 @@ public class ColorGradientDialog extends JDialog {
 
     /** Gradient slider component */
     private GradientSlider slider;
-    /** List of PopulationPanels indicating the range of reference distributions */
-    private ArrayList<PopulationPanel> populationIndicators = new ArrayList<PopulationPanel>();
     /** Container holding the PopulationPanels */
     private JPanel populationPanel;
     /** Label for the minimum value of the colormap */
@@ -42,6 +41,12 @@ public class ColorGradientDialog extends JDialog {
     private JLabel medLabel = new JLabel("");
     /** Label for the maximum value of the population panel */
     private JLabel maxLabel = new JLabel("");
+    /** Text field to indicate the position on the color gradient */
+    private JTextArea thumbPosition = new JTextArea("??");
+    /** Spinner to input the deviation factor */
+    private JSpinner deviationFactorSpinner;
+    /** Combobox to input the the descriptor types */
+    private JComboBox populationDescriptorCombobox;
 
     /** current colormap */
     private LinearGradientPaint currentGradient = LinearGradientTools.getStandardGradient("GB");
@@ -49,6 +54,8 @@ public class ColorGradientDialog extends JDialog {
     protected float minScaleValue = 0;
     /** maximum value of the color scale */
     protected float maxScaleValue = 100;
+    /** buffer for the population descriptors. They are only calculated once during configuration*/
+    private HashMap<String,Double[]> populationDescriptors = new HashMap<String, Double[]>();
 
 
     /**
@@ -83,6 +90,9 @@ public class ColorGradientDialog extends JDialog {
         // Create the cancel and ok buttons in a separate panel
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+        thumbPosition.setEnabled(false);
+        thumbPosition.setBackground(this.getBackground());
+        buttonPanel.add(thumbPosition);
         buttonPanel.add(Box.createHorizontalGlue());
         JButton buttonCancel = new JButton("Cancel");
         buttonCancel.addActionListener(new ActionListener() {
@@ -108,7 +118,7 @@ public class ColorGradientDialog extends JDialog {
         slider.putClientProperty("MultiThumbSlider.indicateComponent", "false");
         slider.putClientProperty("GradientSlider.useBevel", "true");
         slider.setToolTipText("<html>click on the thumbs to select them<br/>drag the thumbs to slide or remove them<br/>" +
-                              "double click on a thumb to choose it's color<html>");
+                "double click on a thumb to choose it's color<html>");
 
         // Create the label panel
         JPanel labelPanel = new JPanel();
@@ -122,27 +132,69 @@ public class ColorGradientDialog extends JDialog {
         // Panel for the population descriptors
         populationPanel = new JPanel(new GridBagLayout());
 
+        // Option panel
+        populationDescriptorCombobox = new JComboBox();
+        populationDescriptorCombobox.setModel(new DefaultComboBoxModel(new String[]{"mean, SD", "median, MAD"}));
+        populationDescriptorCombobox.setSelectedIndex(0);
+        Dimension dim = new Dimension(140,25);
+        populationDescriptorCombobox.setMinimumSize(dim);
+        populationDescriptorCombobox.setPreferredSize(dim);
+        populationDescriptorCombobox.setMaximumSize(dim);
+        populationDescriptorCombobox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent itemEvent) {
+                updatePopulationPanels();
+            }
+        });
+        deviationFactorSpinner = new JSpinner();
+        deviationFactorSpinner.setName("rows");
+        deviationFactorSpinner.setModel(new SpinnerNumberModel(3d, 0d, 10d, 0.25d));
+        dim = new Dimension(60,20);
+        deviationFactorSpinner.setMinimumSize(dim);
+        deviationFactorSpinner.setPreferredSize(dim);
+        deviationFactorSpinner.setMaximumSize(dim);
+        deviationFactorSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent) {
+                updatePopulationPanels();
+            }
+        });
+
+        JPanel optionPanel = new JPanel();
+        optionPanel.setLayout(new BoxLayout(optionPanel, BoxLayout.LINE_AXIS));
+        optionPanel.add(populationDescriptorCombobox);
+        optionPanel.add(deviationFactorSpinner);
+        optionPanel.add(Box.createHorizontalGlue());
+
+
         // Create the content paine and layout the buttons and the slider.
         JPanel contentPane = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(5,15,0,15);
         constraints.fill = GridBagConstraints.BOTH;
-        constraints.weightx = 1;
-        constraints.weighty = -1;
+        constraints.insets = new Insets(0,10,0,10);
         constraints.gridx = 0;
         constraints.gridy = 0;
-        contentPane.add(populationPanel, constraints);
-        constraints.weighty = 0.8;
+        constraints.weightx = 1;
+        constraints.weighty = 0.2;
+        contentPane.add(optionPanel, constraints);
+
+        constraints.insets = new Insets(5,15,0,15);
+        constraints.weighty = -1;
         constraints.gridy = 1;
+        contentPane.add(populationPanel, constraints);
+
+        constraints.weighty = 0.8;
+        constraints.gridy = 2;
         constraints.insets = new Insets(5,10,0,10);
         contentPane.add(slider, constraints);
 
         constraints.insets = new Insets(0,10,20,10);
-        constraints.gridy = 2;
+        constraints.gridy = 3;
         constraints.weighty = -1;
         contentPane.add(labelPanel, constraints);
+
         constraints.insets = new Insets(0,10,0,10);
-        constraints.gridy = 3;
+        constraints.gridy = 4;
         constraints.weighty = 0.2;
         contentPane.add(buttonPanel, constraints);
 
@@ -162,6 +214,23 @@ public class ColorGradientDialog extends JDialog {
                 onCancel();
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        // Add mouse movement listener to update the cursor position on the gradient slider.
+        slider.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent mouseEvent) {
+                //TODO this property should be accessed from GradientSlider class.
+                int thumbSize = 8;
+
+                if (mouseEvent.getX() < thumbSize || (slider.getWidth()-thumbSize) < mouseEvent.getX())
+                    return;
+
+                float correctedPosition = (float) mouseEvent.getX()-thumbSize;
+                float correctedWidth = (float) slider.getWidth()-thumbSize*2;
+                float scaleValue = correctedPosition / correctedWidth * (maxScaleValue - minScaleValue) + minScaleValue;
+                thumbPosition.setText(HeatMapColorToolBar.format(scaleValue));
+            }
+        });
 
         return contentPane;
     }
@@ -193,25 +262,46 @@ public class ColorGradientDialog extends JDialog {
             maxLabel.setText(HeatMapColorToolBar.format(maxValue));
 
             // Update the population panels
-            GridBagConstraints constraints = new GridBagConstraints();
-            constraints.fill = GridBagConstraints.BOTH;
-            constraints.weightx = 1;
-            constraints.weighty = -1;
-            constraints.gridx = 0;
             String[] populations = heatMapModel.getReferencePopulationNames();
             if (populations != null) {
-                HashMap<String, Double[]> descriptors = getDescriptors();
+                populationDescriptors = getDescriptors();
+                populationPanel.removeAll();
+                GridBagConstraints constraints = new GridBagConstraints();
+                constraints.fill = GridBagConstraints.BOTH;
+                constraints.weightx = 1;
+                constraints.weighty = -1;
+                constraints.gridx = 0;
                 int index = 0;
-                for (String population : populations) {
-                    Double[] values = descriptors.get(population);
+                for (String population : populationDescriptors.keySet()) {
                     PopulationPanel populationIndicator = new PopulationPanel(this, population);
-                    populationIndicator.configure(population, values[0].floatValue(), values[1].floatValue(), minValue.floatValue(), maxValue.floatValue());
-                    populationIndicators.add(populationIndicator);
-                    constraints.gridy = index;
-                    populationPanel.add(populationIndicators.get(index++), constraints);
+                    constraints.gridy = index++;
+                    populationPanel.add(populationIndicator, constraints);
                 }
+                updatePopulationPanels();
             }
             updateDialogDimensions();
+        }
+    }
+
+
+    /**
+     * Method to update the descriptors (depending on the descriptor type and the deviation factor)
+     * of all the population panels.
+     */
+    private void updatePopulationPanels() {
+        Component[] panels = populationPanel.getComponents();
+        int index = 0;
+        for (String population : populationDescriptors.keySet()) {
+            Double[] values = populationDescriptors.get(population);
+            PopulationPanel populationIndicator = (PopulationPanel)panels[index++];
+            if (populationDescriptorCombobox.getSelectedItem().equals("mean, SD")) {
+                populationIndicator.configure(population, values[0].floatValue(), values[1].floatValue(),
+                        minScaleValue, maxScaleValue, ((Double) deviationFactorSpinner.getValue()).floatValue());
+            } else {
+                populationIndicator.configure(population, values[2].floatValue(), values[3].floatValue(),
+                        minScaleValue, maxScaleValue, ((Double) deviationFactorSpinner.getValue()).floatValue());
+            }
+            populationIndicator.repaint();
         }
     }
 
@@ -219,7 +309,8 @@ public class ColorGradientDialog extends JDialog {
      * Set the dialog size in function of the number of PopulationPanels
      */
     private void updateDialogDimensions() {
-        setSize(new Dimension(600, 200 + 30 * populationIndicators.size()));
+        int panelNumber = populationDescriptors == null ? 1 : populationDescriptors.keySet().size();
+        setSize(new Dimension(600, 200 + 30 * panelNumber));
     }
 
     /**
@@ -229,11 +320,14 @@ public class ColorGradientDialog extends JDialog {
      */
     private HashMap<String, Double[]> getDescriptors() {
         DescriptiveStatistics stats = new DescriptiveStatistics();
+        DescriptiveStatistics adStats = new DescriptiveStatistics();
         String readout = heatMapModel.getSelectedReadOut();
         String factor = heatMapModel.getReferencePopulationAttribute();
         String[] groups = heatMapModel.getReferencePopulationNames();
         HashMap<String, Double[]> groupDescriptors = new HashMap<String, Double[]>();
         for (String group : groups) {
+
+            // Collect all the values of the group
             for (Plate plate : heatMapModel.getScreen()) {
                 if (heatMapModel.isPlateFiltered(plate)) {
                     for (Well well : plate.getWells()) {
@@ -242,8 +336,22 @@ public class ColorGradientDialog extends JDialog {
                     }
                 }
             }
-            groupDescriptors.put(group, new Double[]{stats.getMean(), stats.getStandardDeviation()});
+
+            // Calculate the median and the median absolute deviation
+            double median = stats.getPercentile(50);
+            for (double value : stats.getValues()) {
+                adStats.addValue(StrictMath.abs(value - median));
+            }
+
+            // Aggregate (buffer) all the descriptors in a single variable
+            groupDescriptors.put(group, new Double[]{stats.getMean(), stats.getStandardDeviation(),
+                                                     median, adStats.getPercentile(50)});
+
+            // Clear the group buffer.
+            stats.clear();
+            adStats.clear();
         }
+
         return groupDescriptors;
     }
 
@@ -255,7 +363,6 @@ public class ColorGradientDialog extends JDialog {
     public LinearGradientPaint getGradientPainter() {
         return currentGradient;
     }
-
 
     /**
      * Action executed on pressing the ok button
@@ -314,7 +421,7 @@ public class ColorGradientDialog extends JDialog {
         /** panel name (population name) */
         public String panelName = "test";
         /** factor to calculate the population bounds (3 std) */
-        private final float factor = 3;
+        private float factor = 3;
         /** parent */
         private ColorGradientDialog parent;
 
@@ -348,7 +455,7 @@ public class ColorGradientDialog extends JDialog {
             });
 
             // Set the tooltip
-            setToolTipText("<html>The colored rectangle indicates the parameters mean&plusmn;" + factor + "&middot;sd.<br/>" +
+            setToolTipText("<html>The colored rectangle indicates the parameters average&plusmn;" + factor + "&middot;deviation.<br/>" +
                     "Use right click to pass descriptor values as thumbs to the color gradient");
         }
 
@@ -376,13 +483,14 @@ public class ColorGradientDialog extends JDialog {
          * @param mis lower bound of the color scale
          * @param mas upper bound of the color scale
          */
-        public void configure(String name, float m, float s, float mis, float mas) {
+        public void configure(String name, float m, float s, float mis, float mas, float fac) {
             panelName = name;
             setName(panelName);
             mean = m;
             sd = s;
             minScale = mis;
             maxScale = mas;
+            factor = fac;
             repaint();
         }
 
@@ -428,19 +536,30 @@ public class ColorGradientDialog extends JDialog {
 
             // Draw the labels
             g2d.setColor(new Color(0, 0, 0));
-            String s = middle-left < 50 ? "" : HeatMapColorToolBar.format(lowerBound);
-            g2d.drawString(s, left+metrics.stringWidth(" "), halfHeight);
-            s = HeatMapColorToolBar.format(mean);
-            g2d.drawString(s, middle-metrics.stringWidth(s)/2, halfHeight);
-            s = right-middle < 200 ? "" : HeatMapColorToolBar.format(upperBound);
-            g2d.drawString(s, right-metrics.stringWidth(s+" "), halfHeight);
+            String centerLabel = HeatMapColorToolBar.format(mean);
+            g2d.drawString(centerLabel, middle-metrics.stringWidth(centerLabel)/2, halfHeight);
+
+            String leftLabel = HeatMapColorToolBar.format(lowerBound);
+            int minDist = metrics.stringWidth(leftLabel)+metrics.stringWidth(centerLabel)/2 + 5;
+            leftLabel = (middle-left) < minDist ? "" : leftLabel;
+            g2d.drawString(leftLabel, left+metrics.stringWidth(" "), halfHeight);
+
+            String rightLabel = HeatMapColorToolBar.format(upperBound);
+            minDist = metrics.stringWidth(rightLabel)+metrics.stringWidth(centerLabel)/2 + 5;
+            rightLabel = (right-middle) < minDist ? "" : HeatMapColorToolBar.format(upperBound);
+            g2d.drawString(rightLabel, right-metrics.stringWidth(rightLabel+" "), halfHeight);
 
             // Add the bounds to the tooltip
-            setToolTipText("<html>The colored rectangle indicates the parameters mean&plusmn;" + factor + "&middot;sd.<br/>" +
-                    "[" + lowerBound + "..." + mean + "..." + upperBound + "]<br/>" +
-                    "Use right click to pass descriptor values as thumbs to the color gradient");
+            if (populationDescriptorCombobox.getSelectedItem().equals("mean, SD")) {
+                setToolTipText("<html>The colored rectangle indicates the parameters mean&plusmn;" + factor + "&middot;SD.<br/>" +
+                        "[" + lowerBound + "..." + mean + "..." + upperBound + "]<br/>" +
+                        "Use right click to pass descriptor values as thumbs to the color gradient");
+            } else {
+                setToolTipText("<html>The colored rectangle indicates the parameters median&plusmn;" + factor + "&middot;MAD.<br/>" +
+                        "[" + lowerBound + "..." + mean + "..." + upperBound + "]<br/>" +
+                        "Use right click to pass descriptor values as thumbs to the color gradient");
+            }
         }
-
 
         /**
          * Create a popup menu allowing to add thumbnails for the population descriptors
@@ -479,7 +598,6 @@ public class ColorGradientDialog extends JDialog {
             menu.add(option3);
             return menu;
         }
-
     }
 
 }
