@@ -119,7 +119,7 @@ public abstract class PseudoHeatMapViewerNodeModel {
 
         // Set some reference populations.
         HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
-        referencePopulations.put("transfection",new String[]{"Mock", "Tox3", "Neg5", "Control2"});
+        referencePopulations.put("transfection",new String[]{"Mock", "Tox3", "Neg5", "Control2", "Control4"});
         model.setReferencePopulations(referencePopulations);
 
         // Set the knime color column
