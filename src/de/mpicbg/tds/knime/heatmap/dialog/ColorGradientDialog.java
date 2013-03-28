@@ -2,6 +2,7 @@ package de.mpicbg.tds.knime.heatmap.dialog;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -136,7 +137,7 @@ public class ColorGradientDialog extends JDialog {
         populationDescriptorCombobox = new JComboBox();
         populationDescriptorCombobox.setModel(new DefaultComboBoxModel(new String[]{"mean, SD", "median, MAD"}));
         populationDescriptorCombobox.setSelectedIndex(0);
-        Dimension dim = new Dimension(140,25);
+        Dimension dim = new Dimension(135,25);
         populationDescriptorCombobox.setMinimumSize(dim);
         populationDescriptorCombobox.setPreferredSize(dim);
         populationDescriptorCombobox.setMaximumSize(dim);
@@ -162,10 +163,10 @@ public class ColorGradientDialog extends JDialog {
 
         JPanel optionPanel = new JPanel();
         optionPanel.setLayout(new BoxLayout(optionPanel, BoxLayout.LINE_AXIS));
+        optionPanel.setBorder(new EmptyBorder(10,5,-1,-1));
         optionPanel.add(populationDescriptorCombobox);
         optionPanel.add(deviationFactorSpinner);
         optionPanel.add(Box.createHorizontalGlue());
-
 
         // Create the content paine and layout the buttons and the slider.
         JPanel contentPane = new JPanel(new GridBagLayout());
@@ -310,7 +311,7 @@ public class ColorGradientDialog extends JDialog {
      */
     private void updateDialogDimensions() {
         int panelNumber = populationDescriptors == null ? 1 : populationDescriptors.keySet().size();
-        setSize(new Dimension(600, 200 + 30 * panelNumber));
+        setSize(new Dimension(600, 220 + 30 * panelNumber));
     }
 
     /**
