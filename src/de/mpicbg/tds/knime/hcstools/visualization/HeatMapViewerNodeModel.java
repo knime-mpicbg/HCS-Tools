@@ -14,11 +14,6 @@ import de.mpicbg.tds.knime.knutils.Attribute;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 
-import static de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel.createTreatmentAttributeSelector;
-import static de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerFactory.createSettingModelStringArray;
-import static de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerFactory.createSettingsModelFilterString;
-import static de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerFactory.createSettingsModelString;
-
 import org.knime.core.data.*;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
@@ -59,16 +54,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     static String REFERENCE_POPULATIONS_SETTING_NAME = "reference.populations";
     static String REFERENCE_PARAMETER_SETTING_NAME = "reference.parameter";
 
-    /** Setting models */
-    protected SettingsModelFilterString propReadouts = createSettingsModelFilterString(READOUT_SETTING_NAME);
-    protected SettingsModelFilterString propFactors = createSettingsModelFilterString(FACTOR_SETTING_NAME);
-    protected SettingsModelString propPlateLabel = createSettingsModelString(PLATE_LABEL_SETTING_NAME, PlateUtils.SCREEN_MODEL_BARCODE);
-    protected SettingsModelString propGroupBy = createSettingsModelString(GROUP_BY_SETTING_NAME, PlateUtils.SCREEN_MODEL_BARCODE);
-    protected SettingsModelString propPlateRow = createSettingsModelString(PLATE_ROW_SETTING_NAME, PlateUtils.SCREEN_MODEL_WELL_ROW);
-    protected SettingsModelString propPlateCol = createSettingsModelString(PLATE_COLUMN_SETTING_NAME, PlateUtils.SCREEN_MODEL_WELL_COLUMN);
-    protected SettingsModelStringArray propRefNames = createSettingModelStringArray(REFERENCE_POPULATIONS_SETTING_NAME);
-    protected SettingsModelString propRefParameter = createTreatmentAttributeSelector();
-
     /** Data model */
     private HeatMapModel heatMapModel = new HeatMapModel();
 
@@ -85,16 +70,97 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     public HeatMapViewerNodeModel() {
         super(1,1,true); // Set the flag for the new settings model.
 
-        addModelSetting(READOUT_SETTING_NAME, propReadouts);
-        addModelSetting(FACTOR_SETTING_NAME, propFactors);
-        addModelSetting(GROUP_BY_SETTING_NAME, propGroupBy);
-        addModelSetting(PLATE_ROW_SETTING_NAME, propPlateRow);
-        addModelSetting(PLATE_COLUMN_SETTING_NAME, propPlateCol);
-        addModelSetting(PLATE_LABEL_SETTING_NAME, propPlateLabel);
-        addModelSetting(REFERENCE_POPULATIONS_SETTING_NAME, propRefNames);
-        addModelSetting(REFERENCE_PARAMETER_SETTING_NAME, propRefParameter);
+        addModelSetting(READOUT_SETTING_NAME, createReadoutSettingsModel());
+        addModelSetting(FACTOR_SETTING_NAME, createFactorSettingModel());
+        addModelSetting(GROUP_BY_SETTING_NAME, createGroupBySettingModel());
+        addModelSetting(PLATE_ROW_SETTING_NAME, createPlateRowSettingModel());
+        addModelSetting(PLATE_COLUMN_SETTING_NAME, createPlateColumnSettingModel());
+        addModelSetting(PLATE_LABEL_SETTING_NAME, createPlateLabelSettingName());
+        addModelSetting(REFERENCE_POPULATIONS_SETTING_NAME, createReferencePopulationsSettingModel());
+        addModelSetting(REFERENCE_PARAMETER_SETTING_NAME, createReferenceParameterSettingModel());
 
         reset();
+    }
+
+
+    /**
+     * Create the "reference population parameter" setting model with the default columns name as
+     * defined by {@link PlateUtils}.
+     *
+     * @return "reference population parameter" setting model
+     */
+    static SettingsModelString createReferenceParameterSettingModel() {
+        return new SettingsModelString(REFERENCE_POPULATIONS_SETTING_NAME, PlateUtils.SCREEN_MODEL_TREATMENT);
+    }
+
+    /**
+     * Create the "reference population names" setting model with the default columns name as
+     * defined by {@link PlateUtils}.
+     *
+     * @return "reference population names" setting model
+     */
+    static SettingsModelStringArray createReferencePopulationsSettingModel() {
+        return new SettingsModelStringArray(REFERENCE_POPULATIONS_SETTING_NAME, new String[0]);
+    }
+
+    /**
+     * Create the "plate label" setting model with the default columns name as
+     * defined by {@link PlateUtils}.
+     *
+     * @return "plate label" setting model
+     */
+    static SettingsModelString createPlateLabelSettingName() {
+        return new SettingsModelString(PLATE_LABEL_SETTING_NAME, PlateUtils.SCREEN_MODEL_BARCODE);
+    }
+
+    /**
+     * Create the "plate column" setting model with the default columns name as
+     * defined by {@link PlateUtils}.
+     *
+     * @return "plate column" setting model
+     */
+    static SettingsModelString createPlateColumnSettingModel() {
+        return new SettingsModelString(PLATE_COLUMN_SETTING_NAME, PlateUtils.SCREEN_MODEL_WELL_COLUMN);
+    }
+
+    /**
+     * Create the "plate row" setting model with the default columns name as
+     * defined by {@link PlateUtils}.
+     *
+     * @return "plate row" setting model
+     */
+    static SettingsModelString createPlateRowSettingModel() {
+        return new SettingsModelString(PLATE_ROW_SETTING_NAME, PlateUtils.SCREEN_MODEL_WELL_ROW);
+    }
+
+    /**
+     * Create a the "group by" parameters setting model with the default columns name as
+     * defined by {@link PlateUtils}.
+     *
+     * @return "group by" setting model
+     */
+    static SettingsModelString createGroupBySettingModel() {
+        return new SettingsModelString(GROUP_BY_SETTING_NAME, PlateUtils.SCREEN_MODEL_BARCODE);
+    }
+
+    /**
+     * Create the "factors" setting model with the default columns name as
+     * defined by {@link PlateUtils}.
+     *
+     * @return "factors" setting model
+     */
+    static SettingsModelFilterString createFactorSettingModel() {
+        return new SettingsModelFilterString(FACTOR_SETTING_NAME, new String[]{}, new String[]{});
+    }
+
+    /**
+     * Create the "readouts" setting model with the default columns name as
+     * defined by {@link PlateUtils}.
+     *
+     * @return "readouts" setting model
+     */
+    static SettingsModelFilterString createReadoutSettingsModel() {
+        return new SettingsModelFilterString(READOUT_SETTING_NAME, new String[]{}, new String[]{});
     }
 
 
@@ -107,7 +173,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        List<String> includeReadouts = propReadouts.getIncludeList();
+        List<String> includeReadouts = ((SettingsModelFilterString)getModelSetting(READOUT_SETTING_NAME)).getIncludeList();
         AttributeUtils.validate(includeReadouts, inSpecs[0]);
 
         return new DataTableSpec[]{inSpecs[0]};
@@ -149,7 +215,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         viewConfigFile = new File(nodeDir, VIEW_BIN_FILE);
     }
 
-
     /**
      * Serialize the parts of the {@link HeatMapModel} ({@link #getDataModel()})
      *
@@ -171,7 +236,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     }
 
     /**
-     * Deserialize the the internal data. This method deserializes the data upon demand when {@link #getDataModel()}
+     * De-serialize the the internal data. This method de-serializes the data upon demand when {@link #getDataModel()}
      * is called.
      *
      * @throws IOException
@@ -284,21 +349,22 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      */
     public void parseInputData(BufferedDataTable input) {
         // Get chosen parameters to visualize
-        List<String> parameters = propReadouts.getIncludeList();
+        List<String> parameters =  ((SettingsModelFilterString)getModelSetting(READOUT_SETTING_NAME)).getIncludeList();
         if (parameters.isEmpty())
             logger.warn("There are no readouts selected ('Readouts' tab in the configure dialog)!");
 
         // Get the chosen factors to visualize
-        List<String> factors = propFactors.getIncludeList();
+        List<String> factors = ((SettingsModelFilterString)getModelSetting(FACTOR_SETTING_NAME)).getIncludeList();
         if (factors.isEmpty())
             logger.warn("There are no factors selected ('Factors' tab in the configure dialog)!");
 
         // Store the oder of parameters and factors as in the configuration dialog
         heatMapModel.setReadouts(parameters);
-        heatMapModel.setAnnotations(propFactors.getIncludeList());
+        heatMapModel.setAnnotations(factors);
 
         // Split input table by grouping column
-        Attribute<String> barcodeAttribute = new InputTableAttribute<String>(propGroupBy.getStringValue(), input);
+        SettingsModelString groupBySetting = (SettingsModelString)getModelSetting(GROUP_BY_SETTING_NAME);
+        Attribute<String> barcodeAttribute = new InputTableAttribute<String>(groupBySetting.getStringValue(), input);
         Map<String, List<DataRow>> splitScreen = AttributeUtils.splitRows(input, barcodeAttribute);
 
         // Retrieve table spec
@@ -314,17 +380,22 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         attributeModel.removeAll(imageAttributes);
 
         // Get columns represent plateRow and plateColumn
-        Attribute<String> plateRowAttribute = new InputTableAttribute<String>(propPlateRow.getStringValue(), input);
-        Attribute<String> plateColAttribute = new InputTableAttribute<String>(propPlateCol.getStringValue(), input);
+        SettingsModelString plateRowSetting = (SettingsModelString)getModelSetting(PLATE_ROW_SETTING_NAME);
+        Attribute<String> plateRowAttribute = new InputTableAttribute<String>(plateRowSetting.getStringValue(), input);
+        SettingsModelString plateColumnSetting = (SettingsModelString)getModelSetting(PLATE_COLUMN_SETTING_NAME);
+        Attribute<String> plateColAttribute = new InputTableAttribute<String>(plateColumnSetting.getStringValue(), input);
 
         // Plate Label
-        Attribute plateLabelAttribute = new InputTableAttribute(propPlateLabel.getStringValue(), input);
+        SettingsModelString plateLabelSetting = (SettingsModelString)getModelSetting(PLATE_LABEL_SETTING_NAME);
+        Attribute plateLabelAttribute = new InputTableAttribute(plateLabelSetting.getStringValue(), input);
 
         // Put the info about the reference populations
+        SettingsModelString referenceParameterSetting = (SettingsModelString)getModelSetting(REFERENCE_PARAMETER_SETTING_NAME);
+        SettingsModelStringArray referencePopulationsSetting = (SettingsModelStringArray)getModelSetting(REFERENCE_POPULATIONS_SETTING_NAME);
         HashMap<String, String[]> reference = new HashMap<String, String[]>();
-        reference.put(propRefParameter.getStringValue(),  propRefNames.getStringArrayValue());
+        reference.put(referenceParameterSetting.getStringValue(),  referencePopulationsSetting.getStringArrayValue());
         heatMapModel.setReferencePopulations(reference);
-        if (propRefNames.getStringArrayValue().length == 0)
+        if (referencePopulationsSetting.getStringArrayValue().length == 0)
             logger.warn("There are no reference groups selected ('Control' tab in the configure dialog)!");
 
         // Set the knime color column
@@ -341,7 +412,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 plateColAttribute,
                 imageAttributes,
                 parameters,
-                propFactors.getIncludeList(),
+                factors,
                 ExpandPlateBarcode.loadFactory()));
     }
 
