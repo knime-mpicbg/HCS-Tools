@@ -2,6 +2,7 @@ package de.mpicbg.tds.knime.hcstools.visualization;
 
 import de.mpicbg.tds.barcodes.BarcodeParser;
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
+import de.mpicbg.tds.knime.HCSAttributeUtils;
 import de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcode;
 import de.mpicbg.tds.knime.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.heatmap.color.LinearColorGradient;
@@ -173,8 +174,40 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        List<String> includeReadouts = ((SettingsModelFilterString)getModelSetting(READOUT_SETTING_NAME)).getIncludeList();
-        AttributeUtils.validate(includeReadouts, inSpecs[0]);
+        SettingsModelFilterString readoutSettings = ((SettingsModelFilterString) getModelSetting(READOUT_SETTING_NAME));
+        SettingsModelFilterString factorSettings = ((SettingsModelFilterString) getModelSetting(FACTOR_SETTING_NAME));
+
+        // If nothing was configured (dialog) we take a guess...
+        if (readoutSettings.getIncludeList().size() == 0) {
+            logger.warn("The node was configured automatically. Please check configuration settings before execution.");
+            List<String> numericColumnNames = new ArrayList<String>();
+            List<String> otherColumnNames = new ArrayList<String>();
+
+            List<String> defaultColumnNames = Arrays.asList(PlateUtils.SCREEN_MODEL_BARCODE,
+                    PlateUtils.SCREEN_MODEL_WELL_ROW, PlateUtils.SCREEN_MODEL_WELL_COLUMN);
+
+            // Separate readouts and factors (exclude the plate description)
+            for (DataColumnSpec cSpec : inSpecs[0]) {
+                if (defaultColumnNames.contains(cSpec.getName()))
+                    continue;
+
+                if (cSpec.getType().isCompatible(DoubleValue.class)) {
+                    numericColumnNames.add(cSpec.getName());
+                } else {
+                    otherColumnNames.add(cSpec.getName());
+                }
+            }
+
+            // By default all the readouts are included.
+            readoutSettings.setNewValues(numericColumnNames, new ArrayList<String>(), false);
+            addModelSetting(READOUT_SETTING_NAME, readoutSettings);
+
+            // Set the factors
+            factorSettings.setNewValues(otherColumnNames, new ArrayList<String>(), false);
+            addModelSetting(FACTOR_SETTING_NAME, factorSettings);
+        }
+
+        AttributeUtils.validate(readoutSettings.getIncludeList(), inSpecs[0]);
 
         return new DataTableSpec[]{inSpecs[0]};
     }
