@@ -300,6 +300,9 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      * @throws IOException
      */
     protected void serializeViewConfiguration() throws IOException {
+        if (viewConfigFile == null)
+            return;
+
         FileOutputStream sout = new FileOutputStream(viewConfigFile);
         ObjectOutputStream oout = new ObjectOutputStream(sout);
 

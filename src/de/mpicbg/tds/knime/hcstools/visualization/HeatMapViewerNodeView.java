@@ -83,6 +83,7 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         screenView.getHeatMapModel().setHiLiteHandler(null);
 
         // Save the view configuration
+        // TODO: It would be nicer if the workflows dirty-flag could be set (workflow modified), this way the view configuration would only be saved once, not each time the view is closed (because in that case the heatMapModel data is stored in memory)
         try {
             getLogger().warn("Saving view configuration. This might take a moment.");
             nodeModel.serializeViewConfiguration();
