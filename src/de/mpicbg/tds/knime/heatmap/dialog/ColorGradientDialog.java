@@ -264,7 +264,10 @@ public class ColorGradientDialog extends JDialog {
 
             // Update the population panels
             String[] populations = heatMapModel.getReferencePopulationNames();
-            if (populations != null) {
+            if ((populations == null) || (populations.length == 0)) {
+                deviationFactorSpinner.setEnabled(false);
+                populationDescriptorCombobox.setEnabled(false);
+            } else {
                 populationDescriptors = getDescriptors();
                 populationPanel.removeAll();
                 GridBagConstraints constraints = new GridBagConstraints();
