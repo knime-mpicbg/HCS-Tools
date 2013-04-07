@@ -476,6 +476,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
 
             if (plateViewers.containsKey(heatMap.getPlate().getUuid())) {
                 viewer = plateViewers.get(heatMap.getPlate().getUuid());
+                viewer.setVisible(true);
                 viewer.toFront();
                 viewer.repaint();
             } else {
