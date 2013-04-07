@@ -2,7 +2,6 @@ package de.mpicbg.tds.knime.hcstools.visualization;
 
 import de.mpicbg.tds.barcodes.BarcodeParser;
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
-import de.mpicbg.tds.knime.HCSAttributeUtils;
 import de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcode;
 import de.mpicbg.tds.knime.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.heatmap.color.LinearColorGradient;
@@ -91,7 +90,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      * @return "reference population parameter" setting model
      */
     static SettingsModelString createReferenceParameterSettingModel() {
-        return new SettingsModelString(REFERENCE_POPULATIONS_SETTING_NAME, PlateUtils.SCREEN_MODEL_TREATMENT);
+        return new SettingsModelString(REFERENCE_PARAMETER_SETTING_NAME, PlateUtils.SCREEN_MODEL_TREATMENT);
     }
 
     /**
