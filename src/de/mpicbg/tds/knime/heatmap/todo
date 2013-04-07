@@ -1,4 +1,0 @@
-TODO: I added some dependencies to the HCSTools during the development. Those have to be made available in the lib/ folder at some point
-TODO: Move all the main-testing methods in seperate test files (they currently work on seperate constructors, which is shiiiite)
-
-TODO: create an Abstract class or interfafce for all viewers to handle the access to parent and child viewers, the invokation of the view (check if it exists) and the closing of the view.
