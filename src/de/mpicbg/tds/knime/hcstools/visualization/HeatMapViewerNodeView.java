@@ -41,7 +41,8 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         super(nodeModel);
         this.nodeModel = nodeModel;
 
-        HeatMapModel heatMapModel= nodeModel.getDataModel();
+        // Do some data checks
+        HeatMapModel heatMapModel = nodeModel.getDataModel();
         if (heatMapModel == null) {
             nodeModel.setPlotWarning("You need to re-execute the node before the view will show up");
             heatMapModel = new HeatMapModel();
