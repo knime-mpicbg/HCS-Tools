@@ -1,7 +1,10 @@
 package de.mpicbg.tds.knime.heatmap;
 
 import de.mpicbg.tds.core.model.*;
+import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
 import de.mpicbg.tds.knime.heatmap.color.*;
+import de.mpicbg.tds.knime.knutils.Attribute;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.Frequency;
 import org.knime.core.data.RowKey;
@@ -96,6 +99,28 @@ public class HeatMapModel implements HiLiteListener {
 
     /** List of the ChangeListeners */
     private List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
+
+
+    private HeatMapViewerNodeModel nodeModel;
+
+    public HeatMapViewerNodeModel getNodeModel() {
+        return nodeModel;
+    }
+
+    public void setNodeModel(HeatMapViewerNodeModel model) {
+        this.nodeModel = model;
+    }
+
+    private List<Attribute> imageAttributes;
+
+    public void setImageAttributes(List<Attribute> attributes) {
+        this.imageAttributes = attributes;
+    }
+
+    public List<Attribute> getImageAttributes() {
+        return imageAttributes;
+    }
+
 
 
     /**

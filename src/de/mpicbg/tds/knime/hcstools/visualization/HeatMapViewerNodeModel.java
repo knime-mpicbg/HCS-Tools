@@ -33,7 +33,7 @@ import java.util.*;
  * @author Holger Brandl (MPI-CBG)
  */
 
-public class HeatMapViewerNodeModel extends AbstractNodeModel {
+public class HeatMapViewerNodeModel extends AbstractNodeModel implements BufferedDataTableHolder{
 
     /** Input port number */
     public static final int IN_PORT = 0;
@@ -62,6 +62,9 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
     /** Used for delayed deserialization of the view configuration.*/
     private File viewConfigFile;
+
+    /** Field to hold the buffered table */
+    private BufferedDataTable bufferedTable;
 
 
     /**
@@ -215,6 +218,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     @Override
     protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
         heatMapModel = new HeatMapModel();
+        setInternalTables(inData);
         parseInputData(inData[0]);
 
         return inData;
@@ -414,6 +418,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         }
         attributeModel.removeAll(imageAttributes);
 
+        heatMapModel.setImageAttributes(imageAttributes);
+
         // Get columns represent plateRow and plateColumn
         SettingsModelString plateRowSetting = (SettingsModelString)getModelSetting(PLATE_ROW_SETTING_NAME);
         Attribute<String> plateRowAttribute = new InputTableAttribute<String>(plateRowSetting.getStringValue(), input);
@@ -543,23 +549,23 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                     }
                 }
 
-                // Collect the images.
-                if (!imgAttributes.isEmpty()) {
-                    int imageIndex = 0;
-                    for (Attribute attribute : imgAttributes) {
-                        columnNames[imageIndex] = attribute.getName();
-                        imageCells.add(attribute.getImageAttribute(tableRow));
-                        columnTypes[imageIndex] = imageCells.get(imageIndex).getType();
-                        imageIndex++;
-                    }
-
-                    // Create a DataContainer (Bufferedtable) for the image data.
-                    DataContainer table = new DataContainer(new DataTableSpec(columnNames, columnTypes));
-                    table.addRowToTable(new DefaultRow(new RowKey(""), imageCells));
-                    table.close();
-                    well.setImageData(table);
-                    imageCells.clear();
-                }
+//                // Collect the images.
+//                if (!imgAttributes.isEmpty()) {
+//                    int imageIndex = 0;
+//                    for (Attribute attribute : imgAttributes) {
+//                        columnNames[imageIndex] = attribute.getName();
+//                        imageCells.add(attribute.getImageAttribute(tableRow));
+//                        columnTypes[imageIndex] = imageCells.get(imageIndex).getType();
+//                        imageIndex++;
+//                    }
+//
+//                    // Create a DataContainer (Bufferedtable) for the image data.
+//                    DataContainer table = new DataContainer(new DataTableSpec(columnNames, columnTypes));
+//                    table.addRowToTable(new DefaultRow(new RowKey(""), imageCells));
+//                    table.close();
+//                    well.setImageData(table);
+//                    imageCells.clear();
+//                }
             }
         }
 
@@ -576,6 +582,21 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         PlateUtils.unifyPlateDimensionsToLUB(allPlates);
 
         return allPlates;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public BufferedDataTable[] getInternalTables() {
+        return new BufferedDataTable[] {bufferedTable};
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setInternalTables(BufferedDataTable[] tables) {
+        if (tables.length != 1) {
+            throw new IllegalArgumentException();
+        }
+        bufferedTable = tables[0];
     }
 
 }
