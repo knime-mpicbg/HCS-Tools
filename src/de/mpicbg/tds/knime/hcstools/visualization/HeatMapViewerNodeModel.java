@@ -212,11 +212,15 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
+        if (!inData[0].iterator().hasNext()) {
+            return inData;
+        }
+
         long startTime = System.currentTimeMillis();
 
         heatMapModel = new HeatMapModel();
         heatMapModel.setInternalTables(inData);
-        parseInputData(inData[0]);
+        parseInputData(inData[0], exec);
 
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
@@ -387,7 +391,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      *
      * @param input node input table
      */
-    public void parseInputData(BufferedDataTable input) {
+    public void parseInputData(BufferedDataTable input, ExecutionContext exec) throws CanceledExecutionException {
         // Get chosen parameters to visualize
         List<String> parameters =  ((SettingsModelFilterString)getModelSetting(READOUT_SETTING_NAME)).getIncludeList();
         if (parameters.isEmpty())
@@ -453,7 +457,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 plateColAttribute,
                 parameters,
                 factors,
-                ExpandPlateBarcode.loadFactory()));
+                ExpandPlateBarcode.loadFactory(),
+                exec));
     }
 
     /**
@@ -468,6 +473,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      * @param readouts list of readout names.
      * @param factors list of factor names
      * @param bpf barcode parser factory
+     * @param exec
      *
      * @return a list of all the available {@link Plate}s
      */
@@ -479,11 +485,16 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                                               Attribute colAttribute,
                                               List<String> readouts,
                                               List<String> factors,
-                                              BarcodeParserFactory bpf) {
+                                              BarcodeParserFactory bpf,
+                                              ExecutionContext exec) throws CanceledExecutionException {
 
         List<Plate> allPlates = new ArrayList<Plate>();
 
+        double iterations = splitScreen.keySet().size();
+        double iteration = 1;
         for (String barcode : splitScreen.keySet()) {
+            exec.checkCanceled();
+            exec.setProgress(iteration++/iterations);
             Plate curPlate = new Plate();
             curPlate.setBarcode(barcode);
 

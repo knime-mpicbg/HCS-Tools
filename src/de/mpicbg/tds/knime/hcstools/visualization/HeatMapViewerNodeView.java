@@ -98,6 +98,10 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
     /** {@inheritDoc} */
     @Override
     protected void onOpen() {
+        if (nodeModel.getDataModel().getScreen() == null) {
+            throw new NullPointerException("There is no data to display");
+        }
+
         ScreenViewer screenView = (ScreenViewer)getComponent();
 
         // Set the HiLiteHandler
