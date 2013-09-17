@@ -93,7 +93,6 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
             nodeModel.setPlotWarning(e.toString());
         }
 
-        nodeModel.getDataModel().setNodeModel(null);
     }
 
     /** {@inheritDoc} */
@@ -118,8 +117,6 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
 
         // Set the focus on the menu of the screen viewer so the keyboard shortcuts take effect immediately (without first manipulating the view)
         screenView.setRequestFocusEnabled(true);
-
-        nodeModel.getDataModel().setNodeModel(nodeModel);
     }
 
     /** {@inheritDoc} */

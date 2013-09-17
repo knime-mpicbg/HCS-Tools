@@ -1,13 +1,14 @@
 package de.mpicbg.tds.knime.heatmap;
 
 import de.mpicbg.tds.core.model.*;
-import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
 import de.mpicbg.tds.knime.heatmap.color.*;
 import de.mpicbg.tds.knime.knutils.Attribute;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.Frequency;
 import org.knime.core.data.RowKey;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
@@ -25,7 +26,7 @@ import java.util.List;
  * @author Holger Brandl, Felix Meyenhofer
  */
 
-public class HeatMapModel implements HiLiteListener {
+public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 
     /** Reference populations */
     public HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
@@ -100,27 +101,11 @@ public class HeatMapModel implements HiLiteListener {
     /** List of the ChangeListeners */
     private List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
 
+    /** Field to hold the buffered table */
+    private BufferedDataTable bufferedTable;
 
-    private HeatMapViewerNodeModel nodeModel;
-
-    public HeatMapViewerNodeModel getNodeModel() {
-        return nodeModel;
-    }
-
-    public void setNodeModel(HeatMapViewerNodeModel model) {
-        this.nodeModel = model;
-    }
-
+    /** List containing the Attribute (columns holding image data) */
     private List<Attribute> imageAttributes;
-
-    public void setImageAttributes(List<Attribute> attributes) {
-        this.imageAttributes = attributes;
-    }
-
-    public List<Attribute> getImageAttributes() {
-        return imageAttributes;
-    }
-
 
 
     /**
@@ -1292,6 +1277,40 @@ public class HeatMapModel implements HiLiteListener {
         this.globalScaling = globalScaling;
     }
 
+
+    /**
+     * Set the list with the column Attributes holding image data.
+     *
+     * @param attributes list with the {@link Attribute}s
+     */
+    public void setImageAttributes(List<Attribute> attributes) {
+        this.imageAttributes = attributes;
+    }
+
+    /**
+     * Get the list of the Attribute columns holding image data.
+     *
+     * @return list of {@link Attribute}s
+     */
+    public List<Attribute> getImageAttributes() {
+        return imageAttributes;
+    }
+
+
+    /** {@inheritDoc} */
+    @Override
+    public BufferedDataTable[] getInternalTables() {
+        return new BufferedDataTable[] {bufferedTable};
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setInternalTables(BufferedDataTable[] tables) {
+        if (tables.length != 1) {
+            throw new IllegalArgumentException();
+        }
+        bufferedTable = tables[0];
+    }
 
 
     public enum HiLiteDisplayMode {HILITE_ONLY, UNHILITE_ONLY, ALL}

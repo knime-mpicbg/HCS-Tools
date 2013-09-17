@@ -74,7 +74,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         model.setAnnotations(parent.heatMapModel.getAnnotations());
         model.setReadouts(parent.heatMapModel.getReadouts());
         model.setImageAttributes(parent.heatMapModel.getImageAttributes());
-        model.setNodeModel(parent.getHeatMapModel().getNodeModel());
+        model.setInternalTables(parent.getHeatMapModel().getInternalTables());
 
         if ( parent.heatMapModel.isGlobalScaling() ) {
             model.setScreen(parent.heatMapModel.getScreen());

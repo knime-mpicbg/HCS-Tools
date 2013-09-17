@@ -291,14 +291,19 @@ public class WellViewer extends JPanel {
         this.setPreferredSize(new Dimension(nameWidth + numberWidth + 20, PREFERRED_HEIGHT));
     }
 
+
+    /**
+     * Method to access the buffered table to retrieve the images.
+     *
+     * @return {@link DataContainer} representing a one-row-table with the images.
+     */
     private DataContainer loadImageData() {
         long startTime = System.currentTimeMillis();
-        HeatMapViewerNodeModel nodeModel = parent.getHeatMapModel().getNodeModel();
 
-        if (nodeModel == null)
+        BufferedDataTable bufferedTable = parent.getHeatMapModel().getInternalTables()[0];
+        if (bufferedTable == null)
             return null;
 
-        BufferedDataTable bufferedTable = nodeModel.getInternalTables()[0];
         java.util.List<Attribute> imgAttributes = parent.getHeatMapModel().getImageAttributes();
         String[] columnNames = new String[imgAttributes.size()];
         DataType[] columnTypes = new DataType[imgAttributes.size()];

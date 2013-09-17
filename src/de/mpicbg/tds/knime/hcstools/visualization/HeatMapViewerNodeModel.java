@@ -15,8 +15,6 @@ import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 
 import org.knime.core.data.*;
-import org.knime.core.data.container.DataContainer;
-import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.*;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -33,7 +31,7 @@ import java.util.*;
  * @author Holger Brandl (MPI-CBG)
  */
 
-public class HeatMapViewerNodeModel extends AbstractNodeModel implements BufferedDataTableHolder{
+public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
     /** Input port number */
     public static final int IN_PORT = 0;
@@ -62,9 +60,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel implements Buffere
 
     /** Used for delayed deserialization of the view configuration.*/
     private File viewConfigFile;
-
-    /** Field to hold the buffered table */
-    private BufferedDataTable bufferedTable;
 
 
     /**
@@ -217,9 +212,15 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel implements Buffere
     /** {@inheritDoc} */
     @Override
     protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
+        long startTime = System.currentTimeMillis();
+
         heatMapModel = new HeatMapModel();
-        setInternalTables(inData);
+        heatMapModel.setInternalTables(inData);
         parseInputData(inData[0]);
+
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        logger.info("HeatMapViewer node execution time: " + elapsedTime);
 
         return inData;
     }
@@ -417,7 +418,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel implements Buffere
             }
         }
         attributeModel.removeAll(imageAttributes);
-
         heatMapModel.setImageAttributes(imageAttributes);
 
         // Get columns represent plateRow and plateColumn
@@ -451,7 +451,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel implements Buffere
                 plateLabelAttribute,
                 plateRowAttribute,
                 plateColAttribute,
-                imageAttributes,
                 parameters,
                 factors,
                 ExpandPlateBarcode.loadFactory()));
@@ -466,7 +465,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel implements Buffere
      * @param plateLabelAttribute attribute used for the plate labeling
      * @param rowAttribute attribute indicating the row coordinate in the plate
      * @param colAttribute attribute indicating the column coordinate in the plate
-     * @param imgAttributes list of image attributes
      * @param readouts list of readout names.
      * @param factors list of factor names
      * @param bpf barcode parser factory
@@ -479,7 +477,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel implements Buffere
                                               Attribute plateLabelAttribute,
                                               Attribute rowAttribute,
                                               Attribute colAttribute,
-                                              List<Attribute> imgAttributes,
                                               List<String> readouts,
                                               List<String> factors,
                                               BarcodeParserFactory bpf) {
@@ -515,11 +512,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel implements Buffere
             }
             curPlate.setLabel(label);
 
-            // Initialize collector for the image data.
-            String[] columnNames = new String[imgAttributes.size()];
-            DataType[] columnTypes = new DataType[imgAttributes.size()];
-            ArrayList<DataCell> imageCells = new ArrayList<DataCell>();
-
             // Fill plate with wells.
             for (DataRow tableRow : wellRows) {
                 Well well = new Well();
@@ -548,24 +540,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel implements Buffere
                         well.setAnnotation(attributeName, attribute.getRawValue(tableRow));
                     }
                 }
-
-//                // Collect the images.
-//                if (!imgAttributes.isEmpty()) {
-//                    int imageIndex = 0;
-//                    for (Attribute attribute : imgAttributes) {
-//                        columnNames[imageIndex] = attribute.getName();
-//                        imageCells.add(attribute.getImageAttribute(tableRow));
-//                        columnTypes[imageIndex] = imageCells.get(imageIndex).getType();
-//                        imageIndex++;
-//                    }
-//
-//                    // Create a DataContainer (Bufferedtable) for the image data.
-//                    DataContainer table = new DataContainer(new DataTableSpec(columnNames, columnTypes));
-//                    table.addRowToTable(new DefaultRow(new RowKey(""), imageCells));
-//                    table.close();
-//                    well.setImageData(table);
-//                    imageCells.clear();
-//                }
             }
         }
 
@@ -582,21 +556,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel implements Buffere
         PlateUtils.unifyPlateDimensionsToLUB(allPlates);
 
         return allPlates;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public BufferedDataTable[] getInternalTables() {
-        return new BufferedDataTable[] {bufferedTable};
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void setInternalTables(BufferedDataTable[] tables) {
-        if (tables.length != 1) {
-            throw new IllegalArgumentException();
-        }
-        bufferedTable = tables[0];
     }
 
 }
