@@ -2,18 +2,24 @@ package de.mpicbg.tds.knime.heatmap;
 
 import de.mpicbg.tds.core.model.PlateUtils;
 import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
 import de.mpicbg.tds.knime.heatmap.renderer.HeatWell;
+import de.mpicbg.tds.knime.knutils.Attribute;
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.knime.core.data.*;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.tableview.TableView;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 /**
  * Creates a view with the well details as tooltip or as window.
@@ -253,7 +259,8 @@ public class WellViewer extends JPanel {
         // Configure the image table if it was initialized.
         if (imageTable != null) {
 
-            if ( well.getImageData() == null ) {
+//            if ( well.getImageData() == null ) {
+            if (parent.getHeatMapModel().getImageAttributes() == null || parent.getHeatMapModel().getImageAttributes().size() == 0) {
                 // Create a String cell with the message.
                 StringCell cell = new StringCell("No images available");
                 DefaultRow tableRow = new DefaultRow(new RowKey(""), cell);
@@ -266,7 +273,8 @@ public class WellViewer extends JPanel {
                 splitPane.setResizeWeight(0.9);
                 imageTable.getContentTable().setColumnWidth(nameWidth + numberWidth + 10);
             } else {
-                imageTable.setDataTable(((DataContainer)well.getImageData()).getTable());
+//                imageTable.setDataTable(((DataContainer)well.getImageData()).getTable());
+                imageTable.setDataTable(loadImageData().getTable());
             }
 
             // Render the row id column invisible (no purpose here)
@@ -282,6 +290,49 @@ public class WellViewer extends JPanel {
         // Set the panel dimensions.
         this.setPreferredSize(new Dimension(nameWidth + numberWidth + 20, PREFERRED_HEIGHT));
     }
+
+
+    /**
+     * Method to access the buffered table to retrieve the images.
+     *
+     * @return {@link DataContainer} representing a one-row-table with the images.
+     */
+    private DataContainer loadImageData() {
+        long startTime = System.currentTimeMillis();
+
+        BufferedDataTable bufferedTable = parent.getHeatMapModel().getInternalTables()[0];
+        if (bufferedTable == null)
+            return null;
+
+        java.util.List<Attribute> imgAttributes = parent.getHeatMapModel().getImageAttributes();
+        String[] columnNames = new String[imgAttributes.size()];
+        DataType[] columnTypes = new DataType[imgAttributes.size()];
+        ArrayList<DataCell> imageCells = new ArrayList<DataCell>();
+        for (DataRow tableRow : bufferedTable) {
+
+            if (tableRow.getKey().getString().equals(parent.getWell().getKnimeTableRowKey())) {
+                int imageIndex = 0;
+                for (Attribute imageAttribute : parent.getHeatMapModel().getImageAttributes()){
+                    columnNames[imageIndex] = imageAttribute.getName();
+                    imageCells.add(imageAttribute.getImageAttribute(tableRow));
+                    columnTypes[imageIndex] = imageCells.get(imageIndex).getType();
+                    imageIndex++;
+                }
+                break;
+            }
+        }
+
+        DataContainer table = new DataContainer(new DataTableSpec(columnNames, columnTypes));
+        table.addRowToTable(new DefaultRow(new RowKey(""), imageCells));
+        table.close();
+
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.err.println("Elapsed time: " + elapsedTime);
+
+        return table;
+    }
+
 
 
     /**

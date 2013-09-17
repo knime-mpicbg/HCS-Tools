@@ -15,8 +15,6 @@ import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 
 import org.knime.core.data.*;
-import org.knime.core.data.container.DataContainer;
-import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.*;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -214,8 +212,15 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
+        long startTime = System.currentTimeMillis();
+
         heatMapModel = new HeatMapModel();
+        heatMapModel.setInternalTables(inData);
         parseInputData(inData[0]);
+
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        logger.info("HeatMapViewer node execution time: " + elapsedTime);
 
         return inData;
     }
@@ -413,6 +418,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             }
         }
         attributeModel.removeAll(imageAttributes);
+        heatMapModel.setImageAttributes(imageAttributes);
 
         // Get columns represent plateRow and plateColumn
         SettingsModelString plateRowSetting = (SettingsModelString)getModelSetting(PLATE_ROW_SETTING_NAME);
@@ -445,7 +451,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 plateLabelAttribute,
                 plateRowAttribute,
                 plateColAttribute,
-                imageAttributes,
                 parameters,
                 factors,
                 ExpandPlateBarcode.loadFactory()));
@@ -460,7 +465,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      * @param plateLabelAttribute attribute used for the plate labeling
      * @param rowAttribute attribute indicating the row coordinate in the plate
      * @param colAttribute attribute indicating the column coordinate in the plate
-     * @param imgAttributes list of image attributes
      * @param readouts list of readout names.
      * @param factors list of factor names
      * @param bpf barcode parser factory
@@ -473,7 +477,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                                               Attribute plateLabelAttribute,
                                               Attribute rowAttribute,
                                               Attribute colAttribute,
-                                              List<Attribute> imgAttributes,
                                               List<String> readouts,
                                               List<String> factors,
                                               BarcodeParserFactory bpf) {
@@ -509,11 +512,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             }
             curPlate.setLabel(label);
 
-            // Initialize collector for the image data.
-            String[] columnNames = new String[imgAttributes.size()];
-            DataType[] columnTypes = new DataType[imgAttributes.size()];
-            ArrayList<DataCell> imageCells = new ArrayList<DataCell>();
-
             // Fill plate with wells.
             for (DataRow tableRow : wellRows) {
                 Well well = new Well();
@@ -541,24 +539,6 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                     if (factors.contains(attributeName)) {
                         well.setAnnotation(attributeName, attribute.getRawValue(tableRow));
                     }
-                }
-
-                // Collect the images.
-                if (!imgAttributes.isEmpty()) {
-                    int imageIndex = 0;
-                    for (Attribute attribute : imgAttributes) {
-                        columnNames[imageIndex] = attribute.getName();
-                        imageCells.add(attribute.getImageAttribute(tableRow));
-                        columnTypes[imageIndex] = imageCells.get(imageIndex).getType();
-                        imageIndex++;
-                    }
-
-                    // Create a DataContainer (Bufferedtable) for the image data.
-                    DataContainer table = new DataContainer(new DataTableSpec(columnNames, columnTypes));
-                    table.addRowToTable(new DefaultRow(new RowKey(""), imageCells));
-                    table.close();
-                    well.setImageData(table);
-                    imageCells.clear();
                 }
             }
         }

@@ -92,6 +92,7 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
             nodeModel.setPlotWarning("Saving the view configuration failed.");
             nodeModel.setPlotWarning(e.toString());
         }
+
     }
 
     /** {@inheritDoc} */

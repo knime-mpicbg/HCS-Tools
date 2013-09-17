@@ -136,6 +136,8 @@ public abstract class PseudoHeatMapViewerNodeModel {
 
         model.setScreen(plates);
 
+        model.setImageAttributes(imageAttributes);
+
         return model;
     }
 

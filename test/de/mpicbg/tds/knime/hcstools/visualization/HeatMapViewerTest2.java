@@ -74,7 +74,7 @@ public class HeatMapViewerTest2 {
             "Count_DistCytoplasm",
             "Mean_Nuclei_Intensity_UpperQuartileIntensity_CorrBlue",
             "Mean_Nuclei_Intensity_UpperQuartileIntensity_CorrGreen",
-            " Mean_Nuclei_Math_Ratio1",
+            "Mean_Nuclei_Math_Ratio1",
             "Mean_Nuclei_Math_Ratio2",
             "Mean_PropCells_AreaShape_Area",
             "Mean_PropCells_AreaShape_Compactness",
