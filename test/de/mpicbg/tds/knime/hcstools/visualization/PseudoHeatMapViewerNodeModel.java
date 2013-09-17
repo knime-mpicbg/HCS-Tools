@@ -1,15 +1,23 @@
 package de.mpicbg.tds.knime.hcstools.visualization;
 
+import de.mpicbg.tds.barcodes.BarcodeParser;
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
+import de.mpicbg.tds.core.model.PlateUtils;
+import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel;
 import de.mpicbg.tds.knime.heatmap.HeatMapModel;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.knime.knutils.Attribute;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
+import org.apache.commons.lang.StringUtils;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.DataContainer;
+import org.knime.core.node.CanceledExecutionException;
+import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.NodeLogger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -128,9 +136,9 @@ public abstract class PseudoHeatMapViewerNodeModel {
             model.setKnimeColorAttribute(knimeColor.getName());
 
         // Set the plate data.
-        List<Plate> plates = HeatMapViewerNodeModel.parseIntoPlates(splitScreen, input.getDataTableSpec(),
+        List<Plate> plates = parseIntoPlates(splitScreen, input.getDataTableSpec(),
                 attributeModel, customPlateNameAttr,
-                plateRowAttribute, plateColAttribute, imageAttributes,
+                plateRowAttribute, plateColAttribute,
                 readouts,
                 factors, new BarcodeParserFactory(patterns));
 
@@ -139,6 +147,97 @@ public abstract class PseudoHeatMapViewerNodeModel {
         model.setImageAttributes(imageAttributes);
 
         return model;
+    }
+
+
+    public static List<Plate> parseIntoPlates(Map<String, List<DataRow>> splitScreen,
+                                              DataTableSpec tableSpec,
+                                              List<Attribute> attributes,
+                                              Attribute plateLabelAttribute,
+                                              Attribute rowAttribute,
+                                              Attribute colAttribute,
+                                              List<String> readouts,
+                                              List<String> factors,
+                                              BarcodeParserFactory bpf){
+
+        List<Plate> allPlates = new ArrayList<Plate>();
+
+        double iterations = splitScreen.keySet().size();
+        double iteration = 1;
+        for (String barcode : splitScreen.keySet()) {
+
+            Plate curPlate = new Plate();
+            curPlate.setBarcode(barcode);
+
+            // Control collection.
+            allPlates.add(curPlate);
+
+            // Try to parse the barcode
+            try {
+                BarcodeParser barcodeParser = bpf.getParser(barcode);
+                if (barcodeParser != null)
+                    Plate.configurePlateByBarcode(curPlate, barcodeParser);
+            } catch (Throwable t) {
+                NodeLogger.getLogger(HeatMapViewerNodeModel.class).error(t);
+            }
+
+            // Split the screen according barcodes
+            List<DataRow> wellRows = splitScreen.get(barcode);
+
+            // Set the plate label.
+            String label;
+            try {
+                label = plateLabelAttribute.getRawValue(wellRows.get(0));
+            } catch (Exception e) {
+                System.err.println("The columns for plate labeling did not work out. Taking the barcode as label instead.");
+                label = barcode;
+            }
+            curPlate.setLabel(label);
+
+            // Fill plate with wells.
+            for (DataRow tableRow : wellRows) {
+                Well well = new Well();
+                curPlate.getWells().add(well);
+
+                well.setPlate(curPlate);
+                well.setPlateRow(rowAttribute.getIntAttribute(tableRow));
+                well.setPlateColumn(colAttribute.getIntAttribute(tableRow));
+                well.setKnimeTableRowKey(tableRow.getKey().getString());
+                well.setKnimeRowColor(tableSpec.getRowColor(tableRow).getColor());
+
+                // Parse the attributes and factors
+                for (Attribute attribute : attributes) {
+                    String attributeName = attribute.getName();
+
+                    if (StringUtils.equalsIgnoreCase(PlateUtils.SCREEN_MODEL_TREATMENT, attributeName)) {
+                        well.setTreatment(attribute.getNominalAttribute(tableRow));
+                    }
+
+                    if (readouts.contains(attributeName) && attribute.isNumerical()) {
+                        Double readoutValue = attribute.getDoubleAttribute(tableRow);
+                        well.getWellStatistics().put(attributeName, readoutValue);
+                    }
+
+                    if (factors.contains(attributeName)) {
+                        well.setAnnotation(attributeName, attribute.getRawValue(tableRow));
+                    }
+                }
+            }
+        }
+
+        // ensure plate integrity by requesting a well by coordinates (which will through an exception if the plate layout is not valid)
+        for (Plate plate : allPlates) {
+            plate.getWell(0, 0);
+        }
+
+        // fix the plate dimension if necessary, using some heuristics, which defaults to 384
+        for (Plate plate : allPlates) {
+            Plate.inferPlateDimFromWells(plate);
+        }
+
+        PlateUtils.unifyPlateDimensionsToLUB(allPlates);
+
+        return allPlates;
     }
 
 }
