@@ -182,7 +182,7 @@ public class ViewMenu extends JMenu {
     private JMenu createColorMapMenu() {
         JMenu lut = new JMenu("Colormap");
         ButtonGroup group = new ButtonGroup();
-        String[] names = {"GB", "GBR", "HSV", "Jet", "Dark", "Custom"};
+        String[] names = {"GB", "GBR", "RWB", "HSV", "Jet", "Dark", "Custom"};
         JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[names.length];
 
         for (int i = 0; i < names.length; i++) {

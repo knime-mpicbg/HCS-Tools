@@ -1,5 +1,7 @@
 package de.mpicbg.tds.knime.heatmap.color;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -21,6 +23,7 @@ public abstract class LinearGradientTools {
     public static final String[] MAP_GBR = {"GBR", "green-black-red"};
     public static final String[] MAP_JET = {"Jet", "jet"};
     public static final String[] MAP_DARK = {"Dark", "dark"};
+    public static final String[] MAP_RWB = {"RWB", "red-white-blue"};
 
 
     /**
@@ -41,10 +44,12 @@ public abstract class LinearGradientTools {
         if ( input > 1 ) {
             input = 1f;
         }
+
         if ( input < 0 ) {
             input = 0f;
         }
 
+        // Select the closest two colors to the input fraction
         int index = 0;
         for (float fraction : fractions ) {
 
@@ -53,15 +58,25 @@ public abstract class LinearGradientTools {
                 lowerIndex = index;
             } else if ( fraction == input ) {
                 return colors[index];
-            } else if ( fraction > input ) {
-                upperBound = fraction;
-                upperIndex = index;
             }
             index++;
         }
 
+        index = 0;
+        for (float fraction : fractions) {
+
+            if ( fraction > input ) {
+                upperBound = fraction;
+                upperIndex = index;
+                break;
+            }
+            index++;
+        }
+
+        // Scale the input
         float rescaled = (input - lowerBound) / (upperBound - lowerBound);
 
+        // If there was no exact match, return the interpolated color.
         return interpolateColor(colors[lowerIndex], colors[upperIndex], rescaled);
     }
 
@@ -72,7 +87,7 @@ public abstract class LinearGradientTools {
      * @param color1 first bound
      * @param color2 second bound
      * @param fraction [0...1]
-     * @return interpolation: color2+(color2-color1) * fraction
+     * @return interpolation: color2 + (color2 - color1) * fraction
      */
     public static Color interpolateColor(final Color color1, final Color color2, final float fraction) {
         assert(Float.compare(fraction, 0f) >= 0 && Float.compare(fraction, 1f) <= 0);
@@ -158,6 +173,13 @@ public abstract class LinearGradientTools {
                                                new Color[] {new Color(0,255,0),
                                                             new Color(0, 0, 0),
                                                             new Color(255, 0, 0)});
+        } else if (Arrays.asList(MAP_RWB).contains(str)) {
+            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
+                    new Point2D.Double(100, 0),
+                    new float[] {0f,0.5f,1f},
+                    new Color[] {new Color(255, 0,0),
+                            new Color(255, 255, 255),
+                            new Color(0, 0, 255)});
         } else {
             System.err.println("Don't know the '" + str + "' color map.");
         }
