@@ -58,33 +58,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     public PlateViewer(HeatTrellis parent, Plate plate) {
         this();
         this.updater = parent;
-
-        // Create a new instance of the HeatMapModel and copy some attributes.
-        HeatMapModel model = new HeatMapModel();
-        model.setCurrentReadout(parent.heatMapModel.getSelectedReadOut());
-        model.setCurrentOverlay(parent.heatMapModel.getCurrentOverlay());
-        model.setColorScheme(parent.heatMapModel.getColorScheme());
-        model.setHideMostFreqOverlay(parent.heatMapModel.doHideMostFreqOverlay());
-        model.setWellSelection(parent.heatMapModel.getWellSelection());
-        model.setHiLite(parent.heatMapModel.getHiLite());
-        model.setHiLiteHandler(parent.heatMapModel.getHiLiteHandler());
-        model.setColorGradient(parent.heatMapModel.getColorGradient());
-        model.setKnimeColorAttribute(parent.heatMapModel.getKnimeColorAttribute());
-        model.setReferencePopulations(parent.heatMapModel.getReferencePopulations());
-        model.setAnnotations(parent.heatMapModel.getAnnotations());
-        model.setReadouts(parent.heatMapModel.getReadouts());
-        model.setImageAttributes(parent.heatMapModel.getImageAttributes());
-        model.setInternalTables(parent.getHeatMapModel().getInternalTables());
-
-        if ( parent.heatMapModel.isGlobalScaling() ) {
-            model.setScreen(parent.heatMapModel.getScreen());
-            model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategy());
-        } else {
-            model.setScreen(Arrays.asList(plate));
-            model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategyInstance());
-        }
-
-        this.heatMapModel = model;
+        this.heatMapModel = deepCopyDataModel(parent, plate);
 
         // Creating the menu
         JMenuBar menu = new JMenuBar();
@@ -134,6 +108,42 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         Random posJitter = new Random();
         double left = Toolkit.getDefaultToolkit().getScreenSize().getWidth() - this.getWidth() - 100;
         setLocation((int) left + posJitter.nextInt(100), 200 + posJitter.nextInt(100));
+    }
+
+
+    /**
+     * Make a deep (hard) copy of  the {@link HeatMapModel}
+     *
+     * @param parent GUI component
+     * @param plate to render
+     * @return hard copy of the HeatMapModel
+     */
+    private HeatMapModel deepCopyDataModel(HeatTrellis parent, Plate plate) {
+        // Create a new instance of the HeatMapModel and copy some attributes.
+        HeatMapModel model = new HeatMapModel();
+        model.setCurrentReadout(parent.heatMapModel.getSelectedReadOut());
+        model.setCurrentOverlay(parent.heatMapModel.getCurrentOverlay());
+        model.setColorScheme(parent.heatMapModel.getColorScheme());
+        model.setHideMostFreqOverlay(parent.heatMapModel.doHideMostFreqOverlay());
+        model.setWellSelection(parent.heatMapModel.getWellSelection());
+        model.setHiLite(parent.heatMapModel.getHiLite());
+        model.setHiLiteHandler(parent.heatMapModel.getHiLiteHandler());
+        model.setColorGradient(parent.heatMapModel.getColorGradient());
+        model.setKnimeColorAttribute(parent.heatMapModel.getKnimeColorAttribute());
+        model.setReferencePopulations(parent.heatMapModel.getReferencePopulations());
+        model.setAnnotations(parent.heatMapModel.getAnnotations());
+        model.setReadouts(parent.heatMapModel.getReadouts());
+        model.setImageAttributes(parent.heatMapModel.getImageAttributes());
+        model.setInternalTables(parent.getHeatMapModel().getInternalTables());
+
+        if ( parent.heatMapModel.isGlobalScaling() ) {
+            model.setScreen(parent.heatMapModel.getScreen());
+            model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategy());
+        } else {
+            model.setScreen(Arrays.asList(plate));
+            model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategyInstance());
+        }
+        return model;
     }
 
 
