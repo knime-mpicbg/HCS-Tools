@@ -232,8 +232,10 @@ public class TrellisMenu extends JMenu {
     private void globalScalingAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
 
-        if (heatTrellis.plateViewers.isEmpty())
+        if (heatTrellis.plateViewers.isEmpty()) {
+            heatMapModel.setGlobalScaling(item.isSelected());
             return;
+        }
 
         Object[] options = {"Cancel", "Proceed"};
         int optionIndex = JOptionPane.showOptionDialog(getTopLevelAncestor(),
