@@ -40,7 +40,7 @@ public class HeatWell extends JPanel {
      * @param well data for display
      * @param heatMapModel data model of the entire UI
      */
-    public HeatWell(final Well well, HeatMapModel heatMapModel) {
+    public HeatWell(final Well well, HeatMapModel heatMapModel, Graphics graphics) {
         super();
 
         this.well = well;
@@ -54,6 +54,8 @@ public class HeatWell extends JPanel {
                 setToolTipText(" ");
             }
         });
+
+        this.draw(graphics);
     }
 
 
@@ -125,6 +127,15 @@ public class HeatWell extends JPanel {
     /** {@inheritDoc} */
     @Override
     protected void paintComponent(Graphics g) {
+        draw(g);
+    }
+
+    /**
+     * Draw method allowing to pass the graphics object from the buffer created in the parent.
+     *
+     * @param g Swing graphics
+     */
+    protected void draw(Graphics g) {
         super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g;

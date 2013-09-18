@@ -13,6 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferStrategy;
 import java.util.*;
 
 /**
@@ -38,6 +39,10 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     private JPanel heatMapContainer;
     private HeatMapColorToolBar colorbar;
     private HeatMapInputToolbar toolbar;
+    private JLabel loadingMessage;
+
+    /** The object containing the plate data */
+    private Plate plate;
 
 
     /**
@@ -58,7 +63,8 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     public PlateViewer(HeatTrellis parent, Plate plate) {
         this();
         this.updater = parent;
-        this.heatMapModel = deepCopyDataModel(parent, plate);
+        this.plate = plate;
+        this.heatMapModel = deepCopyDataModel(parent);
 
         // Creating the menu
         JMenuBar menu = new JMenuBar();
@@ -92,33 +98,60 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         toolbar.configure(this.heatMapModel);
         colorbar.configure(this.heatMapModel);
 
-        // Add the plate heatmap
-        HeatPlate heatMap = new HeatPlate(this, plate);
-        heatMapContainer.add(heatMap);
-
         // Add "save image" functionality
         new PanelImageExporter(heatMapContainer, true);
+
+        // Show a loading message.
+        loadingMessage = new JLabel();
+        loadingMessage.setText("Opening Plate Viewer...");
+        loadingMessage.setHorizontalAlignment(JLabel.CENTER);
+        this.heatMapContainer.add(loadingMessage);
+
+        // Set the location of the new PlateViewer
+        Random posJitter = new Random();
+        double left = Toolkit.getDefaultToolkit().getScreenSize().getWidth()/2;
+        setLocation((int) left + posJitter.nextInt(100), 200 + posJitter.nextInt(100));
+
+        // User double buffering strategy for rendering
+        this.setVisible(true);
+        this.createBufferStrategy(2);
+
+        // Force the loading message to be rendered
+        this.getBufferStrategy().show();
+        Toolkit.getDefaultToolkit().sync();
+    }
+
+
+    /**
+     * Method to draw the Jframe in a double buffered manner.
+     * Use only after instantiation of the PlateViewer
+     */
+    public void draw() {
+        BufferStrategy bufferStrategy = this.getBufferStrategy();
+        Graphics graphics = bufferStrategy.getDrawGraphics();
+        this.heatMapContainer.remove(loadingMessage);
+
+        // Add the plate heatmap
+        HeatPlate heatMap = new HeatPlate(this, this.plate, graphics);
+        heatMapContainer.add(heatMap);
 
         // Set the window dimensions given by the plate heatmap size.
         Dimension ms = heatMap.getPreferredSize();
         heatMapContainer.setPreferredSize(new Dimension(ms.width+10, ms.height+10));
         pack();
 
-        // Set the location of the new PlateViewer
-        Random posJitter = new Random();
-        double left = Toolkit.getDefaultToolkit().getScreenSize().getWidth() - this.getWidth() - 100;
-        setLocation((int) left + posJitter.nextInt(100), 200 + posJitter.nextInt(100));
+        // Show the stuff
+        bufferStrategy.show();
+        Toolkit.getDefaultToolkit().sync();
     }
-
 
     /**
      * Make a deep (hard) copy of  the {@link HeatMapModel}
      *
      * @param parent GUI component
-     * @param plate to render
      * @return hard copy of the HeatMapModel
      */
-    private HeatMapModel deepCopyDataModel(HeatTrellis parent, Plate plate) {
+    private HeatMapModel deepCopyDataModel(HeatTrellis parent) {
         // Create a new instance of the HeatMapModel and copy some attributes.
         HeatMapModel model = new HeatMapModel();
         model.setCurrentReadout(parent.heatMapModel.getSelectedReadOut());
@@ -137,33 +170,34 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         model.setInternalTables(parent.getHeatMapModel().getInternalTables());
 
         if ( parent.heatMapModel.isGlobalScaling() ) {
+            // use all the data to calculate the scale
             model.setScreen(parent.heatMapModel.getScreen());
             model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategy());
         } else {
-            model.setScreen(Arrays.asList(plate));
+            // only use the plate displayed in the viewer to calculate the scale
+            model.setScreen(Arrays.asList(this.plate));
             model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategyInstance());
         }
         return model;
     }
 
-
     /**
      * GUI component initialization.
      */
     private void initialize() {
-        setMinimumSize(new Dimension(400, 250));
+        this.setMinimumSize(new Dimension(400, 250));
 
-        setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout());
 
         toolbar = new HeatMapInputToolbar(this);
-        add(toolbar, BorderLayout.NORTH);
+        this.add(toolbar, BorderLayout.NORTH);
 
         heatMapContainer = new JPanel(new BorderLayout());
         heatMapContainer.setBorder(BorderFactory.createEmptyBorder(0,0,10,10));
-        add(heatMapContainer, BorderLayout.CENTER);
+        this.add(heatMapContainer, BorderLayout.CENTER);
 
         colorbar = new HeatMapColorToolBar();
-        add(colorbar, BorderLayout.SOUTH);
+        this.add(colorbar, BorderLayout.SOUTH);
     }
 
 
@@ -183,7 +217,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
     @Override
     public void modelChanged() {
         if (isVisible() && getWidth() > 0)
-            repaint();
+            this.repaint();
     }
 
 

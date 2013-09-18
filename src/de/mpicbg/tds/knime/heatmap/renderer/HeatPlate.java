@@ -44,7 +44,7 @@ public class HeatPlate extends JPanel implements MouseListener {
     /**
      * Constructor a plate heatmap
      */
-    public HeatPlate(PlateViewer parent, Plate plate) {
+    public HeatPlate(PlateViewer parent, Plate plate, Graphics graphics) {
         this.heatMapModel = parent.getHeatMapModel();
         this.setBorder(BorderFactory.createEmptyBorder());
         this.setBackground(parent.getBackground());
@@ -107,7 +107,7 @@ public class HeatPlate extends JPanel implements MouseListener {
         List<String> filledPositions = new ArrayList<String>();
         for (Well well : plate.getWells()) {
             String insertPosition = (well.getPlateColumn()) + ", " + (well.getPlateRow());
-            HeatWell heatWellPanel = new HeatWell(well, heatMapModel);
+            HeatWell heatWellPanel = new HeatWell(well, heatMapModel, graphics);
             heatWellPanel.addMouseListener(this);
             add(heatWellPanel, insertPosition);
             filledPositions.add(insertPosition);
@@ -261,18 +261,18 @@ public class HeatPlate extends JPanel implements MouseListener {
     public void mouseExited(MouseEvent mouseEvent) { /** Do Nothing */ }
 
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame();
-        frame.setVisible(true);
-
-        Plate plate = new Plate();
-        plate.setNumColumns(24);
-        plate.setNumRows(16);
-
-        HeatPlate heatmap = new HeatPlate(new PlateViewer(), plate);
-
-        frame.add(heatmap);
-        frame.pack();
-
-    }
+//    public static void main(String[] args) {
+//        JFrame frame = new JFrame();
+//        frame.setVisible(true);
+//
+//        Plate plate = new Plate();
+//        plate.setNumColumns(24);
+//        plate.setNumRows(16);
+//
+//        HeatPlate heatmap = new HeatPlate(new PlateViewer(), plate);
+//
+//        frame.add(heatmap);
+//        frame.pack();
+//
+//    }
 }
