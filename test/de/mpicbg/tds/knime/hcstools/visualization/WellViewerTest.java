@@ -32,7 +32,7 @@ public class WellViewerTest {
 //        viewer.pack();
         viewer.setVisible(true);
 
-        WellViewer wellViewer = new WellViewer(new HeatWell(well, new HeatMapModel()), well);
+        WellViewer wellViewer = new WellViewer(new HeatWell(well, new HeatMapModel(), viewer.getBufferStrategy().getDrawGraphics()), well);
         JDialog viewer2 = wellViewer.createDialog();
 //        viewer2.pack();
         viewer2.setVisible(true);
