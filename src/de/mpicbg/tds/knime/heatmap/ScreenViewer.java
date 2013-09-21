@@ -41,7 +41,6 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
 
         initialize();
         configure();
-        setVisible(true);
     }
 
     /**
@@ -55,7 +54,6 @@ public class ScreenViewer extends JPanel implements HeatMapViewer {
 
         initialize();
         configure();
-        setVisible(true);
     }
 
     /**
