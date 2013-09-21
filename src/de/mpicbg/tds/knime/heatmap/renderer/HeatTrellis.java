@@ -30,6 +30,9 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     /** Gap between heatmaps */
     public final int cellGap = 5;
 
+    /** Font size of the barcode */
+    private int plateNameFontSize = 12;
+
     /** The current heatmap size (width/height = 1.5 is the real microtiter plate proportions) */
         /** Heatmap width */
         private int HEATMAP_WIDTH = 180;
@@ -131,6 +134,8 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
      * Initialization of the UI components
      */
     private void initialize() {
+        plateNameFontSize = Utils.isWindowsPlatform() ? 8 : 12;
+
         heatMapsContainer = new JPanel();
         heatMapsContainer.setPreferredSize(new Dimension(PREFERRED_WITH-10,PREFERRED_HEIGHT-10));
         heatMapsContainer.setLayout(new TableLayout(new double[][]{{TableLayout.PREFERRED}, {TableLayout.PREFERRED}}));
@@ -188,7 +193,6 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         numColumns = updateTrellisTableLayout(numRows, numColumns);
 
         // populate the view with plates
-        int plateNameFontSize = Utils.isWindowsPlatform() ? 8 : 12;
         Font barcodeFont = new Font("Serif", Font.PLAIN, plateNameFontSize);
 
         for (int i = 0; i < heatmapSelection.size(); i++) {
@@ -327,7 +331,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
      * @param numRows number of rows in the trellis
      * @param numColumns number of columns in the trellis
      */
-    private void updateContainerDimensions(int numRows, int numColumns) {
+    public void updateContainerDimensions(int numRows, int numColumns) {
         int containerWidth = numColumns * HEATMAP_WIDTH + (numColumns + 1) * cellGap;
         int containerHeight = numRows * HEATMAP_HEIGHT + (numRows + 1) * cellGap;
         Dimension containerDimensions = new Dimension(containerWidth, containerHeight);
@@ -541,6 +545,34 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
     public void mouseExited(MouseEvent mouseEvent) { /** Do Nothing */ }
 
 
+    /**
+     * Get the naked container with the heatmaps (for image generation)
+     *
+     *  @return panel containing the heatmaps
+     */
+    public JPanel getHeatMapsContainer() {
+        return heatMapsContainer;
+    }
+
+    /**
+     * Set the width of the heatmaps.
+     *
+     * @param width of the heatmap
+     * @param height of the heatmap
+     */
+    public void setTrellisHeatMapSize(int width, int height) {
+        HEATMAP_WIDTH = width;
+        HEATMAP_HEIGHT = height;
+    }
+
+    /**
+     * Set the Fontsize of the heatmap title-border.
+     *
+     * @param plateNameFontSize of the heatmap
+     */
+    public void setPlateNameFontSize(int plateNameFontSize) {
+        this.plateNameFontSize = plateNameFontSize;
+    }
 
     /**
      * Quick testing

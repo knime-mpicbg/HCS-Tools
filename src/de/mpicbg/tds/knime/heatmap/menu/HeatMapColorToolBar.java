@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.text.DecimalFormat;
 
+import de.mpicbg.tds.core.Utils;
 import de.mpicbg.tds.knime.heatmap.HeatMapModel;
 import de.mpicbg.tds.knime.heatmap.HeatMapModelChangeListener;
 import de.mpicbg.tds.knime.heatmap.color.ColorScheme;
@@ -22,6 +23,7 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
 
     /** Data model */
     private HeatMapModel heatMapModel;
+
     /** Color map */
     private LinearGradientTools.ColorGradientPanel gradientPanel;
     /** Label for the lower bound of the color scale */
@@ -29,11 +31,17 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
     /** Label for mean of the color scale */
     private JLabel medLabel = new JLabel("middle");
     /** Label for the upper bound of the color scale */
-    private JLabel maxLabel = new JLabel("max");
+    private JLabel maxLabel = new JLabel("mavvvvvvx");
+    /** Label for the error color */
+    private JLabel errorLabel;
+    /** Label for the empty color */
+    private JLabel emptyLabel;
 
     /** Formating of the scale labels */
     public static final DecimalFormat scienceFormat = new DecimalFormat("0.###E0");
-    public static final DecimalFormat basicFormat = new DecimalFormat("######.###");
+    public static final DecimalFormat basicFormat = new DecimalFormat("######.##");
+    /** Font size */
+    private int labelFontSize = Utils.isWindowsPlatform() ? 10 : 14;
 
 
     /**
@@ -105,7 +113,7 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         errorPanel.setBackground(ColorScheme.ERROR_READOUT);
 
         // Create a label for the panel indicating the missing value color.
-        JLabel errorLabel = new JLabel(" Err ");
+        errorLabel = new JLabel(" Err ");
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
 
         // Add the panel indicating the missing value color.
@@ -113,8 +121,11 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         emptyPanel.setBackground(ColorScheme.EMPTY_READOUT);
 
         // Create a label for the panel indicating the missing value color.
-        JLabel emptyLabel = new JLabel(" Empty ");
-        errorLabel.setHorizontalAlignment(JLabel.CENTER);
+        emptyLabel = new JLabel(" Empty ");
+        emptyLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        // Set the font of the labels
+        setLabelFont(labelFontSize);
 
         // Add the component to the main panel
         setLayout(new GridBagLayout());
@@ -168,9 +179,24 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
             return basicFormat.format(value);
     }
 
+    /**
+     * Set the font of the colorbar labels.
+     *
+     * @param fontSize of the colorbar labels
+     */
+    public void setLabelFont(int fontSize){
+        Font labelFont = new Font("Serif", Font.PLAIN, fontSize);
+        minLabel.setFont(labelFont);
+        medLabel.setFont(labelFont);
+        maxLabel.setFont(labelFont);
+        emptyLabel.setFont(labelFont);
+        errorLabel.setFont(labelFont);
+    }
+
 
     /**
      * Quick testing
+     *
      * @param args whatever
      */
     public static void main(String[] args) {

@@ -16,11 +16,6 @@
             - plateRow<br/>
             - plateColumn<br/>
             <br/>
-            Mouse behaviour:<br/>
-            The heatmap trellis and the individual plate view support single selection and drag-selection.<br/>
-            Right click on a plate of the trellis opens an individual plate view. A right click on a well of the plate
-            view opens an a well detail view.<br/>
-            <br/>
             Supported <a href="http://en.wikipedia.org/wiki/Microtiter_plate">microtiter plate</a> formats:<br/>
             6, 12, 24, 96, 384 and 1536. The viewer will try to make a guess about the proper plate dimension if not
             all wells are present in the table (e.g. because outer rows are not used).<br/>
@@ -30,7 +25,7 @@
             data column will be visualized. So far the KNIME native PNG images are recognised, as well as the formats
             provided by the <a href="http://tech.knime.org/community/image-processing">Image Processing</a> plugin.
             Careful! the processing might take time and disk space. The best performance is achieved with the "Image
-            Reference" produced by the "Image File Linker" node of the image processing plugin.
+            Reference" produced by the "<b>Image File Linker</b>" node of the image processing plugin.
         </intro>
         <option name="Readouts">
             A selection of readouts which should be displayed by the viewer. Especially for
@@ -60,17 +55,27 @@
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="Screen Data Table">
+        <inPort index="0" name="Screen data table">
             A table containing High Content Screening data.
         </inPort>
-        <outPort index="0" name="The same screen without any changes">
+        <outPort index="0" name="The same screen data table without any changes">
             Same as input table.
+        </outPort>
+        <outPort index="1" name="PNG-image of heatmap trellis">
+            PNG image of the heatmap trellis containing all plates.
+            It takes the first readout in the list, the default colormap and no overlay.
         </outPort>
     </ports>
 
     <views>
         <view index="0" name="Plate Heatmap Trellis">
             Trellis containing all heatmaps representing the plates of the screen.
+            <br/><br/>
+            Mouse behaviour:<br/>
+            The heatmap trellis and the individual plate view support single selection and drag-selection.<br/>
+            Right click on a plate of the trellis opens an individual plate view. A right click on a well of the plate
+            view opens an a well detail view.<br/>
+            <br/>
         </view>
     </views>
 

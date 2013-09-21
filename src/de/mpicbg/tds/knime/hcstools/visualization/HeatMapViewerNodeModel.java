@@ -4,26 +4,40 @@ import de.mpicbg.tds.barcodes.BarcodeParser;
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
 import de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcode;
 import de.mpicbg.tds.knime.heatmap.HeatMapModel;
+import de.mpicbg.tds.knime.heatmap.ScreenViewer;
 import de.mpicbg.tds.knime.heatmap.color.LinearColorGradient;
 import de.mpicbg.tds.knime.heatmap.color.RescaleStrategy;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.PlateUtils;
 import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.tds.knime.heatmap.io.ScreenImage;
+import de.mpicbg.tds.knime.heatmap.menu.HeatMapColorToolBar;
+import de.mpicbg.tds.knime.heatmap.renderer.HeatTrellis;
 import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
 import de.mpicbg.tds.knime.knutils.Attribute;
 import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 
 import org.knime.core.data.*;
+import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.*;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
 import org.apache.commons.lang.StringUtils;
+import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.node.port.PortType;
+import org.knime.core.node.port.image.ImagePortObject;
+import org.knime.core.node.port.image.ImagePortObjectSpec;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * This is the model implementation of HCS Heat Map Viewer.
@@ -58,15 +72,18 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** Used for delayed deserialization of plate-dump-file */
     private File internalBinFile;
 
-    /** Used for delayed deserialization of the view configuration.*/
+    /** Used for delayed deserialization of the view configuration */
     private File viewConfigFile;
+
+    /** Image port output spec */
+    private ImagePortObjectSpec imagePortObjectSpec = new ImagePortObjectSpec(PNGImageContent.TYPE);
 
 
     /**
      * Constructor
      */
     public HeatMapViewerNodeModel() {
-        super(1,1,true); // Set the flag for the new settings model.
+        super(new PortType[]{BufferedDataTable.TYPE}, new PortType[] {BufferedDataTable.TYPE, ImagePortObject.TYPE},true); // Set the flag for the new settings model.
 
         addModelSetting(READOUT_SETTING_NAME, createReadoutSettingsModel());
         addModelSetting(FACTOR_SETTING_NAME, createFactorSettingModel());
@@ -168,6 +185,12 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         heatMapModel.setScreen(null);
     }
 
+    @Override
+    protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+        configure(new DataTableSpec[]{(DataTableSpec) inSpecs[0]});
+        return new PortObjectSpec[]{inSpecs[0], imagePortObjectSpec};
+    }
+
     /** {@inheritDoc} */
     @Override
     protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
@@ -206,27 +229,99 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
         AttributeUtils.validate(readoutSettings.getIncludeList(), inSpecs[0]);
 
-        return new DataTableSpec[]{inSpecs[0]};
+        return new DataTableSpec[]{inSpecs[0], null};
     }
 
     /** {@inheritDoc} */
     @Override
-    protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
-        if (!inData[0].iterator().hasNext()) {
-            return inData;
-        }
-
+    protected PortObject[] execute(PortObject[] inData, ExecutionContext exec) throws Exception {
         long startTime = System.currentTimeMillis();
 
+        // Process the input table
+        BufferedDataTable table = (BufferedDataTable)inData[0];
+        execute(new BufferedDataTable[] {table}, exec);
+
+        // Create the image output
+        ImagePortObject imagePort = createImageOutput();
+
+        // Arrange the output
+        PortObject[] output = new PortObject[2];
+        output[0] = inData[0];
+        output[1] = imagePort;
+
+        logger.info("HeatMapViewer node execution time (sec.): " + (System.currentTimeMillis() - startTime) / 1000 );
+
+        return output;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected BufferedDataTable[] execute(BufferedDataTable[] inTables, ExecutionContext exec) throws Exception {
+        // React on empty tables
+        if (!inTables[0].iterator().hasNext()) {
+            return inTables;
+        }
+
+        // Parse the data Table
         heatMapModel = new HeatMapModel();
-        heatMapModel.setInternalTables(inData);
-        parseInputData(inData[0], exec);
+        heatMapModel.setInternalTables(inTables);
+        parseInputData(inTables[0], exec);
 
-        long stopTime = System.currentTimeMillis();
-        long elapsedTime = stopTime - startTime;
-        logger.info("HeatMapViewer node execution time: " + elapsedTime);
+        return inTables;
+    }
 
-        return inData;
+    /**
+     * Create a PNG image of the HeatTrellis
+     *
+     * @return port object
+     * @throws IOException
+     */
+    private ImagePortObject createImageOutput() throws IOException {
+        // Set the row column configuration
+        Integer columns = 5;
+        Integer rows =  (int) Math.ceil(heatMapModel.getCurrentNumberOfPlates() * 1.0 / columns);
+        heatMapModel.setNumberOfTrellisColumns(columns);
+        heatMapModel.setNumberOfTrellisRows(rows);
+        heatMapModel.setAutomaticTrellisConfiguration(false);
+
+        // Create the heatmap panel from screen (turn the buffers off)
+        ScreenViewer viewer = new ScreenViewer(heatMapModel);
+        HeatTrellis trellis = viewer.getHeatTrellis();
+        trellis.setTrellisHeatMapSize(420, 280);
+        trellis.setPlateNameFontSize(28);
+
+        trellis.setDoubleBuffered(false);
+        trellis.updateContainerDimensions(rows, columns);
+        trellis.repopulatePlateGrid();
+
+        JPanel component = trellis.getHeatMapsContainer();
+        component.setDoubleBuffered(false);
+
+        // Create the colorbar
+        HeatMapColorToolBar colorBar = new HeatMapColorToolBar(heatMapModel);
+        colorBar.setMinimumSize(new Dimension(500,37));
+        colorBar.setPreferredSize(new Dimension(500,37));
+        colorBar.setLabelFont(22);
+
+        // Add the colorbar
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(component, BorderLayout.CENTER);
+        panel.add(colorBar, BorderLayout.PAGE_END);
+        panel.setMinimumSize(new Dimension(300, 20));
+
+        // Create the image.
+        PNGImageContent imageContent;
+        File tempFile = File.createTempFile("HeatMapTrellis", ".png");
+        ImageIO.write(ScreenImage.createImage(panel), "png", tempFile);
+        FileInputStream in = new FileInputStream(tempFile);
+        imageContent = new PNGImageContent(in);
+        in.close();
+
+        // Clean up
+        heatMapModel.setAutomaticTrellisConfiguration(true);
+        viewer.setVisible(false);
+
+        return new ImagePortObject(imageContent, imagePortObjectSpec);
     }
 
     /** {@inheritDoc} */
@@ -473,7 +568,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      * @param readouts list of readout names.
      * @param factors list of factor names
      * @param bpf barcode parser factory
-     * @param exec
+     * @param exec execution context
      *
      * @return a list of all the available {@link Plate}s
      */
