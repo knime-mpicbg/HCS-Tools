@@ -151,6 +151,10 @@
         <node category-path="/community/hcstools/io"
               factory-class="de.mpicbg.tds.knime.hcstools.reader.XMLFileReaderFactory"
               id="de.mpicbg.tds.knime.hcstools.reader.XMLFileReaderFactory"/>
+                          
+        <node category-path="/community/hcstools/io"
+              factory-class="de.mpicbg.tds.knime.helpers.exdata.ExampleDataNodeFactory"
+              id="de.mpicbg.tds.knime.helpers.exdata.ExampleDataNodeFactory"/>
 
 
         <!--Data manipulators-->
@@ -270,10 +274,14 @@
     <extension point="org.eclipse.ui.preferencePages">
         <page category="org.knime.workbench.ui.preferences"
               class="de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferencePage"
-              id="de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferencePage" name="HCS-Tool">
+              id="de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferencePage" name="HCS-Tools">
+        </page>
+        <page category="de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferencePage"
+              class="de.mpicbg.tds.knime.helpers.prefs.KnimeHelpersPreferencePage"
+              id="de.mpicbg.tds.knime.helpers.prefs.KnimeHelpersPreferencePage"
+              name="HCS Helpers">
         </page>
     </extension>
-
 
     <extension point="org.knime.product.splashExtension">
         <splashExtension icon="resources/hcstools_splash.png" id="HCS-Tools" tooltip="Some tools to ease HCS analysis">

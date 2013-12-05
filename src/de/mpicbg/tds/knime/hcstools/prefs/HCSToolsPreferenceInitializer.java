@@ -39,6 +39,8 @@ public class HCSToolsPreferenceInitializer extends AbstractPreferenceInitializer
     public static final String MAD_SCALING_FACTOR = "mad.scaling.factor";
 
     public static final String BARCODE_PATTERNS = "barcode.patterns";
+    
+    public static final String EXDATA_LIST_LOCATIONS = "exdata.locations";
 
 
     @Override
@@ -50,5 +52,8 @@ public class HCSToolsPreferenceInitializer extends AbstractPreferenceInitializer
         store.setDefault(MAD_SCALING_FACTOR, MadStatistic.MAD_GAUSS_FACTOR);
 
         store.setDefault(BARCODE_PATTERNS, BarcodeParserFactory.ASSAY_PLATE_PATTERN + ";" + BarcodeParserFactory.LIB_PLATE_BARCODE_PATTERN + ";" + BarcodeParserFactory.ASSAY_PLATE_PATTERN_OLD);
+        
+        //Helpers Prefs
+        store.setDefault(EXDATA_LIST_LOCATIONS, "https://github.com/knime-mpicbg/example-data/blob/master/mpi-cbg_tds/somedata.csv");
     }
 }
