@@ -1,0 +1,128 @@
+<project name="hcscore" default="deploy" basedir="." xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+    <taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler"/>
+
+    <path id="maven-ant-tasks.classpath" path="${basedir}/resources/maven-ant-tasks-2.1.0.jar"/>
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+             uri="antlib:org.apache.maven.artifact.ant"
+             classpathref="maven-ant-tasks.classpath"/>
+
+
+    <property name="src.dir" location="${basedir}/src"/>
+    <property name="classes.dir" location="${basedir}/classes"/>
+    <property name="lib.dir" location="${basedir}/lib"/>
+    <property name="dist.dir" location="${basedir}/dist"/>
+    <property name="bin.dir" location="${basedir}/bin"/>
+
+    <property name="project.name" value="hcscore"/>
+
+
+    <!-- the dependencies as defined in the pom.xml -->
+    <artifact:dependencies filesetid="maven.dependencies" useScope="runtime">
+        <pom file="pom.xml"/>
+    </artifact:dependencies>
+
+
+    <path id="classpath">
+        <fileset dir="${basedir}/target/dependency">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <!--<target name="compile" description="compile all sources">-->
+    <!--<mkdir dir="${classes.dir}"/>-->
+    <!--<javac srcdir="${src.dir}" destdir="${classes.dir}" source="1.5" target="1.5">-->
+    <!--<classpath refid="maven.dependencies"/>-->
+    <!--&lt;!&ndash;<compilerarg value="-g:lines,source,vars"/>&ndash;&gt;-->
+    <!--</javac>-->
+    <!--</target>-->
+
+    <target name="mvn:createjar" description="recompile and package the app with maven">
+        <!--does not work-->
+        <!--<artifact:mvn mavenHome="/usr/share/maven/">-->
+        <!--<arg value="clean"/>-->
+        <!--</artifact:mvn>-->
+
+        <exec executable="mvn">
+            <arg value="-Dmaven.test.skip=true"/>
+            <arg value="package"/>
+        </exec>
+    </target>
+
+
+    <target name="createjar" depends="mvn:createjar" description="Recreates the vShift.jar">
+
+        <property name="jarfile" value="${project.name}.jar"/>
+        <delete failonerror="true" file="${jarfile}"/>
+        <jar basedir="${classes.dir}" destfile="${jarfile}"/>
+
+        <!--<jar basedir="${bin.dir}" includes="config/config.sxl" update="true" destfile="${project.name}.jar"/>-->
+        <!--<jar basedir="${user.home}" includes=".winlayout" update="true" destfile="${project.name}.jar"/>-->
+
+        <manifestclasspath property="jar.classpath" jarfile="${jarfile}">
+            <classpath refid="maven.dependencies"/>
+        </manifestclasspath>
+
+        <jar destfile="${jarfile}" update="true">
+            <manifest>
+                <attribute name="Built-By"
+                           value="Holger Brandl (Max Planck Institute of Molecular Cell Biology and Genetics (MPI-CBG)). All rights reserverd, 2010"/>
+                <attribute name="Main-Class" value="foo.bar.WhatEver"/>
+                <attribute name="Class-Path" value="${jar.classpath}"/>
+            </manifest>
+        </jar>
+
+        <!-- embedd some config files directly into the jar-->
+        <!--<jar basedir="${bin.dir}" includes="config/miguelmic.sxl" update="true" destfile="${project.name}.jar"/>-->
+
+        <!--<move file="${jarfile}" todir="${lib.dir}"/>-->
+    </target>
+
+
+    <target name="deploylayoutgen" depends="mvn:createjar" description="creates a macos app for the layout generator">
+        <property name="layoutgen.targetdir" value="/Volumes/tds/software+tools/tdsinternal"/>
+        <delete file="${layoutgen.targetdir}" failonerror="true"/>
+
+        <mkdir dir="${layoutgen.targetdir}"/>
+
+
+        <!--readd this if you want an icon icon="rmicon.icns"-->
+        <jarbundler dir="${layoutgen.targetdir}"
+                    name="LayoutDesigner"
+                    shortname="LayoutDesigner"
+                    mainclass="de.mpicbg.tds.core.tools.layoutgenerator.PlateLayoutGenerator"
+                    jvmversion="1.6+"
+                    version="5.0"
+                    vmoptions="-Xmx1024m -Xms512m -Dcom.apple.macos.useScreenMenuBar=true -Dapple.laf.useScreenMenuBar=true">
+
+
+            <!--<javaproperty name="WorkingDirectory" value="$APP_PACKAGE/Contents/Resources/Java/"/>-->
+
+            <!--<jarfileset refid="maven.dependencies">-->
+            <!--<include name="*.jar"/>-->
+            <!--<include name="target/hcscore.jar"/>-->
+            <!--</jarfileset>-->
+
+            <jarfileset dir="${basedir}/target">
+                <include name="dependency/*.jar"/>
+                <include name="hcscore-1.0.jar"/>
+            </jarfileset>
+
+            <!--<resourcefilelist dir="lib/" files="plugins/*" />-->
+
+
+            <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
+            <javaproperty name="apple.awt.brushMetal" value="true"/>
+            <javaproperty name="apple.awt.showGrowBox" value="false"/>
+
+        </jarbundler>
+    </target>
+
+
+    <target name="cleanAll" description="remove all generated files">
+        <!--<delete failonerror="false" dir="${dist.dir}"/>-->
+        <!--<delete file="${basedir}/${project.name}.jar"/>-->
+        <!--<delete dir="${classes.dir}" failonerror="false"/>-->
+    </target>
+
+</project>
