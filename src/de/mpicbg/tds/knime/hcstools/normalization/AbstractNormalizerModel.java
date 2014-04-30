@@ -9,9 +9,10 @@ package de.mpicbg.tds.knime.hcstools.normalization;
  * Time: 11:04 AM
  */
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.TableUpdateCache;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.TableUpdateCache;
+
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.node.BufferedDataTable;

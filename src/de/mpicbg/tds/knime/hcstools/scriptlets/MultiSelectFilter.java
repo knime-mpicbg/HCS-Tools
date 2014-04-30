@@ -1,7 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.scriptlets;
 
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.InputTableAttribute;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.InputTableAttribute;
+
 import org.knime.core.data.DataRow;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;

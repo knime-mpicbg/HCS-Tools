@@ -1,8 +1,8 @@
 package de.mpicbg.tds.knime.hcstools;
 
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.core.util.PlateComparator;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;

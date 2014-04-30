@@ -1,6 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.joinimages;
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;

@@ -22,7 +22,8 @@
 package de.mpicbg.tds.knime.hcstools.utils;
 
 
-import de.mpicbg.tds.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.Attribute;
+
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
 import org.knime.core.data.DataRow;

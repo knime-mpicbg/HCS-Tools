@@ -9,9 +9,10 @@ package de.mpicbg.tds.knime.hcstools.datamanip.row;
  * Time: 2:17 PM
  */
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.RangeRowFilter;
-import de.mpicbg.tds.knime.knutils.RowMultiFilterIterator;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.RangeRowFilter;
+import de.mpicbg.knime.knutils.RowMultiFilterIterator;
+
 import org.knime.base.node.preproc.filter.row.RowFilterIterator;
 import org.knime.base.node.preproc.filter.row.rowfilter.RowFilter;
 import org.knime.core.data.*;

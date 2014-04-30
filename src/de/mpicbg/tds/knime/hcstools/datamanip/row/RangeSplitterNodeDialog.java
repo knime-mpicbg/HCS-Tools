@@ -1,6 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.datamanip.row;
 
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
+import de.mpicbg.knime.knutils.AbstractConfigDialog;
+
 import org.knime.core.data.*;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NotConfigurableException;

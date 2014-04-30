@@ -1,6 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.scriptlets;
 
-import de.mpicbg.tds.knime.knutils.TableUpdateCache;
+import de.mpicbg.knime.knutils.TableUpdateCache;
+
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;

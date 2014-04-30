@@ -1,9 +1,9 @@
 package de.mpicbg.tds.knime.hcstools.utils;
 
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Utils;
 import de.mpicbg.tds.core.ExcelLayout;
 import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Utils;
 import org.knime.core.data.*;
 import org.knime.core.data.container.AbstractCellFactory;
 import org.knime.core.data.container.ColumnRearranger;

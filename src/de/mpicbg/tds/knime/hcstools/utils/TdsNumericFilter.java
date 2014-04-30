@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.utils;
 
+import de.mpicbg.knime.knutils.NumericFilter;
 import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.knime.knutils.NumericFilter;
 import org.knime.core.data.DataColumnSpec;
 
 

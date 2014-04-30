@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.utils;
 
+import de.mpicbg.knime.knutils.AbstractConfigDialog;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel;
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.data.StringValue;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;

@@ -1,6 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.joinimages;
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeView;
+import de.mpicbg.knime.knutils.AbstractNodeView;
 
 import java.awt.*;
 

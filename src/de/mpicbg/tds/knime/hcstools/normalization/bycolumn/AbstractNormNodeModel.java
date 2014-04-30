@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.normalization.bycolumn;
 
+import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
 import org.knime.core.data.*;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.AbstractCellFactory;

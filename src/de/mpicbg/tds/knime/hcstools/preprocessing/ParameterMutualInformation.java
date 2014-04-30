@@ -22,11 +22,11 @@
 package de.mpicbg.tds.knime.hcstools.preprocessing;
 
 
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.BufTableUtils;
+import de.mpicbg.knime.knutils.InputTableAttribute;
 import de.mpicbg.tds.knime.hcstools.utils.MutualInformation;
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.BufTableUtils;
-import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.knime.core.data.*;
 import org.knime.core.data.def.DefaultRow;

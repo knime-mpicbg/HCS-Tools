@@ -1,6 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.normalization;
 
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
+import de.mpicbg.knime.knutils.AbstractConfigDialog;
+
 import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;

@@ -1,6 +1,6 @@
 package de.mpicbg.tds.knime.hcstools.rpowered.visualization;
 
-import de.mpicbg.tds.knime.scripting.r.genericr.GenericRSnippetFactory;
+import de.mpicbg.knime.scripting.r.generic.GenericRSnippetFactory;
 
 
 public class ScreenScatterPlotFactory extends GenericRSnippetFactory {

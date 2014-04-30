@@ -1,8 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.utils.node_loadlayout;
 
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Utils;
 import de.mpicbg.tds.core.ExcelLayout;
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Utils;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;

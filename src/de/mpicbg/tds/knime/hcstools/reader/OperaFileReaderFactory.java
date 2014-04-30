@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.reader;
 
+import de.mpicbg.knime.knutils.ui.DefaultMicroscopeReaderDialog;
 import de.mpicbg.tds.core.tools.resconverter.ResConverter;
-import de.mpicbg.tds.knime.knutils.ui.DefaultMicroscopeReaderDialog;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;

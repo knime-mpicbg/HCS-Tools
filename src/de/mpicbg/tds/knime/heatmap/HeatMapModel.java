@@ -1,8 +1,8 @@
 package de.mpicbg.tds.knime.heatmap;
 
+import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.tds.core.model.*;
 import de.mpicbg.tds.knime.heatmap.color.*;
-import de.mpicbg.tds.knime.knutils.Attribute;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.Frequency;

@@ -1,10 +1,10 @@
 package de.mpicbg.tds.knime.hcstools.utils;
 
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.InputTableAttribute;
+import de.mpicbg.knime.knutils.TableUpdateCache;
 import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.InputTableAttribute;
-import de.mpicbg.tds.knime.knutils.TableUpdateCache;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;

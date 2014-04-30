@@ -1,9 +1,9 @@
 package de.mpicbg.tds.knime.hcstools.utils;
 
+import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
-import de.mpicbg.tds.knime.knutils.Attribute;
 import org.knime.core.data.*;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;

@@ -1,11 +1,11 @@
 package de.mpicbg.tds.knime.hcstools.reader;
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.AttributeUtils;
-import de.mpicbg.tds.knime.knutils.BufTableUtils;
-import de.mpicbg.tds.knime.knutils.ui.DefaultMicroscopeReaderDialog;
-import de.mpicbg.tds.knime.knutils.ui.FileSelectPanel;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.knutils.BufTableUtils;
+import de.mpicbg.knime.knutils.ui.DefaultMicroscopeReaderDialog;
+import de.mpicbg.knime.knutils.ui.FileSelectPanel;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;

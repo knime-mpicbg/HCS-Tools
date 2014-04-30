@@ -1,8 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.qualitycontrol;
 
+import de.mpicbg.knime.knutils.AbstractConfigDialog;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoDialog;
 import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.date.DateAndTimeValue;

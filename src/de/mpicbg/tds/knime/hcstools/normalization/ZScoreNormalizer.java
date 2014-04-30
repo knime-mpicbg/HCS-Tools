@@ -1,7 +1,12 @@
 package de.mpicbg.tds.knime.hcstools.normalization;
 
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.knutils.BufTableUtils;
+import de.mpicbg.knime.knutils.InputTableAttribute;
+import de.mpicbg.knime.knutils.TableUpdateCache;
 import de.mpicbg.tds.knime.hcstools.utils.AttributeStatistics;
-import de.mpicbg.tds.knime.knutils.*;
+import de.mpicbg.knime.knutils.*;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataType;
 import org.knime.core.data.container.ColumnRearranger;

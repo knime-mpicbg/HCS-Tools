@@ -1,17 +1,17 @@
 package de.mpicbg.tds.knime.hcstools.reader;
 
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.knutils.BufTableUtils;
+import de.mpicbg.knime.knutils.ui.DefaultMicroscopeReaderDialog;
+import de.mpicbg.knime.knutils.ui.FileSelectPanel;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.core.util.ScreenImportUtils;
 import de.mpicbg.tds.core.util.StringTable;
 import de.mpicbg.tds.knime.hcstools.utils.ExcelUtils;
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.AttributeUtils;
-import de.mpicbg.tds.knime.knutils.BufTableUtils;
-import de.mpicbg.tds.knime.knutils.ui.DefaultMicroscopeReaderDialog;
-import de.mpicbg.tds.knime.knutils.ui.FileSelectPanel;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.knime.core.data.*;
 import org.knime.core.data.def.DefaultRow;

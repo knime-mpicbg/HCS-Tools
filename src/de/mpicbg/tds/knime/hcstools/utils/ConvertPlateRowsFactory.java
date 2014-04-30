@@ -1,7 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.utils;
 
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
-import de.mpicbg.tds.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.knutils.AbstractConfigDialog;
+import de.mpicbg.knime.knutils.AttributeUtils;
+
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;

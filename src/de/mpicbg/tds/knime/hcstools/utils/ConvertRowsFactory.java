@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.utils;
 
+import de.mpicbg.knime.knutils.AbstractConfigDialog;
 import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;

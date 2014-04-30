@@ -1,8 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.utils;
 
+import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.tds.knime.hcstools.HCSToolsBundleActivator;
 import de.mpicbg.tds.knime.hcstools.prefs.HCSToolsPreferenceInitializer;
-import de.mpicbg.tds.knime.knutils.Attribute;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.knime.core.data.DataRow;
 import org.knime.core.node.NodeLogger;

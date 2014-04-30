@@ -1,9 +1,9 @@
 package de.mpicbg.tds.knime.hcstools.visualization;
 
+import de.mpicbg.knime.knutils.AbstractConfigDialog;
+import de.mpicbg.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.knime.HCSAttributeUtils;
 import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
-import de.mpicbg.tds.knime.knutils.AttributeUtils;
 
 import org.knime.core.data.*;
 import org.knime.core.node.NodeSettingsRO;

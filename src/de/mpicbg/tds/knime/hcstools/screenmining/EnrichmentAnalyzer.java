@@ -1,8 +1,9 @@
 package de.mpicbg.tds.knime.hcstools.screenmining;
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.InputTableAttribute;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.InputTableAttribute;
+
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.distribution.HypergeometricDistribution;
@@ -21,7 +22,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import java.util.HashSet;
 import java.util.Set;
 
-import static de.mpicbg.tds.knime.knutils.BufTableUtils.updateProgress;
+import static de.mpicbg.knime.knutils.BufTableUtils.updateProgress;
 
 
 /**

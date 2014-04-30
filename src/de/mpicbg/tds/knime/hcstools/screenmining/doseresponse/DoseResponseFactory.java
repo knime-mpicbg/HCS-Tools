@@ -1,15 +1,16 @@
 package de.mpicbg.tds.knime.hcstools.screenmining.doseresponse;
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.AttributeUtils;
-import de.mpicbg.tds.knime.knutils.scripting.rgg.TemplateUtils;
-import de.mpicbg.tds.knime.scripting.r.RSnippetNodeModel;
-import de.mpicbg.tds.knime.scripting.r.RUtils;
-import de.mpicbg.tds.knime.scripting.r.genericr.GenericRPlotNodeModel;
-import de.mpicbg.tds.knime.scripting.r.genericr.RPortObject;
-import de.mpicbg.tds.knime.scripting.r.genericr.RPortObjectSpec;
-import de.mpicbg.tds.knime.scripting.r.templatenodes.rgg.HardwiredGenericRPlotNodeFactory;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.scripting.core.rgg.TemplateUtils;
+import de.mpicbg.knime.scripting.r.RSnippetNodeModel;
+import de.mpicbg.knime.scripting.r.RUtils;
+import de.mpicbg.knime.scripting.r.generic.GenericRPlotNodeModel;
+import de.mpicbg.knime.scripting.r.generic.RPortObject;
+import de.mpicbg.knime.scripting.r.generic.RPortObjectSpec;
+import de.mpicbg.knime.scripting.r.rgg.HardwiredGenericRPlotNodeFactory;
+
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;

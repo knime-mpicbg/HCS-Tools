@@ -1,11 +1,11 @@
 package de.mpicbg.tds.knime.hcstools.scriptlets.arrayscan;
 
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.BufTableUtils;
+import de.mpicbg.knime.knutils.InputTableAttribute;
 import de.mpicbg.tds.core.model.Plate;
 import de.mpicbg.tds.core.util.ArrayScanHelper;
 import de.mpicbg.tds.knime.hcstools.utils.ArrayScanKnimeUtils;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.BufTableUtils;
-import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 import org.knime.core.data.DataRow;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;

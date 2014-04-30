@@ -1,5 +1,9 @@
 package de.mpicbg.tds.knime.hcstools.visualization;
 
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.knutils.InputTableAttribute;
 import de.mpicbg.tds.barcodes.BarcodeParser;
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
 import de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcode;
@@ -13,10 +17,6 @@ import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.knime.heatmap.io.ScreenImage;
 import de.mpicbg.tds.knime.heatmap.menu.HeatMapColorToolBar;
 import de.mpicbg.tds.knime.heatmap.renderer.HeatTrellis;
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.AttributeUtils;
-import de.mpicbg.tds.knime.knutils.InputTableAttribute;
 
 import org.knime.core.data.*;
 import org.knime.core.data.image.png.PNGImageContent;

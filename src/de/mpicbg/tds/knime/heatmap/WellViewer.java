@@ -1,10 +1,10 @@
 package de.mpicbg.tds.knime.heatmap;
 
+import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.tds.core.model.PlateUtils;
 import de.mpicbg.tds.core.model.Well;
 import de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerNodeModel;
 import de.mpicbg.tds.knime.heatmap.renderer.HeatWell;
-import de.mpicbg.tds.knime.knutils.Attribute;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.knime.core.data.*;

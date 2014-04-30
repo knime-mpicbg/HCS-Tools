@@ -37,9 +37,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,
  org.knime.base,
- de.mpicbg.tds.knime.knutils,
- de.mpicbg.tds.knime.scripting,
- de.mpicbg.tds.knime.scripting.r
+ de.mpicbg.knime.knutils,
+ de.mpicbg.knime.scripting.core,
+ de.mpicbg.knime.scripting.r
 Eclipse-LazyStart: true
 Export-Package: de.mpicbg.tds.knime.hcstools;uses:="org.knime.core.node,org.eclipse.ui.plugin,org.knime.core.node.defaultnodesettings",
  de.mpicbg.tds.knime.hcstools.utils;

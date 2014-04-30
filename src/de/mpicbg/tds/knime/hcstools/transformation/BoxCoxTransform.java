@@ -1,7 +1,8 @@
 package de.mpicbg.tds.knime.hcstools.transformation;
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.scripting.r.RUtils;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.scripting.r.RUtils;
+
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;

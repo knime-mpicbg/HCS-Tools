@@ -1,6 +1,7 @@
 package de.mpicbg.tds.knime.helpers.exdata;
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.DataContainer;

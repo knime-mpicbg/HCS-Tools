@@ -1,10 +1,10 @@
 package de.mpicbg.tds.knime.hcstools.joinimages;
 
+import de.mpicbg.knime.knutils.AbstractConfigDialog;
+import de.mpicbg.knime.knutils.AttributeUtils;
 import de.mpicbg.tds.core.TdsUtils;
 import de.mpicbg.tds.knime.hcstools.normalization.AbstractScreenTrafoModel;
 import de.mpicbg.tds.knime.hcstools.utils.TdsNumericFilter;
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
-import de.mpicbg.tds.knime.knutils.AttributeUtils;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;

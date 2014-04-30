@@ -5,7 +5,8 @@ package de.mpicbg.tds.knime.hcstools.preprocessing.outlierfilter; /**
  * Time: 9:03 AM
  */
 
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;

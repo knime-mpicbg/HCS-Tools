@@ -1,6 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.populationanalysis;
 
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
+import de.mpicbg.knime.knutils.AbstractConfigDialog;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;

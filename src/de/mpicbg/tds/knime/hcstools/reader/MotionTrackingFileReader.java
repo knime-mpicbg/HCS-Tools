@@ -1,15 +1,15 @@
 package de.mpicbg.tds.knime.hcstools.reader;
 
 import au.com.bytecode.opencsv.CSVReader;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.knutils.ui.DefaultMicroscopeReaderDialog;
+import de.mpicbg.knime.knutils.ui.FileSelectPanel;
 import de.mpicbg.tds.barcodes.BarcodeParser;
 import de.mpicbg.tds.barcodes.BarcodeParserFactory;
 import de.mpicbg.tds.barcodes.namedregexp.NamedPattern;
 import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Attribute;
-import de.mpicbg.tds.knime.knutils.AttributeUtils;
-import de.mpicbg.tds.knime.knutils.ui.DefaultMicroscopeReaderDialog;
-import de.mpicbg.tds.knime.knutils.ui.FileSelectPanel;
 import org.apache.commons.lang.StringUtils;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;

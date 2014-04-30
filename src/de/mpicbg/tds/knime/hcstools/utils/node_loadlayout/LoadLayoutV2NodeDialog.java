@@ -1,7 +1,7 @@
 package de.mpicbg.tds.knime.hcstools.utils.node_loadlayout;
 
+import de.mpicbg.knime.knutils.AbstractConfigDialog;
 import de.mpicbg.tds.core.ExcelLayout;
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
