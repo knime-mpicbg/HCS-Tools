@@ -30,7 +30,7 @@ Bundle-ClassPath: hcstools.jar,
  lib/weka-dev-3.7.5.jar,
  lib/xml-apis-1.0.b2.jar,
  lib/xmlbeans-2.3.0.jar
-Bundle-Activator: de.mpicbg.tds.knime.hcstools.HCSToolsBundleActivator
+Bundle-Activator: de.mpicbg.knime.hcs.base.HCSToolsBundleActivator
 Bundle-Vendor: Max Planck Institute of Molecular Cell Biology and Genetics (MPI-CBG)
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
