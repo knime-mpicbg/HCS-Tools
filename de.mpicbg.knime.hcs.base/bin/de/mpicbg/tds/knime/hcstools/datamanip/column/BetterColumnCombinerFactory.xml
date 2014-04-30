@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+
+<knimeNode icon="./BetterColumnCombiner.png" type="Source">
+
+    <name>Combine Columns by Header</name>
+
+    <shortDescription>
+        Combines the content of a set of columns.
+    </shortDescription>
+
+    <fullDescription>
+
+        <intro>
+            <p>
+                IMPORTANT: This node will ignore the user-defined new column name and will use an auto-generated one.
+                Combines the content of a set of columns and appends the concatenated string as separate column to the
+                input table. The user needs to specify in the dialog the columns of interest and some other properties,
+                such as delimiter to separate the different cell contents and quoting options. This node works well
+                together with the “Combine Columns by Header” node.
+            </p>
+
+            <p>
+                Example:
+                <br/>
+
+                Plate Row Column
+                <br/>
+
+                Plate01 A 1
+                <br/>
+
+                Plate02 A 2
+                <br/>
+
+                Combined by “::”
+                <br/>
+
+                Plate::Row::Column
+                <br/>
+
+                Plate01::A::1
+                <br/>
+
+                Plate02::A::2
+                <br/>
+            </p>
+
+            This Combine node automatically gives new column names (“Name of appended column” field will be ignored)
+        </intro>
+
+        <option name="Delimiter">
+            Enter a delimiter string here. This string is used to separate the different cell contents in the new,
+            appended column.
+        </option>
+        <option name="Quote Character">The character entered here will be used to quote the cell content in case that it
+            contains the delimiter string (for instance if the cell content is some;value, the delimiter string is ';'
+            (a single semicolon), and the quote character is '"' (single quote char) the quoted string will be
+            "some;value" (including quotes)). You can force quotation by checking "Quote Always". Alternatively, the
+            user can also replace the delimiter string in the cell content string (see below).
+        </option>
+        <option name="Replace Delimiter by">If the string representation of the cell content contains the delimiter
+            string, it will be replaced by the string entered here (if you entered '-' here, the output of the above
+            example would be some-value).
+        </option>
+        <option name="Name of appended column">Auto-generated new column name (editing this field will be ignored).
+        </option>
+        <option name="Column Selection">Move the columns of interest into the "Include" list.</option>
+
+    </fullDescription>
+
+    <ports>
+        <inPort index="0" name="input">Arbitrary input data.</inPort>
+        <outPort index="0" name="output">Input data + additional column containing string combination</outPort>
+    </ports>
+
+</knimeNode>

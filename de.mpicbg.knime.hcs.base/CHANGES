@@ -1,0 +1,176 @@
+======================================================================================================
+2013-04-05
+
+General:
+There is a new version of the PlateViewer node with additional functionality.
+
+HCS Tools
+-   new HeatmapViewerNode
+    novel functionality:
+        - Supports more predefined colormaps as well a new editor to create custom colormaps.
+        - The Options menu is migrated to the menubar for consistency with other KNIME views.
+        - Support of the HiLite functionality of KNIME.
+        - Mouse drag selection is supported in the ScreenViewer (selecting plates) and the PlateViewer (selecting wells).  If at least one Well is selected of the plate, the entire plate is colored as selected in the heat map trellis.
+        - The KNIME color model can be selected as overlay in the overlay-popupmenu.
+        - Image support. Images are displayed in the WellViewer.
+        - Extended plate sorting functionality (sort according to several plate attributes)
+        - The heatmap trellis allows to fix the plate proportions and it's row and column number can also be fixed manually.
+    minor changes:
+        - The "Highlight Selection" option was renamed "Mark Selection" to avoid confusion with the HiLite mechanism of KNIME
+        - Detail views are called with the right click (could not figure a way to avoid conflicts between the double click and the drag selection. besides now calling a details view does not affect the selection anymore).
+        - Toolbars can be hidden
+        - The main window has some control over it's child window (bring to front, close all).
+        - The colormap can be scaled for each window seperatly or for each Screen/PlateViewer seperatly (global color scale)
+-   new package "heatmap". It contains the UI implementation of for the HeatMapViewerNodeView. The ScreenExplorer node still has the view implementation in the hcscore plugin.
+    The UI from the ScreenExplorer was used as basis, but the new heatmap package finally ended up with new implementations of the "-Viewer classes". The most conserved classes are now in the renderer sub-package. Everything was refactored though and documentation was added.
+
+hcscore
+-   in the model package the Plate and Well class were extende to accomodate the handling of image data. Additionally there are two new classes defining the plate attributes and another providing the sorting algorithms for the plate attributes.
+-   some experimental/in progress classes were moved to the "experimental" package.
+
+
+knutils
+- The Attribute and AttributeUtils classes were extended to handle image data
+
+
+
+======================================================================================================
+2010-11-24
+
+General:
+-	Removed outdated mpi-cbg r-integration nodes from server copy (the plugin-update-script won�t remove existing versions in your local copy); They are still available from the swengtools project space
+-	R server instances need to hosted by using the R64 version and will run only on MacOS 10.6 The minimum R version for our tools has been increased to 2.12
+
+New: Time Series
+-	New set of nodes to analyze time series with Knime. This smoothing, detrending, peak detection, frequency analysis, different visualizations, frequency analysis
+-	Project locking
+
+HCS Tools
+-	New: Dose response modeling and visualization
+
+Notable
+
+Minor
+-	New: Normalize Vectors: Normalizes vectors to unit lengths (Requested by Martin)
+-	Fixed: Annotation nodes are case-sensitive in the library plate barcode
+-	Fixed #303: Optimize font size and create tooltip for plate barcode in PlateViewer
+-	Fixed: MSD Sector Imager Reader improvements (Requested by Sara)
+-	Empty cells in excel layouts are automatically converted into missing ones when reading tables into excel
+
+
+Scripting:
+
+
+Notable
+
+-	New names for r-input and outputs in R-scripts (kIn, rout; for several inputs/outputs: kIn1, kIn2, etc.)
+-
+
+Minor
+-	Fixed: Opening the scripting configuration dialogs occasionally crashes Knime (Annoyed Cordula)
+New: Generic R outputs now use �summary� to provide a more meaningful port view
+
+
+
+======================================================================================================
+2010-09-13
+
+Notable:
+-	Improved: Annotate-nodes now allow to specify reference columns for plate and library information
+-	New: SSMD (NC x PC) for quality control (requested by Martin)
+-	New plate row converter which converts several columns at once and automatically detects the direction of conversion (A->1 vs. 1->A)
+-	Fixed again, but now really: Mondrian works with Windows (stand-alone and also integrated into Knime)
+
+Minor
+-	Fixed problems with layout reader
+-	Fixed broken SSMD calculation (reported by Martin)
+-	Fixed: Underscores get lost while decomposing barcodes (annoyed Martin)
+-	Improved robustness of MotionTracking reader (annoyed Felix)
+-	Added more docu to MotionTracking reader (fixed by Felix!!)
+
+Templates:
+-	Fixed: X-axis label is wrong in histogram
+-	Added more preview images to figure templates
+-	Fixed: 2-factorial boxplot grids don�t work (annoyed Cordula)
+-	Added option to use vertical boxplot labels (requested martin)
+-	Fixed: Fixed layout of grid plots when only one single grid element is being used (annoyed Cordula)
+-	Fixed: Some R-templates do not load anymore (annoyed Cordula)
+-	New: Template to apply a Box-Cox power transformations on a set of selected readouts (requested by Marc)
+-	Fixed: Screen scatter plots: Use range from complete dataset and not from first treatment subset (Annoyed Cordula)
+-	New: p-values of Shapiro-Wilk test are now included in QQ-plot grid
+
+
+
+======================================================================================================
+2010-08-03
+
+Major:
+� New: ExcelWriter can optionally write xlsx instead of xls
+� Improved OperaReader (suggested by Martin)
+- Skip empty wells
+- Add attribute for acquisition time
+- Fixed: Configure-fails after several directories have been selected
+- Removed hidden dependency on mea-files
+� R-Integration: Option-tab to save figures to files
+- Flow-Variable support for output files (requested by Martin)
+
+Minor
+� Updated Annotation-nodes to new compound-db structure
+� JoinLayout: more robust layout-file parser (annoyed Cordula)
+� Fixed: ExcelReader fails to read some formula-results
+� Fixed: Normalizers nodes should create missing cells for missing cells and not NaN (suggested by Marc and Martin)
+� New: Plate viewer should support double factors
+� New: Plate viewer should also work without readouts
+� Fixed: Keyboard shortcuts don�t work in template editor
+� Fixed: Preview images don�t change when selecting new templates
+� New: ExcelWriter monitors write-progress
+� New: Lazy initialization of r-plots after reloading of workflow
+� Fixed: ExcelWriter: Writing of dates fails for old and new excel-format (brought up by Mirko)
+� Fixed: ExcelReader fails to read columns that end/start with space characters
+
+Templates:
+� migrated histogram-template to rgg (requested by Marc)
+� large previews for plot-templates (on double-click)
+� provide more templates for histogram and density plots (requested by Marc)
+
+
+======================================================================================================
+2010-07-12
+�    New: EnvisionReader now reads from xls(x), is better configurable, and got a more intelligent filename-handling (requested by Martin and Silvia)
+�    ExcelWriter: Added option to update excel-sheet instead of overwriting the whole file (requested by Cordula)
+�    PlateViewer: Inherit color-mode from screen-panel to plate-panel (suggested by Martin)
+�    PlateViewer: Added option to hide most frequent overlay (like �library�)
+�    PlateViewer: Added another color-scale �green-black-red�
+
+Minor:
+�    Fixed: ExcelWriter fails to write date- and molecule-cells (observerd together with Sara)
+�    ExcelReader now correctly reads formula results
+�    ExcelWriter writes huge numbers instead of missing values
+�    PlateViewer: Support integer-columns as barcodes
+�    PlateViewer: More readable numbers in colorbar
+�    PlateViewer: Don�t sort plates by default but keep original order
+�    Auto-update column-name in advanced column combiner to support flow-variables for combined name (requested by Martin)
+�    New: template to create a custom ordering attribute (requested by Martin)
+�    Fixed: redrawing of r-plots after resizing the window does not work anymore (found by Cordula)
+
+
+
+======================================================================================================
+2010-07-10
+
+Much better and more generic PlateViewer:
+�	New fancy icon ;-)
+�	Choosable overlays (not just treatment, but whatever you have)
+�	Optional outlier-smoothing
+�	Show readout-values in view
+�	Customizable plate-model (selectors for barcode, row, column)
+�	better documentation (thanks to Martin for the suggestion)
+
+Other improvements
+-	�UI-fied� mahalonbis-distance-calculator template (requested by Marc)
+-	Option to �Replace existing values� for all normalizer-nodes is keeping its promise now
+-	New �Plate Row Converter� node (which does both directions)
+-	Further refinments to annotation-nodes (bugfixes + show �no such plate add:5� in case of missing library-plates)
+-	Fixed: GeniusProReader creates incorrect plate positions
+-	Fixed: LoadLayout has problems to guess the table-model before being executed
+-	Fixed: OpenInR does overrides clipboard even if  script is empty

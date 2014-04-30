@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Manipulator" deprecated="true">
+    <name>Normalize Plates (NPI)</name>
+
+    <shortDescription>
+        The node performs a normalized-percent-of-inhibition(NPI)-normalization based on two subsets of the data
+        (positive and negative control).
+    </shortDescription>
+
+    <fullDescription>
+        <intro>
+            <p>
+                Groups of data (e.g. wells of a plates) are normalized relative to two subsets (e.g. some wells within
+                that plate, e.g. some negative
+                control wells and some positive controls wells).
+                For each group the mean (or median) is calculated for the two selected subsets.
+                Based on these estimates, all data points of each group are normalized by applying this formula:
+            </p>
+            <p>
+                x.npi = (x - mean(x[subset{negative}])) / (mean(x[subset{positive}]) - mean(x[subset{negative}])) * 100
+                <br/>
+                or
+                <br/>
+                x.npi = (x - median(x[subset{negative}])) / (median(x[subset{positive}]) - median(x[subset{negative}]))
+                * 100
+            </p>
+            <p>
+                Literature: Malo et al., Nat. Biotechnol. 24, 167-179 (2006)
+                <!--<br/> 
+               <br/>
+               It is possible to normalize without grouping (e.g. normalization of the whole screen based on all negative and positive
+               controls available).-->
+            </p>
+        </intro>
+
+        <option name="Aggregate object data by">Select the column to define the groups (e.g. "barcode" for plate-wise
+            normalization).
+        </option>
+        <option name="Normalize">Select the columns with data to be normalized.
+        </option>
+        <option name="Column with reference label">Select the column which contains the label defining the reference
+            subsets (e.g. treatment)
+        </option>
+        <option name="Positive control">Select a subset label as positive control that is used to calculate mean and sd
+            (median and
+            mad) for each group.
+        </option>
+        <option name="Negative control">Select a subset label as negative control that is used to calculate mean and sd
+            (median and
+            mad) for each group.
+        </option>
+        <option name="Replace existing values">If checked the raw values will be replaced by the normalized values.
+            Otherwise columns with the normalized values will be appended - ".npi"
+        </option>
+        <option name="Use robust statistics">Median and mad will be calculated instead of mean and sd.
+        </option>
+        <option name="Column suffix">The default column suffix ".(zscore)" can be changed</option>
+        <option name="Load a limited number of columns">If big data tables create memory problems, the number of columns
+            read in memory
+            (subset data) can be restricted. Then, statistic calculation will be done sequential for each set with the
+            given number of columns.
+        </option>
+    </fullDescription>
+
+    <ports>
+        <!-- input -->
+        <inPort index="0" name="In-Port name">Input table</inPort>
+        <!-- output -->
+        <outPort index="0" name="Out-Port name">Table with normalized values</outPort>
+    </ports>
+
+</knimeNode>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Source" deprecated="true">
+    <name>SSMD</name>
+
+    <shortDescription>
+        Calculates the strictly standardized mean differences (SSMD)
+    </shortDescription>
+
+    <fullDescription>
+        <intro>The output will be a new table that contains SSMDs for each plate (rows) and selecteed readouts
+            (columns).
+
+
+            Like Z-factor, SSMD measures the magnitude of difference and capture the variabilites in both
+            populations. For example, SSMD ≥3 indicates that the size of the mean difference is at least
+            three times that of the SD of the difference between two populationsAs a probability intrepretation, SSMD ≥3
+            indicates that the probability that a value from the first population is greater that a value from the
+            second population is greater than Φ(3)=0.99865 when the difference is normally distributed.
+
+
+            Note: In contrast to the z-primes here the order of selection makes a differences as ssmd is computed
+            without using the absolute value of the mean-difference.
+
+
+            A more detailed introduction into SSMD be found in "A pair of new statistical parameters for quality control
+            in RNA interference high-throughput screening assays",Xiaohua Douglas Zhan, 2006, Genomics 89 (2007) 552–561
+        </intro>
+
+
+        <option name="Readouts">Allows to select the readouts for which z-primes will be calcuated</option>
+        <option name="Controls">The positive and negative control to calculate the statistic</option>
+    </fullDescription>
+
+    <ports>
+        <inPort index="0" name="screen">input screen to be QC'ed</inPort>
+        <!-- possibly more input ports here-->
+        <outPort index="0" name="ssmd">A table containg a row for each plate with SSMDs for all selected readouts as
+            attributes.
+        </outPort>
+        <!-- possibly more output ports here-->
+    </ports>
+
+</knimeNode>

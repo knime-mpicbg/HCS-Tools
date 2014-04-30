@@ -1,0 +1,3 @@
+How to query plates between a time range:
+
+select * from plate where PlateStartTime BETWEEN '20100101' AND '20100430'

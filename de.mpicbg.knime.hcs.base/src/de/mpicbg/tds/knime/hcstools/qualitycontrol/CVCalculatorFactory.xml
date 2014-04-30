@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./CVCalculator.png" type="Manipulator">
+    <name>CV</name>
+
+    <shortDescription>
+        The node calculates coefficient of variation (CV) for all selected controls.
+    </shortDescription>
+
+    <fullDescription>
+        <intro>
+            <p>
+                The CV is a statistical parameter that describes variance of data.
+            </p>
+            <p>
+                For each group of data (e.g. wells of plates) CVs are calculated for each selected subset (e.g. control
+                wells of a plate).
+            </p>
+            <p>
+                CV = sd(x[subset] / mean(x[subset]) * 100
+                <br/>
+                or
+                <br/>
+                CV = mad(x[subset] / median(x[subset]) * 100
+            </p>
+            <p>
+                Literature: Zhang, J. et al., J Biomol Screen 1999; 4; 67
+                <br/>
+                <a href="http://en.wikipedia.org/wiki/Coefficient_of_variation">Wikipedia: Coefficient of variation</a>
+            </p>
+        </intro>
+
+        <option name="Group wells by">Select the column to define the groups (e.g. "barcode" for plate-wise CVs).
+        </option>
+        <option name="Select subset column / well annotation column">Column with well annotations (e.g. treatment)
+        </option>
+        <option name="Choose subset(s) / well annotation(s)">Select one or many subsets for which CVs are calculated
+            (e.g. "negative control").
+        </option>
+        <option name="Use robust statistics">Median and mad will be calculated instead of mean and sd.
+        </option>
+        <option name="Include">Select the columns for which CVs will be calculated.
+        </option>
+    </fullDescription>
+
+    <ports>
+        <!-- input -->
+        <inPort index="0" name="In-Port name">Input table</inPort>
+        <!-- output -->
+        <outPort index="0" name="Out-Port name">Table with CVs</outPort>
+    </ports>
+
+</knimeNode>

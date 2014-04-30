@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Module Name: hcstools
+  ~ This module is a plugin for the KNIME platform <http://www.knime.org/>
+  ~
+  ~ Copyright (c) 2011.
+  ~ Max Planck Institute of Molecular Cell Biology and Genetics, Dresden
+  ~
+  ~     This program is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU Affero General Public License as
+  ~     published by the Free Software Foundation, either version 3 of the
+  ~     License, or (at your option) any later version.
+  ~
+  ~     This program is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU Affero General Public License for more details.
+  ~
+  ~     Detailed terms and conditions are described in the license.txt.
+  ~     also see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./mutual-info.png" type="Source">
+    <name>Parameter Mutual Information</name>
+
+    <shortDescription>
+        Calculates mutual information between pairs of parameters.
+    </shortDescription>
+
+    <fullDescription>
+        <intro>
+            The nodes computes a value matrix and a paramter list containing information about all possible pairs
+            of parameters selected in the configuration dialog. The algorithm is a histogram based approach described by
+            "Moddemeijer R., A statistic to estimate the variance of the histogram based mutual information
+            estimator based on dependent pairs of observations , Signal Processing, 1999, vol. 75, nr. 1, pp. 51-63"
+        </intro>
+        <option name="Method">
+            The method to calculate mutual information:
+            <br/>
+            - unbiased (default)
+            <br/>
+            - biased
+            <br/>
+            - mmse (minimum mean square estimate)
+        </option>
+        <option name="Logarithmic base">The logarithmic base to use for entropy calculation (default is 2).
+        </option>
+        <option name="Binning">Number of bins to discretize the data. the default is round(numberOfTableRows^1/3) and
+            is calculated for each parameter, if the input is 0.
+        </option>
+        <option name="Axes linkage">If true the lower and upper bounds are determined using the combined information
+            from
+            x and y vector. The unchecked box leads to seperate calculation of the lower and upper bound for each vector
+            seperatly.
+        </option>
+        <option name="Threshold">Threshold above which mutual information is considered to indicate similar parameter.
+            This needs to be adjusted according to the binning.
+        </option>
+        <option name="Parameters">Numerical columns between which the mutuali information is calculated can be selected
+            with the column filter.
+        </option>
+
+    </fullDescription>
+
+    <ports>
+        <inPort index="0" name="input">input table</inPort>
+        <outPort index="0" name="output: list">parmater list table (aggregated stats)
+        </outPort>
+        <outPort index="1" name="output: matrix">mutual information matrix
+        </outPort>
+    </ports>
+
+    <!--<views>-->
+    <!--<view index="0" name="ScreenExplorer">A heatmap visualization tool</view>-->
+    <!--view index="1" name="name of second view">Description of second view...</view-->
+    <!--</views>-->
+
+</knimeNode>

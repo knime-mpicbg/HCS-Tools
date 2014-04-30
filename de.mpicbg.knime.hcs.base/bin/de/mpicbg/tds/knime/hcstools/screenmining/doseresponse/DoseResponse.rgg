@@ -1,0 +1,131 @@
+<rgg>
+
+
+    # 1. Parameter selection
+
+    <group>
+
+        # a) Select thereadout of interest
+        readoutNames =c(<panellistbox label="Parameters of interest" items="$$$NUM_ATTRIBUTES$$$" span="full"/>)
+        readoutIndices = which(names(kIn) %in% readoutNames)
+
+        # b) select the grouping attibute for replicates
+        treatmentColName =
+        <combobox items="$$$STR_ATTRIBUTES$$$" label="Compound" selected-item="Compound" span="full"/>
+        treatmentColIndex = which(names(kIn) == treatmentColName)
+
+
+        # c) Select the concentration attribute
+        doseName =
+        <combobox items="$$$NUM_ATTRIBUTES$$$" label="Concentration" selected-item="Concentration" span="full"/>
+        concentrationColIndex = which(names(kIn) == doseName)
+
+        # d) add a custom title to the plot
+        plotTitle =
+        <textfield label="Plot title" data-type="text" default-value="" size="10" span="full"/>
+
+        # e) select regression model
+        regModelName =
+        <combobox items="LL.3,LL.4,LL.5,W1.2,W1.3,W1.4" selected-item="LL.4" label="Regression Model" span="full"/>
+
+        # f) Define the plotting mode (Not yet implemented)
+        plotDots =
+        <checkbox label="Plot dithered dots instead of errorbars" span="2"/>
+
+        # g) provide lower and upper bounds for the parameters
+        parBoundsText =
+        <textfield label="Parameter constraints" data-type="text" default-value="" size="10" span="full"/>
+
+    </group>
+
+
+    # 2. R-code
+
+    <![CDATA[
+
+# just necessary for debugging from within R
+#source('/Users/brandl/projects/knime/hcstools/src/de/mpicbg/tds/knime/hcstools/screenmining/doseresponse/drcutils.R')
+
+
+
+drdata <- kIn
+
+# 1)  define parameter constraints and create the model
+if(is.na(parBoundsText)){
+    regModel <- eval(parse(text = paste(regModelName, "()", sep = '')))
+
+}else{
+
+    # include the defined constraints
+    regModel <- eval(parse(text = paste(regModelName, "(fixed=c(", parBoundsText, "))", sep = '')))
+}
+
+
+# 2) fit the models
+drmodels <- calcDRModelsListList(drdata, readoutIndices, treatmentColIndex, concentrationColIndex, model=regModel)
+
+
+# 3) plot the result
+plotdata <- compileDRData4Vis(drmodels,drdata, concentrationColIndex, treatmentColIndex)
+
+pLabels <- c(xLab = doseName, legendLab = treatmentColName, title = if(is.na(plotTitle)) "" else plotTitle)
+plotOpts <- list(	varOrder = readoutNames,
+					mName = regModelName,
+					doPlotDots = plotDots,
+					plotLabels = pLabels)
+
+visualizeDrModels(plotdata, plotOpts)
+
+
+# define the value for the generic output
+rOut <- drmodels
+
+
+# 4) prepare the ic50 table
+icList <- lapply(1:length(drmodels), FUN = function(cmpndIndex){
+
+	resVarModels = drmodels[[cmpndIndex]]
+	treatmentName <- names(drmodels)[cmpndIndex]
+
+	oneCmpdTableList <- lapply(1:length(resVarModels), FUN = function(resVarIndex){
+		drmodel = resVarModels[[resVarIndex]]
+		responseVarName <- names(resVarModels)[resVarIndex]
+
+		if(inherits(drmodel, 'drc')){
+   	    	icDF <- as.data.frame(ED(drmodel, c(50)))
+    	    icDF$"Response Variable" <- responseVarName
+
+            # calculate the goodness of fit and append it to the table
+            sum.drm <- summary(drmodel)
+            icDF$rse <- sum.drm$rse[1]
+            icDF$rse.df <- sum.drm$rse[2]
+
+    	    return(icDF)
+		}else{
+   	    	fakeIC <- data.frame(est=c(NA), stderr=c(NA), resVar=list(responseVarName), rse=c(NA), rsedf=c(NA))
+			names(fakeIC) <- c("Estimate", "Std. Error", "Response Variable", "rse", "rse.df")
+     	  	return(fakeIC)
+	    }
+ 	});
+
+ 	oneCmpdTable <- do.call("rbind", oneCmpdTableList)
+ 	oneCmpdTable$treatment <- treatmentName
+
+ 	return(oneCmpdTable)
+})
+
+# convert into data-frame
+ictable = do.call("rbind", icList)
+
+# fix the name of the first column
+names(ictable) <- list("IC 50", "Std. Error", "Response Variable", "Residual standard error", "DoF", treatmentColName)
+
+ictable <- ictable[,c(6,3,1,2,4,5)]
+doubleCols <- c("IC 50", "Std. Error", "Residual standard error", "DoF")
+ictable[,doubleCols] <- apply(ictable[,doubleCols], 2, as.double)
+
+
+]]>
+
+</rgg>
+

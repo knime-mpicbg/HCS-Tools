@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./heatmap-viewer.png" type="Visualizer">
+
+    <name>Plate Heatmap Viewer</name>
+
+    <shortDescription>
+        Creates trellis of plate heatmaps to explore a set of microtiter plates (High Content Screen Data).
+    </shortDescription>
+
+    <fullDescription>
+        <intro>
+            Creates trellis of heatMaps to explore your screen.
+            By default nodes expects three columns to be present in order to reorder wells back into plates:<br/>
+            - barcode<br/>
+            - plateRow<br/>
+            - plateColumn<br/>
+            <br/>
+            Supported <a href="http://en.wikipedia.org/wiki/Microtiter_plate">microtiter plate</a> formats:<br/>
+            6, 12, 24, 96, 384 and 1536. The viewer will try to make a guess about the proper plate dimension if not
+            all wells are present in the table (e.g. because outer rows are not used).<br/>
+            <br/>
+            Image data:<br/>
+            Tables containing images allow visualization of the well images in the well detail view. Any cell of an image
+            data column will be visualized. So far the KNIME native PNG images are recognised, as well as the formats
+            provided by the <a href="http://tech.knime.org/community/image-processing">Image Processing</a> plugin.
+            Careful! the processing might take time and disk space. The best performance is achieved with the "Image
+            Reference" produced by the "<b>Image File Linker</b>" node of the image processing plugin.
+        </intro>
+        <option name="Readouts">
+            A selection of readouts which should be displayed by the viewer. Especially for
+            high-content screens with many readouts (100+), you may want to include just a subset them. This will help
+            to prevent memory problems.
+        </option>
+        <option name="Factors">
+            Annotation column that further characterize the wells.
+        </option>
+        <option name="Barcode">
+            Select column to assign barcode (string or integer).
+        </option>
+        <option name="Row">
+            Select column to assign row value (integer, 1 to 16 refers to A to P).
+        </option>
+        <option name="Column">
+            Select column to assign column value (integer, 1 to 24).
+        </option>
+        <option name="Plate Label">
+            Column that is used to extract the plate label, which should allow easy identification of the plate.
+        </option>
+        <option name="Controls">
+            The <b>subset column</b> allows to choose a nominal attribute, which allows to identify control populations.<br/>
+            Select one ore several <b>reference groups</b>. These can be used to define custom color maps
+            (gray out or mark the populations range with a special color).
+        </option>
+    </fullDescription>
+
+    <ports>
+        <inPort index="0" name="Screen data table">
+            A table containing High Content Screening data.
+        </inPort>
+        <outPort index="0" name="The same screen data table without any changes">
+            Same as input table.
+        </outPort>
+        <outPort index="1" name="PNG-image of heatmap trellis">
+            PNG image of the heatmap trellis containing all plates.
+            It takes the first readout in the list, the default colormap and no overlay.
+        </outPort>
+    </ports>
+
+    <views>
+        <view index="0" name="Plate Heatmap Trellis">
+            Trellis containing all heatmaps representing the plates of the screen.
+            <br/><br/>
+            Mouse behaviour:<br/>
+            The heatmap trellis and the individual plate view support single selection and drag-selection.<br/>
+            Right click on a plate of the trellis opens an individual plate view. A right click on a well of the plate
+            view opens an a well detail view.<br/>
+            <br/>
+        </view>
+    </views>
+
+</knimeNode>

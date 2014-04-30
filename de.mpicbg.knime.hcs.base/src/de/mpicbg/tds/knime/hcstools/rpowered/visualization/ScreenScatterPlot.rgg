@@ -1,0 +1,63 @@
+<rgg>
+
+
+    # 1. Parameter selection
+
+    <group>
+
+        # a) Select thereadout of interest
+        readoutName =<combobox items="$$$NUM_ATTRIBUTES$$$" label="Assay parameter of interest" span="full"/>;
+        readoutIndex = which(names(kIn) ==readoutName;
+
+
+        # b) select the grouping attibute for replicates
+        replicateName =<combobox items="$$$STR_ATTRIBUTES$$$" label="Compound" span="full"/>;
+        replicateIndex = which(names(kIn) == replicateName);
+
+
+        # c) Select the concentration attribute
+        concentrationIndex = which(names(kIn) ==<combobox items="$$$NUM_ATTRIBUTES$$$"
+                                                          label="Assay parameter of interest"
+                                                          span="full"/>);
+
+
+        # d) select regression model
+        regModelName =
+        <combobox items="LL.3,LL.4,LL.5,BC.5,W1.2,W1.3,W1.4" selected-item="LL.4" label="Regression Model" span="full"/>
+
+
+        # e) Define the plotting mode
+        plotGrid =<checkbox label="Use single plot grid for visualization" span="2"/>;
+
+    </group>
+
+
+    # 2. R-code
+
+    <![CDATA[
+
+library(drc)
+
+kIn <- drcdf;
+
+#1) build a fake datafame
+drcdata <- data.frame(readout = drcdf[,readoutIndex], concentration = drcdf[,concentrationIndex], condition = drcdf[,replicateIndex]);
+
+#2) parse the model
+regModel <- eval(parse(text = paste(regModelName, "()", sep = '')));
+
+#3) fit it
+drcmodel <- drm(readout ~ concentration, data= drcdata, fct=regModel);
+
+
+# plot the result
+plot(drcmodel, type='bars');
+
+# there's no need to do this as this a plot model
+#R <- drcmodel;
+
+
+]]>
+
+</rgg>
+
