@@ -1,8 +1,13 @@
 package de.mpicbg.tds.knime.hcstools.utils.node_loadlayout;
 
-import de.mpicbg.tds.core.ExcelLayout;
-import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.knime.knutils.Utils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
@@ -11,13 +16,18 @@ import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.node.*;
+import org.knime.core.node.BufferedDataContainer;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import de.mpicbg.tds.core.ExcelLayout;
+import de.mpicbg.tds.core.ExcelLayout.ExcelLayoutException;
+import de.mpicbg.tds.knime.hcstools.utils.URLSupport;
+import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
+import de.mpicbg.tds.knime.knutils.Utils;
 
 /**
  * This is the model implementation of LoadLayoutV2.
@@ -53,7 +63,7 @@ public class LoadLayoutV2NodeModel extends AbstractNodeModel {
     public static SettingsModelString createLayoutFileSelectionModel() {
         return new SettingsModelString(CFG_FILE, null);
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -61,7 +71,7 @@ public class LoadLayoutV2NodeModel extends AbstractNodeModel {
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
                                           final ExecutionContext exec) throws Exception {
 
-        validateExcelFile();
+        reloadExcelFile();
 
         BufferedDataContainer dataCon = exec.createDataContainer(createOutSpec());
 
@@ -115,15 +125,18 @@ public class LoadLayoutV2NodeModel extends AbstractNodeModel {
         return new BufferedDataTable[]{dataCon.getTable()};
     }
 
-    private void validateExcelFile() throws Exception {
-        if (excelLayout.hasChanged()) {
-            String filename = ((SettingsModelString) getModelSetting(CFG_FILE)).getStringValue();
-            String sheet = ((SettingsModelString) getModelSetting(CFG_SHEET)).getStringValue();
-            try {
-                loadExcelSheet(filename, sheet);
-            } catch (InvalidSettingsException e) {
-                throw new Exception(e.getMessage());
-            }
+    /**
+     * called from execute-method
+     * @throws Exception
+     */
+    private void reloadExcelFile() throws Exception {
+    	
+    	String filename = ((SettingsModelString) getModelSetting(CFG_FILE)).getStringValue();
+        String sheet = ((SettingsModelString) getModelSetting(CFG_SHEET)).getStringValue();
+        try {
+        	loadExcelSheet(filename, sheet);
+        } catch (InvalidSettingsException e) {
+        	throw new Exception(e.getMessage());
         }
     }
 
@@ -151,8 +164,7 @@ public class LoadLayoutV2NodeModel extends AbstractNodeModel {
         if (filename == null || sheet == null)
             throw new InvalidSettingsException("No Excel file has been selected.");
 
-        //
-        if (excelLayout == null) loadExcelSheet(filename, sheet);
+        loadExcelSheet(filename, sheet);
 
         DataTableSpec outSpec = createOutSpec();
 
@@ -188,23 +200,35 @@ public class LoadLayoutV2NodeModel extends AbstractNodeModel {
         return new DataTableSpec("Layout table", columnNames, columnDataTypes);
     }
 
-    private void loadExcelSheet(String filename, String sheet) throws InvalidSettingsException {
-        try {
-            // open excel file
-            excelLayout = new ExcelLayout(filename);
-            // try to set the sheet
+    private void loadExcelSheet(String fileName, String sheet) throws InvalidSettingsException {
+        
+    	excelLayout = null;
+    	
+    	try {	
+    		// try to access and read the file
+    		URLSupport excelURL = new URLSupport(fileName);
+    		InputStream excelStream = excelURL.getInputStream();
+    		excelLayout = new ExcelLayout(excelStream,fileName, excelURL.getTimestamp());
+    		excelStream.close();
+			// try to set the sheet
             excelLayout.setSheetName(sheet);
             // parse the sheet for layout labels
             excelLayout.parseLayoutLabels();
             // parse each layout to guess its data type
-            excelLayout.parseLayoutContent();
-        } catch (IOException e) {
-            excelLayout = null;
+            excelLayout.parseLayoutContent();			
+		} catch (MalformedURLException e) {
+			excelLayout = null;
+			throw new InvalidSettingsException(e.getMessage());
+		} catch (IOException e) {
+			excelLayout = null;
+			throw new InvalidSettingsException(e.getMessage());
+		} catch (ExcelLayoutException e) {
+			excelLayout = null;
             throw new InvalidSettingsException(e.getMessage());
-        } catch (ExcelLayout.ExcelLayoutException e) {
-            excelLayout = null;
+		} catch (URISyntaxException e) {
+			excelLayout = null;
             throw new InvalidSettingsException(e.getMessage());
-        }
+		}
     }
 
     /**
