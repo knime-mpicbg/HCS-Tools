@@ -122,11 +122,20 @@ public class OperettaFileReader extends AbstractNodeModel {
                 for (int i = 2; i < colData.length - 1; i++) {
                     String colValue = colData[i];
 
-                    // handle inf
-                    Object value = colValue.trim();
-                    value = value.equals("INF") ? Double.MAX_VALUE : value;
-
-                    knimeRow[i + 1] = colAttributes.get(i + 1).createCell(value);
+                    String value = colValue.trim();
+                    double doubleValue;
+                    
+                    try {
+                    	// handle inf
+                    	if(value.equals("INF"))
+                    		doubleValue = Double.MAX_VALUE;
+                    	else
+                    		doubleValue = Double.parseDouble(value);
+                    } catch (NumberFormatException nfe) {
+                        throw new Exception(nfe.getMessage() + "\n" + "Operetta result files may only contain numerical data. Please re-export the result file: " + inputFile.getAbsolutePath());
+                    }
+                    
+                    knimeRow[i + 1] = colAttributes.get(i + 1).createCell(doubleValue);
                 }
 
                 DataRow tableRow = new DefaultRow(new RowKey("" + rowCounter++), knimeRow);
