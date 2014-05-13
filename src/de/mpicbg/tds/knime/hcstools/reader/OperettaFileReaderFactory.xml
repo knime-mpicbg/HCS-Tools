@@ -13,6 +13,7 @@
         <intro>
             <p>
                 This node reads one or multiple result files of the Operetta (PerkinElmer).
+                The files may only contain numerical data.
             </p>
         </intro>
 
