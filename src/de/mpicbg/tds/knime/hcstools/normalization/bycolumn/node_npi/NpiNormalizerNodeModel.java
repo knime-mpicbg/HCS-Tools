@@ -36,6 +36,7 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
 
     // additional settings
     public static final String CFG_REFSTRINGPOS = "refStringPos";
+    public static final String CFG_SUFFIX_DFT = ".npi";
 
     private HashMap<String, HashMap<String, NormalizationStats>> statisticTablePos;
 
@@ -44,7 +45,7 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
      */
     public NpiNormalizerNodeModel() {
         super(2);
-        CFG_SUFFIX_DFT = ".npi";
+        //CFG_SUFFIX_DFT = ".npi";
         initializeSettings();
     }
 
@@ -60,7 +61,7 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
         addModelSetting(CFG_REFSTRINGPOS, createRefStringSM(CFG_REFSTRINGPOS));
         addModelSetting(CFG_REPLACE_VALUES, createReplaceValuesSM());
         addModelSetting(CFG_ROBUST_STATS, createRobustStatsSM());
-        addModelSetting(CFG_SUFFIX, createSuffixSM());
+        addModelSetting(CFG_SUFFIX, createSuffixSM(getColumnSuffix()));
         addModelSetting(CFG_USEOPT, createUseProcessingOptionsSM());
         addModelSetting(CFG_OPT, createProcessingOptionsSM());
     }
@@ -434,4 +435,11 @@ public class NpiNormalizerNodeModel extends AbstractNormNodeModel {
         }
         return curRowIdx;
     }
+
+	@Override
+	public String getColumnSuffix() {
+		return CFG_SUFFIX_DFT;
+	}
+
+
 }

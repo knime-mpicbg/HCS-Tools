@@ -276,8 +276,8 @@ public abstract class AbstractNormNodeDialog extends AbstractConfigDialog {
      * @return dialog component for suffix string
      */
     @SuppressWarnings("unchecked")
-    protected static DialogComponent getSuffixDC() {
-        return new DialogComponentOptionalString(AbstractNormNodeModel.createSuffixSM(), "column suffix");
+    protected static DialogComponent getSuffixDC(String cgfSuffixDft) {
+        return new DialogComponentOptionalString(AbstractNormNodeModel.createSuffixSM(cgfSuffixDft), "column suffix");
     }
 
     /**

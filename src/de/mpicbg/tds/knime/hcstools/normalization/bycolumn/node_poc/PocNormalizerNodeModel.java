@@ -33,13 +33,14 @@ import java.util.*;
  * Time: 11:39 AM
  */
 public class PocNormalizerNodeModel extends AbstractNormNodeModel {
+	
+	public static final String CFG_SUFFIX_DFT = ".poc";
 
     /**
      * constructor with two ouput ports
      */
     public PocNormalizerNodeModel() {
         super(2);
-        CFG_SUFFIX_DFT = ".poc";
         initializeSettings();
     }
 
@@ -54,7 +55,7 @@ public class PocNormalizerNodeModel extends AbstractNormNodeModel {
         addModelSetting(AbstractNormNodeModel.CFG_REFSTRING, AbstractNormNodeModel.createRefStringSM(CFG_REFSTRING));
         addModelSetting(AbstractNormNodeModel.CFG_REPLACE_VALUES, AbstractNormNodeModel.createReplaceValuesSM());
         addModelSetting(AbstractNormNodeModel.CFG_ROBUST_STATS, AbstractNormNodeModel.createRobustStatsSM());
-        addModelSetting(AbstractNormNodeModel.CFG_SUFFIX, AbstractNormNodeModel.createSuffixSM());
+        addModelSetting(AbstractNormNodeModel.CFG_SUFFIX, AbstractNormNodeModel.createSuffixSM(getColumnSuffix()));
         addModelSetting(AbstractNormNodeModel.CFG_USEOPT, AbstractNormNodeModel.createUseProcessingOptionsSM());
         addModelSetting(AbstractNormNodeModel.CFG_OPT, AbstractNormNodeModel.createProcessingOptionsSM());
     }
@@ -307,4 +308,9 @@ public class PocNormalizerNodeModel extends AbstractNormNodeModel {
         statContainer.close();
         return statContainer;
     }
+
+	@Override
+	public String getColumnSuffix() {
+		return CFG_SUFFIX_DFT;
+	}
 }
