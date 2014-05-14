@@ -70,9 +70,21 @@ public class RangeFilterV2NodeModel extends AbstractNodeModel {
 
     @Override
     protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        //check whether there are any numeric columns available (boolean columns are not allowed)
+        
+    	validateInputDataTable(inSpecs);
+        
+        return new DataTableSpec[]{inSpecs[0]};
+    }
+
+	/**
+	 * @param inSpecs
+	 * @throws InvalidSettingsException
+	 */
+	protected void validateInputDataTable(DataTableSpec[] inSpecs)
+			throws InvalidSettingsException {
+		//check whether there are any numeric columns available (boolean columns are not allowed)
         boolean numericColumns = false;
-        Iterator i = inSpecs[0].iterator();
+        Iterator<DataColumnSpec> i = inSpecs[0].iterator();
         while (!numericColumns && i.hasNext()) {
             DataColumnSpec cspec = (DataColumnSpec) i.next();
             DataType type = cspec.getType();
@@ -80,11 +92,26 @@ public class RangeFilterV2NodeModel extends AbstractNodeModel {
         }
         if (!numericColumns)
             throw new InvalidSettingsException("input table requires at least one numeric column (Double or Integer)");
+        
+        //validate settings against incoming table specs
+        SettingsModelFilterString columnFilterSetting = (SettingsModelFilterString) getModelSetting(CFG_PARAMS);
+        if(columnFilterSetting != null) {
+        	List<String> selColumns = columnFilterSetting.getIncludeList(); 
+        	validateSelectedColumns(selColumns, inSpecs[0]);
+        }
+	}
 
-        return new DataTableSpec[]{inSpecs[0]};
-    }
+    private void validateSelectedColumns(List<String> selColumns, DataTableSpec dataTableSpec) throws InvalidSettingsException {
+    	for(String curColumn : selColumns) {
+    		if(!dataTableSpec.containsName(curColumn)) 
+    			throw new InvalidSettingsException("Input table specs changed: Input table does not contain selected column: " + curColumn);
+    		DataType columnDataType = dataTableSpec.getColumnSpec(curColumn).getType();
+    		if(!columnDataType.isCompatible(DoubleValue.class) || columnDataType.isCompatible(BooleanValue.class))
+    			throw new InvalidSettingsException("Input table specs changed: Data type of selected column " + curColumn + " is not numeric");
+    	}
+	}
 
-    @Override
+	@Override
     protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
         super.validateSettings(settings);
         if (settings.containsKey(CFG_PARAMS)) {
