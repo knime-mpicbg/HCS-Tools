@@ -187,6 +187,18 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     public boolean isPlateFiltered(Plate plate) {
         return plateFiltered.get(plate);
     }
+    
+
+    /**
+     * Plate Sorting
+     * 
+     * @param attributeList to sort along
+     * @param descending (true -> descending order; false -> ascending order)
+     */
+	public void sortPlates(List<PlateAttribute> attributeList, boolean descending) {
+		Collections.sort(screen, new PlateComparator(attributeList));
+		if (descending) { Collections.reverse(screen); }
+	}
 
 
     /**
@@ -1314,5 +1326,6 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 
 
     public enum HiLiteDisplayMode {HILITE_ONLY, UNHILITE_ONLY, ALL}
+
 
 }
