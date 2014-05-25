@@ -1,0 +1,3 @@
+- Create the module dependency from hcs-tools to the hcscore and remove the hcscore.jar from the lib folder of the hcs-tools.
+- Clean the MANIFEST (do some of the modifs where there are warnings (redundant dependencies, etc.)
+
