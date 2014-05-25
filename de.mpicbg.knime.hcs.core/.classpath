@@ -1,33 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-  <classpathentry kind="src" path="src/test/java" output="target/test-classes" including="**/*.java"/>
-  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
-  <classpathentry kind="output" path="target/classes"/>
-  <classpathentry kind="var" path="M2_REPO/javax/servlet/servlet-api/2.3/servlet-api-2.3.jar" sourcepath="M2_REPO/javax/servlet/servlet-api/2.3/servlet-api-2.3-sources.jar"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-  <classpathentry kind="var" path="M2_REPO/junit/junit/4.7/junit-4.7.jar" sourcepath="M2_REPO/junit/junit/4.7/junit-4.7-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar" sourcepath="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/commons/commons-math/2.2/commons-math-2.2.jar" sourcepath="M2_REPO/org/apache/commons/commons-math/2.2/commons-math-2.2-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.4/commons-lang-2.4.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.4/commons-lang-2.4-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/net/sf/opencsv/opencsv/2.1/opencsv-2.1.jar" sourcepath="M2_REPO/net/sf/opencsv/opencsv/2.1/opencsv-2.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/nz/ac/waikato/cms/weka/weka-dev/3.7.5/weka-dev-3.7.5.jar"/>
-  <classpathentry kind="var" path="M2_REPO/net/sf/squirrel-sql/thirdparty-non-maven/java-cup/0.11a/java-cup-0.11a.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/pentaho/pentaho-commons/pentaho-package-manager/0.9.9/pentaho-package-manager-0.9.9.jar"/>
-  <classpathentry kind="var" path="M2_REPO/net/sourceforge/jtds/jtds/1.2.4/jtds-1.2.4.jar" sourcepath="M2_REPO/net/sourceforge/jtds/jtds/1.2.4/jtds-1.2.4-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/net/sourceforge/jexcelapi/jxl/2.6.10/jxl-2.6.10.jar"/>
-  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar" sourcepath="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/tablelayout/TableLayout/20050920/TableLayout-20050920.jar" sourcepath="M2_REPO/tablelayout/TableLayout/20050920/TableLayout-20050920-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/openscience/cdk/cdk/1.3.8/cdk-1.3.8.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/openscience/cdk/jchempaint/3.0.1/jchempaint-3.0.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/poi/poi/3.7-beta1/poi-3.7-beta1.jar" sourcepath="M2_REPO/org/apache/poi/poi/3.7-beta1/poi-3.7-beta1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.1/commons-logging-1.1.jar" sourcepath="M2_REPO/commons-logging/commons-logging/1.1/commons-logging-1.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1.jar" sourcepath="M2_REPO/logkit/logkit/1.0.1/logkit-1.0.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/avalon-framework/avalon-framework/4.1.3/avalon-framework-4.1.3.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/poi/poi-ooxml-schemas/3.7-beta1/poi-ooxml-schemas-3.7-beta1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/xmlbeans/xmlbeans/2.3.0/xmlbeans-2.3.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/stax/stax-api/1.0.1/stax-api-1.0.1.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/geronimo/specs/geronimo-stax-api_1.0_spec/1.0/geronimo-stax-api_1.0_spec-1.0.jar" sourcepath="M2_REPO/org/apache/geronimo/specs/geronimo-stax-api_1.0_spec/1.0/geronimo-stax-api_1.0_spec-1.0-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/poi/poi-ooxml/3.7-beta1/poi-ooxml-3.7-beta1.jar" sourcepath="M2_REPO/org/apache/poi/poi-ooxml/3.7-beta1/poi-ooxml-3.7-beta1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar" sourcepath="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar" sourcepath="M2_REPO/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2-sources.jar"/>
+	<classpathentry excluding="test/java/|main/java/" kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry exported="true" kind="lib" path="lib/avalon-framework-4.1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cdk-1.3.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections-3.2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging-1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-math-2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/dom4j-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/geronimo-stax-api_1.0_spec-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/java-cup-0.11a.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jchempaint-3.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jtds-1.2.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/junit-4.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jxl-2.6.10.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.14.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/logkit-1.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/opencsv-2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/pentaho-package-manager-0.9.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-3.7-beta1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-ooxml-3.7-beta1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-ooxml-schemas-3.7-beta1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/servlet-api-2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/stax-api-1.0.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/TableLayout-20050920.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/weka-dev-3.7.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-apis-1.0.b2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xmlbeans-2.3.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>
