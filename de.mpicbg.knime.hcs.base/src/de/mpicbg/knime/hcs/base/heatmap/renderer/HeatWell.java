@@ -7,7 +7,7 @@ import java.awt.event.*;
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
 import de.mpicbg.knime.hcs.base.heatmap.WellViewer;
 import de.mpicbg.knime.hcs.base.heatmap.color.ColorScheme;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.knime.hcs.core.model.Well;
 
 /**
  * A JPanel which renders a detailed view on a single well within a heat-map.

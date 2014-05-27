@@ -7,7 +7,7 @@ import de.mpicbg.knime.hcs.base.heatmap.color.MinMaxStrategy;
 import de.mpicbg.knime.hcs.base.heatmap.color.QuantileStrategy;
 import de.mpicbg.knime.hcs.base.heatmap.color.RescaleStrategy;
 import de.mpicbg.knime.knutils.Attribute;
-import de.mpicbg.tds.core.model.*;
+import de.mpicbg.knime.hcs.core.model.*;
 import de.mpicbg.knime.hcs.base.heatmap.color.*;
 
 import org.apache.commons.lang.StringUtils;

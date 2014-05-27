@@ -6,7 +6,7 @@ import de.mpicbg.knime.knutils.AttributeUtils;
 import de.mpicbg.knime.knutils.BufTableUtils;
 import de.mpicbg.knime.knutils.ui.DefaultMicroscopeReaderDialog;
 import de.mpicbg.knime.knutils.ui.FileSelectPanel;
-import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.TdsUtils;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;

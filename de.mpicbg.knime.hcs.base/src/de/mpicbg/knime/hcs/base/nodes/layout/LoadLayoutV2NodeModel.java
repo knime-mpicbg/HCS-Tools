@@ -2,7 +2,7 @@ package de.mpicbg.knime.hcs.base.nodes.layout;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.Utils;
-import de.mpicbg.tds.core.ExcelLayout;
+import de.mpicbg.knime.hcs.core.ExcelLayout;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;

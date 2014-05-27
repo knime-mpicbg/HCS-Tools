@@ -6,8 +6,8 @@ import de.mpicbg.knime.hcs.base.heatmap.menu.HiLiteMenu;
 import de.mpicbg.knime.hcs.base.heatmap.menu.ViewMenu;
 import de.mpicbg.knime.hcs.base.heatmap.renderer.HeatPlate;
 import de.mpicbg.knime.hcs.base.heatmap.renderer.HeatTrellis;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.util.PanelImageExporter;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.util.PanelImageExporter;
 
 import javax.swing.*;
 import java.awt.*;

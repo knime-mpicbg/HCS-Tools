@@ -1,7 +1,7 @@
 package de.mpicbg.knime.hcs.base.nodes.reader;
 
-import de.mpicbg.tds.barcodes.BarcodeParser;
-import de.mpicbg.tds.barcodes.namedregexp.NamedPattern;
+import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
+import de.mpicbg.knime.hcs.core.barcodes.namedregexp.NamedPattern;
 
 /**
  * Created by IntelliJ IDEA.

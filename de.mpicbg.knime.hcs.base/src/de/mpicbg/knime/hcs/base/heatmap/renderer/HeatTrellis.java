@@ -4,9 +4,9 @@ import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapModelChangeListener;
 import de.mpicbg.knime.hcs.base.heatmap.PlateViewer;
 import de.mpicbg.knime.hcs.base.heatmap.color.ColorScheme;
-import de.mpicbg.tds.core.Utils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.util.PanelImageExporter;
+import de.mpicbg.knime.hcs.core.Utils;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.util.PanelImageExporter;
 import info.clearthought.layout.TableLayout;
 
 import javax.swing.*;

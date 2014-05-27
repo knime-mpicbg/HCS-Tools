@@ -1,7 +1,7 @@
 package de.mpicbg.knime.hcs.base.nodes.norm;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.TdsUtils;
 import org.knime.core.data.*;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.AbstractCellFactory;

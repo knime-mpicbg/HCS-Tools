@@ -19,7 +19,7 @@ public class HCSToolsBundleActivator extends AbstractUIPlugin {
     /**
      * Make sure that this *always* matches the ID in plugin.xml.
      */
-    public static final String PLUGIN_ID = "de.mpicbg.tds.knime.hcstools";
+    public static final String PLUGIN_ID = "de.mpicbg.knime.hcs.knime.hcstools";
 
     // The shared instance.
     private static HCSToolsBundleActivator plugin;

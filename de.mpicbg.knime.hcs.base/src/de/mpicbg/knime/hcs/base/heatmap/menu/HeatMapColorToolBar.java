@@ -9,7 +9,7 @@ import de.mpicbg.knime.hcs.base.heatmap.HeatMapModelChangeListener;
 import de.mpicbg.knime.hcs.base.heatmap.color.ColorScheme;
 import de.mpicbg.knime.hcs.base.heatmap.color.LinearGradientTools;
 import de.mpicbg.knime.hcs.base.heatmap.color.RescaleStrategy;
-import de.mpicbg.tds.core.Utils;
+import de.mpicbg.knime.hcs.core.Utils;
 
 /**
  * Colorbar to integrate in a heatmap frame.

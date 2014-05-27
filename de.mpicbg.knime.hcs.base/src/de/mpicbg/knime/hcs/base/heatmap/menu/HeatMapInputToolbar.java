@@ -11,9 +11,9 @@ import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapViewer;
 import de.mpicbg.knime.hcs.base.heatmap.PlateViewer;
 import de.mpicbg.knime.hcs.base.heatmap.ScreenViewer;
-import de.mpicbg.tds.core.model.PlateUtils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.PlateAttribute;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.PlateAttribute;
 
 /**
  * HeatMapViewer toolbar to select the parameter that determine the displayed content

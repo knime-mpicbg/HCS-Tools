@@ -3,7 +3,7 @@ package de.mpicbg.knime.hcs.base.heatmap.color;
 import java.awt.*;
 import java.util.*;
 
-import de.mpicbg.tds.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
 import org.knime.core.data.property.ColorAttr;
 
 /**

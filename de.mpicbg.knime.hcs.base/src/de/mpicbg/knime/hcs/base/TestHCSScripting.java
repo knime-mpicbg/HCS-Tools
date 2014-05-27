@@ -2,7 +2,7 @@ package de.mpicbg.knime.hcs.base;
 
 import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.AttributeUtils;
-import de.mpicbg.tds.core.util.PlateComparator;
+import de.mpicbg.knime.hcs.core.util.PlateComparator;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;

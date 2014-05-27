@@ -15,7 +15,7 @@ import org.knime.core.node.defaultnodesettings.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.mpicbg.tds.core.TdsUtils.*;
+import static de.mpicbg.knime.hcs.core.TdsUtils.*;
 
 
 /**

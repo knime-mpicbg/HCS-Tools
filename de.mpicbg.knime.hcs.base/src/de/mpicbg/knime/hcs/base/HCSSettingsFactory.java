@@ -1,7 +1,7 @@
 package de.mpicbg.knime.hcs.base;
 
 import de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel;
-import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.TdsUtils;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 

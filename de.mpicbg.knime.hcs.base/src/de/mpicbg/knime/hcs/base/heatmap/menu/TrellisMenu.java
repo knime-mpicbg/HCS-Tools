@@ -5,8 +5,8 @@ import de.mpicbg.knime.hcs.base.heatmap.ScreenViewer;
 import de.mpicbg.knime.hcs.base.heatmap.dialog.PlateAttributeDialog;
 import de.mpicbg.knime.hcs.base.heatmap.dialog.RowColumnDialog;
 import de.mpicbg.knime.hcs.base.heatmap.renderer.HeatTrellis;
-import de.mpicbg.tds.core.model.PlateAttribute;
-import de.mpicbg.tds.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.PlateAttribute;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

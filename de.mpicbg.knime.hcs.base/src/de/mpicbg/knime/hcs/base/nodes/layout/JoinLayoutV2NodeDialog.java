@@ -1,7 +1,7 @@
 package de.mpicbg.knime.hcs.base.nodes.layout;
 
 import de.mpicbg.knime.knutils.AbstractConfigDialog;
-import de.mpicbg.tds.core.ExcelLayout;
+import de.mpicbg.knime.hcs.core.ExcelLayout;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;

@@ -6,11 +6,11 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.AttributeUtils;
 import de.mpicbg.knime.knutils.InputTableAttribute;
-import de.mpicbg.tds.barcodes.BarcodeParser;
-import de.mpicbg.tds.barcodes.BarcodeParserFactory;
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
+import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;
+import de.mpicbg.knime.hcs.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.Well;
 import org.apache.commons.lang.StringUtils;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -22,9 +22,9 @@ import java.io.*;
 import java.util.*;
 
 import static de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel.createPropReadoutSelection;
-import static de.mpicbg.tds.core.TdsUtils.SCREEN_MODEL_TREATMENT;
-import static de.mpicbg.tds.core.model.Plate.configurePlateByBarcode;
-import static de.mpicbg.tds.core.model.Plate.inferPlateDimFromWells;
+import static de.mpicbg.knime.hcs.core.TdsUtils.SCREEN_MODEL_TREATMENT;
+import static de.mpicbg.knime.hcs.core.model.Plate.configurePlateByBarcode;
+import static de.mpicbg.knime.hcs.core.model.Plate.inferPlateDimFromWells;
 
 
 /**

@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.*;
 
-import de.mpicbg.tds.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**

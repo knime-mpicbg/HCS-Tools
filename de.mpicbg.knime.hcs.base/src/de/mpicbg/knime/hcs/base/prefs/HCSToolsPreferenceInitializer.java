@@ -27,7 +27,7 @@ package de.mpicbg.knime.hcs.base.prefs;
 
 import de.mpicbg.knime.hcs.base.HCSToolsBundleActivator;
 import de.mpicbg.knime.hcs.base.utils.MadStatistic;
-import de.mpicbg.tds.barcodes.BarcodeParserFactory;
+import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 

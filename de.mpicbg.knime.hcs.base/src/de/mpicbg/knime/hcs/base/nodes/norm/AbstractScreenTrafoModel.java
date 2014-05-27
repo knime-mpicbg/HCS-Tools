@@ -3,7 +3,7 @@ package de.mpicbg.knime.hcs.base.nodes.norm;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.TableUpdateCache;
-import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.TdsUtils;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.node.InvalidSettingsException;

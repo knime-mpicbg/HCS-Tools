@@ -6,8 +6,8 @@ import de.mpicbg.knime.hcs.base.heatmap.menu.HiLiteMenu;
 import de.mpicbg.knime.hcs.base.heatmap.menu.TrellisMenu;
 import de.mpicbg.knime.hcs.base.heatmap.menu.ViewMenu;
 
-import de.mpicbg.tds.core.model.PlateUtils;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.Well;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.NodeView;
 import org.knime.core.node.property.hilite.HiLiteHandler;

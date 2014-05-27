@@ -4,7 +4,7 @@ import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.BufTableUtils;
 import de.mpicbg.knime.knutils.InputTableAttribute;
 import de.mpicbg.knime.knutils.TableUpdateCache;
-import de.mpicbg.tds.core.chemoinfo.CdkUtils;
+import de.mpicbg.knime.hcs.core.chemoinfo.CdkUtils;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.node.BufferedDataTable;

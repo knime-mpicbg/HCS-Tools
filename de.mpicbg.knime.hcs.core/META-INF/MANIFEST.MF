@@ -3,7 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Core functionality for the HCS Tools
 Bundle-SymbolicName: de.mpicbg.knime.hcs.core;singleton:=true
 Bundle-Version: 2.0.0.qualifier
-Export-Package: de.mpicbg.knime.hcs.core
+Export-Package: de.mpicbg.knime.hcs.core;
+  uses:="org.apache.poi.ss.usermodel,
+   org.apache.commons.math.linear,
+   de.mpicbg.knime.hcs.core.model,
+   org.eclipse.ui.plugin"
 Bundle-ClassPath: hcscore.jar,
  lib/avalon-framework-4.1.3.jar,
  lib/cdk-1.3.8.jar,

@@ -4,7 +4,7 @@ import de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel;
 import de.mpicbg.knime.hcs.base.utils.TdsNumericFilter;
 import de.mpicbg.knime.knutils.AbstractConfigDialog;
 import de.mpicbg.knime.knutils.AttributeUtils;
-import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.TdsUtils;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;

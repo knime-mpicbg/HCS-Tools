@@ -5,7 +5,7 @@ import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.BufTableUtils;
 import de.mpicbg.knime.knutils.InputTableAttribute;
 import de.mpicbg.knime.knutils.TableUpdateCache;
-import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.knutils.*;
 import org.apache.commons.lang.StringUtils;
 import org.knime.core.data.DataRow;

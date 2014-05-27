@@ -3,7 +3,7 @@ package de.mpicbg.knime.hcs.base.nodes.scriptlets;
 import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.InputTableAttribute;
 import de.mpicbg.knime.knutils.TableUpdateCache;
-import de.mpicbg.tds.core.chemoinfo.CdkUtils;
+import de.mpicbg.knime.hcs.core.chemoinfo.CdkUtils;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.StringCell;

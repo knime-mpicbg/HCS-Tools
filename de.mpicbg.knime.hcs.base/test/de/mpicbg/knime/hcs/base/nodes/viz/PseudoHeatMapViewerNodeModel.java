@@ -1,10 +1,10 @@
 package de.mpicbg.knime.hcs.base.nodes.viz;
 
-import de.mpicbg.tds.barcodes.BarcodeParser;
-import de.mpicbg.tds.barcodes.BarcodeParserFactory;
-import de.mpicbg.tds.core.model.PlateUtils;
-import de.mpicbg.tds.core.model.Well;
-import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
+import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.Well;
+import de.mpicbg.knime.hcs.core.model.Plate;
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
 import de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel;
 import de.mpicbg.knime.hcs.base.nodes.viz.HeatMapViewerNodeModel;

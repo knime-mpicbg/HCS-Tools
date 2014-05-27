@@ -17,8 +17,8 @@ import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
 import de.mpicbg.knime.hcs.base.heatmap.color.LinearGradientTools;
 import de.mpicbg.knime.hcs.base.heatmap.color.RescaleStrategy;
 import de.mpicbg.knime.hcs.base.heatmap.menu.HeatMapColorToolBar;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.Well;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 /**

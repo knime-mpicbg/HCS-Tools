@@ -12,11 +12,11 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.AttributeUtils;
 import de.mpicbg.knime.knutils.InputTableAttribute;
-import de.mpicbg.tds.barcodes.BarcodeParser;
-import de.mpicbg.tds.barcodes.BarcodeParserFactory;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.PlateUtils;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
+import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.Well;
 
 import org.knime.core.data.*;
 import org.knime.core.data.image.png.PNGImageContent;

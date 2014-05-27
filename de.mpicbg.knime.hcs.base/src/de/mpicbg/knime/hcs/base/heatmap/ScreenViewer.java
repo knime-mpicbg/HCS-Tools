@@ -3,7 +3,7 @@ package de.mpicbg.knime.hcs.base.heatmap;
 import de.mpicbg.knime.hcs.base.heatmap.menu.HeatMapColorToolBar;
 import de.mpicbg.knime.hcs.base.heatmap.menu.HeatMapInputToolbar;
 import de.mpicbg.knime.hcs.base.heatmap.renderer.HeatTrellis;
-import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.Plate;
 
 import javax.swing.*;
 import java.awt.*;

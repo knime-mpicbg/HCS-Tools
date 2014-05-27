@@ -1,8 +1,8 @@
 package de.mpicbg.knime.hcs.base.nodes.img;
 
 import de.mpicbg.knime.hcs.base.utils.ArrayScanKnimeUtils;
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.knime.hcs.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.model.Well;
 
 import java.io.File;
 import java.sql.Connection;

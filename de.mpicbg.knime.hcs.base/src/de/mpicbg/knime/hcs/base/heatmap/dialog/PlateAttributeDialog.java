@@ -1,7 +1,7 @@
 package de.mpicbg.knime.hcs.base.heatmap.dialog;
 
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
-import de.mpicbg.tds.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
 import org.apache.commons.lang.ArrayUtils;
 
 import javax.swing.*;

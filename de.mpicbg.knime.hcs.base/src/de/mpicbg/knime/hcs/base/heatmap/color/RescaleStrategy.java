@@ -1,6 +1,6 @@
 package de.mpicbg.knime.hcs.base.heatmap.color;
 
-import de.mpicbg.tds.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.Plate;
 
 import java.io.Serializable;
 import java.util.Collection;

@@ -1,8 +1,8 @@
 package de.mpicbg.knime.hcs.base.heatmap.color;
 
-import de.mpicbg.tds.core.model.PlateUtils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.Well;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import java.util.ArrayList;

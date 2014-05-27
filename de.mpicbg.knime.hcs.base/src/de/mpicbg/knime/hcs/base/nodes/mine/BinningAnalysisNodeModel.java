@@ -1,9 +1,9 @@
 package de.mpicbg.knime.hcs.base.nodes.mine;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.math.BinningAnalysis;
-import de.mpicbg.tds.core.math.BinningData;
+import de.mpicbg.knime.hcs.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.math.BinningAnalysis;
+import de.mpicbg.knime.hcs.core.math.BinningData;
 import org.knime.core.data.*;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DefaultRow;

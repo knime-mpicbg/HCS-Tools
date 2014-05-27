@@ -2,9 +2,9 @@ package de.mpicbg.knime.hcs.base.utils;
 
 import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.AttributeUtils;
-import de.mpicbg.tds.core.TdsUtils;
-import de.mpicbg.tds.core.model.Plate;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.knime.hcs.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.Well;
 import net.sourceforge.jtds.jdbc.Driver;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;

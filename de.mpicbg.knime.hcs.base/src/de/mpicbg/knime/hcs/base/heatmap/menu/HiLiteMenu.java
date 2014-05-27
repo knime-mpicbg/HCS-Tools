@@ -2,7 +2,7 @@ package de.mpicbg.knime.hcs.base.heatmap.menu;
 
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapViewer;
-import de.mpicbg.tds.core.model.Well;
+import de.mpicbg.knime.hcs.core.model.Well;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 

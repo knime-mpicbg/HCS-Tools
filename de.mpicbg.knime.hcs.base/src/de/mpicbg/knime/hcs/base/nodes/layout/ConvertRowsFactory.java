@@ -1,7 +1,7 @@
 package de.mpicbg.knime.hcs.base.nodes.layout;
 
 import de.mpicbg.knime.knutils.AbstractConfigDialog;
-import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.TdsUtils;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
