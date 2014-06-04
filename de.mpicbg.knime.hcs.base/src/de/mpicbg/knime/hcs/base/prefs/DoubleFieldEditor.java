@@ -2,7 +2,6 @@ package de.mpicbg.knime.hcs.base.prefs;
 
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -27,15 +26,14 @@ public class DoubleFieldEditor extends StringFieldEditor {
 
 
     protected boolean doCheckState() {
-        Text text = getTextControl();
 
-        if (text == null)
+        if (getTextControl() == null)
             return false;
 
         try {
             NumberFormat numberFormatter = NumberFormat.getInstance();
             ParsePosition parsePosition = new ParsePosition(0);
-            Number parsedNumber = numberFormatter.parse(text.getText(), parsePosition);
+            Number parsedNumber = numberFormatter.parse(getTextControl().getText(), parsePosition);
 
             if (parsedNumber == null) {
                 showErrorMessage();
@@ -72,11 +70,10 @@ public class DoubleFieldEditor extends StringFieldEditor {
 
 
     protected void doLoadDefault() {
-        Text text = getTextControl();
-        if (text != null) {
+        if (getTextControl() != null) {
             double value = getPreferenceStore().getDefaultDouble(getPreferenceName());
             NumberFormat numberFormatter = NumberFormat.getNumberInstance();
-            text.setText(numberFormatter.format(value));
+            getTextControl().setText(numberFormatter.format(value));
         }
         valueChanged();
     }
@@ -87,11 +84,10 @@ public class DoubleFieldEditor extends StringFieldEditor {
 
 
     protected void doLoad() {
-        Text text = getTextControl();
-        if (text != null) {
+        if (getTextControl() != null) {
             double value = getPreferenceStore().getDouble(getPreferenceName());
             NumberFormat numberFormatter = NumberFormat.getNumberInstance();
-            text.setText(numberFormatter.format(value));
+            getTextControl().setText(numberFormatter.format(value));
         }
     }
 
