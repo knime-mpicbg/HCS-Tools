@@ -29,7 +29,6 @@ import de.mpicbg.tds.knime.hcstools.HCSToolsBundleActivator;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -51,12 +50,11 @@ public class HCSToolsPreferencePage extends FieldEditorPreferencePage implements
 
     @Override
     protected void createFieldEditors() {
-        Composite parent = getFieldEditorParent();
 
-        addField(new IntegerFieldEditor(HCSToolsPreferenceInitializer.MIN_SAMPLE_NUMBER_FOR_MEANS, "Minimal number of samples required to calculate mean or median.", parent));
-        addField(new IntegerFieldEditor(HCSToolsPreferenceInitializer.MIN_SAMPLE_NUMBER_FOR_DISPERSION, "Minimal number of samples required to calculate variance or MAD.", parent));
-        addField(new DoubleFieldEditor(HCSToolsPreferenceInitializer.MAD_SCALING_FACTOR, "Scaling factor for MAD-statistic", parent));
-        addField(new StringFieldEditor(HCSToolsPreferenceInitializer.BARCODE_PATTERNS, "Barcode patterns", parent));
+        addField(new IntegerFieldEditor(HCSToolsPreferenceInitializer.MIN_SAMPLE_NUMBER_FOR_MEANS, "Minimal number of samples required to calculate mean or median.", getFieldEditorParent()));
+        addField(new IntegerFieldEditor(HCSToolsPreferenceInitializer.MIN_SAMPLE_NUMBER_FOR_DISPERSION, "Minimal number of samples required to calculate variance or MAD.", getFieldEditorParent()));
+        addField(new DoubleFieldEditor(HCSToolsPreferenceInitializer.MAD_SCALING_FACTOR, "Scaling factor for MAD-statistic", getFieldEditorParent()));
+        addField(new StringFieldEditor(HCSToolsPreferenceInitializer.BARCODE_PATTERNS, "Barcode patterns", getFieldEditorParent()));
     }
 
 
