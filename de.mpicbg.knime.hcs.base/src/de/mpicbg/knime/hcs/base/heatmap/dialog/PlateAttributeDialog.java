@@ -119,7 +119,7 @@ public class PlateAttributeDialog extends JDialog {
         sensPanel.add(radio);
         descending = new JRadioButton("Descending");
         descending.setFont(font);
-        descending.setSelected(true);
+        descending.setSelected(false);
         group.add(descending);
         sensPanel.add(descending);
 
