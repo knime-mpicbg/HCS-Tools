@@ -4,4 +4,4 @@
 # Eclipse production
 */bin/*
 /.metadata
-
+*/.settings
