@@ -8,7 +8,6 @@ import de.mpicbg.knime.hcs.base.heatmap.color.QuantileStrategy;
 import de.mpicbg.knime.hcs.base.heatmap.color.RescaleStrategy;
 import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.hcs.core.model.*;
-import de.mpicbg.knime.hcs.base.heatmap.color.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.Frequency;
@@ -37,7 +36,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** Reference populations */
     public HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
 
-    /** Color rescale strategy */
+    /** Color re-scale strategy */
     private RescaleStrategy readoutRescaleStrategy = new MinMaxStrategy();
     /** Color global scaling flag */
     private boolean globalScaling = false;
