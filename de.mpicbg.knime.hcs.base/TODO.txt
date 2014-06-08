@@ -1,2 +1,0 @@
--add hcs.core bundle requirement
--remove jar from lib, that come with the hcs.core buildle-requirement
