@@ -16,6 +16,23 @@ Once KNIME is installed you have the following possibilities:
 
 
 
+DEVELOPMENT
+
+Since KNIME is an Eclipse application it is easiest to use that IDE.
+1) Clone knime-scripting repository (https://github.com/knime-mpicbg/knime-scripting)
+2) Clone this repository
+3) In Eclipse Import>General>Existing Project into Workspace
+4) Make sure the project is compiled with Java SE 1.6 (Preferences>Compiler)
+
+Debug Configuration:
+Main Tab:
+	Run a Product: org.knime.product.KNIME_PRODUCT
+	Runtime JRE: 1.6
+Arguments Tab:
+	Add “-XX:MaxPermSize=256m “ to the VM Arguments
+
+
+
 LICENSE
 
 Copyright (c) 2010, Max Planck Institute of Molecular Cell Biology and Genetics, Dresden
