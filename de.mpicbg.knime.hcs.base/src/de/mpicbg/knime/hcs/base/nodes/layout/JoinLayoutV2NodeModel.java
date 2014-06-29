@@ -2,6 +2,7 @@ package de.mpicbg.knime.hcs.base.nodes.layout;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.Utils;
+import de.mpicbg.knime.hcs.base.utils.URLSupport;
 import de.mpicbg.knime.hcs.core.ExcelLayout;
 import de.mpicbg.knime.hcs.core.ExcelLayout.ExcelLayoutException;
 import de.mpicbg.knime.hcs.core.TdsUtils;

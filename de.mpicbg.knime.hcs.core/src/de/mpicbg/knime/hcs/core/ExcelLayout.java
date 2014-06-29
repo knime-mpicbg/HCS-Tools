@@ -10,6 +10,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.awt.*;
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -45,13 +49,28 @@ public class ExcelLayout implements Serializable {
     private transient Sheet sheet = null;
 
 
-    public ExcelLayout(String fileName) throws IOException {
-        this.fileName = fileName;
-        //this.labels = new ArrayList<String>();
-        this.labels = new LinkedHashMap<String, Class<?>>();
+//    public ExcelLayout(String fileName) throws IOException {
+//        this.fileName = fileName;
+//        //this.labels = new ArrayList<String>();
+//        this.labels = new LinkedHashMap<String, Class<?>>();
+//
+//        openWorkbook();
+//    }
+    
+    public ExcelLayout(InputStream excelStream, String fileName, long timestamp)
+    		throws IOException
+    		{
+    	this.fileName = fileName;
+    	this.labels = new LinkedHashMap();
 
-        openWorkbook();
-    }
+
+    	this.timestamp = timestamp;
+    	if (fileName.endsWith(".xlsx")) {
+    		this.workbook = new XSSFWorkbook(excelStream);
+    	} else {
+    		this.workbook = new HSSFWorkbook(new POIFSFileSystem(excelStream));
+    	}
+	}
 
     /**
      * checks wether the file has been modified (or ist not accessible at all anymore
@@ -350,37 +369,40 @@ public class ExcelLayout implements Serializable {
         // test if sheet names can be extracted
         String filename = "/Users/niederle/knime_sandbox/open/2012-05-11_JoinLayout_V2/data/testLayout1.xlsx";
 
-        try {
-            ExcelLayout layout = new ExcelLayout(filename);
-            List<String> sheets = layout.getSheetNames();
+        try
+        {
+        	String protocol = new URI(filename).getScheme();
+        	if (protocol == null) {
+        		filename = "file://" + filename;
+        	}
+        	URL fileURL = new URL(filename);
+        	URLConnection connection = fileURL.openConnection();
 
-            for (String sheet : sheets) {
-                System.out.println(sheet + ", ");
-            }
 
-            // test whether a given sheet exists
-            //layout.setSheetName("I do not exist");
+        	InputStream is = connection.getInputStream();
+        	ExcelLayout layout = new ExcelLayout(is, filename, connection.getLastModified());
+        	is.close();
 
-            // handle wrong positioning
-            //layout.setSheetName("wrongPos");
+        	List<String> sheets = layout.getSheetNames();
+        	for (String sheet : sheets) {
+        		System.out.println(sheet + ", ");
+        	}
+        	layout.setSheetName("Layout");
 
-            // handle wrong column labeling
-            //layout.setSheetName("wrongColLabel");
-
-            // handle wrong row labels
-            //layout.setSheetName("wrongRowLabel1");
-            //layout.setSheetName("wrongRowLabel2");
-
-            // correct layout
-            layout.setSheetName("Chemical layout");
-
-            layout.parseLayoutLabels();
-            layout.parseLayoutContent();
-
-        } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (ExcelLayoutException e) {
-            e.printStackTrace();
+        	layout.parseLayoutLabels();
+        	layout.parseLayoutContent();
+        }
+        catch (IOException e)
+        {
+        	e.printStackTrace();
+        }
+        catch (ExcelLayoutException e)
+        {
+        	e.printStackTrace();
+        }
+        catch (URISyntaxException e)
+        {
+        	e.printStackTrace();
         }
 
     }
