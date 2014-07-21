@@ -1,17 +1,22 @@
 package de.mpicbg.tds.knime.hcstools.utils.node_loadlayout;
 
-import de.mpicbg.tds.core.ExcelLayout;
-import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JFileChooser;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import de.mpicbg.tds.core.ExcelLayout;
+import de.mpicbg.tds.knime.hcstools.utils.URLSupport;
+import de.mpicbg.tds.knime.knutils.AbstractConfigDialog;
 
 /**
  * <code>NodeDialog</code> for the "LoadLayoutV2" Node.
@@ -51,19 +56,33 @@ public class LoadLayoutV2NodeDialog extends AbstractConfigDialog {
     }
 
     private void updateSheetNames(String fileName) {
-        List<String> availableSheetNames;
-        try {
-            ExcelLayout layout = new ExcelLayout(fileName);
-            availableSheetNames = layout.getSheetNames();
-        } catch (IOException e) {
-            e.printStackTrace();  //TODO: error message (comment: might be caught later when closing the dialog)
-            // clear available sheets
+    	
+    	List<String> availableSheetNames;
+    	
+    	ExcelLayout layout = null;
+		
+			// try to access and read the file
+    		URLSupport excelURL;
+			try {
+				excelURL = new URLSupport(fileName);
+				InputStream excelStream = excelURL.getInputStream();
+	    		layout = new ExcelLayout(excelStream,fileName, excelURL.getTimestamp());
+	    		excelStream.close();
+			} catch (URISyntaxException e) {
+			} catch (IOException e) {
+			}
+    	
+    	// if loading Excel file failed
+    	if(layout == null) {
+    		// clear available sheets
             availableSheetNames = new ArrayList<String>();
             availableSheetNames.add("");
-            layoutSheetComponent.replaceListItems(availableSheetNames, availableSheetNames.get(0));
-        }
-
-        layoutSheetComponent.replaceListItems(availableSheetNames, availableSheetNames.get(0));
+    	} else {
+    		availableSheetNames = layout.getSheetNames();
+    	}
+    	
+    	// update component
+    	layoutSheetComponent.replaceListItems(availableSheetNames, availableSheetNames.get(0));
     }
 }
 

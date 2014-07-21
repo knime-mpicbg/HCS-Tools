@@ -1,18 +1,26 @@
 package de.mpicbg.tds.knime.heatmap.menu;
 
-import de.mpicbg.tds.knime.heatmap.HeatMapModel;
-import de.mpicbg.tds.knime.heatmap.ScreenViewer;
-import de.mpicbg.tds.knime.heatmap.dialog.PlateAttributeDialog;
-import de.mpicbg.tds.knime.heatmap.dialog.RowColumnDialog;
-import de.mpicbg.tds.core.model.PlateAttribute;
-import de.mpicbg.tds.core.model.PlateUtils;
-import de.mpicbg.tds.knime.heatmap.renderer.HeatTrellis;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.KeyStroke;
+
+import de.mpicbg.tds.core.model.PlateAttribute;
+import de.mpicbg.tds.core.model.PlateUtils;
+import de.mpicbg.tds.knime.heatmap.HeatMapModel;
+import de.mpicbg.tds.knime.heatmap.ScreenViewer;
+import de.mpicbg.tds.knime.heatmap.dialog.PlateAttributeDialog;
+import de.mpicbg.tds.knime.heatmap.dialog.RowColumnDialog;
+import de.mpicbg.tds.knime.heatmap.renderer.HeatTrellis;
 
 /**
  * Menu acting on the {@link HeatTrellis}
@@ -179,12 +187,15 @@ public class TrellisMenu extends JMenu {
         PlateAttributeDialog dialog = new PlateAttributeDialog(heatMapModel);
         dialog.setVisible(true);
         String[] selectedAttributes = dialog.getSelectedAttributeTitles();
-        for (int i=selectedAttributes.length-1; i>=0; i--) {
-            PlateAttribute attribute = PlateUtils.getPlateAttributeByTitle(selectedAttributes[i]);
-            heatMapModel.sortPlates(attribute);
+        
+        ArrayList<PlateAttribute> attributeList = new ArrayList<PlateAttribute>();
+        for(String attributeString : selectedAttributes) {
+            PlateAttribute attribute = PlateUtils.getPlateAttributeByTitle(attributeString);
+            attributeList.add(attribute);
         }
-
-        if (!dialog.isDescending()) { heatMapModel.revertScreen(); }
+        
+        heatMapModel.sortPlates(attributeList, dialog.isDescending());
+        
         heatMapModel.fireModelChanged();
         heatMapModel.setSortAttributeSelectionByTiles(selectedAttributes);
     }

@@ -40,7 +40,7 @@ public class NpiNormalizerNodeDialog extends AbstractNormNodeDialog {
         setHorizontalPlacement(true);
         addDialogComponent(getReplaceValuesDC());
         addDialogComponent(getRobustStatsDC());
-        addDialogComponent(getSuffixDC());
+        addDialogComponent(getSuffixDC(NpiNormalizerNodeModel.CFG_SUFFIX_DFT));
         closeCurrentGroup();
 
         addProcessingOptionsTab();

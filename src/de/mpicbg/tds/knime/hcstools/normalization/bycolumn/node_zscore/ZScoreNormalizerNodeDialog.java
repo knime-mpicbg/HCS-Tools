@@ -33,7 +33,7 @@ public class ZScoreNormalizerNodeDialog extends AbstractNormNodeDialog {
         setHorizontalPlacement(true);
         addDialogComponent(AbstractNormNodeDialog.getReplaceValuesDC());
         addDialogComponent(AbstractNormNodeDialog.getRobustStatsDC());
-        addDialogComponent(AbstractNormNodeDialog.getSuffixDC());
+        addDialogComponent(AbstractNormNodeDialog.getSuffixDC(ZScoreNormalizerNodeModel.CFG_SUFFIX_DFT));
         closeCurrentGroup();
 
         addProcessingOptionsTab();

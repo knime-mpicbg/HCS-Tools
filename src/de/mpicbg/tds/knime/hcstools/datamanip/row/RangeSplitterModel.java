@@ -31,6 +31,9 @@ public class RangeSplitterModel extends RangeFilterV2NodeModel {
 
     @Override
     protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
+    	
+    	validateInputDataTable(inSpecs);
+    	
         return new DataTableSpec[]{inSpecs[0], inSpecs[0]};    //To change body of overridden methods use File | Settings | File Templates.
     }
 

@@ -2,6 +2,7 @@ package de.mpicbg.tds.knime.hcstools.utils;
 
 import de.mpicbg.tds.core.ExcelLayout;
 import de.mpicbg.tds.core.TdsUtils;
+import de.mpicbg.tds.core.ExcelLayout.ExcelLayoutException;
 import de.mpicbg.tds.knime.knutils.AbstractNodeModel;
 import de.mpicbg.tds.knime.knutils.Utils;
 import org.knime.core.data.*;
@@ -18,6 +19,9 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.util.UniqueNameGenerator;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -132,7 +136,7 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
         plateRowIdx = inSpec.findColumnIndex(((SettingsModelString) getModelSetting(CFG_ROW)).getStringValue());
         plateColumnIdx = inSpec.findColumnIndex(((SettingsModelString) getModelSetting(CFG_COL)).getStringValue());
 
-        validateExcelFile();
+        reloadExcelFile();
 
         ColumnRearranger columnRearranger = createColumnRearranger(inSpec);
         BufferedDataTable out = exec.createColumnRearrangeTable(inTable, columnRearranger, exec);
@@ -140,15 +144,14 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
         return new BufferedDataTable[]{out};
     }
 
-    private void validateExcelFile() throws Exception {
-        if (excelLayout.hasChanged()) {
-            String filename = ((SettingsModelString) getModelSetting(CFG_FILE)).getStringValue();
-            String sheet = ((SettingsModelString) getModelSetting(CFG_SHEET)).getStringValue();
-            try {
-                loadExcelSheet(filename, sheet);
-            } catch (InvalidSettingsException e) {
-                throw new Exception(e.getMessage());
-            }
+    private void reloadExcelFile() throws Exception {
+    	
+    	String filename = ((SettingsModelString) getModelSetting(CFG_FILE)).getStringValue();
+        String sheet = ((SettingsModelString) getModelSetting(CFG_SHEET)).getStringValue();
+        try {
+        	loadExcelSheet(filename, sheet);
+        } catch (InvalidSettingsException e) {
+        	throw new Exception(e.getMessage());
         }
     }
 
@@ -185,8 +188,7 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
         if (filename == null || sheet == null)
             throw new InvalidSettingsException("No Excel file has been selected.");
 
-        //
-        if (excelLayout == null) loadExcelSheet(filename, sheet);
+        loadExcelSheet(filename, sheet);
 
         DataTableSpec outSpec = createOutSpec(inspec);
 
@@ -194,22 +196,33 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
     }
 
     private void loadExcelSheet(String filename, String sheet) throws InvalidSettingsException {
-        try {
-            // open excel file
-            excelLayout = new ExcelLayout(filename);
-            // try to set the sheet
+    	excelLayout = null;
+    	
+    	try {	
+    		// try to access and read the file
+    		URLSupport excelURL = new URLSupport(filename);
+    		InputStream excelStream = excelURL.getInputStream();
+    		excelLayout = new ExcelLayout(excelStream,filename, excelURL.getTimestamp());
+    		excelStream.close();
+			// try to set the sheet
             excelLayout.setSheetName(sheet);
             // parse the sheet for layout labels
             excelLayout.parseLayoutLabels();
             // parse each layout to guess its data type
-            excelLayout.parseLayoutContent();
-        } catch (IOException e) {
-            excelLayout = null;
+            excelLayout.parseLayoutContent();			
+		} catch (MalformedURLException e) {
+			excelLayout = null;
+			throw new InvalidSettingsException(e.getMessage());
+		} catch (IOException e) {
+			excelLayout = null;
+			throw new InvalidSettingsException(e.getMessage());
+		} catch (ExcelLayoutException e) {
+			excelLayout = null;
             throw new InvalidSettingsException(e.getMessage());
-        } catch (ExcelLayout.ExcelLayoutException e) {
-            excelLayout = null;
+		} catch (URISyntaxException e) {
+			excelLayout = null;
             throw new InvalidSettingsException(e.getMessage());
-        }
+		}
     }
 
     /**

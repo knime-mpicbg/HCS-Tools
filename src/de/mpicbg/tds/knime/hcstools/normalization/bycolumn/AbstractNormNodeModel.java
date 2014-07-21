@@ -53,7 +53,7 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
     public static final boolean CFG_USEOPT_DFT = false;
 
     // model setting default which is set in each implementation class
-    protected static String CFG_SUFFIX_DFT;
+    //protected static String CFG_SUFFIX_DFT;
 
     protected boolean hasReferenceData;
 
@@ -255,7 +255,7 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
         List<String> inclColumns = ((SettingsModelFilterString) getModelSetting(CFG_COLUMN_SELECTION)).getIncludeList();
 
         SettingsModelOptionalString suffixSM = ((SettingsModelOptionalString) getModelSetting(CFG_SUFFIX));
-        String suffix = CFG_SUFFIX_DFT;
+        String suffix = getColumnSuffix();
         if (suffixSM.isActive()) suffix = suffixSM.getStringValue();
         boolean replaceValues = ((SettingsModelBoolean) getModelSetting(CFG_REPLACE_VALUES)).getBooleanValue();
 
@@ -344,8 +344,8 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
     /**
      * @return settings model for column suffix
      */
-    public static SettingsModelOptionalString createSuffixSM() {
-        return new SettingsModelOptionalString(CFG_SUFFIX, CFG_SUFFIX_DFT, false);
+    public static SettingsModelOptionalString createSuffixSM(String cgfSuffixDft) {
+        return new SettingsModelOptionalString(CFG_SUFFIX, cgfSuffixDft, false);
     }
 
     /**
@@ -395,6 +395,8 @@ public abstract class AbstractNormNodeModel extends AbstractNodeModel {
             columnList.add(subList);
         }
     }
+    
+    public abstract String getColumnSuffix();
 
     protected abstract BufferedDataContainer createNodeStatisticTable(ExecutionContext exec, DataTableSpec inSpec, boolean hasAggColumn, boolean hasRefColumn);
 
