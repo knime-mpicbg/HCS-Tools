@@ -64,7 +64,8 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         this();
         this.updater = parent;
         this.plate = plate;
-        this.heatMapModel = deepCopyDataModel(parent);
+        this.heatMapModel = new HeatMapModel();
+        this.heatMapModel.deepCopyModel(parent.getHeatMapModel(), this.plate);
 
         // Creating the menu
         JMenuBar menu = new JMenuBar();
@@ -91,6 +92,7 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
                 HeatMapModel model = viewer.updater.getHeatMapModel();
                 model.removeChangeListener(viewer);
                 viewer.setVisible(false);
+                viewer.dispose();
             }
         });
 
@@ -143,42 +145,6 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         // Show the stuff
         bufferStrategy.show();
         Toolkit.getDefaultToolkit().sync();
-    }
-
-    /**
-     * Make a deep (hard) copy of  the {@link HeatMapModel}
-     *
-     * @param parent GUI component
-     * @return hard copy of the HeatMapModel
-     */
-    private HeatMapModel deepCopyDataModel(HeatTrellis parent) {
-        // Create a new instance of the HeatMapModel and copy some attributes.
-        HeatMapModel model = new HeatMapModel();
-        model.setCurrentReadout(parent.heatMapModel.getSelectedReadOut());
-        model.setCurrentOverlay(parent.heatMapModel.getCurrentOverlay());
-        model.setColorScheme(parent.heatMapModel.getColorScheme());
-        model.setHideMostFreqOverlay(parent.heatMapModel.doHideMostFreqOverlay());
-        model.setWellSelection(parent.heatMapModel.getWellSelection());
-        model.setHiLite(parent.heatMapModel.getHiLite());
-        model.setHiLiteHandler(parent.heatMapModel.getHiLiteHandler());
-        model.setColorGradient(parent.heatMapModel.getColorGradient());
-        model.setKnimeColorAttribute(parent.heatMapModel.getKnimeColorAttribute());
-        model.setReferencePopulations(parent.heatMapModel.getReferencePopulations());
-        model.setAnnotations(parent.heatMapModel.getAnnotations());
-        model.setReadouts(parent.heatMapModel.getReadouts());
-        model.setImageAttributes(parent.heatMapModel.getImageAttributes());
-        model.setInternalTables(parent.getHeatMapModel().getInternalTables());
-
-        if ( parent.heatMapModel.isGlobalScaling() ) {
-            // use all the data to calculate the scale
-            model.setScreen(parent.heatMapModel.getScreen());
-            model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategy());
-        } else {
-            // only use the plate displayed in the viewer to calculate the scale
-            model.setScreen(Arrays.asList(this.plate));
-            model.setReadoutRescaleStrategy(parent.heatMapModel.getReadoutRescaleStrategyInstance());
-        }
-        return model;
     }
 
     /**
@@ -255,5 +221,14 @@ public class PlateViewer extends JFrame implements HeatMapModelChangeListener, H
         plateViewer.setSize(new Dimension(400, 250));
         plateViewer.setVisible(true);
     }
+
+    /**
+     * reloads the parent model 
+     */
+	public void reloadModel() {
+				
+		this.heatMapModel.deepCopyModel(updater.getHeatMapModel(), plate);        
+		this.heatMapModel.fireModelChanged();
+	}
 
 }
