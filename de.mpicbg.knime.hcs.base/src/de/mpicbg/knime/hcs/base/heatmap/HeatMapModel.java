@@ -225,6 +225,16 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
         Collections.sort(screen, new PlateComparator(attribute));
         if (!descending) { Collections.reverse(screen); }
     }
+    
+    /**
+     * Set list of PlateAttributes to sort on
+     * 
+     * @param attributeList
+     */
+    public void setSortAttributeSelection(List<PlateAttribute> attributeList) {
+    	if(attributeList != null)
+    		this.sortAttributeSelection = attributeList;
+    }
 
     /**
      * Use the attribute names to update the attribute list
@@ -1311,6 +1321,42 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
      */
     public List<Attribute> getImageAttributes() {
         return imageAttributes;
+    }
+    
+    /**
+     * Make a deep (hard) copy of  the {@link HeatMapModel}
+     * only attributes are copied which are necessary for the single plate view
+     * 
+     * @param referenceModel
+     * @param plate (single plate)
+     */
+    public void deepCopyModel(HeatMapModel referenceModel, Plate plate) {
+    	
+    	this.setCurrentReadout(referenceModel.getSelectedReadOut());
+        this.setCurrentOverlay(referenceModel.getCurrentOverlay());
+        this.setColorScheme(referenceModel.getColorScheme());
+        this.setHideMostFreqOverlay(referenceModel.doHideMostFreqOverlay());
+        this.setWellSelection(referenceModel.getWellSelection());
+        this.setHiLite(referenceModel.getHiLite());
+        this.setHiLiteHandler(referenceModel.getHiLiteHandler());
+        this.setColorGradient(referenceModel.getColorGradient());
+        this.setKnimeColorAttribute(referenceModel.getKnimeColorAttribute());
+        this.setReferencePopulations(referenceModel.getReferencePopulations());
+        this.setAnnotations(referenceModel.getAnnotations());
+        this.setReadouts(referenceModel.getReadouts());
+        this.setImageAttributes(referenceModel.getImageAttributes());
+        this.setInternalTables(referenceModel.getInternalTables());
+        this.setMarkSelection(referenceModel.doMarkSelection());
+
+        if ( referenceModel.isGlobalScaling() ) {
+            // use all the data to calculate the scale
+            this.setScreen(referenceModel.getScreen());
+            this.setReadoutRescaleStrategy(referenceModel.getReadoutRescaleStrategy());
+        } else {
+            // only use the plate displayed in the viewer to calculate the scale
+            this.setScreen(Arrays.asList(plate));
+            this.setReadoutRescaleStrategy(referenceModel.getReadoutRescaleStrategyInstance());
+        }
     }
 
 

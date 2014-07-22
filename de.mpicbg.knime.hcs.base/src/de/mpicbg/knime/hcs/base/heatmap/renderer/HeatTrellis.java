@@ -477,10 +477,14 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
         } else if ( mouseEvent.getButton() == MouseEvent.BUTTON3 ) {
             HeatScreen heatMap = getHeatMap(mouseEvent);
 
+            // the plate view has been open before, reopen
             if (plateViewers.containsKey(heatMap.getPlate().getUuid())) {
                 PlateViewer viewer = plateViewers.get(heatMap.getPlate().getUuid());
-                viewer.toFront();
-                viewer.repaint();
+                viewer.pack();
+                viewer.setVisible(true);
+                viewer.reloadModel();                
+                //heatMapModel.addChangeListener(viewer);
+            // create plate view and add changeListener
             } else {
                 PlateViewer viewer = new PlateViewer(this, heatMap.getPlate());
                 viewer.draw();

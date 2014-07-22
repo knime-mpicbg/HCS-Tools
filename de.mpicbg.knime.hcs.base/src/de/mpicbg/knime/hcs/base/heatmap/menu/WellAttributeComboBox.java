@@ -1,12 +1,13 @@
 package de.mpicbg.knime.hcs.base.heatmap.menu;
 
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
+import de.mpicbg.knime.hcs.base.heatmap.HeatMapModelChangeListener;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.List;
 
 /**
@@ -15,10 +16,13 @@ import java.util.List;
  * @author Felix Meyenhofer
  *         12/10/12
  */
-public class WellAttributeComboBox extends JComboBox {
+public class WellAttributeComboBox extends JComboBox implements HeatMapModelChangeListener {
 
     /** Data model */
     private HeatMapModel heatMapModel;
+    
+    /** either READOUT or OVERLAY_ANNOTATION */
+    private AttributeType selectionType;
 
 
     /**
@@ -30,6 +34,8 @@ public class WellAttributeComboBox extends JComboBox {
      */
     public void configure(List<String> options, final HeatMapModel heatMapModel, final AttributeType selType) {
         this.heatMapModel = heatMapModel;
+        this.heatMapModel.addChangeListener(this);
+        this.selectionType = selType;
 
         // populate the readout selector with readout-types of the given well-type
         //        Collections.sort(readoutNames);
@@ -53,25 +59,26 @@ public class WellAttributeComboBox extends JComboBox {
                 }
                 break;
         }
+        
+        //listen to selection changes
+        addItemListener(new ItemListener(){
+        	public void itemStateChanged(ItemEvent event) {
+               if (event.getStateChange() == ItemEvent.SELECTED) {
+            	   HeatMapModel mapModel = WellAttributeComboBox.this.heatMapModel;
+            	   
+            	// apply the changed selection
+                   switch (selType) {
+                       case READOUT:
+                           mapModel.setCurrentReadout((String) getModel().getSelectedItem());
+                           break;
+                       case OVERLAY_ANNOTATION:
+                           mapModel.setCurrentOverlay((String) getModel().getSelectedItem());
+                           break;
+                   }
 
-
-        // register for readout changes
-        addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent actionEvent) {
-                HeatMapModel mapModel = WellAttributeComboBox.this.heatMapModel;
-
-                // apply the changed selection
-                switch (selType) {
-                    case READOUT:
-                        mapModel.setCurrentReadout((String) getModel().getSelectedItem());
-                        break;
-                    case OVERLAY_ANNOTATION:
-                        mapModel.setCurrentOverlay((String) getModel().getSelectedItem());
-                        break;
-                }
-
-                heatMapModel.fireModelChanged();
-            }
+                   heatMapModel.fireModelChanged();
+               }
+        	}
         });
 
         //http://www.java2s.com/Code/Java/Swing-Components/ToolTipComboBoxExample.htm
@@ -108,6 +115,27 @@ public class WellAttributeComboBox extends JComboBox {
             return this;
         }
     }
+
+
+	@Override
+	public void modelChanged() {
+		switch (selectionType) {
+	        case READOUT:
+	            if (heatMapModel.getSelectedReadOut() != null) {
+	                setSelectedItem(heatMapModel.getSelectedReadOut());
+	            } else {
+	                heatMapModel.setCurrentReadout((String) getSelectedItem());
+	            }
+	            break;
+	        case OVERLAY_ANNOTATION:
+	            if (heatMapModel.getCurrentOverlay() != null) {
+	                setSelectedItem(heatMapModel.getCurrentOverlay());
+	            } else {
+	                heatMapModel.setCurrentOverlay((String) getSelectedItem());
+	            }
+	            break;
+	    }		
+	}
 }
 
 

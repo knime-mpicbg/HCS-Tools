@@ -1,6 +1,7 @@
 package de.mpicbg.knime.hcs.base.heatmap.menu;
 
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
+import de.mpicbg.knime.hcs.base.heatmap.HeatMapModelChangeListener;
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapViewer;
 import de.mpicbg.knime.hcs.base.heatmap.LegendViewer;
 import de.mpicbg.knime.hcs.base.heatmap.PlateViewer;
@@ -15,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 
 /**
  * Menu for the view manipulation.
@@ -23,7 +25,7 @@ import java.awt.event.KeyEvent;
  *         creation: 12/27/12
  */
 
-public class ViewMenu extends JMenu {
+public class ViewMenu extends JMenu implements HeatMapModelChangeListener {
 
     /**
      * Items for the gui, accessible by the {@link de.mpicbg.knime.hcs.base.heatmap.HeatMapViewer} interface that will be accessed by the menu actions.
@@ -31,6 +33,15 @@ public class ViewMenu extends JMenu {
     private HeatMapModel heatMapModel;
     private HeatMapInputToolbar toolbar;
     private HeatMapColorToolBar colorbar;
+    
+    /**
+     * GUI components
+     */
+    JCheckBoxMenuItem markSelection;
+    JCheckBoxMenuItem overlayHider;
+    JMenu outlierHandlingMenu;
+    HashMap<String,JRadioButtonMenuItem> colorMap;
+    ButtonGroup colorMapGroup;
 
     /** This menu item must be accessed from outside (PlateViewer) */
     private JMenuItem colorMapMenu;
@@ -47,6 +58,7 @@ public class ViewMenu extends JMenu {
     public ViewMenu(HeatMapViewer parent) {
         // Make certain elements available for the menu actions
         this.heatMapModel = parent.getHeatMapModel();
+        this.heatMapModel.addChangeListener(this);
         this.toolbar = parent.getToolBar();
         this.colorbar = parent.getColorBar();
         this.parent = parent;
@@ -62,18 +74,18 @@ public class ViewMenu extends JMenu {
         });
         this.add(alwaysOnTop);
 
-        JCheckBoxMenuItem markSelection = new JCheckBoxMenuItem("Mark Selection");
-        markSelection.setSelected(heatMapModel.doMarkSelection());
-        markSelection.addActionListener(new ActionListener() {
+        this.markSelection = new JCheckBoxMenuItem("Mark Selection");
+        this.markSelection.setSelected(heatMapModel.doMarkSelection());
+        this.markSelection.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 markSelectionAction(actionEvent);
             }
         });
-        this.add(markSelection);
+        this.add(this.markSelection);
 
         this.add(createOverlaySubMenu());
-        this.add(createOutlierSubMenu());
+        createOutlierSubMenu();
 
         colorMapMenu = this.add(createColorMapMenu());
         colorMapMenu.setEnabled(!heatMapModel.isGlobalScaling());
@@ -129,32 +141,32 @@ public class ViewMenu extends JMenu {
             }
         });
 
-        JCheckBoxMenuItem overlayHider = new JCheckBoxMenuItem("Hide Most Frequent");
-        overlayHider.addActionListener(new ActionListener() {
+        this.overlayHider = new JCheckBoxMenuItem("Hide Most Frequent");
+        this.overlayHider.setSelected(this.heatMapModel.doHideMostFreqOverlay());
+        this.overlayHider.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 hideOverlayAction(actionEvent);
             }
         });
-        menu.add(overlayHider);
+        menu.add(this.overlayHider);
 
         return menu;
     }
 
 
     /**
-     * Returns the sub-menu for outlier handling in the color scale computation.
+     * initializes the sub-menu for outlier handling in the color scale computation.
      *
-     * @return outlier sub-menu
      */
-    private JMenu createOutlierSubMenu() {
-        JMenu menu = new JMenu("Outlier Handling");
-        ButtonGroup group = new ButtonGroup();
+    private void createOutlierSubMenu() {
+        this.outlierHandlingMenu = new JMenu("Outlier Handling");
+        ButtonGroup outlierHandlingGroup = new ButtonGroup();
 
         for (String name : new String[]{"Original", "Smoothed"}) {
             JRadioButtonMenuItem item = new JRadioButtonMenuItem(name);
-            group.add(item);
-            menu.add(item);
+            outlierHandlingGroup.add(item);
+            this.outlierHandlingMenu.add(item);
             item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
@@ -165,12 +177,12 @@ public class ViewMenu extends JMenu {
 
         // Set the selected item
         if ((heatMapModel != null) && heatMapModel.getReadoutRescaleStrategy().getClass().equals(MinMaxStrategy.class)) {
-            menu.getItem(0).setSelected(true);
+            this.outlierHandlingMenu.getItem(0).setSelected(true);
         } else {
-            menu.getItem(1).setSelected(true);
+            this.outlierHandlingMenu.getItem(1).setSelected(true);
         }
-
-        return menu;
+        
+        this.add(this.outlierHandlingMenu);
     }
 
 
@@ -181,16 +193,17 @@ public class ViewMenu extends JMenu {
      */
     private JMenu createColorMapMenu() {
         JMenu lut = new JMenu("Colormap");
-        ButtonGroup group = new ButtonGroup();
+        colorMapGroup = new ButtonGroup();
+        colorMap = new HashMap<String,JRadioButtonMenuItem>();
         String[] names = {"GB", "GBR", "RWB", "HSV", "Jet", "Dark", "Custom"};
-        JRadioButtonMenuItem[] item = new JRadioButtonMenuItem[names.length];
 
         for (int i = 0; i < names.length; i++) {
             Icon icon = createImageIcon("icons/" + names[i].toLowerCase() + ".png", names[i] + "color map");
-            item[i] = new JRadioButtonMenuItem(names[i],icon);
-            group.add(item[i]);
-            lut.add(item[i]);
-            item[i].addActionListener(new ActionListener() {
+            JRadioButtonMenuItem item = new JRadioButtonMenuItem(names[i],icon);
+            colorMap.put(names[i], item);
+            colorMapGroup.add(item);
+            lut.add(item);
+            item.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
                     toggleColorMapAction(actionEvent);
@@ -199,7 +212,7 @@ public class ViewMenu extends JMenu {
 
             // Set the active item.
             if ((heatMapModel != null) && heatMapModel.getColorGradient().getGradientName().equals(names[i]))
-                item[i].setSelected(true);
+                item.setSelected(true);
         }
 
         return lut;
@@ -345,5 +358,28 @@ public class ViewMenu extends JMenu {
         JFrame frame = (JFrame) getTopLevelAncestor();
         frame.setAlwaysOnTop(item.isSelected());
     }
+
+
+	@Override
+	public void modelChanged() {
+		this.colorMapMenu.setEnabled(!heatMapModel.isGlobalScaling());
+		
+		this.markSelection.setSelected(heatMapModel.doMarkSelection());
+		this.overlayHider.setSelected(this.heatMapModel.doHideMostFreqOverlay());
+		
+		// Set the selected item
+        if ((heatMapModel != null) && heatMapModel.getReadoutRescaleStrategy().getClass().equals(MinMaxStrategy.class)) {
+            this.outlierHandlingMenu.getItem(0).setSelected(true);
+        } else {
+            this.outlierHandlingMenu.getItem(1).setSelected(true);
+        }
+        
+        //set selected color model
+        colorMapGroup.clearSelection();
+        JRadioButtonMenuItem item = colorMap.get(heatMapModel.getColorGradient().getGradientName());
+        if(item != null) {
+        	item.setSelected(true);
+        }
+	}
 
 }

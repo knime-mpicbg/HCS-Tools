@@ -197,7 +197,7 @@ public class TrellisMenu extends JMenu {
         heatMapModel.sortPlates(attributeList, dialog.isDescending());
         
         heatMapModel.fireModelChanged();
-        heatMapModel.setSortAttributeSelectionByTiles(selectedAttributes);
+        heatMapModel.setSortAttributeSelection(attributeList);
     }
 
     /**
