@@ -1,11 +1,22 @@
 package de.mpicbg.tds.knime.heatmap.color;
 
-import org.apache.commons.lang.ArrayUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.LinearGradientPaint;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
+
+import javax.swing.JPanel;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * Useful manipulations for a LinearGradientPaint instance.
@@ -224,7 +235,8 @@ public abstract class LinearGradientTools {
         @Override
         public void paintComponent(Graphics graphics) {
             // Create the 2D copy
-            Graphics2D graphics2D = (Graphics2D) graphics.create();
+            //Graphics2D graphics2D = (Graphics2D) graphics.create();
+            Graphics2D g2 = (Graphics2D) graphics;
 
             // Create a new gradient painter with the current panel width.
             Point2D sta = new Point2D.Double(0, 0);
@@ -232,13 +244,16 @@ public abstract class LinearGradientTools {
             float[] pos = gradientPainter.getFractions();
             Color[] col = gradientPainter.getColors();
             LinearGradientPaint gradient = new LinearGradientPaint(sta, sto, pos, col);
+            
+            g2.setPaint(gradient);
+            g2.fillRect(0, 0, getWidth(), getHeight());
 
-            // Render the graphics
+            /*// Render the graphics
             graphics2D.setPaint(gradient);
             graphics2D.fillRect(0, 0, getWidth(), getHeight());
 
             // Dispose of copy
-            graphics2D.dispose();
+            graphics2D.dispose();*/
         }
 
 
@@ -248,12 +263,50 @@ public abstract class LinearGradientTools {
          * @param args whatever
          */
         public static void main(String[] args) {
-            ColorGradientPanel bar = new ColorGradientPanel();
-            JFrame frame = new JFrame("ColorGradientToolBar Test");
-            frame.setSize(dimension);
-            frame.add(bar);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setVisible(true);
+        	
+        	// display with Eclipse/MacOS
+        	final Display display = new Display();
+            final Shell shell = new Shell(display);
+            shell.setLayout(new FillLayout());
+            shell.setText((new ColorGradientPanel()).getClass().getName());
+
+            Composite myComp = new Composite(shell, SWT.EMBEDDED  | SWT.NO_BACKGROUND); 
+            
+            java.awt.Frame fileTableFrame = SWT_AWT.new_Frame(myComp);
+            JPanel panel = new JPanel(new BorderLayout());
+            fileTableFrame.add(panel);
+            panel.add(new ColorGradientPanel(),java.awt.BorderLayout.CENTER);
+            myComp.pack();
+
+            shell.open();
+            while (!shell.isDisposed()) {
+              if (!display.readAndDispatch())
+                display.sleep();
+            }
+            display.dispose();
+                       
+/*            //Schedule a job for the event-dispatching thread:
+            //creating and showing this application's GUI.
+            javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    createAndShowGUI();
+                }
+
+				private void createAndShowGUI() {
+					// TODO Auto-generated method stub
+					//ColorGradientPanel bar = new ColorGradientPanel();
+		            JFrame frame = new JFrame("ColorGradientToolBar Test");
+		            System.out.println(SwingUtilities.isEventDispatchThread());
+		            //frame.setSize(new Dimension(400, 30));
+		            //frame.add(bar);
+		            //frame.add(new JButton("hello"));
+		            frame.getContentPane().add(new JButton("hello"));
+		            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		            frame.pack();
+		            frame.setVisible(true);
+				}
+            });*/
+            
         }
     }
 
