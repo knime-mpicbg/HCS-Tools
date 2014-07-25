@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.mpicbg.tds.knime.hcstools.utils;
+package de.mpicbg.knime.hcs.base.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
