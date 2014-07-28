@@ -770,9 +770,14 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 
         // check if we can normalize the value (this maybe impossible if there's just a single well
         Double displayNormReadOut = readoutRescaleStrategy.normalize(wellReadout, selectedReadOut);
-        if (displayNormReadOut == null) {
+        //it cannot become null
+        /*if (displayNormReadOut == null) {
             return ColorScheme.ERROR_READOUT;
-        }
+        }*/
+        //use minimum color for constant value readouts
+        if(readoutRescaleStrategy.isConstantReadout(selectedReadOut))
+        	return colorGradient.getGradient().getColors()[0];
+        
         return LinearGradientTools.getColorAt(colorGradient.getGradient(), displayNormReadOut.floatValue());
     }
 

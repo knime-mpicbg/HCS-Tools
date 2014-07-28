@@ -171,6 +171,8 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
      * @return string representing the value
      */
     public static String format(double value) {
+    	if(Double.valueOf(value).equals(Double.NaN)) return "NaN";
+    	
         if (value == 0) {
             return basicFormat.format(value);
         } else if (Math.abs(value) < 1E-4 || Math.abs(value) > 1E6)

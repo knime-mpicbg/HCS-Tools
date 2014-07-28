@@ -19,6 +19,8 @@ public class MinMaxStrategy implements RescaleStrategy {
     Map<String, Double> minMap = new HashMap<String, Double>();
     /** maps maximum values to readout names */
     Map<String, Double> maxMap = new HashMap<String, Double>();
+    /** readout has constant value? */
+    Map<String, Boolean> constValueMap = new HashMap<String, Boolean>();
     /** data to be scaled */
     private Collection<Plate> screen;
 
@@ -29,79 +31,103 @@ public class MinMaxStrategy implements RescaleStrategy {
 
         minMap.clear();
         maxMap.clear();
+        constValueMap.clear();
     }
 
 
     /** {@inheritDoc */
     @Override
-    public Double getMinValue(final String selectedReadOut) {
-        if (!minMap.containsKey(selectedReadOut)) {
-            updateMinMaxForReadOut(selectedReadOut);
+    public Double getMinValue(final String selectedReadout) {
+        if (!minMap.containsKey(selectedReadout)) {
+            updateMinMaxForReadOut(selectedReadout);
         }
 
-        return minMap.get(selectedReadOut);
+        return minMap.get(selectedReadout);
     }
 
     /** {@inheritDoc */
     @Override
-    public Double getMaxValue(String selectedReadOut) {
-        if (!maxMap.containsKey(selectedReadOut)) {
-            updateMinMaxForReadOut(selectedReadOut);
+    public Double getMaxValue(String selectedReadout) {
+        if (!maxMap.containsKey(selectedReadout)) {
+            updateMinMaxForReadOut(selectedReadout);
         }
 
-        return maxMap.get(selectedReadOut);
+        return maxMap.get(selectedReadout);
     }
 
     /**
      * Calculate the distribution descriptors of a given readout
      *
-     * @param selectedReadOut readout to calculate the descriptors for
+     * @param selectedReadout readout to calculate the descriptors for
      */
-    private void updateMinMaxForReadOut(final String selectedReadOut) {
+    private void updateMinMaxForReadOut(final String selectedReadout) {
 
         List<Double> doubles = new ArrayList<Double>();
         ArrayList<Well> allWells = new ArrayList<Well>(PlateUtils.flattenWells(screen));
 
         for (Well allWell : allWells) {
-            Double readout = allWell.getReadout(selectedReadOut);
+            Double readout = allWell.getReadout(selectedReadout);
             if (readout != null && !readout.equals(Double.NaN)) {
                 doubles.add(readout);
             }
         }
 
-        if (allWells.size() < 2) { // just in case that an empty plate was included into the screen
+/*        if (allWells.size() < 2) { // just in case that an empty plate was included into the screen
             System.err.println("screen/plate contains less than 2 wells. Setup of min-max-normalization failed!");
             return;
-        }
+        }*/
 
         // now sort them according to the given readout
         Collections.sort(doubles);
 
-        if (doubles.size() < 2) {
+/*        if (doubles.size() < 2) {
             System.err.println("screen/plate contains less than 2 valid readout for selected readout '" + selectedReadOut + "'. Setup of min-max-normalization failed!");
             return;
+        }*/
+        
+        if(doubles.isEmpty()) {
+        	minMap.put(selectedReadout, Double.NaN);
+        	maxMap.put(selectedReadout, Double.NaN);
+        	constValueMap.put(selectedReadout, true);
         }
+        	
 
-        minMap.put(selectedReadOut, doubles.get(0));
-        maxMap.put(selectedReadOut, doubles.get(doubles.size() - 1));
+        Double minValue = doubles.get(0);
+        Double maxValue = doubles.get(doubles.size() - 1);
+        minMap.put(selectedReadout, minValue);
+        maxMap.put(selectedReadout, maxValue);
+        constValueMap.put(selectedReadout, minValue.equals(maxValue));
     }
 
     /** {@inheritDoc */
     @Override
-    public Double normalize(Double wellReadout, String selectedReadOut) {
+    public Double normalize(Double wellReadout, String selectedReadout) {
         if (wellReadout == null) {
             return null;
         }
+        
+        // if readout has constant values only
+        if(isConstantReadout(selectedReadout)) return getMinValue(selectedReadout);
 
         // TODO: Find out why it this statement is here to prevent the update mechanism of the class for the extrema values????
 //        if (minMap.isEmpty()) {
 //            return null;
 //        }
 
-        double minValue = getMinValue(selectedReadOut);
-        double maxValue = getMaxValue(selectedReadOut);
+        Double minValue = getMinValue(selectedReadout);
+        Double maxValue = getMaxValue(selectedReadout);
 
         return (wellReadout - minValue) / (maxValue - minValue);
     }
+
+
+	@Override
+	public Boolean isConstantReadout(String selectedReadout) {
+		if (!constValueMap.containsKey(selectedReadout)) {
+            updateMinMaxForReadOut(selectedReadout);
+        }
+
+        return constValueMap.get(selectedReadout);
+	}
 
 }

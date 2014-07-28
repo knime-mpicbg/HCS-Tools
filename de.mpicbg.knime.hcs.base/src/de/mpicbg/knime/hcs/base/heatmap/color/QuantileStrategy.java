@@ -23,6 +23,8 @@ public class QuantileStrategy implements RescaleStrategy {
     Map<String, Double> minMap = new HashMap<String, Double>();
     /** maps maximum values to readout names */
     Map<String, Double> maxMap = new HashMap<String, Double>();
+    /** readout has constant value? */
+    Map<String, Boolean> constValueMap = new HashMap<String, Boolean>();
     /** data to be scaled */
     private Collection<Plate> screen;
 
@@ -34,52 +36,58 @@ public class QuantileStrategy implements RescaleStrategy {
 
         minMap.clear();
         maxMap.clear();
+        constValueMap.clear();
     }
 
     /** {@inheritDoc */
     @Override
-    public Double getMinValue(final String selectedReadOut) {
-        if (!minMap.containsKey(selectedReadOut)) {
-            updateMinMaxForReadOut(selectedReadOut);
+    public Double getMinValue(final String selectedReadout) {
+        if (!minMap.containsKey(selectedReadout)) {
+            updateMinMaxForReadOut(selectedReadout);
         }
 
-        return minMap.get(selectedReadOut);
+        return minMap.get(selectedReadout);
     }
 
     /** {@inheritDoc */
     @Override
-    public Double getMaxValue(String selectedReadOut) {
-        if (!maxMap.containsKey(selectedReadOut)) {
-            updateMinMaxForReadOut(selectedReadOut);
+    public Double getMaxValue(String selectedReadout) {
+        if (!maxMap.containsKey(selectedReadout)) {
+            updateMinMaxForReadOut(selectedReadout);
         }
 
-        return maxMap.get(selectedReadOut);
+        return maxMap.get(selectedReadout);
     }
 
     /**
      * Calculate the distribution descriptors of a given readout
      *
-     * @param selectedReadOut readout to calculate the descriptors for
+     * @param selectedReadout readout to calculate the descriptors for
      */
-    private void updateMinMaxForReadOut(final String selectedReadOut) {
+    private void updateMinMaxForReadOut(final String selectedReadout) {
 
         DescriptiveStatistics sumStats = new DescriptiveStatistics();
         ArrayList<Well> allWells = new ArrayList<Well>(PlateUtils.flattenWells(screen));
 
         for (Well allWell : allWells) {
-            Double readout = allWell.getReadout(selectedReadOut);
+            Double readout = allWell.getReadout(selectedReadout);
             if (readout != null && !readout.equals(Double.NaN)) {
                 sumStats.addValue(readout);
             }
         }
 
-        if (allWells.isEmpty()) { // just in case that an empty plate was included into the screen
+/*        if (allWells.isEmpty()) { // just in case that an empty plate was included into the screen
             System.err.println("screen contains no valid wells. Setup of min-max-normalization failed!");
             return;
-        }
+        }*/
 
         // now sort them according to the given readout
-
+        
+        if(sumStats.getN() < 1) {
+        	minMap.put(selectedReadout, Double.NaN);
+        	maxMap.put(selectedReadout, Double.NaN);
+        	constValueMap.put(selectedReadout, true);
+        }
 
         double q1 = sumStats.getPercentile(25);
         double q3 = sumStats.getPercentile(75);
@@ -88,17 +96,21 @@ public class QuantileStrategy implements RescaleStrategy {
 
         double min = q1 - 1.5 * iqr;
         double max = q3 + 1.5 * iqr;
+        
+        double valMin = sumStats.getMin();
+        double valMax = sumStats.getMax();
 
-        min = min < sumStats.getMin() ? sumStats.getMin() : min;
-        max = max > sumStats.getMax() ? sumStats.getMax() : max;
+        min = min < valMin ? valMin : min;
+        max = max > valMax ? valMax : max;
 
-        minMap.put(selectedReadOut, min);
-        maxMap.put(selectedReadOut, max);
+        minMap.put(selectedReadout, min);
+        maxMap.put(selectedReadout, max);
+        constValueMap.put(selectedReadout, Double.valueOf(valMin).equals(valMax));
     }
 
     /** {@inheritDoc */
     @Override
-    public Double normalize(Double wellReadout, String selectedReadOut) {
+    public Double normalize(Double wellReadout, String selectedReadout) {
         if (wellReadout == null)
             return null;
 
@@ -107,8 +119,8 @@ public class QuantileStrategy implements RescaleStrategy {
 //            return null;
 //        }
 
-        double minValue = getMinValue(selectedReadOut);
-        double maxValue = getMaxValue(selectedReadOut);
+        double minValue = getMinValue(selectedReadout);
+        double maxValue = getMaxValue(selectedReadout);
 
         // apply the bounds
         if (wellReadout < minValue) {
@@ -121,5 +133,14 @@ public class QuantileStrategy implements RescaleStrategy {
 
         return (wellReadout - minValue) / (maxValue - minValue);
     }
+
+	@Override
+	public Boolean isConstantReadout(String selectedReadout) {
+		if (!constValueMap.containsKey(selectedReadout)) {
+            updateMinMaxForReadOut(selectedReadout);
+        }
+
+        return constValueMap.get(selectedReadout);
+	}
 
 }

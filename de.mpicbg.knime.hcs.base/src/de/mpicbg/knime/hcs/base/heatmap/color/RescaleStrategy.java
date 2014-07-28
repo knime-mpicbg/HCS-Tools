@@ -24,28 +24,37 @@ public interface RescaleStrategy extends Serializable {
     /**
      * get the lower bound of the set.
      *
-     * @param selectedReadOut readout name
+     * @param selectedReadout readout name
      * @return lower bound of the data
      */
-	Double getMinValue(String selectedReadOut);
+	Double getMinValue(String selectedReadout);
 
 
     /**
      * get the upper bound
      *
-     * @param selectedReadOut readout name
+     * @param selectedReadout readout name
      * @return lower bound of the data
      */
-	Double getMaxValue(String selectedReadOut);
+	Double getMaxValue(String selectedReadout);
+	
+	/**
+	 * check whether readout contains constant values only
+	 * 
+	 * @param selectedReadout
+	 * @return
+	 */
+	Boolean isConstantReadout(String selectedReadout);
+	
 
 
     /**
      * Normalize a given value of a given readout.
      *
      * @param wellReadout value for normalization
-     * @param selectedReadOut readout name the value is belonging to
+     * @param selectedReadout readout name the value is belonging to
      * @return rescaled value [0...1]
      */
-	Double normalize(Double wellReadout, String selectedReadOut);
+	Double normalize(Double wellReadout, String selectedReadout);
 
 }
