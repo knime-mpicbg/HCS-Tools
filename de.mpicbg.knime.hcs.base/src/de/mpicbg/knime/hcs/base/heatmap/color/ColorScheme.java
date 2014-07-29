@@ -27,14 +27,14 @@ public class ColorScheme {
     /** color for empty readouts */
     public static final Color EMPTY_READOUT = new Color(119, 119, 119);
     /** color for readouts producing an error during the parsing */
-    public static final Color ERROR_READOUT = new Color(72, 56, 69);
+    private Color ERROR_READOUT = LinearGradientTools.errColorMap.get("DEFAULT");
 
     /** color to mark factor values that equal */
     public static final Color LIBRARY = new Color(255, 255, 0);
 
     /** color to mark selection (given by KNIME) */
     public static final Color SELECTED = ColorAttr.SELECTED; //new Color(0, 0, 255);
-    /** color to mark simultaniously hiLited and selected (given by KNIME) */
+    /** color to mark simultaneously hiLited and selected (given by KNIME) */
     public static final Color HILITED_AND_SELECTED = ColorAttr.SELECTED_HILITE;
     /** color to mark the hiliting (given by KNIME) */
     public static final Color HILITED = ColorAttr.HILITE;
@@ -47,7 +47,12 @@ public class ColorScheme {
     }
 
 
-    /**
+    public ColorScheme(Color errColor) {
+		ERROR_READOUT = errColor;
+	}
+
+
+	/**
      * Generate an overlay color
      *
      * @param cacheName belonging to the overlay attribute
@@ -93,5 +98,15 @@ public class ColorScheme {
 
         return colorCache.get(cacheName);
     }
+
+
+	public Color getErrorReadoutColor() {
+		return ERROR_READOUT;
+	}
+
+
+	public void setErrorReadoutColor(Color errorReadoutColor) {
+		ERROR_READOUT = errorReadoutColor;
+	}
 
 }

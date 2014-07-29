@@ -8,7 +8,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 import java.awt.geom.Point2D;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JPanel;
 import org.eclipse.swt.SWT;
@@ -25,16 +27,79 @@ import org.eclipse.swt.widgets.Shell;
  *         12/10/12
  */
 public abstract class LinearGradientTools {
+	
+	/**
+	 * GB - green / black
+	 * HSV - hue,saturation,value
+	 * GBR - green / black / red
+	 * Jet - jet gradient
+	 * Dark - black / red / yellow
+	 * RWB - red / white / blue
+	 */
 
     /**
      * Available default color maps.
      */
-    public static final String[] MAP_GB = {"GB", "green-black"};
-    public static final String[] MAP_HSV = {"HSV", "hsv"};
-    public static final String[] MAP_GBR = {"GBR", "green-black-red"};
-    public static final String[] MAP_JET = {"Jet", "jet"};
-    public static final String[] MAP_DARK = {"Dark", "dark"};
-    public static final String[] MAP_RWB = {"RWB", "red-white-blue"};
+	public static final Map<String, LinearGradientPaint> colorMap;
+	static {
+        Map<String, LinearGradientPaint> aMap = new HashMap<String,LinearGradientPaint>();
+        aMap.put("GB", new LinearGradientPaint(new Point2D.Double(0,0),
+                new Point2D.Double(100, 0),
+                new float[] {0f,1f},
+                new Color[] {new Color(0,0,0),
+                             new Color(0, 255, 0)}));
+        aMap.put("HSV", new LinearGradientPaint(new Point2D.Double(0,0),
+                new Point2D.Double(100, 0),
+                new float[] {0f,0.2f,0.4f,0.6f,0.8f,1f},
+                new Color[] {new Color(255,0,0),
+                             new Color(255, 255, 0),
+                             new Color(0, 255, 0),
+                             new Color(0, 255, 255),
+                             new Color(0, 0, 255),
+                             new Color(255, 0, 255)}));
+        aMap.put("GBR", new LinearGradientPaint(new Point2D.Double(0,0),
+                new Point2D.Double(100, 0),
+                new float[] {0f,0.5f,1f},
+                new Color[] {new Color(0,255,0),
+                             new Color(0, 0, 0),
+                             new Color(255, 0, 0)}));
+        aMap.put("Jet", new LinearGradientPaint(new Point2D.Double(0,0),
+                new Point2D.Double(100, 0),
+                new float[] {0f,0.333f,0.666f,1f},
+                new Color[] {new Color(255,0,0),
+                             new Color(255, 255,0),
+                             new Color(0, 255, 255),
+                             new Color(0, 0, 255)}));
+        aMap.put("Dark", new LinearGradientPaint(new Point2D.Double(0,0),
+                new Point2D.Double(100, 0),
+                new float[] {0f,0.5f,1f},
+                new Color[] {new Color(0,0,0),
+                             new Color(255, 0, 0),
+                             new Color(255, 255, 0)}));
+        aMap.put("RWB", new LinearGradientPaint(new Point2D.Double(0,0),
+                new Point2D.Double(100, 0),
+                new float[] {0f,0.5f,1f},
+                new Color[] {new Color(255, 0,0),
+                        new Color(255, 255, 255),
+                        new Color(0, 0, 255)}));
+        colorMap = Collections.unmodifiableMap(aMap);
+    }
+    
+    /**
+     * available default error colors 
+     */
+	public static final Map<String, Color> errColorMap;
+	static {
+        Map<String, Color> aMap = new HashMap<String,Color>();
+        aMap.put("GB", Color.RED);
+        aMap.put("HSV", Color.WHITE);
+        aMap.put("GBR", Color.WHITE);
+        aMap.put("Jet", Color.WHITE);
+        aMap.put("Dark", Color.CYAN);
+        aMap.put("RWB", Color.YELLOW);
+        aMap.put("DEFAULT", new Color(72, 56, 69));
+        errColorMap = Collections.unmodifiableMap(aMap);
+    }
 
 
     /**
@@ -145,60 +210,22 @@ public abstract class LinearGradientTools {
      * @return predefined gradient
      */
     public static LinearGradientPaint getStandardGradient(String str) {
-        LinearGradientPaint gradient = null;
-        if (Arrays.asList(MAP_GB).contains(str)) {
-            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
-                                               new Point2D.Double(100, 0),
-                                               new float[] {0f,1f},
-                                               new Color[] {new Color(0,0,0),
-                                                            new Color(0, 255, 0)});
-        } else if (Arrays.asList(MAP_DARK).contains(str)) {
-            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
-                                               new Point2D.Double(100, 0),
-                                               new float[] {0f,0.5f,1f},
-                                               new Color[] {new Color(0,0,0),
-                                                            new Color(255, 0, 0),
-                                                            new Color(255, 255, 0)});
-        } else if (Arrays.asList(MAP_HSV).contains(str)) {
-            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
-                                               new Point2D.Double(100, 0),
-                                               new float[] {0f,0.2f,0.4f,0.6f,0.8f,1f},
-                                               new Color[] {new Color(255,0,0),
-                                                            new Color(255, 255, 0),
-                                                            new Color(0, 255, 0),
-                                                            new Color(0, 255, 255),
-                                                            new Color(0, 0, 255),
-                                                            new Color(255, 0, 255)});
-        } else if (Arrays.asList(MAP_JET).contains(str)) {
-            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
-                                               new Point2D.Double(100, 0),
-                                               new float[] {0f,0.333f,0.666f,1f},
-                                               new Color[] {new Color(255,0,0),
-                                                            new Color(255, 255,0),
-                                                            new Color(0, 255, 255),
-                                                            new Color(0, 0, 255)});
-        } else if (Arrays.asList(MAP_GBR).contains(str)) {
-            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
-                                               new Point2D.Double(100, 0),
-                                               new float[] {0f,0.5f,1f},
-                                               new Color[] {new Color(0,255,0),
-                                                            new Color(0, 0, 0),
-                                                            new Color(255, 0, 0)});
-        } else if (Arrays.asList(MAP_RWB).contains(str)) {
-            gradient = new LinearGradientPaint(new Point2D.Double(0,0),
-                    new Point2D.Double(100, 0),
-                    new float[] {0f,0.5f,1f},
-                    new Color[] {new Color(255, 0,0),
-                            new Color(255, 255, 255),
-                            new Color(0, 0, 255)});
-        } else {
+        if (colorMap.containsKey(str)) 
+        	return colorMap.get(str);
+        else
             System.err.println("Don't know the '" + str + "' color map.");
-        }
-
-        return gradient;
+        return null;
     }
-
-
+    
+    /**
+     * retrieves the color for error-values according to color gradient
+     * @param str
+     * @return
+     */
+	public static Color getStandardErrorColor(String str) {
+		if (errColorMap.containsKey(str)) return errColorMap.get(str);	
+		return errColorMap.get("DEFAULT");
+	}
 
 
     /**
@@ -309,6 +336,8 @@ public abstract class LinearGradientTools {
             
         }
     }
+
+
 
 
 }

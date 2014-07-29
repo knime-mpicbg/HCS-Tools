@@ -89,6 +89,7 @@ public class MinMaxStrategy implements RescaleStrategy {
         	minMap.put(selectedReadout, Double.NaN);
         	maxMap.put(selectedReadout, Double.NaN);
         	constValueMap.put(selectedReadout, true);
+        	return;
         }
         	
 

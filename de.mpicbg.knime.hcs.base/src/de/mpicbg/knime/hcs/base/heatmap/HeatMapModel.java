@@ -41,7 +41,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** Color global scaling flag */
     private boolean globalScaling = false;
     /** Color screen color scheme */
-    private ColorScheme colorScheme = new ColorScheme();
+    private ColorScheme colorScheme = new ColorScheme(LinearGradientTools.errColorMap.get("GBR"));
     /** Color gradient (color map) */
     private LinearColorGradient colorGradient = new LinearColorGradient();
     /** Background color */
@@ -745,7 +745,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
      */
     public Color getReadoutColor(Well well) {
         if (!well.isReadoutSuccess()) {
-            return ColorScheme.ERROR_READOUT;
+            return colorScheme.getErrorReadoutColor();
         }
 
         String selectedReadOut = getSelectedReadOut();
@@ -767,6 +767,8 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
         if (wellReadout == null) {
             return ColorScheme.EMPTY_READOUT;
         }
+        if(wellReadout.equals(Double.NaN) || wellReadout.equals(Double.NEGATIVE_INFINITY) || wellReadout.equals(Double.POSITIVE_INFINITY))
+        	return colorScheme.getErrorReadoutColor();
 
         // check if we can normalize the value (this maybe impossible if there's just a single well
         Double displayNormReadOut = readoutRescaleStrategy.normalize(wellReadout, selectedReadOut);
@@ -1382,6 +1384,11 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 
 
     public enum HiLiteDisplayMode {HILITE_ONLY, UNHILITE_ONLY, ALL}
+
+
+	public void updateColorScheme(Color errorColor) {
+		this.colorScheme.setErrorReadoutColor(errorColor);		
+	}
 
 
 }

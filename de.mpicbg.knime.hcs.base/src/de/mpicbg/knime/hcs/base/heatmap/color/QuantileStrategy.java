@@ -87,6 +87,7 @@ public class QuantileStrategy implements RescaleStrategy {
         	minMap.put(selectedReadout, Double.NaN);
         	maxMap.put(selectedReadout, Double.NaN);
         	constValueMap.put(selectedReadout, true);
+        	return;
         }
 
         double q1 = sumStats.getPercentile(25);

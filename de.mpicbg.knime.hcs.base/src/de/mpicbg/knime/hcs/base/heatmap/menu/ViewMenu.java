@@ -275,21 +275,28 @@ public class ViewMenu extends JMenu implements HeatMapModelChangeListener {
      */
     protected void toggleColorMapAction(ActionEvent event) {
         JMenuItem source = (JMenuItem)event.getSource();
+        
         LinearGradientPaint newGradient;
+        Color errorColor;
+        
         String gradientName = source.getText();
         if (gradientName.equals("Custom")) {
             ColorGradientDialog dialog = new ColorGradientDialog(heatMapModel);
             dialog.setVisible(true);
             newGradient = dialog.getGradientPainter();
+            errorColor = LinearGradientTools.getStandardErrorColor("DEFAULT");
         } else {
             newGradient = LinearGradientTools.getStandardGradient(source.getText());
+            errorColor = LinearGradientTools.getStandardErrorColor(source.getText());
         }
         heatMapModel.setColorGradient(gradientName, newGradient);
+        heatMapModel.updateColorScheme(errorColor);
 
         // Propagate the color map to the PlateViewers
         if ((parent.getChildViews() != null) && heatMapModel.isGlobalScaling()) {
             for (PlateViewer viewer : parent.getChildViews().values()){
                 viewer.getHeatMapModel().setColorGradient(gradientName, newGradient);
+                viewer.getHeatMapModel().updateColorScheme(errorColor);
             }
         }
 

@@ -32,10 +32,12 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
     private JLabel medLabel = new JLabel("middle");
     /** Label for the upper bound of the color scale */
     private JLabel maxLabel = new JLabel("mavvvvvvx");
-    /** Label for the error color */
-    private JLabel errorLabel;
     /** Label for the empty color */
     private JLabel emptyLabel;
+    /** Label for the error color */
+    private JLabel errorLabel;
+    /** Panel for error value color */
+    private JPanel errorPanel;
 
     /** Formating of the scale labels */
     public static final DecimalFormat scienceFormat = new DecimalFormat("0.###E0");
@@ -78,6 +80,9 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
             System.err.println("Incomplete HeatMapModel configurations, can't retrieve minimum and maximum values.");
             return;
         }
+        
+        // set error value color
+        errorPanel.setBackground(heatMapModel.getColorScheme().getErrorReadoutColor());
 
         // Set the color gradient
         RescaleStrategy displayNormStrategy = heatMapModel.getReadoutRescaleStrategy();
@@ -108,9 +113,9 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         // Add the color panel
         gradientPanel = new LinearGradientTools.ColorGradientPanel();
 
-        // Add the panel indicating the missing value color.
-        JPanel errorPanel = new JPanel();
-        errorPanel.setBackground(ColorScheme.ERROR_READOUT);
+        // Add the panel indicating the error value color.
+        errorPanel = new JPanel();
+        //errorPanel.setBackground(heatMapModel.getColorScheme().getErrorReadoutColor());
 
         // Create a label for the panel indicating the missing value color.
         errorLabel = new JLabel(" Err ");
