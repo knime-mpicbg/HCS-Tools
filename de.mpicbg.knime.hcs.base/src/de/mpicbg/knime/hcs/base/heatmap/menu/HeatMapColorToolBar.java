@@ -91,7 +91,6 @@ public class HeatMapColorToolBar extends JToolBar implements HeatMapModelChangeL
         // Set the scale labels.
         Double minValue = displayNormStrategy.getMinValue(heatMapModel.getSelectedReadOut());
         Double maxValue = displayNormStrategy.getMaxValue(heatMapModel.getSelectedReadOut());
-        assert minValue < maxValue : "maximal readout value does not differ from minimal one";
         minLabel.setText(format(minValue));
         medLabel.setText(format((maxValue+minValue)/2));
         maxLabel.setText(format(maxValue));
