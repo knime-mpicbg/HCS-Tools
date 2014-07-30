@@ -1127,6 +1127,14 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
         this.hiLiteDisplayMode = mode;
     }
 
+    /**
+     * Get the plate filter string
+     * 
+     * @return string to filter plates on
+     */
+    public String getPlateFilterString() {
+    	return this.plateFilterString;
+    }
 
     /**
      * Set the filter string

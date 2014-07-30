@@ -39,6 +39,8 @@ public class HeatMapInputToolbar extends JToolBar {
     private WellAttributeComboBox overlaySelector;
     /** Combobox to select the plate attribute for plate filtering */
     private JComboBox filterSelector;
+    /** Textfield to edit the filter string for plate filtering */
+    private JFormattedTextField filterString;
     /** Parent viewer */
     private HeatMapViewer parent;
 
@@ -73,7 +75,7 @@ public class HeatMapInputToolbar extends JToolBar {
             filterSelector.setPreferredSize(new Dimension(FILTER_WIDTH/2, -1));
             filterSelector.setMaximumSize(new Dimension(FILTER_WIDTH/2+50, 50));
             add(filterSelector);
-            JFormattedTextField filterString = new JFormattedTextField();
+            filterString = new JFormattedTextField();
             filterString.setPreferredSize(new Dimension(FILTER_WIDTH/2, (int) Math.round(TOOLBAR_HEIGHT/3.0*2)));
             filterString.setMaximumSize(new Dimension(FILTER_WIDTH/2 +50, (int) Math.round(TOOLBAR_HEIGHT/3.0*2)));
             filterString.addActionListener(new ActionListener() {
@@ -141,6 +143,12 @@ public class HeatMapInputToolbar extends JToolBar {
             DefaultComboBoxModel model = new DefaultComboBoxModel(PlateUtils.getPlateAttributeTitles(plateAttributes));
             filterSelector.setModel(model);
         }
+        
+        // set filter string if available
+        String plateFilterString = heatMapModel.getPlateFilterString();
+        assert(plateFilterString != null);
+        if(plateFilterString.length() > 0)
+        	filterString.setText(plateFilterString);
     }
 
 
