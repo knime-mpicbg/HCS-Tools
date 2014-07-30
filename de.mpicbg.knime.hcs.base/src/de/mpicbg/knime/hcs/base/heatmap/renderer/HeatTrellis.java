@@ -206,7 +206,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
             // Create a panel with borders.
             JPanel plateContainer = new JPanel();
             TitledBorder titledBorder = new TitledBorder(BorderFactory.createBevelBorder(1),
-                                                         plate.getBarcode(),
+                                                         plate.getLabel(),
                                                          TitledBorder.CENTER,
                                                          TitledBorder.BOTTOM,
                                                          barcodeFont);
@@ -231,7 +231,7 @@ public class HeatTrellis extends JPanel implements HeatMapModelChangeListener, M
             plateContainer.setBackground(backgroundColor);
 
             // Truncate the barcode.
-            titledBorder.setTitle(truncateBarcode(plate.getBarcode(), plateContainer.getFontMetrics(barcodeFont)));
+            titledBorder.setTitle(truncateBarcode(plate.getLabel(), plateContainer.getFontMetrics(barcodeFont)));
 
             plateContainer.add(heatMapPanel, BorderLayout.CENTER);
             heatMapsContainer.add(plateContainer, gridPosition);
