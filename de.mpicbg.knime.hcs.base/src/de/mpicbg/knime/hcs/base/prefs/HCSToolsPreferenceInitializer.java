@@ -54,6 +54,6 @@ public class HCSToolsPreferenceInitializer extends AbstractPreferenceInitializer
         store.setDefault(BARCODE_PATTERNS, BarcodeParserFactory.ASSAY_PLATE_PATTERN + ";" + BarcodeParserFactory.LIB_PLATE_BARCODE_PATTERN + ";" + BarcodeParserFactory.ASSAY_PLATE_PATTERN_OLD);
         
         //Helpers Prefs
-        store.setDefault(EXDATA_LIST_LOCATIONS, "https://github.com/knime-mpicbg/example-data/blob/master/mpi-cbg_tds/somedata.csv");
+        store.setDefault(EXDATA_LIST_LOCATIONS, "https://raw.githubusercontent.com/knime-mpicbg/example-data/master/mpi-cbg_tds/somedata.csv");
     }
 }

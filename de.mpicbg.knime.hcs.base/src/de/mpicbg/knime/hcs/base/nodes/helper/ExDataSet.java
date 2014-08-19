@@ -76,7 +76,17 @@ public class ExDataSet {
 
             StringBuffer templateBuffer = new StringBuffer();
 
-            while (reader.ready()) {
+            for (String line = reader.readLine() ; line != null ; line = reader.readLine()) {
+            	String[] splitLine = line.split(";");
+
+                if (splitLine.length != 3)
+                    continue;
+
+                exDataSets.add(new ExDataSet(splitLine[0], listLocationURL, splitLine[1], splitLine[2]));
+            }
+            
+            
+            /*while (reader.ready()) {
                 String line = reader.readLine();
                 String[] splitLine = line.split(";");
 
@@ -84,7 +94,7 @@ public class ExDataSet {
                     continue;
 
                 exDataSets.add(new ExDataSet(splitLine[0], listLocationURL, splitLine[1], splitLine[2]));
-            }
+            }*/
 
         } catch (IOException e) {
             throw new RuntimeException("Could not read exListLocation");
