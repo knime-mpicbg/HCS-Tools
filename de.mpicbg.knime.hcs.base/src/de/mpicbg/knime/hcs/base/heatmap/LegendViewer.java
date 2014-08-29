@@ -160,7 +160,7 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
 
             // Get all available group names for the currently displayed subset
             String curOverlay = heatMapModel.getCurrentOverlay();
-            if(this.heatMapModel.hasKnimeColorModel())
+            if(curOverlay.contains(HeatMapModel.KNIME_OVERLAY_NAME))
             	curOverlay = this.heatMapModel.getKnimeColorAttribute();
             Collection<String> allOverlayValues = PlateUtils.collectAnnotationLevels(heatMapModel.getScreen(), curOverlay);
 
