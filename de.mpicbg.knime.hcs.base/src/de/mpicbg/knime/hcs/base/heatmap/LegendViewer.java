@@ -144,42 +144,33 @@ public class LegendViewer extends JDialog implements HeatMapModelChangeListener 
             constraints.fill = GridBagConstraints.BOTH;
             int index = 0;
 
-            if ( heatMapModel.getCurrentOverlay().contains(HeatMapModel.KNIME_OVERLAY_NAME) ){
-                // Fetch the KNIME color model
-                HashMap<Color, String> legend = heatMapModel.getKnimeColors();
+            // Get the cached colors
+            Map<String, Color> cache = heatMapModel.getColorScheme().getColorCache(heatMapModel.getCurrentOverlay());//getColorCache();
+            if (cache == null)
+            	return;
 
-                // Create the group labels
-                for (Color color : legend.keySet()) {
-                    constraints.gridy = index++;
-                    add(createLegendEntry(legend.get(color), color), constraints);
-                }
+            // Sort the group names
+            java.util.List<String> cachedOverlays = new ArrayList<String>(cache.keySet());
+            Collections.sort(cachedOverlays, new Comparator<String>() {
+            	@Override
+            	public int compare(String s, String s2) {
+            		return s.compareToIgnoreCase(s2);
+            	}
+            });
 
-            } else {
-                // Get the cached colors
-                Map<String, Color> cache = heatMapModel.getColorScheme().getColorCache(heatMapModel.getCurrentOverlay());//getColorCache();
-                if (cache == null)
-                    return;
+            // Get all available group names for the currently displayed subset
+            String curOverlay = heatMapModel.getCurrentOverlay();
+            if(this.heatMapModel.hasKnimeColorModel())
+            	curOverlay = this.heatMapModel.getKnimeColorAttribute();
+            Collection<String> allOverlayValues = PlateUtils.collectAnnotationLevels(heatMapModel.getScreen(), curOverlay);
 
-                // Sort the group names
-                java.util.List<String> cachedOverlays = new ArrayList<String>(cache.keySet());
-                Collections.sort(cachedOverlays, new Comparator<String>() {
-                    @Override
-                    public int compare(String s, String s2) {
-                        return s.compareToIgnoreCase(s2);
-                    }
-                });
-
-                // Get all available group names for the currently displayed subset
-                Collection<String> allOverlayValues = PlateUtils.collectAnnotationLevels(heatMapModel.getScreen(), heatMapModel.getCurrentOverlay());
-
-                // Create the group labels
-                for (String overlayValue : cachedOverlays) {
-                    if (!allOverlayValues.contains(overlayValue) || StringUtils.isBlank(overlayValue))
-                        continue;
-                    constraints.gridy = index++;
-                    Color color = cache.get(overlayValue);
-                    add(createLegendEntry(overlayValue, color), constraints);
-                }
+            // Create the group labels
+            for (String overlayValue : cachedOverlays) {
+            	if (!allOverlayValues.contains(overlayValue) || StringUtils.isBlank(overlayValue))
+            		continue;
+            	constraints.gridy = index++;
+            	Color color = cache.get(overlayValue);
+            	add(createLegendEntry(overlayValue, color), constraints);
             }
 
             // Make sure the window is not too small nor too big

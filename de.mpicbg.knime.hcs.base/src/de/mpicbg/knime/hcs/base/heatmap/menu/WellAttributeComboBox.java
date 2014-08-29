@@ -5,6 +5,9 @@ import de.mpicbg.knime.hcs.base.heatmap.HeatMapModelChangeListener;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
+
+import org.apache.commons.lang.ArrayUtils;
+
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -16,7 +19,7 @@ import java.util.List;
  * @author Felix Meyenhofer
  *         12/10/12
  */
-public class WellAttributeComboBox extends JComboBox implements HeatMapModelChangeListener {
+public class WellAttributeComboBox extends JComboBox<String> implements HeatMapModelChangeListener {
 
     /** Data model */
     private HeatMapModel heatMapModel;
@@ -39,7 +42,7 @@ public class WellAttributeComboBox extends JComboBox implements HeatMapModelChan
 
         // populate the readout selector with readout-types of the given well-type
         //        Collections.sort(readoutNames);
-        DefaultComboBoxModel readoutModel = new DefaultComboBoxModel(options.toArray());
+        DefaultComboBoxModel<String> readoutModel = new DefaultComboBoxModel<String>(options.toArray(new String[options.size()]));
         setModel(readoutModel);
 
 

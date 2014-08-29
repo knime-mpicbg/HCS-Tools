@@ -12,6 +12,7 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.AttributeUtils;
 import de.mpicbg.knime.knutils.InputTableAttribute;
+import de.mpicbg.knime.knutils.data.property.ColorModelUtils;
 import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
 import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;
 import de.mpicbg.knime.hcs.core.model.Plate;
@@ -20,7 +21,11 @@ import de.mpicbg.knime.hcs.core.model.Well;
 
 import org.knime.core.data.*;
 import org.knime.core.data.image.png.PNGImageContent;
+import org.knime.core.data.property.ColorModelNominal;
 import org.knime.core.node.*;
+import org.knime.core.node.config.Config;
+import org.knime.core.node.config.base.AbstractConfigEntry;
+import org.knime.core.node.config.base.ConfigEntries;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
@@ -344,7 +349,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected void loadInternals(File nodeDir, ExecutionMonitor executionMonitor) throws IOException, CanceledExecutionException {
-        super.loadInternals(nodeDir, executionMonitor);
+        //super.loadInternals(nodeDir, executionMonitor);
 
         // Initialize the files in the node folder, so the data can be loaded when requested
         internalBinFile = new File(nodeDir, PLATE_BIN_FILE);
@@ -493,7 +498,10 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             logger.warn("There are no readouts selected ('Readouts' tab in the configure dialog)!");
 
         // Get the chosen factors to visualize
-        List<String> factors = ((SettingsModelFilterString)getModelSetting(FACTOR_SETTING_NAME)).getIncludeList();
+        List<String> factorsFromSettings = ((SettingsModelFilterString)getModelSetting(FACTOR_SETTING_NAME)).getIncludeList();
+        List<String> factors = new ArrayList<String>(factorsFromSettings);
+        //Collections.copy(factors, factorsFromSettings);
+        
         if (factors.isEmpty())
             logger.warn("There are no factors selected ('Factors' tab in the configure dialog)!");
 
@@ -540,8 +548,24 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
         // Set the knime color column
         Attribute<Object> knimeColor =  AttributeUtils.getKnimeColorAttribute(input.getDataTableSpec());
-        if (knimeColor != null)
+        if (knimeColor != null) {
             heatMapModel.setKnimeColorAttribute(knimeColor.getName());
+            
+            ModelContent model = new ModelContent("Color"); 
+            input.getDataTableSpec().getColumnSpec(knimeColor.getName()).getColorHandler().save(model);
+            try {
+            	if(ColorModelUtils.isNominalKnimeColor(model)) {
+            		HashMap<String, Color> colorMap = ColorModelUtils.parseNominalColorModel(model);
+            		// add knime colors to the colorscheme
+            		heatMapModel.addKnimeColorMap(colorMap);
+            	}
+			} catch (InvalidSettingsException e) {
+				logger.debug("color model cannot be parsed. implementation issue");
+				e.printStackTrace();
+			}
+            // add knimeColor column to factors to store the column values within the screen object of the model (if not present)
+            if(!factors.contains(knimeColor.getName())) factors.add(knimeColor.getName());
+        }
 
         // Parse the plate data.
         heatMapModel.setScreen(parseIntoPlates(splitScreen,
@@ -556,7 +580,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 exec));
     }
 
-    /**
+	/**
      * Parse the data from the {@link BufferedDataTable} into the internal data model.
      *
      * @param splitScreen the table rows mapped according the factor allowing to distinguish the plates
