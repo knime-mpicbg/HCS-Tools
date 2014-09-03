@@ -399,6 +399,15 @@ public abstract class PlateUtils {
         }
         return null;
     }
+    
+    public static PlateAttribute getPlateAttributeByName(String name) {
+    	for (PlateAttribute attribute : PlateAttribute.values()) {
+            if (attribute.getName().equals(name)) {
+                return attribute;
+            }
+        }
+        return null;
+    }
 
     public static void main(String[] args) {
         Collection<Plate> plates = readWellsFromCSV(new File("resources/twoArrayScanPlates.csv"));
