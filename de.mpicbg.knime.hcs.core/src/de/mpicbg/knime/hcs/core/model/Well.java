@@ -14,6 +14,9 @@ import java.util.*;
  */
 
 public class Well implements Serializable {
+	
+	/** serial ID - TODO: increment if class fields change */
+	private static final long serialVersionUID = 1L;
 
     /** Well position on the {@link Plate} */
     private Integer plateRow;
@@ -38,7 +41,7 @@ public class Well implements Serializable {
     /** Parent plate */
     private Plate plate;
 
-    /** ID */ //TODO:Add a description (what id is it anyway? reader? db? what?)
+    /** Arrayscan Database ID */
     private String id;
 
     /** The row key of the table that it is from */
