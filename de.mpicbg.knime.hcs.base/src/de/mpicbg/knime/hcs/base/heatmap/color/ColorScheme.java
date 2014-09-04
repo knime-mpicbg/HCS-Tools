@@ -148,4 +148,7 @@ public class ColorScheme {
 		return cacheString + "]";
 	}
 
+	public Set<String> getColorCacheKeys() {
+		return colorCacheMap.keySet();
+	}
 }
