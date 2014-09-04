@@ -11,6 +11,7 @@ import org.knime.core.data.*;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.data.image.ImageValue;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.tableview.TableView;
@@ -20,6 +21,9 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Creates a view with the well details as tooltip or as window.
@@ -304,25 +308,31 @@ public class WellViewer extends JPanel {
         if (bufferedTable == null)
             return null;
 
-        java.util.List<Attribute> imgAttributes = parent.getHeatMapModel().getImageAttributes();
-        String[] columnNames = new String[imgAttributes.size()];
-        DataType[] columnTypes = new DataType[imgAttributes.size()];
+        //List<String> imgAttributes = new ArrayList<String>();
+        List<DataColumnSpec> imgColumns = new ArrayList<DataColumnSpec>();
+        Map<String, Integer> columnIndex = new HashMap<String, Integer>();
+        //check if image attribute columns are valid image columns, add to list if yes
+        for(String imString : parent.getHeatMapModel().getImageAttributes()) {
+        	DataColumnSpec cspec = bufferedTable.getSpec().getColumnSpec(imString);
+        	if(cspec.getType().isCompatible(ImageValue.class) || cspec.getType().getPreferredValueClass().getName().contains("org.knime.knip.base.data")) {
+        		imgColumns.add(cspec);
+        		columnIndex.put(imString, bufferedTable.getSpec().findColumnIndex(imString));
+        	}
+        }
+        
         ArrayList<DataCell> imageCells = new ArrayList<DataCell>();
+        
         for (DataRow tableRow : bufferedTable) {
 
             if (tableRow.getKey().getString().equals(parent.getWell().getKnimeTableRowKey())) {
-                int imageIndex = 0;
-                for (Attribute imageAttribute : parent.getHeatMapModel().getImageAttributes()){
-                    columnNames[imageIndex] = imageAttribute.getName();
-                    imageCells.add(imageAttribute.getImageAttribute(tableRow));
-                    columnTypes[imageIndex] = imageCells.get(imageIndex).getType();
-                    imageIndex++;
+                for (DataColumnSpec cspec : imgColumns) {
+                	imageCells.add(tableRow.getCell(columnIndex.get(cspec.getName())));
                 }
                 break;
             }
         }
 
-        DataContainer table = new DataContainer(new DataTableSpec(columnNames, columnTypes));
+        DataContainer table = new DataContainer(new DataTableSpec((DataColumnSpec[])imgColumns.toArray()));
         table.addRowToTable(new DefaultRow(new RowKey(""), imageCells));
         table.close();
 

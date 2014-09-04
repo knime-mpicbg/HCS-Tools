@@ -84,14 +84,13 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         // Remove the HiLiteHandler
         screenView.getHeatMapModel().setHiLiteHandler(null);
 
-        // Save the view configuration
-        // TODO: It would be nicer if the workflows dirty-flag could be set (workflow modified), this way the view configuration would only be saved once, not each time the view is closed (because in that case the heatMapModel data is stored in memory)
-        try {
-            getLogger().warn("Saving view configuration. This might take a moment.");
-            nodeModel.serializeViewConfiguration();
-        } catch (IOException e) {
-            nodeModel.setPlotWarning("Saving the view configuration failed.");
-            nodeModel.setPlotWarning(e.toString());
+        // Save the view configuration:
+        // why? the view configuration will not be saved if this is the only change in the workflow
+        // then, the workflow is not flagged as modified and closes without saving internals
+        if(nodeModel.getDataModel().isModified() && nodeModel.hasInternalValidConfigFiles()) {
+        	
+        	if(!nodeModel.serializePlateDataTest() || ! nodeModel.serializeViewConfigurationTest())
+        		nodeModel.setPlotWarning("Failed saving data for view - See log file for more information");
         }
 
     }
@@ -102,6 +101,9 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         if (nodeModel.getDataModel().getScreen() == null) {
             throw new NullPointerException("There is no data to display");
         }
+        
+        //reset flag for view configuration changes
+        nodeModel.getDataModel().resetModifiedFlag();
 
         ScreenViewer screenView = (ScreenViewer)getComponent();
 
@@ -136,13 +138,17 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
             getLogger().warn("The node was not executed/saved properly. Please re-execute!");
             return;
         }
+        
+        HeatMapModel viewModel = nodeModel.getDataModel();
 
-        if (nodeModel == null || nodeModel.getDataModel() == null) {
+        if (nodeModel == null || viewModel == null) {
             viewer.getHeatTrellis().closePlateViewers();
             return;
         }
 
-        viewer.setHeatMapModel(nodeModel.getDataModel());
+        viewer.setHeatMapModel(viewModel);
+        viewModel.fireModelChanged();
+        
     }
 
 }

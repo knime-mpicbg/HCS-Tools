@@ -7,6 +7,7 @@ import de.mpicbg.knime.hcs.base.heatmap.color.MinMaxStrategy;
 import de.mpicbg.knime.hcs.base.heatmap.color.QuantileStrategy;
 import de.mpicbg.knime.hcs.base.heatmap.color.RescaleStrategy;
 import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.Utils;
 import de.mpicbg.knime.knutils.annotations.ViewInternals;
 import de.mpicbg.knime.hcs.core.model.*;
 
@@ -15,11 +16,17 @@ import org.apache.commons.math.stat.Frequency;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.BufferedDataTableHolder;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettings;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.config.Config;
+import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,20 +50,24 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 	/** Screen data container */
 	@ViewInternals
     private List<Plate> screen;
-    
-    
+        
     /** List of available readouts (in order of selection) */
 	@ViewInternals
     private List<String> readouts = new ArrayList<String>();
+	private final String KEY_readouts = "readouts";
     /** List of available overlays (order as selected) */
 	@ViewInternals
     private List<String> annotations = new ArrayList<String>();
+	private final String KEY_annotations = "annotations";
     /** Reference populations */
 	@ViewInternals
     public HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
+    private final String KEY_referencePopulations = "reference.populations";
     /** List containing the Attribute (columns holding image data) */
     @ViewInternals
-    private List<Attribute> imageAttributes;
+    private List<String> imageAttributes = new ArrayList<String>();
+    private final String KEY_imageAttributes = "image.attributes";
+    
 
 	/* ------------------------------------------------------------------
 	 * CURRENT READOUT/OVERLAY
@@ -65,9 +76,11 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** Screen current readout */
     @ViewInternals
     private String currentReadout;
+    private final String KEY_currentReadout = "current.readout";
     /** Currently selected overlay factor */
     @ViewInternals
     private String currentOverlay = "";
+    private final String KEY_currentOverlay = "current.overlay";
 
 	/* ------------------------------------------------------------------
 	 * COLOR SETTINGS
@@ -76,15 +89,20 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** Color re-scale strategy */
     @ViewInternals
     private RescaleStrategy readoutRescaleStrategy = new MinMaxStrategy();
+    private final String KEY_readoutRescaleStrategy = "readout.rescale.strategy";
     /** Color global scaling flag */
     @ViewInternals
     private boolean globalScaling = false;
+    private static final String KEY_globalScaling = "global.scaling";
     /** Color screen color scheme */
     @ViewInternals
     private ColorScheme colorScheme = new ColorScheme(LinearGradientTools.errColorMap.get("GBR"));
+    private final String KEY_colorScheme = "color.scheme";
     /** Color gradient (color map) */
     @ViewInternals
     private LinearColorGradient colorGradient = new LinearColorGradient();
+    private final String KEY_colorGradient = "color.gradient";
+    //TODO: add key and load/save-routine
     /** Background color */
     private Color backgroundColor = Color.LIGHT_GRAY;
     
@@ -95,6 +113,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** KNIME color column attribute */
     @ViewInternals
     private String knimeColorAttribute;
+    private final String KEY_knimeColorAttribute = "knime.color.attribute";
     /** KNIME overlay color menu item name */
     public static String KNIME_OVERLAY_NAME = "Color Settings";
     
@@ -105,15 +124,19 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** Trellis automatic layout flag */
     @ViewInternals
     private boolean automaticTrellisConfiguration = true;
+    private final String KEY_automaticTrellisConfiguration = "automatic.trellis.configuration";
     /** Trellis: number of plate rows */
     @ViewInternals
     private int numberOfTrellisRows;
+    private final String KEY_numberOfTrellisRows = "number.of.trellis.rows";
     /** Trellis: number of plate columns */
     @ViewInternals
     private int numberOfTrellisColumns;
+    private final String KEY_numberOfTrellisColumns = "number.of.trellis.columns";
     /** Trellis plate proportion flag */
     @ViewInternals
     private boolean fixPlateProportions = true;
+    private final String KEY_fixPlateProportions = "fix.plate.proportions";
     
 	/* ------------------------------------------------------------------
 	 * HILITE SETTINGS
@@ -142,9 +165,11 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** Overlay flag for hiding the most frequent overlay */
     @ViewInternals
     private boolean hideMostFrequentOverlay = false;
+    private final String KEY_hideMostFrequentOverlay = "hide.most.frequent.overlay";
     /** Map with the most frequent overlays for all the annotations */
     @ViewInternals
     private Map<String, String> maxFreqOverlay;
+    private final String KEY_maxFreqOverlay = "max.frequent.overlay";
     
 	/* ------------------------------------------------------------------
 	 * PLATE FILTERING SETTINGS
@@ -153,11 +178,12 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** Plate filtering string */
     @ViewInternals
     private String plateFilterString = "";
+    private final String KEY_plateFilterString = "plate.filter.string";
     /** Plate filtering attribute */
     @ViewInternals
     private PlateAttribute plateFilterAttribute = PlateAttribute.BARCODE;
+    private final String KEY_plateFilterAttribute = "plate.filter.attribute";
     /** Plate filtering record of plates */
-    @ViewInternals
     HashMap<Plate, Boolean> plateFiltered = new HashMap<Plate, Boolean>();
     
 	/* ------------------------------------------------------------------
@@ -166,7 +192,8 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 
     /** List of {@link PlateAttribute}s used for plate sorting */
     @ViewInternals
-    private List<PlateAttribute> sortAttributeSelection;
+    private List<PlateAttribute> sortAttributeSelection = new ArrayList<PlateAttribute>();
+    private final String KEY_sortAttributeSelection = "sort.attribute.selection";
     
 	/* ------------------------------------------------------------------
 	 * additional fields 
@@ -178,7 +205,11 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** Field to hold the buffered table, necessary to display images */
     private BufferedDataTable bufferedTable; // Not saved as internal data - node needs to be re-executed before
 
-
+    /** if the view is opened, the flag is set to false. it will become true with each fireModelChanged */
+    private boolean modifiedFlag = false; 
+    
+    /** the flag will be set to true if the input data changes while the view is open */
+    private boolean modifiedDataFlag = false;
 
 
     /**
@@ -731,7 +762,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
         String overlayValue = well.getAnnotation(curOverlay);        
         if(overlayValue == null) return null;
         
-        if(doHideMostFreqOverlay() && isMostFrequent(this.currentOverlay, overlayValue))
+        if(doHideMostFreqOverlay() && isMostFrequent(curOverlay, overlayValue))
         	return null;
 
         return this.colorScheme.getOverlayColor(this.currentOverlay, overlayValue);
@@ -824,6 +855,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
         for (HeatMapModelChangeListener changeListener : changeListeners) {
             changeListener.modelChanged();
         }
+        this.modifiedFlag = true;
     }
 
     /**
@@ -1325,7 +1357,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
      *
      * @param attributes list with the {@link Attribute}s
      */
-    public void setImageAttributes(List<Attribute> attributes) {
+    public void setImageAttributes(List<String> attributes) {
         this.imageAttributes = attributes;
     }
 
@@ -1334,7 +1366,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
      *
      * @return list of {@link Attribute}s
      */
-    public List<Attribute> getImageAttributes() {
+    public List<String> getImageAttributes() {
         return imageAttributes;
     }
     
@@ -1403,5 +1435,154 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 		this.colorScheme.addColorCache(getKnimeColorAttributeTitle(), colorMap);
 	}
 
+	public boolean isModified() {
+		return modifiedFlag;
+	}
+
+	public void resetModifiedFlag() {
+		this.modifiedFlag = false;
+	}
+
+	public void saveViewConfigTo(NodeSettings settings) {
+		ConfigBase cfg;
+		settings.addStringArray(KEY_readouts, readouts.toArray(new String[readouts.size()]));
+		settings.addStringArray(KEY_annotations, annotations.toArray(new String[annotations.size()]));
+		
+		cfg = settings.addConfigBase(KEY_referencePopulations);
+		for(String key : referencePopulations.keySet()) {
+			cfg.addStringArray(key, referencePopulations.get(key));
+		}
+		
+		settings.addStringArray(KEY_imageAttributes, imageAttributes.toArray(new String[imageAttributes.size()]));
+		
+		settings.addString(KEY_currentReadout, currentReadout);
+		settings.addString(KEY_currentOverlay, currentOverlay);
+		settings.addString(KEY_readoutRescaleStrategy, this.readoutRescaleStrategy.getClass().getName());
+		settings.addBoolean(KEY_globalScaling, globalScaling);
+		
+		cfg = settings.addConfigBase(KEY_colorScheme);
+		cfg.addInt("error.color", colorScheme.getErrorReadoutColor().getRGB());
+		for(String colorKey : colorScheme.getColorCacheKeys()) {
+			ConfigBase colorCache = cfg.addConfigBase(colorKey);
+			Map<String, Color> cMap = colorScheme.getColorCache(colorKey);
+			for(String cKey : cMap.keySet()) {
+				colorCache.addInt(cKey, cMap.get(cKey).getRGB());
+			}
+		}
+		
+		cfg = settings.addConfigBase(KEY_colorGradient);
+		cfg.addString("gradient.name", this.colorGradient.getGradientName());
+		LinearGradientPaint gradient = this.colorGradient.getGradient();
+		cfg.addDoubleArray("gradient.fractions", Utils.convertFloatsToDoubles(gradient.getFractions()));
+		cfg.addDoubleArray("gradient.start", new double[]{gradient.getStartPoint().getX(), gradient.getStartPoint().getY()});
+		cfg.addDoubleArray("gradient.end", new double[]{gradient.getEndPoint().getX(), gradient.getEndPoint().getY()});
+		Color[] gColors = gradient.getColors();
+		int[] colors = new int[gColors.length];
+		for(int i = 0; i < gColors.length; i++) {
+			colors[i] = gColors[i].getRGB();
+		}
+		cfg.addIntArray("gradient.colors", colors);
+		
+		settings.addString(KEY_knimeColorAttribute, knimeColorAttribute);
+		settings.addBoolean(KEY_automaticTrellisConfiguration, automaticTrellisConfiguration);
+		settings.addInt(KEY_numberOfTrellisRows, numberOfTrellisRows);
+		settings.addInt(KEY_numberOfTrellisColumns, numberOfTrellisColumns);
+		settings.addBoolean(KEY_fixPlateProportions, fixPlateProportions);
+		settings.addBoolean(KEY_hideMostFrequentOverlay, hideMostFrequentOverlay);
+		
+		cfg = settings.addConfigBase(KEY_maxFreqOverlay);
+		for(String key : maxFreqOverlay.keySet()) {
+			cfg.addString(key, maxFreqOverlay.get(key));
+		}
+		
+		settings.addString(KEY_plateFilterAttribute, plateFilterAttribute.getName());
+		settings.addString(KEY_plateFilterString, plateFilterString);
+		
+		List<String> str = new ArrayList<String>();
+		for(PlateAttribute pa : sortAttributeSelection)
+			str.add(pa.getName());
+		settings.addStringArray(KEY_sortAttributeSelection, str.toArray(new String[str.size()]));
+	}
+	
+	public void loadViewConfigFrom(NodeSettingsRO settings) throws InvalidSettingsException {
+		ConfigBase cfg;
+		this.readouts = new ArrayList<String>();
+		this.readouts.addAll(Arrays.asList(settings.getStringArray(KEY_readouts)));
+		this.annotations = new ArrayList<String>();
+		this.annotations.addAll(Arrays.asList(settings.getStringArray(KEY_annotations)));
+		
+		this.referencePopulations = new HashMap<String, String[]>();
+		cfg = settings.getConfigBase(KEY_referencePopulations);
+		for(String key : cfg) {
+			this.referencePopulations.put(key, cfg.getStringArray(key));
+		}
+		
+		this.imageAttributes = new ArrayList<String>();
+		this.imageAttributes.addAll(Arrays.asList(settings.getStringArray(KEY_imageAttributes)));
+		
+		this.currentReadout = settings.getString(KEY_currentReadout);
+		this.currentOverlay = settings.getString(KEY_currentOverlay);
+		try {
+			this.readoutRescaleStrategy = (RescaleStrategy) Class.forName(settings.getString(KEY_readoutRescaleStrategy)).newInstance();
+			this.readoutRescaleStrategy.configure(screen);
+		} catch (Throwable e) {
+			// InstantiationException, IllegalAccessException, ClassNotFoundException
+			throw new InvalidSettingsException(e.toString());
+		}
+		this.globalScaling = settings.getBoolean(KEY_globalScaling);
+		
+		cfg = settings.getConfigBase(KEY_colorScheme);
+		this.colorScheme.setErrorReadoutColor(new Color(cfg.getInt("error.color")));
+		for(String key : cfg) {
+			if(!key.equals("error.color")) {
+				HashMap<String, Color> cMap = new HashMap<String, Color>();
+				ConfigBase colorCache = cfg.getConfigBase(key);
+				for(String cKey : colorCache) {
+					cMap.put(cKey, new Color(colorCache.getInt(cKey)));
+				}
+				this.colorScheme.addColorCache(key, cMap);
+			}
+		}
+		
+		cfg = settings.getConfigBase(KEY_colorGradient);
+		String gName = cfg.getString("gradient.name");
+		float[] gFractions = Utils.convertDoublesToFloats(cfg.getDoubleArray("gradient.fractions"));
+		double[] gStart = cfg.getDoubleArray("gradient.start");
+		double[] gEnd = cfg.getDoubleArray("gradient.end");
+		int[] gColInt = cfg.getIntArray("gradient.colors");
+		Color[] gColors = new Color[gColInt.length];
+		for(int i = 0; i < gColInt.length; i++)
+			gColors[i] = new Color(gColInt[i]);
+		LinearGradientPaint gGradient = new LinearGradientPaint(new Point2D.Double(gStart[0],gStart[1]), new Point2D.Double(gEnd[0],gEnd[1]), gFractions, gColors);
+		this.colorGradient = new LinearColorGradient(gName, gGradient);
+		
+		this.knimeColorAttribute = settings.getString(KEY_knimeColorAttribute);
+		this.automaticTrellisConfiguration = settings.getBoolean(KEY_automaticTrellisConfiguration);
+		this.numberOfTrellisRows = settings.getInt(KEY_numberOfTrellisRows);
+		this.numberOfTrellisColumns = settings.getInt(KEY_numberOfTrellisColumns);
+		this.fixPlateProportions = settings.getBoolean(KEY_fixPlateProportions);
+		
+		this.maxFreqOverlay = new HashMap<String,String>();
+		cfg = settings.getConfigBase(KEY_maxFreqOverlay);
+		for(String key : cfg) {
+			this.maxFreqOverlay.put(key, cfg.getString(key));
+		}
+		
+		this.plateFilterAttribute = PlateUtils.getPlateAttributeByName(settings.getString(KEY_plateFilterAttribute));
+		this.plateFilterString = settings.getString(KEY_plateFilterString);
+		
+		this.sortAttributeSelection = new ArrayList<PlateAttribute>();
+		List<String> strList = Arrays.asList(settings.getStringArray(KEY_sortAttributeSelection));
+		for(String str : strList)
+			this.sortAttributeSelection.add(PlateUtils.getPlateAttributeByName(str));			
+	}
+
+	public boolean hasImageData() {
+		return !this.imageAttributes.isEmpty();
+	}
+
+	public void validateViewSettings() {
+				
+	}
 
 }
