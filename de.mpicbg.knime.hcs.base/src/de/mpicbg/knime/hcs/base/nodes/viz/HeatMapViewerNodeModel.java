@@ -224,6 +224,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
+    	
         SettingsModelFilterString readoutSettings = ((SettingsModelFilterString) getModelSetting(READOUT_SETTING_NAME));
         SettingsModelFilterString factorSettings = ((SettingsModelFilterString) getModelSetting(FACTOR_SETTING_NAME));
 
@@ -291,6 +292,9 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         if (!inTables[0].iterator().hasNext()) {
             return inTables;
         }
+        
+        //reset flag, TODO: validate model against table spec, if already present
+    	this.checkViewAgainstData = false;
 
         // Parse the data Table
         if(heatMapModel == null)
@@ -397,7 +401,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     	
     	// if view data not yet present, load it from internal files
     	// this is the case if a workflow with an executed plate heatmap viewer node is loaded
-        if ((heatMapModel.getScreen() == null)) {
+        if ((heatMapModel.getScreen() == null) && !this.checkViewAgainstData) {
         	if(!hasInternalValidConfigFiles()) {
         		setWarningMessage("Invalid internal files - Deserialization process not possible");
         		return heatMapModel;

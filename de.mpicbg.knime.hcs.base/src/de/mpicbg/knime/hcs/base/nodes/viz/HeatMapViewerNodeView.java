@@ -145,10 +145,13 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
             viewer.getHeatTrellis().closePlateViewers();
             return;
         }
+        
+        // if the view is opened while 'reset' do not try to update any component
+        if(viewModel.getScreen() == null)
+        	return;
 
         viewer.setHeatMapModel(viewModel);
-        viewModel.fireModelChanged();
-        
+        viewModel.fireModelChanged();        
     }
 
 }
