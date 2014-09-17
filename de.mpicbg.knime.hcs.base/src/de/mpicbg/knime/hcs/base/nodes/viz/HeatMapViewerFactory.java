@@ -30,8 +30,9 @@ public class HeatMapViewerFactory extends NodeFactory<HeatMapViewerNodeModel> {
     @Override
     public NodeView<HeatMapViewerNodeModel> createNodeView(final int viewIndex, final HeatMapViewerNodeModel nodeModel) {
     	// register HeatMapModel of the view
-    	nodeModel.registerViewModel(new HeatMapModel(UUID.randomUUID()));
-        return new HeatMapViewerNodeView(nodeModel);
+    	HeatMapModel viewModel = new HeatMapModel(UUID.randomUUID());
+    	nodeModel.registerViewModel(viewModel);
+        return new HeatMapViewerNodeView(nodeModel, viewModel);
     }
 
     /** {@inheritDoc} */
