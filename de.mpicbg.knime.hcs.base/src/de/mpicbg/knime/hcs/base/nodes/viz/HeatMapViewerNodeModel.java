@@ -94,8 +94,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** View settings models */
     private List<HeatMapModel> m_viewModels = new ArrayList<HeatMapModel>();
     
-    /** Temporary place to keep incoming table */
-    BufferedDataTable[] m_inTables = null;
+    /** Temporary place to keep node configurations */
+    private HeatMapModel m_nodeConfigurations = null;
 
     /** Used for delayed deserialization of plate-dump-file */
     //private File internalBinFile;
@@ -310,7 +310,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     	
     	// not possible to register the table for the models as they are not yet created
     	// temporarily store the incoming table as member
-    	m_inTables = inTables;
+    	m_nodeConfigurations = new HeatMapModel(null);
+    	m_nodeConfigurations.setInternalTables(inTables);
         
         // Parse the data Table
         parseInputData(inTables[0], exec);
@@ -398,8 +399,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         this.viewConfigFile2 = new File(nodeDir, VIEW_CONFIG_FILE_NAME);
         this.plateDataFile2 = new File(nodeDir, PLATE_DATA_FILE_NAME);
         
-    	if(!hasInternalValidConfigFiles()) 
-    		
+    	if(!hasInternalValidConfigFiles())    		
     		throw new CanceledExecutionException("Invalid internal files - - Deserialization process not possible - Try to re-execute the node");
         
     }
@@ -460,8 +460,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         	logger.warn("There are no factors selected ('Factors' tab in the configure dialog)!");
 
         // Store the oder of parameters and factors as in the configuration dialog
-        heatMapModel.setReadouts(parameters);
-        heatMapModel.setAnnotations(factors);
+        m_nodeConfigurations.setReadouts(parameters);
+        m_nodeConfigurations.setAnnotations(factors);
 
         // Split input table by grouping column
         SettingsModelString groupBySetting = (SettingsModelString)getModelSetting(GROUP_BY_SETTING_NAME);
@@ -480,7 +480,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             }
         }
         attributeModel.removeAll(imageAttributes);
-        heatMapModel.setImageAttributes(imageAttributes);
+        m_nodeConfigurations.setImageAttributes(imageAttributes);
 
         // Get columns represent plateRow and plateColumn
         SettingsModelString plateRowSetting = (SettingsModelString)getModelSetting(PLATE_ROW_SETTING_NAME);
@@ -497,37 +497,25 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         SettingsModelStringArray referencePopulationsSetting = (SettingsModelStringArray)getModelSetting(REFERENCE_POPULATIONS_SETTING_NAME);
         HashMap<String, String[]> reference = new HashMap<String, String[]>();
         reference.put(referenceParameterSetting.getStringValue(),  referencePopulationsSetting.getStringArrayValue());
-        heatMapModel.setReferencePopulations(reference);
+        m_nodeConfigurations.setReferencePopulations(reference);
         if (referencePopulationsSetting.getStringArrayValue().length == 0)
         	logger.warn("There are no reference groups selected ('Control' tab in the configure dialog)!");
 
         // Set the knime color column
         Attribute<Object> knimeColor =  AttributeUtils.getKnimeColorAttribute(input.getDataTableSpec());
         if (knimeColor != null) {
-            heatMapModel.setKnimeColorAttribute(knimeColor.getName());
+            m_nodeConfigurations.setKnimeColorAttribute(knimeColor.getName());
             
             // use domain values to retrieve color model
             HashMap<String, Color> colorMap = ColorModelUtils.parseNominalColorModel(input.getDataTableSpec().getColumnSpec(knimeColor.getName()));
-            heatMapModel.addKnimeColorMap(colorMap);
+            m_nodeConfigurations.addKnimeColorMap(colorMap);
             
-            /*ModelContent model = new ModelContent("Color"); 
-            input.getDataTableSpec().getColumnSpec(knimeColor.getName()).getColorHandler().save(model);
-            try {
-            	if(ColorModelUtils.isNominalKnimeColor(model)) {
-            		HashMap<String, Color> colorMap = ColorModelUtils.parseNominalColorModel(model);
-            		// add knime colors to the colorscheme
-            		heatMapModel.addKnimeColorMap(colorMap);
-            	}
-			} catch (InvalidSettingsException e) {
-				logger.debug("color model cannot be parsed. implementation issue");
-				e.printStackTrace();
-			}*/
             // add knimeColor column to factors to store the column values within the screen object of the model (if not present)
             if(!factors.contains(knimeColor.getName())) factors.add(knimeColor.getName());
         }
 
         // Parse the plate data.
-        heatMapModel.setScreen(parseIntoPlates(splitScreen,
+        m_screen = parseIntoPlates(splitScreen,
                 input.getDataTableSpec(),
                 attributeModel,
                 plateLabelAttribute,
@@ -536,7 +524,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 parameters,
                 factors,
                 ExpandPlateBarcode.loadFactory(),
-                exec));
+                exec);
     }
 
 	/**
@@ -720,7 +708,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 			ObjectOutputStream obj_out = new ObjectOutputStream(new BufferedOutputStream(f_out));
 
 	        // Write plate data out to disk
-	        obj_out.writeObject(heatMapModel.getScreen());
+	        obj_out.writeObject(m_screen);
 
 	        // Cleanup
 	        obj_out.flush();
@@ -762,14 +750,15 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     }
 
     /**
-     * add view data to model and put it into the list of heatmap models
-     * @param heatMapModel
+     * add view data / configuration settings to model and put it into the list of heatmap models
+     * @param viewModel
      * @param uuid 
      */
-	public void registerViewModel(HeatMapModel heatMapModel) {
-		heatMapModel.setScreen(m_screen);
-		heatMapModel.setInternalTables(m_inTables);
-		m_viewModels.add(heatMapModel);
+	public void registerViewModel(HeatMapModel viewModel) {
+		viewModel.setScreen(m_screen);
+		//viewModel.setInternalTables(m_inTables);
+		viewModel.setNodeConfigurations(m_nodeConfigurations);
+		m_viewModels.add(viewModel);
 	}
 
 	/**
