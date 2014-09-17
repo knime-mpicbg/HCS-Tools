@@ -212,7 +212,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected void reset() {
-        heatMapModel.setScreen(null);
+        m_screen = null;
         
         // delete internal files (only screen data, view configuration has to be checked against new data)
         if(this.plateDataFile2 != null) {
