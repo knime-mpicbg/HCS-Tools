@@ -88,7 +88,11 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     static String REFERENCE_PARAMETER_SETTING_NAME = "reference.parameter";
 
     /** Data model */
-    private HeatMapModel heatMapModel = new HeatMapModel();
+    //private HeatMapModel heatMapModel = new HeatMapModel();
+    private List<Plate> screen = null;
+    
+    /** View settings models */
+    private List<HeatMapModel> viewModels = null;
 
     /** Used for delayed deserialization of plate-dump-file */
     //private File internalBinFile;
