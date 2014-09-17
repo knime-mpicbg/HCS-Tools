@@ -210,9 +210,16 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     
     /** the flag will be set to true if the input data changes while the view is open */
     private boolean modifiedDataFlag = false;
+    
+    /** makes identification possible if multiple views are open */
+    private UUID modelID;
 
 
-    /**
+    public HeatMapModel(UUID randomUUID) {
+		this.modelID = randomUUID;
+	}
+
+	/**
      * Plate filtering
      *
      * @param pfs filter string
