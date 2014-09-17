@@ -31,33 +31,34 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
 
     /** Store the node model for the HiLite registering */
     private final HeatMapViewerNodeModel nodeModel;
-
+    private HeatMapModel m_viewModel;
 
     /**
      * Constructor for the Node view.
      *
      * @param nodeModel {@link HeatMapViewerNodeModel}
+     * @param viewModel holding view settings
      */
-    public HeatMapViewerNodeView(HeatMapViewerNodeModel nodeModel) {
+    public HeatMapViewerNodeView(HeatMapViewerNodeModel nodeModel, HeatMapModel viewModel) {
         super(nodeModel);
         this.nodeModel = nodeModel;
 
         // Do some data checks
-        HeatMapModel heatMapModel = nodeModel.getDataModel();
-        if (heatMapModel == null) {
+        m_viewModel = viewModel;
+/*        if (heatMapModel == null) {
             nodeModel.setPlotWarning("You need to re-execute the node before the view will show up");
             heatMapModel = new HeatMapModel();
-        }
+        }*/
 
-        if ((heatMapModel.getScreen() == null) || heatMapModel.getScreen().isEmpty()) {
+        if ((viewModel.getScreen() == null) || viewModel.getScreen().isEmpty()) {
             nodeModel.setPlotWarning("Could not create view for empty input table!");
         }
 
         // Propagate the views background color
-        heatMapModel.setBackgroundColor(this.getComponent().getBackground());
+        viewModel.setBackgroundColor(this.getComponent().getBackground());
 
         // Create the ScreenViewer and add the menus
-        ScreenViewer screenView = new ScreenViewer(heatMapModel);
+        ScreenViewer screenView = new ScreenViewer(m_viewModel);
         this.setComponent(screenView);
         JMenuBar menu = this.getJMenuBar();
         menu.add(new HiLiteMenu(screenView));
@@ -92,6 +93,9 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         	if(!nodeModel.serializePlateDataTest() || ! nodeModel.serializeViewConfigurationTest())
         		nodeModel.setPlotWarning("Failed saving data for view - See log file for more information");
         }
+        
+        //remove heatmap model in node model
+        nodeModel.unregisterViewModel()
 
     }
 
