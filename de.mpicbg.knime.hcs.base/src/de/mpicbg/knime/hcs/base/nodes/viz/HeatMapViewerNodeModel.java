@@ -410,14 +410,14 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      *
      * @return a list of all the available {@link Plate}s
      */
-    public HeatMapModel getDataModel() {
+    public List<Plate> getDataModel() {
     	
     	// if view data not yet present, load it from internal files
     	// this is the case if a workflow with an executed plate heatmap viewer node is loaded
-        if ((heatMapModel.getScreen() == null) && !this.checkViewAgainstData) {
+        if ((m_screen == null) && !this.checkViewAgainstData) {
         	if(!hasInternalValidConfigFiles()) {
         		setWarningMessage("Invalid internal files - Deserialization process not possible");
-        		return heatMapModel;
+        		return m_screen;
         	}
         	logger.warn("Restoring plates from disk. This might take a few seconds...");
         	// test another serialization approach
@@ -428,7 +428,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             logger.debug("Loaded internal data.");
         }
 
-        return heatMapModel;
+        return m_screen;
     }
 
 	/**
@@ -770,6 +770,19 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 		heatMapModel.setScreen(m_screen);
 		heatMapModel.setInternalTables(m_inTables);
 		m_viewModels.add(heatMapModel);
+	}
+
+	/**
+	 * remove the heatmap model form the list (if the view is closed)
+	 * @param modelID
+	 */
+	public void unregisterViewModel(UUID modelID) {
+		int idx = -1;
+		for(HeatMapModel viewModel : m_viewModels) {
+			if(viewModel.getModelID().equals(modelID))
+				idx = m_viewModels.indexOf(viewModel);
+		}
+		m_viewModels.remove(idx);
 	}
 
 }
