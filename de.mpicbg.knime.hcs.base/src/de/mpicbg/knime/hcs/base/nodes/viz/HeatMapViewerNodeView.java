@@ -88,14 +88,14 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         // Save the view configuration:
         // why? the view configuration will not be saved if this is the only change in the workflow
         // then, the workflow is not flagged as modified and closes without saving internals
-        if(nodeModel.getDataModel().isModified() && nodeModel.hasInternalValidConfigFiles()) {
+        if(m_viewModel.isModified() && nodeModel.hasInternalValidConfigFiles()) {
         	
         	if(!nodeModel.serializePlateDataTest() || ! nodeModel.serializeViewConfigurationTest())
         		nodeModel.setPlotWarning("Failed saving data for view - See log file for more information");
         }
         
         //remove heatmap model in node model
-        nodeModel.unregisterViewModel()
+        nodeModel.unregisterViewModel(m_viewModel.getModelID());
 
     }
 
