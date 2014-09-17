@@ -1592,4 +1592,26 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 				
 	}
 
+	/**
+	 * getter
+	 * @return modelID
+	 */
+	public UUID getModelID() {
+		return this.modelID;
+	}
+
+	/**
+	 * hard copy of node configurations
+	 * @param m_nodeConfigurations
+	 */
+	public void setNodeConfigurations(HeatMapModel m_nodeConfigurations) {
+        this.setKnimeColorAttribute(m_nodeConfigurations.getKnimeColorAttribute());
+        this.setColorScheme(m_nodeConfigurations.getColorScheme());
+        this.setReferencePopulations(m_nodeConfigurations.getReferencePopulations());
+        this.setAnnotations(m_nodeConfigurations.getAnnotations());
+        this.setReadouts(m_nodeConfigurations.getReadouts());
+        this.setImageAttributes(m_nodeConfigurations.getImageAttributes());
+        this.setInternalTables(m_nodeConfigurations.getInternalTables());
+	}
+
 }
