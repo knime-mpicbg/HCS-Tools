@@ -89,10 +89,13 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
     /** Data model */
     //private HeatMapModel heatMapModel = new HeatMapModel();
-    private List<Plate> screen = null;
+    private List<Plate> m_screen = null;
     
     /** View settings models */
-    private List<HeatMapModel> viewModels = null;
+    private List<HeatMapModel> m_viewModels = new ArrayList<HeatMapModel>();
+    
+    /** Temporary place to keep incoming table */
+    BufferedDataTable[] m_inTables = null;
 
     /** Used for delayed deserialization of plate-dump-file */
     //private File internalBinFile;
@@ -300,10 +303,16 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         //reset flag, TODO: validate model against table spec, if already present
     	this.checkViewAgainstData = false;
 
-        // Parse the data Table
-        if(heatMapModel == null)
+        
+/*        if(heatMapModel == null)
         	heatMapModel = new HeatMapModel();
-        heatMapModel.setInternalTables(inTables);
+        heatMapModel.setInternalTables(inTables);*/
+    	
+    	// not possible to register the table for the models as they are not yet created
+    	// temporarily store the incoming table as member
+    	m_inTables = inTables;
+        
+        // Parse the data Table
         parseInputData(inTables[0], exec);
 
         return inTables;
@@ -751,5 +760,16 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     		setWarningMessage("The image data is transient. To be able to visualize it the node needs to be re-executed!");
     return true;
     }
+
+    /**
+     * add view data to model and put it into the list of heatmap models
+     * @param heatMapModel
+     * @param uuid 
+     */
+	public void registerViewModel(HeatMapModel heatMapModel) {
+		heatMapModel.setScreen(m_screen);
+		heatMapModel.setInternalTables(m_inTables);
+		m_viewModels.add(heatMapModel);
+	}
 
 }
