@@ -29,26 +29,19 @@ import java.util.Set;
 
 public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
 
-    /** Store the node model for the HiLite registering */
-    private final HeatMapViewerNodeModel nodeModel;
+    /** View model */
     private HeatMapModel m_viewModel;
 
     /**
      * Constructor for the Node view.
      *
      * @param nodeModel {@link HeatMapViewerNodeModel}
-     * @param viewModel holding view settings
+     * @param viewModel holding view settings and the node data
      */
     public HeatMapViewerNodeView(HeatMapViewerNodeModel nodeModel, HeatMapModel viewModel) {
         super(nodeModel);
-        this.nodeModel = nodeModel;
 
-        // Do some data checks
         m_viewModel = viewModel;
-/*        if (heatMapModel == null) {
-            nodeModel.setPlotWarning("You need to re-execute the node before the view will show up");
-            heatMapModel = new HeatMapModel();
-        }*/
 
         if ((viewModel.getScreen() == null) || viewModel.getScreen().isEmpty()) {
             nodeModel.setPlotWarning("Could not create view for empty input table!");
@@ -79,6 +72,8 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         // Close the PlateViewer windows.
         screenView.getHeatTrellis().closePlateViewers();
 
+        HeatMapViewerNodeModel nodeModel = getNodeModel();
+        
         // Remove the HiLiteListeners.
         nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT).removeAllHiLiteListeners();
 
@@ -88,11 +83,14 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         // Save the view configuration:
         // why? the view configuration will not be saved if this is the only change in the workflow
         // then, the workflow is not flagged as modified and closes without saving internals
-        if(m_viewModel.isModified() && nodeModel.hasInternalValidConfigFiles()) {
+        if(m_viewModel.isModified() && nodeModel.hasViewFileHandle()) {
         	
-        	if(!nodeModel.serializePlateDataTest() || ! nodeModel.serializeViewConfigurationTest())
-        		nodeModel.setPlotWarning("Failed saving data for view - See log file for more information");
+        	if(!nodeModel.serializeViewConfiguration(m_viewModel))
+        		nodeModel.setPlotWarning("Failed saving view configuration - See log file for more information");
         }
+        
+        //push view model into node model for image output
+        nodeModel.keepViewModel(m_viewModel);
         
         //remove heatmap model in node model
         nodeModel.unregisterViewModel(m_viewModel.getModelID());
@@ -110,6 +108,8 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         m_viewModel.resetModifiedFlag();
 
         ScreenViewer screenView = (ScreenViewer)getComponent();
+        
+        HeatMapViewerNodeModel nodeModel = getNodeModel();
 
         // Set the HiLiteHandler
         screenView.getHeatMapModel().setHiLiteHandler(nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT));
@@ -134,28 +134,17 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
     @Override
     protected void modelChanged() {
         HeatMapViewerNodeModel nodeModel = getNodeModel();
-
-        ScreenViewer viewer;
-        try {
-            viewer = (ScreenViewer)getComponent();
-        } catch (ClassCastException e) {
-            getLogger().warn("The node was not executed/saved properly. Please re-execute!");
-            return;
-        }
         
-        HeatMapModel viewModel = nodeModel.getDataModel();
-
-        if (nodeModel == null || viewModel == null) {
-            viewer.getHeatTrellis().closePlateViewers();
-            return;
-        }
-        
-        // if the view is opened while 'reset' do not try to update any component
-        if(viewModel.getScreen() == null)
+        // update view model, data model might be null after reset node
+        HeatMapModel dataModel = nodeModel.getDataModel();
+        if(dataModel != null)
+        	m_viewModel.setNodeConfigurations(dataModel);
+        else
         	return;
+                
+        m_viewModel.validateViewSettings();
 
-        viewer.setHeatMapModel(viewModel);
-        viewModel.fireModelChanged();        
+        m_viewModel.fireModelChanged();        
     }
 
 }

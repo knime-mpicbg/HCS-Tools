@@ -57,12 +57,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
     /** Input port number */
     public static final int IN_PORT = 0;
-
-    /** File name to save internal plate data */
-    //private static final String PLATE_BIN_FILE = "plate_data.bin";
-
-    /** File name to dump the view configuration */
-    //private static final String VIEW_BIN_FILE = "view_config.bin";
+    
+    public static String WARN_MISSING_FILE_HANDLES = "Be aware: view settings will not be saved. Please save your workflow to enable it.";
     
     /** try to use node setting model to save internal data */
     private static final String VIEW_CONFIG_FILE_NAME = "view.config.xml";
@@ -86,22 +82,12 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     static String PLATE_LABEL_SETTING_NAME = "plate.label.setting";
     static String REFERENCE_POPULATIONS_SETTING_NAME = "reference.populations";
     static String REFERENCE_PARAMETER_SETTING_NAME = "reference.parameter";
-
-    /** Data model */
-    //private HeatMapModel heatMapModel = new HeatMapModel();
-    private List<Plate> m_screen = null;
     
     /** View settings models */
     private List<HeatMapModel> m_viewModels = new ArrayList<HeatMapModel>();
     
     /** Temporary place to keep node configurations */
     private HeatMapModel m_nodeConfigurations = null;
-
-    /** Used for delayed deserialization of plate-dump-file */
-    //private File internalBinFile;
-
-    /** Used for delayed deserialization of the view configuration */
-    //private File viewConfigFile;
 
     /** Image port output spec */
     private ImagePortObjectSpec imagePortObjectSpec = new ImagePortObjectSpec(PNGImageContent.TYPE);
@@ -212,13 +198,12 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected void reset() {
-        m_screen = null;
+        m_nodeConfigurations = null;
         
         // delete internal files (only screen data, view configuration has to be checked against new data)
         if(this.plateDataFile2 != null) {
         	this.plateDataFile2.delete();
         	this.checkViewAgainstData = true;
-        	//this.viewConfigFile2.delete();
         }
     }
 
@@ -301,12 +286,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         }
         
         //reset flag, TODO: validate model against table spec, if already present
-    	this.checkViewAgainstData = false;
-
-        
-/*        if(heatMapModel == null)
-        	heatMapModel = new HeatMapModel();
-        heatMapModel.setInternalTables(inTables);*/
+    	// this.checkViewAgainstData = false;
     	
     	// not possible to register the table for the models as they are not yet created
     	// temporarily store the incoming table as member
@@ -326,15 +306,16 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      * @throws IOException
      */
     private ImagePortObject createImageOutput() throws IOException {
+    	
         // Set the row column configuration
         Integer columns = 5;
-        Integer rows =  (int) Math.ceil(heatMapModel.getCurrentNumberOfPlates() * 1.0 / columns);
-        heatMapModel.setNumberOfTrellisColumns(columns);
-        heatMapModel.setNumberOfTrellisRows(rows);
-        heatMapModel.setAutomaticTrellisConfiguration(false);
+        Integer rows =  (int) Math.ceil(m_nodeConfigurations.getCurrentNumberOfPlates() * 1.0 / columns);
+        m_nodeConfigurations.setNumberOfTrellisColumns(columns);
+        m_nodeConfigurations.setNumberOfTrellisRows(rows);
+        m_nodeConfigurations.setAutomaticTrellisConfiguration(false);
 
         // Create the heatmap panel from screen (turn the buffers off)
-        ScreenViewer viewer = new ScreenViewer(heatMapModel);
+        ScreenViewer viewer = new ScreenViewer(m_nodeConfigurations);
         HeatTrellis trellis = viewer.getHeatTrellis();
         trellis.setTrellisHeatMapSize(420, 280);
         trellis.setPlateNameFontSize(28);
@@ -347,7 +328,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         component.setDoubleBuffered(false);
 
         // Create the colorbar
-        HeatMapColorToolBar colorBar = new HeatMapColorToolBar(heatMapModel);
+        HeatMapColorToolBar colorBar = new HeatMapColorToolBar(m_nodeConfigurations);
         colorBar.setMinimumSize(new Dimension(500,37));
         colorBar.setPreferredSize(new Dimension(500,37));
         colorBar.setLabelFont(22);
@@ -367,7 +348,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         in.close();
 
         // Clean up
-        heatMapModel.setAutomaticTrellisConfiguration(true);
+        m_nodeConfigurations.setAutomaticTrellisConfiguration(true);
         viewer.setVisible(false);
 
         return new ImagePortObject(imageContent, imagePortObjectSpec);
@@ -376,17 +357,21 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected void saveInternals(File nodeDir, ExecutionMonitor executionMonitor) throws IOException, CanceledExecutionException {
-        // Make sure the data model is loaded.
-        getDataModel();
 
-        if ( heatMapModel.getScreen() == null ) {
+        if ( m_nodeConfigurations.getScreen() == null ) {
             logger.info("No node internal data to save.");
         } else {
-            // test another serialization
+            // serialization
             this.viewConfigFile2 = new File(nodeDir, VIEW_CONFIG_FILE_NAME);
             this.plateDataFile2 = new File(nodeDir, PLATE_DATA_FILE_NAME);
             
-            if(!serializeViewConfigurationTest() || !serializePlateDataTest())
+            //remove previous warning
+            if(getWarningMessage() != null) {
+            	if(getWarningMessage().equals(WARN_MISSING_FILE_HANDLES))
+            		setWarningMessage(null);
+            }
+            
+            if(!serializePlateData())
             	setWarningMessage("Internal data could not be saved - See log file for more information");
             logger.debug("Node internal data was saved.");
         }
@@ -395,12 +380,16 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** {@inheritDoc} */
     @Override
     protected void loadInternals(File nodeDir, ExecutionMonitor executionMonitor) throws IOException, CanceledExecutionException {   
-        // test another serialization	
+        // serialization	
         this.viewConfigFile2 = new File(nodeDir, VIEW_CONFIG_FILE_NAME);
         this.plateDataFile2 = new File(nodeDir, PLATE_DATA_FILE_NAME);
         
-    	if(!hasInternalValidConfigFiles())    		
+    	if(!(hasValidDataFile() && hasValidViewFile()))    		
     		throw new CanceledExecutionException("Invalid internal files - - Deserialization process not possible - Try to re-execute the node");
+    	else
+    		//as this warning will be restored when openening the workflow it needs to be removed
+    		if(getWarningMessage().equals(WARN_MISSING_FILE_HANDLES))
+    			setWarningMessage(null);
         
     }
 
@@ -410,14 +399,14 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      *
      * @return a list of all the available {@link Plate}s
      */
-    public List<Plate> getDataModel() {
+    public HeatMapModel getDataModel() {
     	
     	// if view data not yet present, load it from internal files
     	// this is the case if a workflow with an executed plate heatmap viewer node is loaded
-        if ((m_screen == null) && !this.checkViewAgainstData) {
+/*        if ((m_nodeConfigurations.getScreen() == null) && !this.checkViewAgainstData) {
         	if(!hasInternalValidConfigFiles()) {
         		setWarningMessage("Invalid internal files - Deserialization process not possible");
-        		return m_screen;
+        		return m_nodeConfigurations;
         	}
         	logger.warn("Restoring plates from disk. This might take a few seconds...");
         	// test another serialization approach
@@ -426,9 +415,9 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             if(!deserializeViewConfigurationTest())    
             	setWarningMessage("Deserialization process for view configuration failed - See log file for more information");
             logger.debug("Loaded internal data.");
-        }
+        }*/
 
-        return m_screen;
+        return m_nodeConfigurations;
     }
 
 	/**
@@ -515,7 +504,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         }
 
         // Parse the plate data.
-        m_screen = parseIntoPlates(splitScreen,
+        m_nodeConfigurations.setScreen(parseIntoPlates(splitScreen,
                 input.getDataTableSpec(),
                 attributeModel,
                 plateLabelAttribute,
@@ -524,7 +513,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 parameters,
                 factors,
                 ExpandPlateBarcode.loadFactory(),
-                exec);
+                exec));
     }
 
 	/**
@@ -636,11 +625,11 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     }
 
 
-	public boolean serializeViewConfigurationTest() {
+	public boolean serializeViewConfiguration(HeatMapModel viewModel) {
 		NodeSettings settings = new NodeSettings(CFG_VIEW);
 		
 		//populate node settings
-		this.heatMapModel.saveViewConfigTo(settings);
+		viewModel.saveViewConfigTo(settings);
 		
 		try {
 			settings.saveToXML(new FileOutputStream(viewConfigFile2));
@@ -658,11 +647,11 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 	}
 	
 	/**
-	 * reads view settings from internal file and populates heatmap model
+	 * reads view settings from internal file and populates heatmap view model
 	 * screen data should be loaded first to ensure proper settings
 	 * @return true, if deserialization process was sucessfull
 	 */
-	private boolean deserializeViewConfigurationTest() {
+	private boolean deserializeViewConfiguration(HeatMapModel viewModel) {
 		NodeSettingsRO settings = null;
 		
 		try {
@@ -678,37 +667,63 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 		}
 		
 		try {
-			heatMapModel.loadViewConfigFrom(settings);
+			viewModel.loadViewConfigFrom(settings);
 		} catch (InvalidSettingsException e) {
 			logger.debug(e);
 			e.printStackTrace();
 			return false;
 		}
 		
-		if(this.checkViewAgainstData) {
-			heatMapModel.validateViewSettings();
-		}
-		
 		return true;
 	}
+	
+/*	*//**
+	 * checks whether the file handles for internal data is present (only the case after loadInternals or saveInternals)
+	 * @return
+	 *//*
+	public boolean hasInternalFileHandles() {
+		return (viewConfigFile2 != null && plateDataFile2 != null);
+	}
 
-
+	*//**
+	 * check if file handles are available and whether both files exist as normal file
+	 * @return
+	 *//*
 	public boolean hasInternalValidConfigFiles() {
+		if(!hasInternalFileHandles()) return false;
 		return viewConfigFile2.isFile() && plateDataFile2.isFile();
+	}*/
+	
+	public boolean hasValidDataFile() {
+		if(plateDataFile2 == null) return false;
+		return plateDataFile2.isFile();
+	}
+	
+	public boolean hasValidViewFile() {
+		if(viewConfigFile2 == null) return false;
+		return viewConfigFile2.isFile();
+	}
+	
+	public boolean hasDataFileHandle() {
+		return plateDataFile2 != null;
+	}
+	
+	public boolean hasViewFileHandle() {
+		return viewConfigFile2 != null;
 	}
 
 
-	public boolean serializePlateDataTest(){
+	public boolean serializePlateData(){
 		
-		
-		
+		logger.debug("Try to deserialize plate data");
+
 		FileOutputStream f_out;
 		try {
 			f_out = new FileOutputStream(plateDataFile2);
 			ObjectOutputStream obj_out = new ObjectOutputStream(new BufferedOutputStream(f_out));
 
 	        // Write plate data out to disk
-	        obj_out.writeObject(m_screen);
+	        obj_out.writeObject(m_nodeConfigurations.getScreen());
 
 	        // Cleanup
 	        obj_out.flush();
@@ -726,12 +741,12 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 	}
 
     @SuppressWarnings("unchecked")
-	private boolean deserializePlateDataTest(){
+	private boolean deserializePlateData(HeatMapModel viewModel){
 
     	try {
     		FileInputStream f_in = new FileInputStream(plateDataFile2);
     		ObjectInputStream obj_in = new ObjectInputStream(new BufferedInputStream(f_in));
-    		heatMapModel.setScreen((List<Plate>) obj_in.readObject());
+    		viewModel.setScreen((List<Plate>) obj_in.readObject());
     		obj_in.close();
 
     	} catch (ClassNotFoundException e) {
@@ -744,7 +759,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     		return false;
     	}
 
-    	if(heatMapModel.hasImageData())
+    	if(viewModel.hasImageData())
     		setWarningMessage("The image data is transient. To be able to visualize it the node needs to be re-executed!");
     return true;
     }
@@ -755,9 +770,26 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
      * @param uuid 
      */
 	public void registerViewModel(HeatMapModel viewModel) {
-		viewModel.setScreen(m_screen);
-		//viewModel.setInternalTables(m_inTables);
-		viewModel.setNodeConfigurations(m_nodeConfigurations);
+		
+		//load old view settings if available
+		if(hasValidViewFile()) {
+			if(!deserializeViewConfiguration(viewModel))    
+	        	setWarningMessage("Deserialization process for view configuration failed - See log file for more information");	
+		} else
+			setPlotWarning(WARN_MISSING_FILE_HANDLES);
+		
+		// set screen data, internal table, configurations either after execute of from deserialization process
+		if(m_nodeConfigurations == null) {
+			m_nodeConfigurations = new HeatMapModel();
+			// push node configurations to data model
+			m_nodeConfigurations.setNodeConfigurations(viewModel);
+			if(!deserializePlateData(m_nodeConfigurations))
+				setWarningMessage("Deserialization process for screen data failed - See log file for more information");
+			// push data to view model
+			viewModel.setScreen(m_nodeConfigurations.getScreen());
+		} else
+			viewModel.setNodeConfigurations(m_nodeConfigurations);
+		
 		m_viewModels.add(viewModel);
 	}
 
@@ -772,6 +804,12 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 				idx = m_viewModels.indexOf(viewModel);
 		}
 		m_viewModels.remove(idx);
+	}
+
+
+	public void keepViewModel(HeatMapModel m_viewModel) {
+		// TODO Auto-generated method stub
+		m_nodeConfigurations = m_viewModel;
 	}
 
 }

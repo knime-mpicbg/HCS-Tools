@@ -112,7 +112,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     
     /** KNIME color column attribute */
     @ViewInternals
-    private String knimeColorAttribute;
+    private String knimeColorAttribute = "";
     private final String KEY_knimeColorAttribute = "knime.color.attribute";
     /** KNIME overlay color menu item name */
     public static String KNIME_OVERLAY_NAME = "Color Settings";
@@ -214,7 +214,16 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** makes identification possible if multiple views are open */
     private UUID modelID;
 
+    /**
+     * Default constructor
+     */
+    public HeatMapModel() {    	
+    }
 
+    /**
+     * Constructor with unique modelID
+     * @param randomUUID
+     */
     public HeatMapModel(UUID randomUUID) {
 		this.modelID = randomUUID;
 	}
@@ -682,7 +691,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
      * @return title
      */
     public String getKnimeColorAttributeTitle() {
-        if (knimeColorAttribute == null) {
+        if (knimeColorAttribute.isEmpty()) {
             return KNIME_OVERLAY_NAME;
         } else {
             return KNIME_OVERLAY_NAME + " (" + knimeColorAttribute + ")";
@@ -1589,7 +1598,18 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 	}
 
 	public void validateViewSettings() {
-				
+		HeatMapModel defaultValues = new HeatMapModel();
+		
+		if(screen != null) {
+			// is current readout available?
+			if(currentReadout != null) {
+				if(!getReadouts().contains(currentReadout)) currentReadout = defaultValues.getSelectedReadOut();
+			}
+			// is current overlay available?
+			if(currentOverlay != null) {
+				if(!getAnnotations().contains(currentOverlay)) currentOverlay = defaultValues.getCurrentOverlay();
+			}
+		}
 	}
 
 	/**
@@ -1602,16 +1622,17 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 
 	/**
 	 * hard copy of node configurations
-	 * @param m_nodeConfigurations
+	 * @param nodeConfigurations
 	 */
-	public void setNodeConfigurations(HeatMapModel m_nodeConfigurations) {
-        this.setKnimeColorAttribute(m_nodeConfigurations.getKnimeColorAttribute());
-        this.setColorScheme(m_nodeConfigurations.getColorScheme());
-        this.setReferencePopulations(m_nodeConfigurations.getReferencePopulations());
-        this.setAnnotations(m_nodeConfigurations.getAnnotations());
-        this.setReadouts(m_nodeConfigurations.getReadouts());
-        this.setImageAttributes(m_nodeConfigurations.getImageAttributes());
-        this.setInternalTables(m_nodeConfigurations.getInternalTables());
+	public void setNodeConfigurations(HeatMapModel nodeConfigurations) {
+		this.setScreen(nodeConfigurations.getScreen());
+        this.setKnimeColorAttribute(nodeConfigurations.getKnimeColorAttribute());
+        this.setColorScheme(nodeConfigurations.getColorScheme());
+        this.setReferencePopulations(nodeConfigurations.getReferencePopulations());
+        this.setAnnotations(nodeConfigurations.getAnnotations());
+        this.setReadouts(nodeConfigurations.getReadouts());
+        this.setImageAttributes(nodeConfigurations.getImageAttributes());
+        this.setInternalTables(nodeConfigurations.getInternalTables());
 	}
 
 }
