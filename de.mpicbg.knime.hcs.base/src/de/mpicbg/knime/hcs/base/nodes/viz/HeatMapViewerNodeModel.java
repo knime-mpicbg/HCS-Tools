@@ -60,18 +60,17 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     
     public static String WARN_MISSING_FILE_HANDLES = "Be aware: view settings will not be saved. Please save your workflow to enable it.";
     
-    /** try to use node setting model to save internal data */
-    private static final String VIEW_CONFIG_FILE_NAME = "view.config.xml";
     /** initial settings key */
     private static final String CFG_VIEW = "view.config";
+    
+    /** file name for view configurations */
+    private static final String VIEW_CONFIG_FILE_NAME = "view.config.xml";
     /** File handle for view configuration serialization/deserialization */
-    private File viewConfigFile2;
-    /** flag becomes true if the node is reset and the view configuration is kept */
-    private boolean checkViewAgainstData = false;
+    private File viewConfigFile;
     /** file name for plate data */
     private static final String PLATE_DATA_FILE_NAME = "plate.data.bin";
     /** File handle for plate data serialization*/
-    private File plateDataFile2;
+    private File plateDataFile;
    
    /** Setting names */
     static String READOUT_SETTING_NAME = "readout.setting";
@@ -92,14 +91,12 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     /** Image port output spec */
     private ImagePortObjectSpec imagePortObjectSpec = new ImagePortObjectSpec(PNGImageContent.TYPE);
 
-
-
-
     /**
      * Constructor
      */
     public HeatMapViewerNodeModel() {
-        super(new PortType[]{BufferedDataTable.TYPE}, new PortType[] {BufferedDataTable.TYPE, ImagePortObject.TYPE},true); // Set the flag for the new settings model.
+        super(new PortType[]{BufferedDataTable.TYPE}, 
+        		new PortType[] {BufferedDataTable.TYPE, ImagePortObject.TYPE},true); // Set the flag for the new settings model.
 
         addModelSetting(READOUT_SETTING_NAME, createReadoutSettingsModel());
         addModelSetting(FACTOR_SETTING_NAME, createFactorSettingModel());
@@ -115,23 +112,27 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
 
     /**
-     * Create the "reference population parameter" setting model with the default columns name as
+     * Create the "reference population parameter" setting model 
+     * with the default columns name as
      * defined by {@link PlateUtils}.
      *
      * @return "reference population parameter" setting model
      */
     static SettingsModelString createReferenceParameterSettingModel() {
-        return new SettingsModelString(REFERENCE_PARAMETER_SETTING_NAME, PlateUtils.SCREEN_MODEL_TREATMENT);
+        return new SettingsModelString(REFERENCE_PARAMETER_SETTING_NAME, 
+        		PlateUtils.SCREEN_MODEL_TREATMENT);
     }
 
     /**
-     * Create the "reference population names" setting model with the default columns name as
+     * Create the "reference population names" setting model 
+     * with the default columns name as
      * defined by {@link PlateUtils}.
      *
      * @return "reference population names" setting model
      */
     static SettingsModelStringArray createReferencePopulationsSettingModel() {
-        return new SettingsModelStringArray(REFERENCE_POPULATIONS_SETTING_NAME, new String[0]);
+        return new SettingsModelStringArray(REFERENCE_POPULATIONS_SETTING_NAME, 
+        		new String[0]);
     }
 
     /**
@@ -194,16 +195,14 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         return new SettingsModelFilterString(READOUT_SETTING_NAME, new String[]{}, new String[]{});
     }
 
-
     /** {@inheritDoc} */
     @Override
     protected void reset() {
         m_nodeConfigurations = null;
         
         // delete internal files (only screen data, view configuration has to be checked against new data)
-        if(this.plateDataFile2 != null) {
-        	this.plateDataFile2.delete();
-        	this.checkViewAgainstData = true;
+        if(this.plateDataFile != null) {
+        	this.plateDataFile.delete();
         }
     }
 
@@ -250,7 +249,11 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             addModelSetting(FACTOR_SETTING_NAME, factorSettings);
         }
 
-        AttributeUtils.validate(readoutSettings.getIncludeList(), inSpecs[0]);
+        // TODO: not just readouts should be validated?
+        if(!AttributeUtils.validate(readoutSettings.getIncludeList(), inSpecs[0])) {
+        	notifyViews("Node configuration changed");
+        	throw new InvalidSettingsException("selected columns do not match incoming table model. Please reconfigure the node!");
+        }
 
         return new DataTableSpec[]{inSpecs[0], null};
     }
@@ -362,8 +365,10 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             logger.info("No node internal data to save.");
         } else {
             // serialization
-            this.viewConfigFile2 = new File(nodeDir, VIEW_CONFIG_FILE_NAME);
-            this.plateDataFile2 = new File(nodeDir, PLATE_DATA_FILE_NAME);
+        	if( this.viewConfigFile == null)
+        		this.viewConfigFile = new File(nodeDir, VIEW_CONFIG_FILE_NAME);
+        	if( this.plateDataFile == null)
+        		this.plateDataFile = new File(nodeDir, PLATE_DATA_FILE_NAME);
             
             //remove previous warning
             if(getWarningMessage() != null) {
@@ -373,6 +378,16 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             
             if(!serializePlateData())
             	setWarningMessage("Internal data could not be saved - See log file for more information");
+            
+            // try to save view settings
+            HeatMapModel saveModel = null;
+            if(m_viewModels.size() >0) //view(s) still open?
+            	saveModel = m_viewModels.get(m_viewModels.size() - 1);
+            else
+            	saveModel = m_nodeConfigurations;
+            if(!serializeViewConfiguration(saveModel))
+            	setWarningMessage("View configuration could not be saved - See log file for more information");
+            
             logger.debug("Node internal data was saved.");
         }
     }
@@ -381,15 +396,17 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     @Override
     protected void loadInternals(File nodeDir, ExecutionMonitor executionMonitor) throws IOException, CanceledExecutionException {   
         // serialization	
-        this.viewConfigFile2 = new File(nodeDir, VIEW_CONFIG_FILE_NAME);
-        this.plateDataFile2 = new File(nodeDir, PLATE_DATA_FILE_NAME);
+        this.viewConfigFile = new File(nodeDir, VIEW_CONFIG_FILE_NAME);
+        this.plateDataFile = new File(nodeDir, PLATE_DATA_FILE_NAME);
         
     	if(!(hasValidDataFile() && hasValidViewFile()))    		
     		throw new CanceledExecutionException("Invalid internal files - - Deserialization process not possible - Try to re-execute the node");
     	else
     		//as this warning will be restored when openening the workflow it needs to be removed
-    		if(getWarningMessage().equals(WARN_MISSING_FILE_HANDLES))
-    			setWarningMessage(null);
+            if(getWarningMessage() != null) {
+            	if(getWarningMessage().equals(WARN_MISSING_FILE_HANDLES))
+            		setWarningMessage(null);
+            }
         
     }
 
@@ -632,7 +649,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 		viewModel.saveViewConfigTo(settings);
 		
 		try {
-			settings.saveToXML(new FileOutputStream(viewConfigFile2));
+			settings.saveToXML(new FileOutputStream(viewConfigFile));
 		} catch (FileNotFoundException e) {
 			logger.error(e);
 			e.printStackTrace();
@@ -655,7 +672,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 		NodeSettingsRO settings = null;
 		
 		try {
-			settings = NodeSettings.loadFromXML(new FileInputStream(viewConfigFile2));
+			settings = NodeSettings.loadFromXML(new FileInputStream(viewConfigFile));
 		} catch (FileNotFoundException e) {
 			logger.debug(e.toString());
 			e.printStackTrace();
@@ -695,21 +712,21 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 	}*/
 	
 	public boolean hasValidDataFile() {
-		if(plateDataFile2 == null) return false;
-		return plateDataFile2.isFile();
+		if(plateDataFile == null) return false;
+		return plateDataFile.isFile();
 	}
 	
 	public boolean hasValidViewFile() {
-		if(viewConfigFile2 == null) return false;
-		return viewConfigFile2.isFile();
+		if(viewConfigFile == null) return false;
+		return viewConfigFile.isFile();
 	}
 	
 	public boolean hasDataFileHandle() {
-		return plateDataFile2 != null;
+		return plateDataFile != null;
 	}
 	
 	public boolean hasViewFileHandle() {
-		return viewConfigFile2 != null;
+		return viewConfigFile != null;
 	}
 
 
@@ -719,7 +736,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
 		FileOutputStream f_out;
 		try {
-			f_out = new FileOutputStream(plateDataFile2);
+			f_out = new FileOutputStream(plateDataFile);
 			ObjectOutputStream obj_out = new ObjectOutputStream(new BufferedOutputStream(f_out));
 
 	        // Write plate data out to disk
@@ -744,7 +761,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 	private boolean deserializePlateData(HeatMapModel viewModel){
 
     	try {
-    		FileInputStream f_in = new FileInputStream(plateDataFile2);
+    		FileInputStream f_in = new FileInputStream(plateDataFile);
     		ObjectInputStream obj_in = new ObjectInputStream(new BufferedInputStream(f_in));
     		viewModel.setScreen((List<Plate>) obj_in.readObject());
     		obj_in.close();

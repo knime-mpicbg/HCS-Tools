@@ -31,6 +31,8 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
 
     /** View model */
     private HeatMapModel m_viewModel;
+    
+    private boolean m_dirtyFlag = false;
 
     /**
      * Constructor for the Node view.
@@ -97,7 +99,15 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
 
     }
 
-    /** {@inheritDoc} */
+    @Override
+	protected void updateModel(Object arg) {
+		// TODO Auto-generated method stub
+		super.updateModel(arg);
+		m_dirtyFlag = true;
+	}
+
+
+	/** {@inheritDoc} */
     @Override
     protected void onOpen() {
         if (m_viewModel.getScreen() == null) {
