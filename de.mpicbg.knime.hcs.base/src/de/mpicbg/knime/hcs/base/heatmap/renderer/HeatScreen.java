@@ -46,18 +46,17 @@ public class HeatScreen extends JPanel {
 
         double widthInc = (getWidth() / (double) plate.getNumColumns());
         double heightInc = (getHeight() / (double) plate.getNumRows());
+        
+        boolean paintOverlay = !this.heatMapModel.getCurrentOverlay().isEmpty();
 
         for (Well well : plate.getWells()) {
             int i = well.getPlateRow() - 1;
             int j = well.getPlateColumn() - 1;
 
             // fill the rect for each well with the appropriate color
-            Color layoutColor = heatMapModel.getOverlayColor(well);
-
-            if (layoutColor != null) {
-                g.setColor(layoutColor);
-            } else {
-                g.setColor(heatMapModel.getReadoutColor(well));
+            g.setColor(heatMapModel.getReadoutColor(well));
+            if (paintOverlay) {
+                g.setColor(heatMapModel.getOverlayColor(well));
             }
 
             g.fillRect((int) (j * widthInc), (int) (i * heightInc), (int) Math.ceil(widthInc), (int) Math.ceil(heightInc));

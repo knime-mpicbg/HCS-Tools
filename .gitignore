@@ -5,3 +5,6 @@
 */bin/*
 /.metadata
 */.settings
+
+# Eclipse plugin files
+*/.checkstyle

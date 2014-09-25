@@ -14,7 +14,10 @@ import java.util.*;
 
 public class Plate implements Serializable {
 
-    /** Number of well rows in the plate */
+    /** serial ID - TODO: increment if class fields change */
+	private static final long serialVersionUID = 1L;
+	
+	/** Number of well rows in the plate */
     private int numRows = 16;
     /** Number of well columns in the plate */
     private int numColumns = 24;
@@ -44,9 +47,9 @@ public class Plate implements Serializable {
     private List<Well> wells = new ArrayList<Well>();
 
     /** A transient property map for analysis caching */
-    private HashMap<String, Object> plateStatistics;
+    //private HashMap<String, Object> plateStatistics;
 
-    /** ID (from where? what id?) TODO: add proper description */
+    /** Arrayscan Database ID */
     private String id;
 
     /** UUID for an easy plate identification */
@@ -194,13 +197,13 @@ public class Plate implements Serializable {
         return uuid;
     }
 
-    public HashMap<String, Object> getPlateStatistics() {
+/*    public HashMap<String, Object> getPlateStatistics() {
         // use a lazy initialization approach here
         if (plateStatistics == null)
             plateStatistics = new HashMap<String, Object>();
 
         return plateStatistics;
-    }
+    }*/
 
 
     /**

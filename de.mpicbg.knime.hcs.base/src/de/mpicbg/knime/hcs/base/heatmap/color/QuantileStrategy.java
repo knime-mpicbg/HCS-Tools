@@ -114,6 +114,9 @@ public class QuantileStrategy implements RescaleStrategy {
     public Double normalize(Double wellReadout, String selectedReadout) {
         if (wellReadout == null)
             return null;
+        
+        // if readout has constant values only
+        if(isConstantReadout(selectedReadout)) return getMinValue(selectedReadout);
 
         // TODO: Find out why it this statement is here to prevent the update mechanism of the class for the extrema values????
 //        if (minMap.isEmpty()) {

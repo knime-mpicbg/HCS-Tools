@@ -29,35 +29,31 @@ import java.util.Set;
 
 public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
 
-    /** Store the node model for the HiLite registering */
-    private final HeatMapViewerNodeModel nodeModel;
-
+    /** View model */
+    private HeatMapModel m_viewModel;
+    
+    //private boolean m_dirtyFlag = false;
 
     /**
      * Constructor for the Node view.
      *
      * @param nodeModel {@link HeatMapViewerNodeModel}
+     * @param viewModel holding view settings and the node data
      */
-    public HeatMapViewerNodeView(HeatMapViewerNodeModel nodeModel) {
+    public HeatMapViewerNodeView(HeatMapViewerNodeModel nodeModel, HeatMapModel viewModel) {
         super(nodeModel);
-        this.nodeModel = nodeModel;
 
-        // Do some data checks
-        HeatMapModel heatMapModel = nodeModel.getDataModel();
-        if (heatMapModel == null) {
-            nodeModel.setPlotWarning("You need to re-execute the node before the view will show up");
-            heatMapModel = new HeatMapModel();
-        }
+        m_viewModel = viewModel;
 
-        if ((heatMapModel.getScreen() == null) || heatMapModel.getScreen().isEmpty()) {
+        if ((viewModel.getScreen() == null) || viewModel.getScreen().isEmpty()) {
             nodeModel.setPlotWarning("Could not create view for empty input table!");
         }
 
         // Propagate the views background color
-        heatMapModel.setBackgroundColor(this.getComponent().getBackground());
+        viewModel.setBackgroundColor(this.getComponent().getBackground());
 
         // Create the ScreenViewer and add the menus
-        ScreenViewer screenView = new ScreenViewer(heatMapModel);
+        ScreenViewer screenView = new ScreenViewer(m_viewModel);
         this.setComponent(screenView);
         JMenuBar menu = this.getJMenuBar();
         menu.add(new HiLiteMenu(screenView));
@@ -78,32 +74,53 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
         // Close the PlateViewer windows.
         screenView.getHeatTrellis().closePlateViewers();
 
+        HeatMapViewerNodeModel nodeModel = getNodeModel();
+        
         // Remove the HiLiteListeners.
         nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT).removeAllHiLiteListeners();
 
         // Remove the HiLiteHandler
         screenView.getHeatMapModel().setHiLiteHandler(null);
 
-        // Save the view configuration
-        // TODO: It would be nicer if the workflows dirty-flag could be set (workflow modified), this way the view configuration would only be saved once, not each time the view is closed (because in that case the heatMapModel data is stored in memory)
-        try {
-            getLogger().warn("Saving view configuration. This might take a moment.");
-            nodeModel.serializeViewConfiguration();
-        } catch (IOException e) {
-            nodeModel.setPlotWarning("Saving the view configuration failed.");
-            nodeModel.setPlotWarning(e.toString());
+        // Save the view configuration:
+        // why? the view configuration will not be saved if this is the only change in the workflow
+        // then, the workflow is not flagged as modified and closes without saving internals
+        if(m_viewModel.isModified() && nodeModel.hasViewFileHandle()) {
+        	
+        	if(!nodeModel.serializeViewConfiguration(m_viewModel))
+        		nodeModel.setPlotWarning("Failed saving view configuration - See log file for more information");
         }
+        
+        //push view model into node model for image output
+        nodeModel.keepViewModel(m_viewModel);
+        
+        //remove heatmap model in node model
+        nodeModel.unregisterViewModel(m_viewModel.getModelID());
 
     }
 
-    /** {@inheritDoc} */
+/*    *//** {@inheritDoc} *//*
+    @Override
+	protected void updateModel(Object arg) {
+		// TODO Auto-generated method stub
+		super.updateModel(arg);
+		m_dirtyFlag = true;
+	}*/
+
+
+	/** {@inheritDoc} */
     @Override
     protected void onOpen() {
-        if (nodeModel.getDataModel().getScreen() == null) {
+        if (m_viewModel.getScreen() == null) {
             throw new NullPointerException("There is no data to display");
         }
+        
+        //reset flag for view configuration changes
+        m_viewModel.resetModifiedFlag();
 
         ScreenViewer screenView = (ScreenViewer)getComponent();
+        
+        HeatMapViewerNodeModel nodeModel = getNodeModel();
 
         // Set the HiLiteHandler
         screenView.getHeatMapModel().setHiLiteHandler(nodeModel.getInHiLiteHandler(HeatMapViewerNodeModel.IN_PORT));
@@ -128,21 +145,17 @@ public class HeatMapViewerNodeView extends NodeView<HeatMapViewerNodeModel> {
     @Override
     protected void modelChanged() {
         HeatMapViewerNodeModel nodeModel = getNodeModel();
+        
+        // update view model, data model might be null after reset node
+        HeatMapModel dataModel = nodeModel.getDataModel();
+        if(dataModel != null)
+        	m_viewModel.setNodeConfigurations(dataModel);
+        else
+        	return;
+                
+        m_viewModel.validateViewSettings();
 
-        ScreenViewer viewer;
-        try {
-            viewer = (ScreenViewer)getComponent();
-        } catch (ClassCastException e) {
-            getLogger().warn("The node was not executed/saved properly. Please re-execute!");
-            return;
-        }
-
-        if (nodeModel == null || nodeModel.getDataModel() == null) {
-            viewer.getHeatTrellis().closePlateViewers();
-            return;
-        }
-
-        viewer.setHeatMapModel(nodeModel.getDataModel());
+        m_viewModel.fireModelChanged();        
     }
 
 }

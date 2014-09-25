@@ -14,8 +14,12 @@ import org.knime.core.data.property.ColorAttr;
 
 public class ColorScheme {
 
-    /** Cache to remember the colors used already */
-    private Map<String, Map<String, Color>> colorCache = new HashMap<String, Map<String, Color>>();
+    /** 
+     * Cache to remember the colors used as overlay already 
+     * Overlay <Value, Color>
+     * e.g. treatment <MOCK,Color("green")>
+     * */
+    private Map<String, Map<String, Color>> colorCacheMap = new HashMap<String, Map<String, Color>>();
 
     /** Random number generator */
     private Random r = new Random(4711);   // use seed here, to keep colors consistent between different runs
@@ -46,7 +50,10 @@ public class ColorScheme {
     public ColorScheme() {
     }
 
-
+    /**
+     * Constructor with certain error color
+     * @param errColor
+     */
     public ColorScheme(Color errColor) {
 		ERROR_READOUT = errColor;
 	}
@@ -92,21 +99,56 @@ public class ColorScheme {
      * @return color cache for the overlay
      */
     public Map<String, Color> getColorCache(String cacheName) {
-        if (!colorCache.containsKey(cacheName)) {
-            colorCache.put(cacheName, new HashMap<String, Color>());
+        if (!colorCacheMap.containsKey(cacheName)) {
+            colorCacheMap.put(cacheName, new HashMap<String, Color>());
         }
 
-        return colorCache.get(cacheName);
+        return colorCacheMap.get(cacheName);
     }
 
 
+    /**
+     * @return error readout color
+     */
 	public Color getErrorReadoutColor() {
 		return ERROR_READOUT;
 	}
 
-
+	/**
+	 * sets the error readout color 
+	 * @param errorReadoutColor
+	 */
 	public void setErrorReadoutColor(Color errorReadoutColor) {
 		ERROR_READOUT = errorReadoutColor;
 	}
 
+	/**
+	 * adds a color cache to the map
+	 * @param key
+	 * @param colorCache
+	 */
+	public void addColorCache(String key,	HashMap<String, Color> colorCache) {
+		if(! colorCacheMap.containsKey(key))
+			colorCacheMap.put(key, colorCache);		
+	}
+	
+	/**
+	 * method to put the content of the color caches into a single string
+	 * @return string representing the color caches
+	 */
+	public String colorCachesToString() {
+		String cacheString = new String("[");
+		
+		for(String key : colorCacheMap.keySet()) {
+			Map<String, Color> cache = colorCacheMap.get(key);
+			if(cache != null)
+				cacheString = cacheString + key + "[" + cache.toString() + "]\n";
+		}
+		
+		return cacheString + "]";
+	}
+
+	public Set<String> getColorCacheKeys() {
+		return colorCacheMap.keySet();
+	}
 }

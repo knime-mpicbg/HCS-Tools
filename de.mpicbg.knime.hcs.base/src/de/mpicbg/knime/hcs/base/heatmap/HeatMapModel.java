@@ -7,6 +7,8 @@ import de.mpicbg.knime.hcs.base.heatmap.color.MinMaxStrategy;
 import de.mpicbg.knime.hcs.base.heatmap.color.QuantileStrategy;
 import de.mpicbg.knime.hcs.base.heatmap.color.RescaleStrategy;
 import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.Utils;
+import de.mpicbg.knime.knutils.annotations.ViewInternals;
 import de.mpicbg.knime.hcs.core.model.*;
 
 import org.apache.commons.lang.StringUtils;
@@ -14,11 +16,16 @@ import org.apache.commons.math.stat.Frequency;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.BufferedDataTableHolder;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettings;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,33 +39,108 @@ import java.util.List;
  */
 
 public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
-
+	
+	/* MAKE SURE THAT THESE SETTINGS ARE SAVED/LOADED AS INTERNALS */
+	
+	/* ------------------------------------------------------------------
+	 * SETTINGS/DATA FROM CONFIGURATION
+	 */
+	
+	/** Screen data container */
+	@ViewInternals
+    private List<Plate> screen;
+        
+    /** List of available readouts (in order of selection) */
+	@ViewInternals
+    private List<String> readouts = new ArrayList<String>();
+	private final String KEY_readouts = "readouts";
+    /** List of available overlays (order as selected) */
+	@ViewInternals
+    private List<String> annotations = new ArrayList<String>();
+	private final String KEY_annotations = "annotations";
     /** Reference populations */
+	@ViewInternals
     public HashMap<String, String[]> referencePopulations = new HashMap<String, String[]>();
+    private final String KEY_referencePopulations = "reference.populations";
+    /** List containing the Attribute (columns holding image data) */
+    @ViewInternals
+    private List<String> imageAttributes = new ArrayList<String>();
+    private final String KEY_imageAttributes = "image.attributes";
+    
 
+	/* ------------------------------------------------------------------
+	 * CURRENT READOUT/OVERLAY
+	 */
+    
+    /** Screen current readout */
+    @ViewInternals
+    private String currentReadout;
+    private final String KEY_currentReadout = "current.readout";
+    /** Currently selected overlay factor */
+    @ViewInternals
+    private String currentOverlay = "";
+    private final String KEY_currentOverlay = "current.overlay";
+
+	/* ------------------------------------------------------------------
+	 * COLOR SETTINGS
+	 */
+    
     /** Color re-scale strategy */
+    @ViewInternals
     private RescaleStrategy readoutRescaleStrategy = new MinMaxStrategy();
+    private final String KEY_readoutRescaleStrategy = "readout.rescale.strategy";
     /** Color global scaling flag */
+    @ViewInternals
     private boolean globalScaling = false;
+    private static final String KEY_globalScaling = "global.scaling";
     /** Color screen color scheme */
+    @ViewInternals
     private ColorScheme colorScheme = new ColorScheme(LinearGradientTools.errColorMap.get("GBR"));
+    private final String KEY_colorScheme = "color.scheme";
     /** Color gradient (color map) */
+    @ViewInternals
     private LinearColorGradient colorGradient = new LinearColorGradient();
+    private final String KEY_colorGradient = "color.gradient";
+    //TODO: add key and load/save-routine
     /** Background color */
     private Color backgroundColor = Color.LIGHT_GRAY;
+    
+	/* ------------------------------------------------------------------
+	 * COLOR SETTINGS - KNIME COLORS
+	 */
+    
+    /** KNIME color column attribute */
+    @ViewInternals
+    private String knimeColorAttribute = "";
+    private final String KEY_knimeColorAttribute = "knime.color.attribute";
+    /** KNIME overlay color menu item name */
+    public static String KNIME_OVERLAY_NAME = "Color Settings";
+    
+	/* ------------------------------------------------------------------
+	 * TRELLIS SETTINGS
+	 */
 
-    /** Screen data container */
-    private List<Plate> screen;
-    /** Screen current readout */
-    private String currentReadout;
-    /** List of available readouts (in order of selection) */
-    private List<String> readouts = new ArrayList<String>();
-
-    /** Well selection */
-    private Collection<Well> selection = new ArrayList<Well>();
-    /** Well selection marker flag (to display or not the selection dots) */
-    private boolean markSelection = true;
-
+    /** Trellis automatic layout flag */
+    @ViewInternals
+    private boolean automaticTrellisConfiguration = true;
+    private final String KEY_automaticTrellisConfiguration = "automatic.trellis.configuration";
+    /** Trellis: number of plate rows */
+    @ViewInternals
+    private int numberOfTrellisRows;
+    private final String KEY_numberOfTrellisRows = "number.of.trellis.rows";
+    /** Trellis: number of plate columns */
+    @ViewInternals
+    private int numberOfTrellisColumns;
+    private final String KEY_numberOfTrellisColumns = "number.of.trellis.columns";
+    /** Trellis plate proportion flag */
+    @ViewInternals
+    private boolean fixPlateProportions = true;
+    private final String KEY_fixPlateProportions = "fix.plate.proportions";
+    
+	/* ------------------------------------------------------------------
+	 * HILITE SETTINGS
+	 */
+    
     /** HiLite handler of the node (for convenient access) */
     private HiLiteHandler hiLiteHandler;
     /** HiLite selection */
@@ -66,54 +148,86 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /** HiLite display mode (HiLite filter) */
     private HiLiteDisplayMode hiLiteDisplayMode = HiLiteDisplayMode.ALL;
 
-    /** Trellis automatic layout flag */
-    private boolean automaticTrellisConfiguration = true;
-    /** Trellis: number of plate rows */
-    private int numberOfTrellisRows;
-    /** Trellis: number of plate columns */
-    private int numberOfTrellisColumns;
-    /** Trellis plate proportion flag */
-    private boolean fixPlateProportions = true;
+	/* ------------------------------------------------------------------
+	 * WELL SELECTION
+	 */
+    
+    /** Well selection */
+    private Collection<Well> selection = new ArrayList<Well>();
+    /** Well selection marker flag (to display or not the selection dots) */
+    private boolean markSelection = true;
+    
+	/* ------------------------------------------------------------------
+	 * OVERLAY SETTINGS
+	 */
 
     /** Overlay flag for hiding the most frequent overlay */
+    @ViewInternals
     private boolean hideMostFrequentOverlay = false;
+    private final String KEY_hideMostFrequentOverlay = "hide.most.frequent.overlay";
     /** Map with the most frequent overlays for all the annotations */
+    @ViewInternals
     private Map<String, String> maxFreqOverlay;
-    /** Currently selected overlay factor */
-    private String currentOverlay = "";
-    /** List of available overlays (order as selected) */
-    private List<String> annotations = new ArrayList<String>();
-
-    /** KNIME Colors: list with the wells belonging to the most frequent KNIME overlay color */
-    private List<Well> mostFrequentColorWells = null;
-    /** KNIME overlay color set */
-    private HashMap<Color, String> knimeColors;
-    /** KNIME color column attribute */
-    private String knimeColorAttribute;
-    /** KNIME overlay color menu item name */
-    public static String KNIME_OVERLAY_NAME = "Color Settings";
+    private final String KEY_maxFreqOverlay = "max.frequent.overlay";
+    
+	/* ------------------------------------------------------------------
+	 * PLATE FILTERING SETTINGS
+	 */
 
     /** Plate filtering string */
+    @ViewInternals
     private String plateFilterString = "";
+    private final String KEY_plateFilterString = "plate.filter.string";
     /** Plate filtering attribute */
+    @ViewInternals
     private PlateAttribute plateFilterAttribute = PlateAttribute.BARCODE;
+    private final String KEY_plateFilterAttribute = "plate.filter.attribute";
     /** Plate filtering record of plates */
     HashMap<Plate, Boolean> plateFiltered = new HashMap<Plate, Boolean>();
+    
+	/* ------------------------------------------------------------------
+	 * PLATE SORTING SETTINGS
+	 */
 
     /** List of {@link PlateAttribute}s used for plate sorting */
-    private List<PlateAttribute> sortAttributeSelection;
+    @ViewInternals
+    private List<PlateAttribute> sortAttributeSelection = new ArrayList<PlateAttribute>();
+    private final String KEY_sortAttributeSelection = "sort.attribute.selection";
+    
+	/* ------------------------------------------------------------------
+	 * additional fields 
+	 */
 
     /** List of the ChangeListeners */
     private List<HeatMapModelChangeListener> changeListeners = new ArrayList<HeatMapModelChangeListener>();
 
-    /** Field to hold the buffered table */
-    private BufferedDataTable bufferedTable;
+    /** Field to hold the buffered table, necessary to display images */
+    private BufferedDataTable bufferedTable; // Not saved as internal data - node needs to be re-executed before
 
-    /** List containing the Attribute (columns holding image data) */
-    private List<Attribute> imageAttributes;
-
+    /** if the view is opened, the flag is set to false. it will become true with each fireModelChanged */
+    private boolean modifiedFlag = false; 
+    
+    /** the flag will be set to true if the input data changes while the view is open */
+    private boolean modifiedDataFlag = false;
+    
+    /** makes identification possible if multiple views are open */
+    private UUID modelID;
 
     /**
+     * Default constructor
+     */
+    public HeatMapModel() {    	
+    }
+
+    /**
+     * Constructor with unique modelID
+     * @param randomUUID
+     */
+    public HeatMapModel(UUID randomUUID) {
+		this.modelID = randomUUID;
+	}
+
+	/**
      * Plate filtering
      *
      * @param pfs filter string
@@ -267,12 +381,12 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     /**
      * Overlay partial hiding
      *
-     * @param overlayType (overlay, readout)
-     * @param overlay name
+     * @param currentOverlay (overlay, readout)
+     * @param overlayValue name
      * @return flag
      */
-    private boolean isMostFrequent(String overlayType, String overlay) {
-        return maxFreqOverlay.containsKey(overlayType) && maxFreqOverlay.get(overlayType).equals(overlay);
+    private boolean isMostFrequent(String currentOverlay, String overlayValue) {
+        return maxFreqOverlay.containsKey(currentOverlay) && maxFreqOverlay.get(currentOverlay).equals(overlayValue);
     }
 
     /**
@@ -339,56 +453,6 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
         }
     }
 
-
-    /**
-     * Update the list of well containing the most frequent color defined in the knime color settings.
-     */
-    private void updateKnimeColorFrequency() {
-        if (this.screen == null || this.screen.isEmpty())
-            return;
-
-        // Assign wells to colors
-        HashMap<Color, ArrayList<Well>> colors = new HashMap<Color, ArrayList<Well>>();
-        ArrayList<Well> wells;
-        Color color;
-        for (Well well : PlateUtils.flattenWells(this.screen)) {
-            color = well.getKnimeRowColor();
-            if (color != null) {
-                if ( colors.containsKey(color) ) {
-                    wells = colors.get(color);
-                    wells.add(well);
-                } else {
-                    wells = new ArrayList<Well>();
-                    wells.add(well);
-                }
-                colors.put(color, wells);
-            }
-        }
-
-        if ( (colors.size() <=1) )
-            return;
-
-        // Use a tree map to find out which color holds the most wells
-        TreeMap<Integer, List<Well>> order = new TreeMap<Integer, List<Well>>();
-        for (Color key : colors.keySet()) {
-            order.put(colors.get(key).size(), colors.get(key));
-        }
-
-        this.mostFrequentColorWells = order.get(order.lastKey());
-
-        // Create a hash-map holding colors and the corresponding attribute value (legend)
-        HashMap<Color, String> knimeLegend = new HashMap<Color, String>();
-        int index = 1;
-        for (Color key : colors.keySet()) {
-            String title = "Nominal " + index++;
-            if (this.knimeColorAttribute != null)
-                title = colors.get(key).get(0).getAnnotation(this.knimeColorAttribute);
-            knimeLegend.put(key, title);
-        }
-        this.knimeColors = knimeLegend;
-    }
-
-
     /**
      * Set the plate data to be displayed
      *
@@ -408,7 +472,6 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
         readoutRescaleStrategy.configure(screen);
 
         updateMaxOverlayFreqs(screen);
-        updateKnimeColorFrequency();
     }
 
     /**
@@ -611,23 +674,13 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     }
 
     /**
-     * Get the map assigning colors to attribute values
-     * (KNIME color settings)
-     *
-     * @return {color and attribute values}
-     */
-    public HashMap<Color, String> getKnimeColors() {
-        return knimeColors;
-    }
-
-    /**
      * Check if the knime color settings were parsed
      * from the {@link org.knime.core.node.BufferedDataTable}
      *
      * @return flag
      */
     public boolean hasKnimeColorModel() {
-        return (mostFrequentColorWells != null) && !mostFrequentColorWells.isEmpty();
+    	return !this.knimeColorAttribute.isEmpty();
     }
 
     /**
@@ -637,7 +690,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
      * @return title
      */
     public String getKnimeColorAttributeTitle() {
-        if (knimeColorAttribute == null) {
+        if (knimeColorAttribute.isEmpty()) {
             return KNIME_OVERLAY_NAME;
         } else {
             return KNIME_OVERLAY_NAME + " (" + knimeColorAttribute + ")";
@@ -715,26 +768,19 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
      * @param well to get the currentOverlay color for
      * @return currentOverlay color
      */
-    public Color getOverlayColor(Well well) {
-        String overlayType = getCurrentOverlay();
+    public Color getOverlayColor(Well well) {    
+    	String curOverlay = this.currentOverlay;
+    	if(curOverlay.isEmpty()) return null;
+    	if(curOverlay.contains(KNIME_OVERLAY_NAME))
+    		curOverlay = this.knimeColorAttribute; // used to retrieve the actual well value
+    	
+        String overlayValue = well.getAnnotation(curOverlay);        
+        if(overlayValue == null) return null;
+        
+        if(doHideMostFreqOverlay() && isMostFrequent(curOverlay, overlayValue))
+        	return null;
 
-        if ( overlayType.contains(KNIME_OVERLAY_NAME) ) {
-            if ( doHideMostFreqOverlay() && mostFrequentColorWells.contains(well) ) {
-                return  null;
-            } else {
-                return well.getKnimeRowColor();
-            }
-        }
-
-        if (overlayType.isEmpty())
-            return null;
-
-        String overlay = well.getAnnotation(overlayType);
-
-        if (overlay == null || (doHideMostFreqOverlay() && isMostFrequent(overlayType, overlay)))
-            return null;
-
-        return this.colorScheme.getOverlayColor(overlayType, overlay);
+        return this.colorScheme.getOverlayColor(this.currentOverlay, overlayValue);
     }
 
     /**
@@ -824,6 +870,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
         for (HeatMapModelChangeListener changeListener : changeListeners) {
             changeListener.modelChanged();
         }
+        this.modifiedFlag = true;
     }
 
     /**
@@ -1325,7 +1372,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
      *
      * @param attributes list with the {@link Attribute}s
      */
-    public void setImageAttributes(List<Attribute> attributes) {
+    public void setImageAttributes(List<String> attributes) {
         this.imageAttributes = attributes;
     }
 
@@ -1334,7 +1381,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
      *
      * @return list of {@link Attribute}s
      */
-    public List<Attribute> getImageAttributes() {
+    public List<String> getImageAttributes() {
         return imageAttributes;
     }
     
@@ -1393,10 +1440,232 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 
     public enum HiLiteDisplayMode {HILITE_ONLY, UNHILITE_ONLY, ALL}
 
-
+    /**
+     * sets color for "error" readout
+     * @param errorColor
+     */
 	public void updateColorScheme(Color errorColor) {
 		this.colorScheme.setErrorReadoutColor(errorColor);		
 	}
 
+	/**
+	 * adds a color cache to the color scheme with the knime color attribute title
+	 * @param colorMap
+	 */
+	public void addKnimeColorMap(HashMap<String, Color> colorMap) {
+		assert(this.getKnimeColorAttribute() != null);
+		this.colorScheme.addColorCache(getKnimeColorAttributeTitle(), colorMap);
+	}
+
+	/**
+	 * did the heatmap-model change?
+	 * @return true if yes, otherwise false
+	 */
+	public boolean isModified() {
+		return modifiedFlag;
+	}
+
+	/**
+	 * resets the model to unmodified
+	 */
+	public void resetModifiedFlag() {
+		this.modifiedFlag = false;
+	}
+
+	/**
+	 * puts all view configuration settings into a node settings structure 
+	 * @param settings
+	 */
+	public void saveViewConfigTo(NodeSettings settings) {
+		ConfigBase cfg;
+		settings.addStringArray(KEY_readouts, readouts.toArray(new String[readouts.size()]));
+		settings.addStringArray(KEY_annotations, annotations.toArray(new String[annotations.size()]));
+		
+		cfg = settings.addConfigBase(KEY_referencePopulations);
+		for(String key : referencePopulations.keySet()) {
+			cfg.addStringArray(key, referencePopulations.get(key));
+		}
+		
+		settings.addStringArray(KEY_imageAttributes, imageAttributes.toArray(new String[imageAttributes.size()]));
+		
+		settings.addString(KEY_currentReadout, currentReadout);
+		settings.addString(KEY_currentOverlay, currentOverlay);
+		settings.addString(KEY_readoutRescaleStrategy, this.readoutRescaleStrategy.getClass().getName());
+		settings.addBoolean(KEY_globalScaling, globalScaling);
+		
+		cfg = settings.addConfigBase(KEY_colorScheme);
+		cfg.addInt("error.color", colorScheme.getErrorReadoutColor().getRGB());
+		for(String colorKey : colorScheme.getColorCacheKeys()) {
+			ConfigBase colorCache = cfg.addConfigBase(colorKey);
+			Map<String, Color> cMap = colorScheme.getColorCache(colorKey);
+			for(String cKey : cMap.keySet()) {
+				colorCache.addInt(cKey, cMap.get(cKey).getRGB());
+			}
+		}
+		
+		cfg = settings.addConfigBase(KEY_colorGradient);
+		cfg.addString("gradient.name", this.colorGradient.getGradientName());
+		LinearGradientPaint gradient = this.colorGradient.getGradient();
+		cfg.addDoubleArray("gradient.fractions", Utils.convertFloatsToDoubles(gradient.getFractions()));
+		cfg.addDoubleArray("gradient.start", new double[]{gradient.getStartPoint().getX(), gradient.getStartPoint().getY()});
+		cfg.addDoubleArray("gradient.end", new double[]{gradient.getEndPoint().getX(), gradient.getEndPoint().getY()});
+		Color[] gColors = gradient.getColors();
+		int[] colors = new int[gColors.length];
+		for(int i = 0; i < gColors.length; i++) {
+			colors[i] = gColors[i].getRGB();
+		}
+		cfg.addIntArray("gradient.colors", colors);
+		
+		settings.addString(KEY_knimeColorAttribute, knimeColorAttribute);
+		settings.addBoolean(KEY_automaticTrellisConfiguration, automaticTrellisConfiguration);
+		settings.addInt(KEY_numberOfTrellisRows, numberOfTrellisRows);
+		settings.addInt(KEY_numberOfTrellisColumns, numberOfTrellisColumns);
+		settings.addBoolean(KEY_fixPlateProportions, fixPlateProportions);
+		settings.addBoolean(KEY_hideMostFrequentOverlay, hideMostFrequentOverlay);
+		
+		cfg = settings.addConfigBase(KEY_maxFreqOverlay);
+		for(String key : maxFreqOverlay.keySet()) {
+			cfg.addString(key, maxFreqOverlay.get(key));
+		}
+		
+		settings.addString(KEY_plateFilterAttribute, plateFilterAttribute.getName());
+		settings.addString(KEY_plateFilterString, plateFilterString);
+		
+		List<String> str = new ArrayList<String>();
+		for(PlateAttribute pa : sortAttributeSelection)
+			str.add(pa.getName());
+		settings.addStringArray(KEY_sortAttributeSelection, str.toArray(new String[str.size()]));
+	}
+	
+	/**
+	 * repopulates the model with view configuration settings stored in the node settings structure
+	 * @param settings
+	 * @throws InvalidSettingsException
+	 */
+	public void loadViewConfigFrom(NodeSettingsRO settings) throws InvalidSettingsException {
+		ConfigBase cfg;
+		this.readouts = new ArrayList<String>();
+		this.readouts.addAll(Arrays.asList(settings.getStringArray(KEY_readouts)));
+		this.annotations = new ArrayList<String>();
+		this.annotations.addAll(Arrays.asList(settings.getStringArray(KEY_annotations)));
+		
+		this.referencePopulations = new HashMap<String, String[]>();
+		cfg = settings.getConfigBase(KEY_referencePopulations);
+		for(String key : cfg) {
+			this.referencePopulations.put(key, cfg.getStringArray(key));
+		}
+		
+		this.imageAttributes = new ArrayList<String>();
+		this.imageAttributes.addAll(Arrays.asList(settings.getStringArray(KEY_imageAttributes)));
+		
+		this.currentReadout = settings.getString(KEY_currentReadout);
+		this.currentOverlay = settings.getString(KEY_currentOverlay);
+		try {
+			this.readoutRescaleStrategy = (RescaleStrategy) Class.forName(settings.getString(KEY_readoutRescaleStrategy)).newInstance();
+			this.readoutRescaleStrategy.configure(screen);
+		} catch (Throwable e) {
+			// InstantiationException, IllegalAccessException, ClassNotFoundException
+			throw new InvalidSettingsException(e.toString());
+		}
+		this.globalScaling = settings.getBoolean(KEY_globalScaling);
+		
+		cfg = settings.getConfigBase(KEY_colorScheme);
+		this.colorScheme.setErrorReadoutColor(new Color(cfg.getInt("error.color")));
+		for(String key : cfg) {
+			if(!key.equals("error.color")) {
+				HashMap<String, Color> cMap = new HashMap<String, Color>();
+				ConfigBase colorCache = cfg.getConfigBase(key);
+				for(String cKey : colorCache) {
+					cMap.put(cKey, new Color(colorCache.getInt(cKey)));
+				}
+				this.colorScheme.addColorCache(key, cMap);
+			}
+		}
+		
+		cfg = settings.getConfigBase(KEY_colorGradient);
+		String gName = cfg.getString("gradient.name");
+		float[] gFractions = Utils.convertDoublesToFloats(cfg.getDoubleArray("gradient.fractions"));
+		double[] gStart = cfg.getDoubleArray("gradient.start");
+		double[] gEnd = cfg.getDoubleArray("gradient.end");
+		int[] gColInt = cfg.getIntArray("gradient.colors");
+		Color[] gColors = new Color[gColInt.length];
+		for(int i = 0; i < gColInt.length; i++)
+			gColors[i] = new Color(gColInt[i]);
+		LinearGradientPaint gGradient = new LinearGradientPaint(new Point2D.Double(gStart[0],gStart[1]), new Point2D.Double(gEnd[0],gEnd[1]), gFractions, gColors);
+		this.colorGradient = new LinearColorGradient(gName, gGradient);
+		
+		this.knimeColorAttribute = settings.getString(KEY_knimeColorAttribute);
+		this.automaticTrellisConfiguration = settings.getBoolean(KEY_automaticTrellisConfiguration);
+		this.numberOfTrellisRows = settings.getInt(KEY_numberOfTrellisRows);
+		this.numberOfTrellisColumns = settings.getInt(KEY_numberOfTrellisColumns);
+		this.fixPlateProportions = settings.getBoolean(KEY_fixPlateProportions);
+		
+		this.maxFreqOverlay = new HashMap<String,String>();
+		cfg = settings.getConfigBase(KEY_maxFreqOverlay);
+		for(String key : cfg) {
+			this.maxFreqOverlay.put(key, cfg.getString(key));
+		}
+		
+		this.plateFilterAttribute = PlateUtils.getPlateAttributeByName(settings.getString(KEY_plateFilterAttribute));
+		this.plateFilterString = settings.getString(KEY_plateFilterString);
+		
+		this.sortAttributeSelection = new ArrayList<PlateAttribute>();
+		List<String> strList = Arrays.asList(settings.getStringArray(KEY_sortAttributeSelection));
+		for(String str : strList)
+			this.sortAttributeSelection.add(PlateUtils.getPlateAttributeByName(str));			
+	}
+
+	/**
+	 * does the input knime table contain image data?
+	 * @return true if yes, otherwise false
+	 */
+	public boolean hasImageData() {
+		return !this.imageAttributes.isEmpty();
+	}
+
+	/**
+	 * checks whether view settings still match to table spec and node configurations.
+	 * if not, these values are made valid (defaults, ...)
+	 * 1) current readout is available in readout configuration?
+	 * 2) current overlay is available in annotation configuration?
+	 * 3) ... TODO: add more
+	 */
+	public void validateViewSettings() {
+		HeatMapModel defaultValues = new HeatMapModel();
+		
+		if(screen != null) {
+			// is current readout available?
+			if(currentReadout != null) {
+				if(!getReadouts().contains(currentReadout)) currentReadout = defaultValues.getSelectedReadOut();
+			}
+			// is current overlay available?
+			if(currentOverlay != null) {
+				if(!getAnnotations().contains(currentOverlay)) currentOverlay = defaultValues.getCurrentOverlay();
+			}
+		}
+	}
+
+	/**
+	 * getter
+	 * @return modelID
+	 */
+	public UUID getModelID() {
+		return this.modelID;
+	}
+
+	/**
+	 * hard copy of node configurations
+	 * @param nodeConfigurations
+	 */
+	public void setNodeConfigurations(HeatMapModel nodeConfigurations) {
+		this.setScreen(nodeConfigurations.getScreen());
+        this.setKnimeColorAttribute(nodeConfigurations.getKnimeColorAttribute());
+        this.setColorScheme(nodeConfigurations.getColorScheme());
+        this.setReferencePopulations(nodeConfigurations.getReferencePopulations());
+        this.setAnnotations(nodeConfigurations.getAnnotations());
+        this.setReadouts(nodeConfigurations.getReadouts());
+        this.setImageAttributes(nodeConfigurations.getImageAttributes());
+        this.setInternalTables(nodeConfigurations.getInternalTables());
+	}
 
 }

@@ -12,10 +12,12 @@ import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.AttributeUtils;
 import de.mpicbg.knime.knutils.InputTableAttribute;
 import org.apache.commons.lang.StringUtils;
+import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.DataContainer;
+import org.knime.core.data.image.ImageValue;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.NodeLogger;
@@ -111,10 +113,11 @@ public abstract class PseudoHeatMapViewerNodeModel {
         // HACK for custom plate labels as requested by Martin
 
         // Get the image columns
-        ArrayList<Attribute> imageAttributes = new ArrayList<Attribute>();
-        for (Attribute attribute : attributeModel) {
-            if (attribute.isImageAttribute()) {
-                imageAttributes.add(attribute);
+        ArrayList<String> imageAttributes = new ArrayList<String>();
+        DataTableSpec tableSpec = input.getDataTableSpec();
+        for (DataColumnSpec cspec : tableSpec) {
+            if (cspec.getType().isCompatible(ImageValue.class) || cspec.getType().getPreferredValueClass().getName().contains("org.knime.knip.base.data")) {
+                imageAttributes.add(cspec.getName());
             }
         }
         attributeModel.removeAll(imageAttributes);
