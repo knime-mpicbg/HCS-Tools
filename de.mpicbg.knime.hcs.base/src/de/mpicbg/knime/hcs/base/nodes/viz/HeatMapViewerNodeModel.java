@@ -1,51 +1,68 @@
 package de.mpicbg.knime.hcs.base.nodes.viz;
 
-import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
-import de.mpicbg.knime.hcs.base.heatmap.ScreenViewer;
-import de.mpicbg.knime.hcs.base.heatmap.color.LinearColorGradient;
-import de.mpicbg.knime.hcs.base.heatmap.color.RescaleStrategy;
-import de.mpicbg.knime.hcs.base.heatmap.io.ScreenImage;
-import de.mpicbg.knime.hcs.base.heatmap.menu.HeatMapColorToolBar;
-import de.mpicbg.knime.hcs.base.heatmap.renderer.HeatTrellis;
-import de.mpicbg.knime.hcs.base.nodes.layout.ExpandPlateBarcode;
-import de.mpicbg.knime.knutils.AbstractNodeModel;
-import de.mpicbg.knime.knutils.Attribute;
-import de.mpicbg.knime.knutils.AttributeUtils;
-import de.mpicbg.knime.knutils.InputTableAttribute;
-import de.mpicbg.knime.knutils.data.property.ColorModelUtils;
-import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
-import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;
-import de.mpicbg.knime.hcs.core.model.Plate;
-import de.mpicbg.knime.hcs.core.model.PlateUtils;
-import de.mpicbg.knime.hcs.core.model.Well;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-import org.knime.core.data.*;
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+
+import org.apache.commons.lang.StringUtils;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DoubleValue;
 import org.knime.core.data.image.ImageValue;
 import org.knime.core.data.image.png.PNGImageContent;
-import org.knime.core.data.property.ColorModelNominal;
-import org.knime.core.node.*;
-import org.knime.core.node.config.Config;
-import org.knime.core.node.config.base.AbstractConfigEntry;
-import org.knime.core.node.config.base.ConfigEntries;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.CanceledExecutionException;
+import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.ExecutionMonitor;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger;
+import org.knime.core.node.NodeSettings;
+import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
-
-import org.apache.commons.lang.StringUtils;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
-import com.sun.xml.internal.ws.encoding.soap.DeserializationException;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import java.util.List;
+import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
+import de.mpicbg.knime.hcs.base.heatmap.ScreenViewer;
+import de.mpicbg.knime.hcs.base.heatmap.io.ScreenImage;
+import de.mpicbg.knime.hcs.base.heatmap.menu.HeatMapColorToolBar;
+import de.mpicbg.knime.hcs.base.heatmap.renderer.HeatTrellis;
+import de.mpicbg.knime.hcs.base.nodes.layout.ExpandPlateBarcode;
+import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
+import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.Well;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.knutils.InputTableAttribute;
+import de.mpicbg.knime.knutils.data.property.ColorModelUtils;
 
 /**
  * This is the model implementation of HCS Heat Map Viewer.
@@ -206,6 +223,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
         configure(new DataTableSpec[]{(DataTableSpec) inSpecs[0]});
@@ -411,29 +429,11 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
     }
 
     /**
-     * Get the {@link Plate} data objects containing the data for display. The method takes
-     * care of loading the data on demand.
+     * Get the {@link Plate} data objects containing the data for display.
      *
-     * @return a list of all the available {@link Plate}s
+     * @return the model containing data and node configurations
      */
     public HeatMapModel getDataModel() {
-    	
-    	// if view data not yet present, load it from internal files
-    	// this is the case if a workflow with an executed plate heatmap viewer node is loaded
-/*        if ((m_nodeConfigurations.getScreen() == null) && !this.checkViewAgainstData) {
-        	if(!hasInternalValidConfigFiles()) {
-        		setWarningMessage("Invalid internal files - Deserialization process not possible");
-        		return m_nodeConfigurations;
-        	}
-        	logger.warn("Restoring plates from disk. This might take a few seconds...");
-        	// test another serialization approach
-        	if(!deserializePlateDataTest())
-        		setWarningMessage("Deserialization process for screen data failed - See log file for more information");
-            if(!deserializeViewConfigurationTest())    
-            	setWarningMessage("Deserialization process for view configuration failed - See log file for more information");
-            logger.debug("Loaded internal data.");
-        }*/
-
         return m_nodeConfigurations;
     }
 
@@ -641,7 +641,12 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         return allPlates;
     }
 
-
+    /**
+     * writes view configurations from the given {@link HeatMapModel} into a file
+     * build from {@link NodeSettings} structure
+     * @param viewModel
+     * @return true, if successful
+     */
 	public boolean serializeViewConfiguration(HeatMapModel viewModel) {
 		NodeSettings settings = new NodeSettings(CFG_VIEW);
 		
@@ -664,9 +669,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 	}
 	
 	/**
-	 * reads view settings from internal file and populates heatmap view model
-	 * screen data should be loaded first to ensure proper settings
-	 * @return true, if deserialization process was sucessfull
+	 * reads view settings from internal file and populates {@link HeatMapModel}
+	 * @return true, if deserialization process was successful
 	 */
 	private boolean deserializeViewConfiguration(HeatMapModel viewModel) {
 		NodeSettingsRO settings = null;
@@ -694,42 +698,45 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 		return true;
 	}
 	
-/*	*//**
-	 * checks whether the file handles for internal data is present (only the case after loadInternals or saveInternals)
+	/**
+	 * checks whether the plate data file exists and is a valid file
 	 * @return
-	 *//*
-	public boolean hasInternalFileHandles() {
-		return (viewConfigFile2 != null && plateDataFile2 != null);
-	}
-
-	*//**
-	 * check if file handles are available and whether both files exist as normal file
-	 * @return
-	 *//*
-	public boolean hasInternalValidConfigFiles() {
-		if(!hasInternalFileHandles()) return false;
-		return viewConfigFile2.isFile() && plateDataFile2.isFile();
-	}*/
-	
+	 */
 	public boolean hasValidDataFile() {
 		if(plateDataFile == null) return false;
 		return plateDataFile.isFile();
 	}
 	
+	/**
+	 * checks whether the view configuration file exists and is a valid file
+	 * @return
+	 */
 	public boolean hasValidViewFile() {
 		if(viewConfigFile == null) return false;
 		return viewConfigFile.isFile();
 	}
 	
+	/**
+	 * checks existence of plate data file handle
+	 * @return
+	 */
 	public boolean hasDataFileHandle() {
 		return plateDataFile != null;
 	}
 	
+	/**
+	 * checks existence of view configuration file handle
+	 * @return
+	 */
 	public boolean hasViewFileHandle() {
 		return viewConfigFile != null;
 	}
 
-
+	/**
+	 * writes plate data to disk
+	 * serialization process is done via {@link Serializable} interface
+	 * @return true, if successful
+	 */
 	public boolean serializePlateData(){
 		
 		logger.debug("Try to deserialize plate data");
@@ -757,6 +764,11 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         return true;	
 	}
 
+	/**
+	 * reads plate data from disk
+	 * @param viewModel
+	 * @return true, if successful
+	 */
     @SuppressWarnings("unchecked")
 	private boolean deserializePlateData(HeatMapModel viewModel){
 
@@ -783,8 +795,8 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 
     /**
      * add view data / configuration settings to model and put it into the list of heatmap models
-     * @param viewModel
-     * @param uuid 
+     * the deserialization process might take place here
+     * @param viewModel 
      */
 	public void registerViewModel(HeatMapModel viewModel) {
 		
@@ -823,7 +835,10 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
 		m_viewModels.remove(idx);
 	}
 
-
+	/**
+	 * method keeps {@link HeatMapModel} from closed view (called at onClose() of the node view)
+	 * @param m_viewModel
+	 */
 	public void keepViewModel(HeatMapModel m_viewModel) {
 		// TODO Auto-generated method stub
 		m_nodeConfigurations = m_viewModel;

@@ -1,21 +1,19 @@
 package de.mpicbg.knime.hcs.base.heatmap.menu;
 
-import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
-import de.mpicbg.knime.hcs.base.heatmap.HeatMapModelChangeListener;
-
-import javax.swing.*;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
-
-import org.apache.commons.lang.ArrayUtils;
-
-import java.awt.*;
+import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JList;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
+
+import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
+import de.mpicbg.knime.hcs.base.heatmap.HeatMapModelChangeListener;
 
 /**
  * Combobox to select the well attributes (factors and readouts)
@@ -44,9 +42,6 @@ public class WellAttributeComboBox extends JComboBox<String> implements HeatMapM
         this.heatMapModel = heatMapModel;
         this.heatMapModel.addChangeListener(this);
         this.selectionType = selType;
-
-        // populate the readout selector with readout-types of the given well-type
-        //        Collections.sort(readoutNames);
         
         //modify overlay-list to allow KNIME colors and no selection
         String[] items = options.toArray(new String[options.size()]);
@@ -102,6 +97,12 @@ public class WellAttributeComboBox extends JComboBox<String> implements HeatMapM
         setRenderer(new MyComboBoxRenderer());
     }
     
+    /**
+     * the overlay combobox needs to provide the column with knime-colors (if available) and
+     * the possibility to not show any overlay
+     * @param items
+     * @return array with additional options to feed the combobox model
+     */
 	private String[] addOverlayOptions(String[] items) {
 		List<String> itemList = new ArrayList<String>(Arrays.asList(items));
 		if ( heatMapModel.hasKnimeColorModel() )
@@ -110,6 +111,7 @@ public class WellAttributeComboBox extends JComboBox<String> implements HeatMapM
 		return itemList.toArray(new String[(itemList.size())]);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void modelChanged() {
 		DefaultComboBoxModel<String> currentModel = (DefaultComboBoxModel<String>) this.getModel();
