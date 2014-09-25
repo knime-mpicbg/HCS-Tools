@@ -19,7 +19,6 @@ import org.knime.core.node.BufferedDataTableHolder;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.config.Config;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
@@ -112,7 +111,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     
     /** KNIME color column attribute */
     @ViewInternals
-    private String knimeColorAttribute;
+    private String knimeColorAttribute = "";
     private final String KEY_knimeColorAttribute = "knime.color.attribute";
     /** KNIME overlay color menu item name */
     public static String KNIME_OVERLAY_NAME = "Color Settings";
@@ -210,9 +209,25 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
     
     /** the flag will be set to true if the input data changes while the view is open */
     private boolean modifiedDataFlag = false;
-
+    
+    /** makes identification possible if multiple views are open */
+    private UUID modelID;
 
     /**
+     * Default constructor
+     */
+    public HeatMapModel() {    	
+    }
+
+    /**
+     * Constructor with unique modelID
+     * @param randomUUID
+     */
+    public HeatMapModel(UUID randomUUID) {
+		this.modelID = randomUUID;
+	}
+
+	/**
      * Plate filtering
      *
      * @param pfs filter string
@@ -675,7 +690,7 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
      * @return title
      */
     public String getKnimeColorAttributeTitle() {
-        if (knimeColorAttribute == null) {
+        if (knimeColorAttribute.isEmpty()) {
             return KNIME_OVERLAY_NAME;
         } else {
             return KNIME_OVERLAY_NAME + " (" + knimeColorAttribute + ")";
@@ -1425,24 +1440,42 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 
     public enum HiLiteDisplayMode {HILITE_ONLY, UNHILITE_ONLY, ALL}
 
-
+    /**
+     * sets color for "error" readout
+     * @param errorColor
+     */
 	public void updateColorScheme(Color errorColor) {
 		this.colorScheme.setErrorReadoutColor(errorColor);		
 	}
 
+	/**
+	 * adds a color cache to the color scheme with the knime color attribute title
+	 * @param colorMap
+	 */
 	public void addKnimeColorMap(HashMap<String, Color> colorMap) {
 		assert(this.getKnimeColorAttribute() != null);
 		this.colorScheme.addColorCache(getKnimeColorAttributeTitle(), colorMap);
 	}
 
+	/**
+	 * did the heatmap-model change?
+	 * @return true if yes, otherwise false
+	 */
 	public boolean isModified() {
 		return modifiedFlag;
 	}
 
+	/**
+	 * resets the model to unmodified
+	 */
 	public void resetModifiedFlag() {
 		this.modifiedFlag = false;
 	}
 
+	/**
+	 * puts all view configuration settings into a node settings structure 
+	 * @param settings
+	 */
 	public void saveViewConfigTo(NodeSettings settings) {
 		ConfigBase cfg;
 		settings.addStringArray(KEY_readouts, readouts.toArray(new String[readouts.size()]));
@@ -1504,6 +1537,11 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 		settings.addStringArray(KEY_sortAttributeSelection, str.toArray(new String[str.size()]));
 	}
 	
+	/**
+	 * repopulates the model with view configuration settings stored in the node settings structure
+	 * @param settings
+	 * @throws InvalidSettingsException
+	 */
 	public void loadViewConfigFrom(NodeSettingsRO settings) throws InvalidSettingsException {
 		ConfigBase cfg;
 		this.readouts = new ArrayList<String>();
@@ -1577,12 +1615,57 @@ public class HeatMapModel implements HiLiteListener, BufferedDataTableHolder {
 			this.sortAttributeSelection.add(PlateUtils.getPlateAttributeByName(str));			
 	}
 
+	/**
+	 * does the input knime table contain image data?
+	 * @return true if yes, otherwise false
+	 */
 	public boolean hasImageData() {
 		return !this.imageAttributes.isEmpty();
 	}
 
+	/**
+	 * checks whether view settings still match to table spec and node configurations.
+	 * if not, these values are made valid (defaults, ...)
+	 * 1) current readout is available in readout configuration?
+	 * 2) current overlay is available in annotation configuration?
+	 * 3) ... TODO: add more
+	 */
 	public void validateViewSettings() {
-				
+		HeatMapModel defaultValues = new HeatMapModel();
+		
+		if(screen != null) {
+			// is current readout available?
+			if(currentReadout != null) {
+				if(!getReadouts().contains(currentReadout)) currentReadout = defaultValues.getSelectedReadOut();
+			}
+			// is current overlay available?
+			if(currentOverlay != null) {
+				if(!getAnnotations().contains(currentOverlay)) currentOverlay = defaultValues.getCurrentOverlay();
+			}
+		}
+	}
+
+	/**
+	 * getter
+	 * @return modelID
+	 */
+	public UUID getModelID() {
+		return this.modelID;
+	}
+
+	/**
+	 * hard copy of node configurations
+	 * @param nodeConfigurations
+	 */
+	public void setNodeConfigurations(HeatMapModel nodeConfigurations) {
+		this.setScreen(nodeConfigurations.getScreen());
+        this.setKnimeColorAttribute(nodeConfigurations.getKnimeColorAttribute());
+        this.setColorScheme(nodeConfigurations.getColorScheme());
+        this.setReferencePopulations(nodeConfigurations.getReferencePopulations());
+        this.setAnnotations(nodeConfigurations.getAnnotations());
+        this.setReadouts(nodeConfigurations.getReadouts());
+        this.setImageAttributes(nodeConfigurations.getImageAttributes());
+        this.setInternalTables(nodeConfigurations.getInternalTables());
 	}
 
 }

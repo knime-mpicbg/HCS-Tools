@@ -1,6 +1,10 @@
 package de.mpicbg.knime.hcs.base.nodes.viz;
 
+import java.util.UUID;
+
 import org.knime.core.node.*;
+
+import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
 
 /**
  * Creating the HCS Heat Map Viewer node.
@@ -25,7 +29,10 @@ public class HeatMapViewerFactory extends NodeFactory<HeatMapViewerNodeModel> {
     /** {@inheritDoc} */
     @Override
     public NodeView<HeatMapViewerNodeModel> createNodeView(final int viewIndex, final HeatMapViewerNodeModel nodeModel) {
-        return new HeatMapViewerNodeView(nodeModel);
+    	// register HeatMapModel of the view
+    	HeatMapModel viewModel = new HeatMapModel(UUID.randomUUID());
+    	nodeModel.registerViewModel(viewModel);
+        return new HeatMapViewerNodeView(nodeModel, viewModel);
     }
 
     /** {@inheritDoc} */
