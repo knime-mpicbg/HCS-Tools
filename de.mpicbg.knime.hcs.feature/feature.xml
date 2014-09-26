@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="de.mpicbg.knime.hcs.feature"
+      id="de.mpicbg.tds.knime.hcstools.feature"
       label="KNIME HCS Tools"
       version="2.1.0.qualifier"
       provider-name="Max Planck Institute of Molecular Cell Biology and Genetics (MPI-CBG)">
@@ -310,16 +310,6 @@ POSSIBILITY OF SUCH DAMAGES.
 
                      END OF TERMS AND CONDITIONS
    </license>
-
-   <requires>
-      <import plugin="de.mpicbg.knime.knutils"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.knime.workbench.core"/>
-      <import plugin="org.knime.workbench.repository"/>
-      <import plugin="org.knime.base"/>
-      <import plugin="de.mpicbg.knime.scripting.core"/>
-      <import plugin="de.mpicbg.knime.scripting.r"/>
-   </requires>
 
    <plugin
          id="de.mpicbg.knime.hcs.base"
