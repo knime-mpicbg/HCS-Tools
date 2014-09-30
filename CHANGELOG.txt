@@ -1,0 +1,29 @@
+Changelog v2.1.0
+
+Release Date: 30th September 2014
+
+INTERNAL
+
+* restructured file/folder structure
+* simplified deployment
+
+ISSUES
+
+* #48: Join/Load Layout should support workspace-relative locations
+* #50: default column suffix is mixed up with multiple normalisation nodes
+* #47: Operetta reader - fails to read result file
+* #45: Row Splitter / Filter - incoming column spec handling
+* #44: Plate Heatmap Viewer - sorting plates, default order for sorting plate = ascending
+* #41: Opening individual plate view works only once
+* #54: single well data problems fixes 
+* #57: constant plate value problem fixes 
+* #58: missing value readout makes plate view failing
+* #59: NaN and INFINITY are not handled correctly introduces error-color according to selected color gradient
+* #52: plate label does not work
+* #60: filter string for plates needs update
+
+* fix default example data URI and ensure that URL is read correctly
+* changes to plate heatmap view data serialization ;use binary format for screen data only, view configuration is stored in KNIME node-settings format (xml)
+* decouple multiple plate heatmap views
+
+
