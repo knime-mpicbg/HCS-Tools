@@ -1,11 +1,10 @@
 # Mac finder stuff
 *.DS_Store
 
-# Intellij projects
-.idea
-/*.iml
-
 # Eclipse production
-/bin
+*/bin/*
 /.metadata
+*/.settings
 
+# Eclipse plugin files
+*/.checkstyle

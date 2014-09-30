@@ -1,0 +1,15 @@
+Resfile-conversion-job
+----------------------
+
+Copy alles nach in irgend ein tmp-verzeichnis
+-    script liegt unter: /opt/scripts/res2csv/res2cvs.sh tempdirpath
+-    iteriert ueber alle datein und converiert res to txt und legt ergebnisse im gleichen ordner ab
+
+res-aufbau: skewcrop: verschiebungsausgleich der versch kanaele
+
+-    beads? Kuegelchen in versch Groessen/Farben ? referenz zum testesn wie verschoben die versch kanale sind
+-    liest nur die reinen Wel-daten aus (rein numerisch, keine Layoutinfo)
+-    find extractData –name “*.txt” –exec mv {} . \;
+
+Ergebisfileformat:
+Header+ daten (row, col, werte)

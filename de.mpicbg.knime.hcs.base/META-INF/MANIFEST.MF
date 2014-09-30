@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: HCS-Tools for KNIME
+Bundle-SymbolicName: de.mpicbg.knime.hcs.base;singleton:=true
+Bundle-Version: 2.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: hcstools.jar,
+ lib/GradientSlider.jar
+Bundle-Activator: de.mpicbg.knime.hcs.base.HCSToolsBundleActivator
+Bundle-Vendor: Max Planck Institute of Molecular Cell Biology and Genetics (MPI-CBG)
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ de.mpicbg.knime.knutils,
+ de.mpicbg.knime.scripting.core,
+ de.mpicbg.knime.scripting.r,
+ de.mpicbg.knime.hcs.core
+Eclipse-LazyStart: true
+Export-Package: de.mpicbg.knime.knutils,
+ org.knime.base.data.aggregation,
+ org.knime.core.data,
+ org.knime.core.node,
+ zorg.knime.core.node.defaultnodesettings
+
+
