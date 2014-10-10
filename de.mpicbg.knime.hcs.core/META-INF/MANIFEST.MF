@@ -73,4 +73,4 @@ Bundle-Vendor: Max Planck Institute of Molecular Cell Biology and Genetics (MPI-
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: de.mpicbg.knime.hcs.core.HcsCoreBundleActivator
-Require-Bundle: org.knime.workbench.core
+Require-Bundle: org.knime.workbench.core;bundle-version="[2.10.0,3.0.0)"
