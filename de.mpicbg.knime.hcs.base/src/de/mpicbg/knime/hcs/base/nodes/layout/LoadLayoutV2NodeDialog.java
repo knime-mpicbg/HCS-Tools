@@ -69,7 +69,6 @@ public class LoadLayoutV2NodeDialog extends AbstractConfigDialog {
 				InputStream excelStream = excelURL.getInputStream();
 	    		layout = new ExcelLayout(excelStream,fileName, excelURL.getTimestamp());
 	    		excelStream.close();
-			} catch (URISyntaxException e) {
 			} catch (IOException e) {
 			}
     	

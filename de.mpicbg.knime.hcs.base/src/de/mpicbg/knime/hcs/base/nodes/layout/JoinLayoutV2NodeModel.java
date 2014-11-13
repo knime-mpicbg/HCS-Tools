@@ -222,9 +222,6 @@ public class JoinLayoutV2NodeModel extends AbstractNodeModel {
 		} catch (ExcelLayoutException e) {
 			excelLayout = null;
             throw new InvalidSettingsException(e.getMessage());
-		} catch (URISyntaxException e) {
-			excelLayout = null;
-            throw new InvalidSettingsException(e.getMessage());
 		}
     }
 
