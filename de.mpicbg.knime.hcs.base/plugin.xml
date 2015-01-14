@@ -287,14 +287,20 @@
         <splashExtension icon="resources/hcstools_splash.png" id="HCS-Tools" tooltip="Some tools to ease HCS analysis">
         </splashExtension>
     </extension>
-
-    <!--
     <extension
           point="org.knime.base.AggregationOperator">
-          <AggregationOperator 
-                  AggregationOperator="de.mpicbg.tds.knime.utils.MADOperator">
-          </AggregationOperator>
+       <AggregationOperator
+             AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.PreciseMeanOperator"
+             deprecated="false"
+             id="de.mpicbg.knime.hcs.base.aggregation.PreciseMean"
+             name="Precise Mean">
+       </AggregationOperator>
+       <AggregationOperator
+             AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.MadOperator"
+             deprecated="false"
+             id="de.mpicbg.knime.hcs.base.aggregation.Mad"
+             name="Median absolute deviation">
+       </AggregationOperator>
     </extension>
-    -->
 
 </plugin>
