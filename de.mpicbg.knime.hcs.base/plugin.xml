@@ -290,13 +290,13 @@
     <extension
           point="org.knime.base.AggregationOperator">
        <AggregationOperator
-             AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.PreciseMeanOperator"
+             AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.HCSMeanOperator"
              deprecated="false"
              id="de.mpicbg.knime.hcs.base.aggregation.PreciseMean"
              name="Precise Mean">
        </AggregationOperator>
        <AggregationOperator
-             AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.MadOperator"
+             AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.HCSMadOperator"
              deprecated="false"
              id="de.mpicbg.knime.hcs.base.aggregation.Mad"
              name="Median absolute deviation">

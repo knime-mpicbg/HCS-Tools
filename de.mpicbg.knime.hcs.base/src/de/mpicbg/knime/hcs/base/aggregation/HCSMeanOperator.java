@@ -10,24 +10,24 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.def.DoubleCell;
 
-public class PreciseMeanOperator extends AggregationOperator {
+public class HCSMeanOperator extends AggregationOperator {
 	
 	private final DataType m_type = DoubleCell.TYPE;
 	private int m_count = 0;
     private double m_mean = 0;
     
 
-	public PreciseMeanOperator(OperatorData operatorData) {
+	public HCSMeanOperator(OperatorData operatorData) {
 		super(operatorData);
 	}
 	
-    public PreciseMeanOperator() {
+    public HCSMeanOperator() {
     	//super(new OperatorData("HCS-Mean", false, false, DoubleValue.class, false));
     	super(new OperatorData("HCS-Mean", false, false, DoubleValue.class, false),
     			GlobalSettings.DEFAULT, OperatorColumnSettings.DEFAULT_EXCL_MISSING);
 	}
 
-	public PreciseMeanOperator(OperatorData operatorData,
+	public HCSMeanOperator(OperatorData operatorData,
 			GlobalSettings globalSettings, OperatorColumnSettings opColSettings) {
 		super(operatorData, globalSettings, opColSettings);
 	}
@@ -40,7 +40,7 @@ public class PreciseMeanOperator extends AggregationOperator {
 	@Override
 	public AggregationOperator createInstance(GlobalSettings globalSettings,
 			OperatorColumnSettings opColSettings) {
-		return new PreciseMeanOperator(getOperatorData(), globalSettings, opColSettings);
+		return new HCSMeanOperator(getOperatorData(), globalSettings, opColSettings);
 	}
 
 	@Override

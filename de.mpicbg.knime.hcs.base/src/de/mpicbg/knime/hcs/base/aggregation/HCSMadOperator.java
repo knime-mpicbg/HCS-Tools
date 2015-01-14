@@ -19,7 +19,7 @@ import de.mpicbg.knime.hcs.base.utils.ExtDescriptiveStats;
 import de.mpicbg.knime.hcs.base.utils.MadStatistic;
 import de.mpicbg.knime.hcs.base.utils.MadStatistic.IllegalMadFactorException;
 
-public class MadOperator extends MedianOperator {
+public class HCSMadOperator extends MedianOperator {
 	
 	/* (non-Javadoc)
 	 * @see org.knime.base.data.aggregation.numerical.MedianOperator#createInstance(org.knime.base.data.aggregation.GlobalSettings, org.knime.base.data.aggregation.OperatorColumnSettings)
@@ -27,20 +27,20 @@ public class MadOperator extends MedianOperator {
 	@Override
 	public AggregationOperator createInstance(GlobalSettings globalSettings,
 			OperatorColumnSettings opColSettings) {
-		return new MadOperator(getOperatorData(), globalSettings, opColSettings);
+		return new HCSMadOperator(getOperatorData(), globalSettings, opColSettings);
 	}
 
-	public MadOperator() {
+	public HCSMadOperator() {
     	super(new OperatorData("HCS-Mad", false, false, DoubleValue.class, false),
     			GlobalSettings.DEFAULT, OperatorColumnSettings.DEFAULT_EXCL_MISSING);
 	}
 
-	public MadOperator(GlobalSettings globalSettings,
+	public HCSMadOperator(GlobalSettings globalSettings,
 			OperatorColumnSettings opColSettings) {
 		super(globalSettings, opColSettings);
 	}
 
-	public MadOperator(OperatorData operatorData, GlobalSettings globalSettings,
+	public HCSMadOperator(OperatorData operatorData, GlobalSettings globalSettings,
 			OperatorColumnSettings opColSettings) {
 		super(operatorData, globalSettings, opColSettings);
 	}
@@ -58,7 +58,6 @@ public class MadOperator extends MedianOperator {
 		// return missing, if median is already missing value
 		if(super.getResultInternal().isMissing()) return super.getResultInternal();
 		
-		//double median = ((DoubleCell) super.getResultInternal()).getDoubleValue();
 		final List<DataCell> cells = super.getCells();
 		
 		ExtDescriptiveStats stats = new ExtDescriptiveStats();
