@@ -27,7 +27,7 @@ public class NamedMatcher implements NamedMatchResult {
 
     NamedMatcher(NamedPattern parentPattern, CharSequence input) {
         this.parentPattern = parentPattern;
-        this.matcher = parentPattern.pattern().matcher(input);
+        this.matcher = parentPattern.getPattern().matcher(input);
     }
 
 
@@ -43,7 +43,7 @@ public class NamedMatcher implements NamedMatchResult {
 
     public NamedMatcher usePattern(NamedPattern newPattern) {
         this.parentPattern = newPattern;
-        matcher.usePattern(newPattern.pattern());
+        matcher.usePattern(newPattern.getPattern());
         return this;
     }
 
