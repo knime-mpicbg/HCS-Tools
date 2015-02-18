@@ -278,7 +278,7 @@ public class WellViewer extends JPanel {
                 imageTable.getContentTable().setColumnWidth(nameWidth + numberWidth + 10);
             } else {
 //                imageTable.setDataTable(((DataContainer)well.getImageData()).getTable());
-                imageTable.setDataTable(loadImageData().getTable());
+                imageTable.setDataTable(loadImageData());
             }
 
             // Render the row id column invisible (no purpose here)
@@ -301,7 +301,7 @@ public class WellViewer extends JPanel {
      *
      * @return {@link DataContainer} representing a one-row-table with the images.
      */
-    private DataContainer loadImageData() {
+    private DataTable loadImageData() {
         long startTime = System.currentTimeMillis();
 
         BufferedDataTable bufferedTable = parent.getHeatMapModel().getInternalTables()[0];
@@ -331,8 +331,11 @@ public class WellViewer extends JPanel {
                 break;
             }
         }
+        
+        DataColumnSpec[] cSpecArr = new DataColumnSpec[imgColumns.size()];
+        cSpecArr = imgColumns.toArray(cSpecArr);
 
-        DataContainer table = new DataContainer(new DataTableSpec((DataColumnSpec[])imgColumns.toArray()));
+        DataContainer table = new DataContainer(new DataTableSpec(cSpecArr));
         table.addRowToTable(new DefaultRow(new RowKey(""), imageCells));
         table.close();
 
@@ -340,7 +343,7 @@ public class WellViewer extends JPanel {
         long elapsedTime = stopTime - startTime;
         System.err.println("Elapsed time: " + elapsedTime);
 
-        return table;
+        return table.getTable();
     }
 
 

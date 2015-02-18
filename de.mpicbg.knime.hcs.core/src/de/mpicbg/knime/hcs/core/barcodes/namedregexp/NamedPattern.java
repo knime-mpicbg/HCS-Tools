@@ -1,13 +1,27 @@
 package de.mpicbg.knime.hcs.core.barcodes.namedregexp;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
-
+/**
+ * 
+ * @author Antje Janosch / Holger Brandl
+ *
+ * This class handles barcode patterns (regex) with group name definitions 
+ * e.g. (?<mygroupname>.*)
+ * 
+ * since Java 1.7 regex groups are supported => TODO: adapt this class
+ * 
+ */
 public class NamedPattern {
 
+	/**
+	 * pattern to define group names like (?<mygroupname>
+	 */
     private static final Pattern NAMED_GROUP_PATTERN = Pattern.compile("\\(\\?<(\\w+)>");
 
     private Pattern pattern;
@@ -42,8 +56,23 @@ public class NamedPattern {
     }
 
 
-    Pattern pattern() {
+    Pattern getPattern() {
         return pattern;
+    }
+    
+    /**
+     * checks whether the given group-pattern could be transformed into a valid regular expression,
+     * if groups have been defined at all,
+     * if groups are unique
+     * @return true, if pattern is valid; false otherwise
+     */
+    public boolean isValidPattern() {
+    	if(pattern == null) return false;
+    	if(groupNames.size() == 0) return false;
+    	for(String group : groupNames) {
+    		if(Collections.frequency(groupNames, group) > 1) return false;
+    	}
+    	return true;
     }
 
 
@@ -77,7 +106,7 @@ public class NamedPattern {
     }
 
 
-    static List<String> extractGroupNames(String namedPattern) {
+    private List<String> extractGroupNames(String namedPattern) {
         List<String> groupNames = new ArrayList<String>();
         Matcher matcher = NAMED_GROUP_PATTERN.matcher(namedPattern);
         while (matcher.find()) {
@@ -86,9 +115,12 @@ public class NamedPattern {
         return groupNames;
     }
 
-
-    static Pattern buildStandardPattern(String namedPattern) {
-        return Pattern.compile(NAMED_GROUP_PATTERN.matcher(namedPattern).replaceAll("("));
+    private Pattern buildStandardPattern(String namedPattern) {
+    	try { 
+    		return Pattern.compile(NAMED_GROUP_PATTERN.matcher(namedPattern).replaceAll("("));
+    	} catch(PatternSyntaxException e) {
+    		return null; 
+    	}
     }
 
 }
