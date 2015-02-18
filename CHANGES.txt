@@ -1,4 +1,19 @@
 ======================================================================================================
+2015-02-18
+VERSION		v2.0.2
+
+ISSUES
+
+* fixes part a) of issue #63: B score description, cleanup
+* fixes #66: Operetta Reader node fails on Execution (due to missing values)
+* fixes #67: Plate Heatmap Viewer - well view fails with image data
+
+NEW FEATURES / IMPROVEMENTS
+
+* implementation of Mean-Aggregation and Mad-Aggregation
+* barcode pattern preference as table
+
+======================================================================================================
 2014-11-13
 VERSION		v2.0.1
 
