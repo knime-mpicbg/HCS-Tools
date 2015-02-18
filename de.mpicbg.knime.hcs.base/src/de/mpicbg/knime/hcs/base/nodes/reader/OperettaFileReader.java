@@ -10,6 +10,7 @@ import de.mpicbg.knime.hcs.core.TdsUtils;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.MissingCell;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -123,19 +124,10 @@ public class OperettaFileReader extends AbstractNodeModel {
                     String colValue = colData[i];
 
                     String value = colValue.trim();
-                    double doubleValue;
                     
-                    try {
-                    	// handle inf
-                    	if(value.equals("INF"))
-                    		doubleValue = Double.MAX_VALUE;
-                    	else
-                    		doubleValue = Double.parseDouble(value);
-                    } catch (NumberFormatException nfe) {
-                        throw new Exception(nfe.getMessage() + "\n" + "Operetta result files may only contain numerical data. Please re-export the result file: " + inputFile.getAbsolutePath());
-                    }
+                    DataCell valueCell = parseValue(value);  
                     
-                    knimeRow[i + 1] = colAttributes.get(i + 1).createCell(doubleValue);
+                    knimeRow[i + 1] = valueCell;
                 }
 
                 DataRow tableRow = new DefaultRow(new RowKey("" + rowCounter++), knimeRow);
@@ -152,7 +144,26 @@ public class OperettaFileReader extends AbstractNodeModel {
     }
 
 
-    private List<Attribute> getOperettaColModel(File inputFile) {
+    private DataCell parseValue(String value) throws Exception {
+		if(value.length() == 0)
+			return new MissingCell(null);
+		
+		double doubleValue;
+		try {
+            // handle inf
+        	if(value.equals("INF"))
+            	doubleValue = Double.POSITIVE_INFINITY;
+            else
+            	doubleValue = Double.parseDouble(value);
+        } catch (NumberFormatException nfe) {
+            throw new Exception(nfe.getMessage() + "\n" + "Operetta result files may only contain numerical data. Please re-export the result file: ");
+        }   
+		
+		return new DoubleCell(doubleValue);
+	}
+
+
+	private List<Attribute> getOperettaColModel(File inputFile) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(inputFile));
             String line;
