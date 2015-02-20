@@ -183,7 +183,7 @@ visualizeDrModels <- function(plotdata, plotOpts) {
 	p <- p + scale_x_log10(breaks = unique(rawDF$conc), labels = formatC(unique(rawDF$conc), digit = 2))
 	# one plot per response variable
 	p <- p + facet_wrap( ~ respVarName, ncol = numGridCols, scales = "free_y")
-	p <- p + ylab("") + opts(title = paste(title, " (Model: ", mName, ")", sep = ""))
+	p <- p + ylab("") + ggtitle(paste(title, " (Model: ", mName, ")", sep = ""))
 	if(!is.null(xLab) & !is.na(xLab)) p <- p + xlab(xLab)
 	if(!is.null(legendLab) & !is.na(legendLab)) p <- p + scale_colour_hue(legendLab)
 	print(p) 
