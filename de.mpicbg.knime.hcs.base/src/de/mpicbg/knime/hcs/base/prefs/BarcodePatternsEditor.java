@@ -233,8 +233,10 @@ public class BarcodePatternsEditor extends FieldEditor {
 	@Override
 	protected void doLoad() {
 		String items = getPreferenceStore().getString(getPreferenceName());
-		parsePatternString(items);
-        fillTable();
+		if(items.length() > 0) {
+			parsePatternString(items);
+			fillTable();
+		}
 	}
 
 	/**
@@ -304,12 +306,12 @@ public class BarcodePatternsEditor extends FieldEditor {
 	@Override
 	protected void doStore() {
 		// append regex patterns with ;
-		StringBuilder prefString = new StringBuilder();
+		StringBuilder prefString = new StringBuilder("");
 		for(String p : patternList) {
 			prefString.append(p + ";");
 		}
 		// remove last semicolon
-		prefString.deleteCharAt(prefString.length() - 1);
+		if(prefString.length() > 0) prefString.deleteCharAt(prefString.length() - 1);
 		// set preference string
 		getPreferenceStore().setValue(getPreferenceName(), prefString.toString());
 	}
