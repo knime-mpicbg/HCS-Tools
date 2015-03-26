@@ -8,3 +8,5 @@
 
 # Eclipse plugin files
 */.checkstyle
+
+*.ucl
