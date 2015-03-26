@@ -128,19 +128,19 @@ public class ExpandPlateBarcodeDialog extends NodeDialogPane {
 		boolean guessPattern = true;
 		if(settings.containsKey(ExpandPlateBarcodeModel.CFG_REGEX)) {
 			try {
-				m_barcodePatternSM.loadSettingsFrom(settings.getNodeSettings(ExpandPlateBarcodeModel.CFG_REGEX));
+				m_barcodePatternSM.loadSettingsFrom(settings);
 			} catch (InvalidSettingsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			barcodePattern = m_barcodePatternSM.getStringValue();
-			guessPattern = !m_barcodePatternSM.isEnabled();
+			guessPattern = !m_barcodePatternSM.isActive();
 			
 		}
 		
 		m_selectAutoGuess.setSelected(guessPattern);
 		
-		m_patternList = ExpandPlateBarcodeModel.getPreferencePatterns();
+		m_patternList = ExpandPlateBarcodeModel.getPrefPatternList();
 		((PatternRenderer)m_patternListbox.getCellRenderer()).setPreferencePatterns(new ArrayList<String>(m_patternList));
 		// if no pattern is given by the settings, the first preference pattern is used as default
 		if(barcodePattern == null) barcodePattern = m_patternList.get(0);
@@ -166,11 +166,9 @@ public class ExpandPlateBarcodeDialog extends NodeDialogPane {
 		
 		settings.addString(ExpandPlateBarcodeModel.CFG_BARCODE_COLUMN, m_columnPanel.getSelectedColumn());
 		
-		m_barcodePatternSM.setEnabled(!m_selectAutoGuess.isSelected());
+		m_barcodePatternSM.setIsActive(!m_selectAutoGuess.isSelected());
 		m_barcodePatternSM.setStringValue(m_patternListbox.getSelectedValue());
-		NodeSettings patternSettings = new NodeSettings(ExpandPlateBarcodeModel.CFG_REGEX);
-		m_barcodePatternSM.saveSettingsTo(patternSettings);
-		settings.addNodeSettings(patternSettings);
+		m_barcodePatternSM.saveSettingsTo(settings);
 	}
 
 }

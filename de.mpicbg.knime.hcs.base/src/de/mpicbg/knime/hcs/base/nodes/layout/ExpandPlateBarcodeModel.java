@@ -2,6 +2,7 @@ package de.mpicbg.knime.hcs.base.nodes.layout;
 
 import de.mpicbg.knime.hcs.base.HCSToolsBundleActivator;
 import de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel;
+import de.mpicbg.knime.hcs.base.prefs.BarcodePatternsEditor;
 import de.mpicbg.knime.hcs.base.prefs.HCSToolsPreferenceInitializer;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.Attribute;
@@ -11,9 +12,14 @@ import de.mpicbg.knime.knutils.TableUpdateCache;
 import de.mpicbg.knime.hcs.core.Utils;
 import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
 import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;
+import de.mpicbg.knime.hcs.core.barcodes.namedregexp.NamedMatcher;
 import de.mpicbg.knime.hcs.core.barcodes.namedregexp.NamedPattern;
+
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.knime.base.node.io.filereader.DataCellFactory;
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -27,6 +33,8 @@ import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.data.DataColumnSpec;
 
@@ -40,11 +48,14 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
 	public static final String CFG_BARCODE_COLUMN_DFT = AbstractScreenTrafoModel.GROUP_WELLS_BY_DEFAULT;
 	
 	public static final String CFG_REGEX = "barcode.pattern"; // no default available
+	
+	private Set<NamedPattern> prefPatterns;
 
 	/**
 	 * constructor, adds model settings
 	 */
     protected ExpandPlateBarcodeModel() {
+    	super(1,1,true);
     	addModelSetting(ExpandPlateBarcodeModel.CFG_BARCODE_COLUMN, createBarcodeColumnSM());
     	addModelSetting(ExpandPlateBarcodeModel.CFG_REGEX, createBarcodePatternSM());
     }
@@ -59,8 +70,8 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
     /**
      * @return settings model for barcode pattern
      */
-    public static SettingsModelString createBarcodePatternSM() {
-    	return new SettingsModelString(CFG_REGEX, null);
+    public static SettingsModelOptionalString createBarcodePatternSM() {
+    	return new SettingsModelOptionalString(CFG_REGEX, null, false);
     }
 
     @Override
@@ -149,17 +160,34 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
     /**
      * retrieve a list of barcode patterns from preferences
      * @return
+     * @throws InvalidSettingsException 
      */
-    public static List<String> getPreferencePatterns() {
+    private void loadPreferencePatterns() throws InvalidSettingsException {
+    	List<String> patternStrings = getPrefPatternList();
+    	
+    	this.prefPatterns = new HashSet<NamedPattern>();
+    	
+    	for(String p : patternStrings) {
+    		NamedPattern np = NamedPattern.compile(p);
+    		if(np.isValidPattern())
+    			this.prefPatterns.add(np);
+    		else
+    			throw new InvalidSettingsException("Preference barcode pattern '" + p + "' is not a valid pattern");
+    	}
+    }
+    
+    public static List<String> getPrefPatternList() {
     	IPreferenceStore prefStore = HCSToolsBundleActivator.getDefault().getPreferenceStore();
-        return Arrays.asList(prefStore.getString(HCSToolsPreferenceInitializer.BARCODE_PATTERNS).split(";"));
+    	List<String> patternStrings = BarcodePatternsEditor.getPatternList(prefStore.getString(HCSToolsPreferenceInitializer.BARCODE_PATTERNS));
+    	
+    	return patternStrings;
     }
 
 
     public static BarcodeParserFactory loadFactory() {
         IPreferenceStore prefStore = HCSToolsBundleActivator.getDefault().getPreferenceStore();
 
-        List<String> patterns = Arrays.asList(prefStore.getString(HCSToolsPreferenceInitializer.BARCODE_PATTERNS).split(";"));
+        List<String> patterns = BarcodePatternsEditor.getPatternList(prefStore.getString(HCSToolsPreferenceInitializer.BARCODE_PATTERNS));
         return new BarcodeParserFactory(patterns);
     }
 
@@ -202,60 +230,156 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
         }
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
         DataTableSpec tSpec = inSpecs[0];
+        
+        List<String> warnings = new ArrayList<String>();
+        loadPreferencePatterns();
         
         // get settings if available
         String barcodeColumn = null;
         if(getModelSetting(CFG_BARCODE_COLUMN) != null) barcodeColumn = ((SettingsModelString) getModelSetting(CFG_BARCODE_COLUMN)).getStringValue();
         String barcodePattern = null;
-        if(getModelSetting(CFG_REGEX) != null) barcodePattern = ((SettingsModelString) getModelSetting(CFG_REGEX)).getStringValue();
+        boolean usePattern = false;
+        if(getModelSetting(CFG_REGEX) != null) {
+        	barcodePattern = ((SettingsModelString) getModelSetting(CFG_REGEX)).getStringValue();
+        	usePattern = ((SettingsModelOptionalString) getModelSetting(CFG_REGEX)).isActive();
+        }
+        NamedPattern pattern = null;
         
-        // check if input table has string compatible columns at all
-        boolean hasStringColumns = false;
-        for(String col : tSpec.getColumnNames()) {
-        	if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class)) {
-        		hasStringColumns = true;
-        		break;
-        	}
-        }
-        if(!hasStringColumns) {
-        	throw new InvalidSettingsException("Input table must contain at least one string column");
-        }
-        
-        // check whether regex patterns are available at all
-        List<String> prefPatterns = getPreferencePatterns();
-        if(prefPatterns.isEmpty()) {
-        	throw new InvalidSettingsException("No barcode patterns available from Preferences > KNIME > HCS-Tools");
-        }
+        // checks for barcode column
+        // =====================================================================================
         
         // check if barcode column is available in input column
         if(barcodeColumn != null) {
         	if(!tSpec.containsName(barcodeColumn)) {
-        		throw new InvalidSettingsException("Column '" + barcodeColumn + "' is not available in input table. Please reconfigure the node");
-        	}
-        }
-        
-        // if barcode pattern is not set, select one pattern from list as a guess
-        if(barcodePattern == null) {
-        	barcodePattern = prefPatterns.get(0);
-        	this.setWarningMessage("No barcode pattern has been set. The first pattern from preferences will be used as default");
-        }
-        
-        // check if a valid pattern has been selected
-        NamedPattern pattern = NamedPattern.compile(barcodePattern);
-        if(!pattern.isValidPattern()) {
-        	throw new InvalidSettingsException("Barcode pattern is not valid. Please check Preferences > KNIME > HCS-Tools");
-        }
-        
-        ColumnRearranger cRearr = createColumnRearranger(tSpec, pattern, tSpec.findColumnIndex(barcodeColumn));
+        		String bcColumn = barcodeColumn;        		
+        		// check if "barcode" column available
+                if(tSpec.containsName(CFG_BARCODE_COLUMN_DFT)) {
+                	if(tSpec.getColumnSpec(CFG_BARCODE_COLUMN_DFT).getType().isCompatible(StringValue.class)) {
+                		barcodeColumn = CFG_BARCODE_COLUMN_DFT;
+                	}
+                } else {
+                	// check if input table has string compatible columns at all
+                    String firstStringColumn = null;
+                    for(String col : tSpec.getColumnNames()) {
+            	        if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class)) {
+            	        	firstStringColumn = col;
+            	        	break;
+            	        }
+            	    }
+            	    if(firstStringColumn == null) {
+            	    	throw new InvalidSettingsException("Input table must contain at least one string column");
+            	    }
 
-        return new DataTableSpec[]{cRearr.createSpec()};
+                    barcodeColumn = firstStringColumn;
+                }
+        		warnings.add("Column '" + bcColumn + "' is not available in input table. Autoguess barcode column: " + barcodeColumn);
+        	} else {
+        		if(!tSpec.getColumnSpec(barcodeColumn).getType().isCompatible(StringValue.class))
+        			throw new InvalidSettingsException("Column '" + barcodeColumn + "' is not a string column");
+        	}
+       }
+  
+       
+       // checks for pattern
+       // =====================================================================================
+       
+       // if the pattern should be auto-guessed during execution (default)
+       if(!usePattern) {
+    	   // check if there is any pattern in preference settings
+    	   if(prefPatterns.isEmpty()) {
+    		   throw new InvalidSettingsException("No barcode patterns available from Preferences > KNIME > HCS-Tools");
+    	   }
+    	   
+    	   // select pattern by fitting domain values (if available)
+    	   DataColumnDomain bcDomain = tSpec.getColumnSpec(barcodeColumn).getDomain();   
+    	   if(bcDomain.hasValues()) {
+    		   HashMap<NamedPattern, Integer> patternMap = new HashMap<NamedPattern, Integer>();
+    		   Set<DataCell> bcDomainValues = bcDomain.getValues();
+    		   
+    		   // count matches for each pattern
+    		   int count = 0;
+    		   for(NamedPattern np : prefPatterns) {
+    			   patternMap.put(np, new Integer(0));
+    			   for(DataCell cell : bcDomainValues) {
+    				   if(doesMatch(((StringCell)cell).getStringValue(), np))
+    					   patternMap.put(np, patternMap.get(np) + 1);
+    			   }
+    			   Integer maxCount = (Integer)patternMap.get(np);
+    			   if(maxCount > count) {
+    				   count = maxCount;
+    				   pattern = np;	// set auto-guessed pattern to the one with the most matches
+    			   }
+    		   }
+    		   
+    		   // if not pattern did match any of the barcodes
+    		   if(count == 0) {
+    			   throw new InvalidSettingsException("Domain values do not match available barcode patterns");
+    		   }
+    		   
+    	   } else {
+    		   warnings.add("Cannot forecast output table spec as the column '" + barcodeColumn + "' does not provide domain values");
+    		   return new DataTableSpec[]{null};
+    	   }
+    	   
+       } else {
+    	   // as 'usePattern' is true, the barcode pattern could be retrieved from the model setting
+    	   assert(barcodePattern != null);
+    	   
+    	   pattern = NamedPattern.compile(barcodePattern);
+    	   
+    	   // check if pattern is valid
+    	   if(!pattern.isValidPattern())
+    		   throw new InvalidSettingsException("Barcode pattern from node settings is not valid");
+    	   
+    	   // check if this pattern is part of the preference patterns
+    	   if(!prefPatterns.contains(pattern)) {
+    		   warnings.add("Be aware: The barcode pattern " + barcodePattern + "cannot be found in your preference settings.");
+    	   }
+       }
+       
+       // push last warning message
+       if(!warnings.isEmpty()) this.setWarningMessage(warnings.get(warnings.size() - 1));
+       
+       updateModelSettings(barcodeColumn, pattern);
+       
+       ColumnRearranger cRearr = createColumnRearranger(tSpec, pattern, tSpec.findColumnIndex(barcodeColumn));
+
+       return new DataTableSpec[]{cRearr.createSpec()};
     }
     
-    private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final NamedPattern pattern, final int bcIdx) {
+    /**
+     * update model settings after auto-guessing column and pattern
+     * @param barcodeColumn
+     * @param pattern
+     */
+    private void updateModelSettings(String barcodeColumn, NamedPattern pattern) {
+		((SettingsModelString)this.getModelSetting(CFG_BARCODE_COLUMN)).setStringValue(barcodeColumn);
+		((SettingsModelOptionalString)this.getModelSetting(CFG_REGEX)).setStringValue(pattern.namedPattern());
+	}
+
+    /**
+     * @param barcode
+     * @param pattern
+     * @return true, if the barcode matches the pattern
+     */
+	private boolean doesMatch(String barcode, NamedPattern pattern) {
+		
+    	NamedMatcher matcher = pattern.matcher(barcode);
+
+        if (matcher.matches()) {
+            return true;
+        }
+    	
+		return false;
+	}
+
+	private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final NamedPattern pattern, final int bcIdx) {
     	
     	final List<String> groupNames = pattern.groupNames();
     	// create new column specs
@@ -291,6 +415,8 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
                     return result;
                 }
                 
+                DataCellFactory cellFactory = new DataCellFactory();
+                
                 //get barcode
                 String s = ((StringValue)c).getStringValue();
                 BarcodeParser parser = new BarcodeParser(s, pattern);
@@ -298,11 +424,38 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
                 for(String group : typeMapping.keySet()) {
                 	DataType dtype = typeMapping.get(group);
                 	String substring = parser.getGroup(group);
-                	result[i] = de.mpicbg.knime.knutils.Utils.createCellByType(dtype, substring);                		
+                	result[i] = cellFactory.createDataCellOfType(dtype, substring);                		
                 }               
                 return result;
             }
         });
         return rearranger;
     }
+    
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void validateSettings(NodeSettingsRO settings)
+			throws InvalidSettingsException {
+		super.validateSettings(settings);
+		
+		// check if the barcode pattern is a valid pattern
+		if(settings.containsKey(CFG_REGEX)) {
+			SettingsModelOptionalString sm  = ((SettingsModelOptionalString)this.getModelSetting(CFG_REGEX));
+			sm.loadSettingsFrom(settings);
+			
+	        // check if a valid pattern has been selected
+			String p = sm.getStringValue();
+			if(p != null) {
+		        NamedPattern pattern = NamedPattern.compile(p);
+		        if(!pattern.isValidPattern()) {
+		        	throw new InvalidSettingsException("Barcode pattern is not valid. Please check Preferences > KNIME > HCS-Tools");
+		        }
+			}
+		}
+		
+		//check if all preference patterns are valid
+		loadPreferencePatterns();
+	}
 }

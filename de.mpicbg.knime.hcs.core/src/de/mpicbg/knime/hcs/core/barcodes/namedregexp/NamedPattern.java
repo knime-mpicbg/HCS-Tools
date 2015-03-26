@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * 
@@ -196,5 +198,31 @@ public class NamedPattern {
 		
         return groupStrings;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17, 31). 
+	            append(namedPattern).
+	            toHashCode();
+	}
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof NamedPattern))
+            return false;
+        if (obj == this)
+            return true;
+
+        NamedPattern np = (NamedPattern) obj;
+        return new EqualsBuilder().
+            append(namedPattern, np.namedPattern()).
+            isEquals();
+	}
 
 }
