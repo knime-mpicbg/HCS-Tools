@@ -40,20 +40,6 @@
               factory-class="de.mpicbg.knime.hcs.base.nodes.norm.npi.NpiNormalizerNodeFactory"
               id="de.mpicbg.tds.knime.hcstools.normalization.bycolumn.node_npi.NpiNormalizerNodeFactory"/>
 
-        <!--
-        <node category-path="/community/hcstools/normalization"
-              factory-class="de.mpicbg.tds.knime.hcstools.normalization.POCNormalizerFactory"
-              id="de.mpicbg.tds.knime.hcstools.normalization.POCNormalizerFactory"/>
-
-        <node category-path="/community/hcstools/normalization"
-              factory-class="de.mpicbg.tds.knime.hcstools.normalization.NPINormalizerFactory"
-              id="de.mpicbg.tds.knime.hcstools.normalization.NPINormalizerFactory"/>
-
-        <node category-path="/community/hcstools/normalization"
-              factory-class="de.mpicbg.tds.knime.hcstools.normalization.ZScoreNormalizerFactory"
-              id="de.mpicbg.tds.knime.hcstools.normalization.ZScoreNormalizerFactory"/>
-        -->
-
         <node category-path="/community/hcstools/normalization"
               factory-class="de.mpicbg.knime.hcs.base.nodes.norm.BScoreNormalizerFactory"
               id="de.mpicbg.tds.knime.hcstools.normalization.BScoreNormalizerFactory"/>
@@ -65,10 +51,6 @@
 
 
         <!--visualization-->
-        <node category-path="/community/hcstools/view"
-              factory-class="de.mpicbg.knime.hcs.base.nodes.viz.ScreenExplorerFactory"
-              id="de.mpicbg.tds.knime.hcstools.visualization.ScreenExplorerFactory"/>
-
         <node category-path="/community/hcstools/view"
               factory-class="de.mpicbg.knime.hcs.base.nodes.viz.HeatMapViewerFactory"
               id="de.mpicbg.tds.knime.hcstools.visualization.HeatMapViewerFactory"/>
