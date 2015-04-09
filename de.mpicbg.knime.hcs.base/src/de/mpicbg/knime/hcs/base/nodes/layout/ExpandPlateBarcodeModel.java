@@ -64,7 +64,7 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
      * @return settings model for barcode column
      */
     public static SettingsModelString createBarcodeColumnSM() {
-        return new SettingsModelString(CFG_BARCODE_COLUMN, CFG_BARCODE_COLUMN_DFT);
+        return new SettingsModelString(CFG_BARCODE_COLUMN, null);
     }
     
     /**
@@ -145,14 +145,8 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
         Set<String> someBarcodes = new HashSet<String>();
 
         int counter = 0;
-        for (DataRow dataRow : input) {
-            // just collect a subset of all barchodes
-//            if (counter++ > 100) {
-//                break;
-//            }
-
+        for (DataRow dataRow : input)
             someBarcodes.add(barcodeAttribute.getNominalAttribute(dataRow));
-        }
 
         return new ArrayList<String>(someBarcodes);
     }
@@ -254,38 +248,20 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
         // checks for barcode column
         // =====================================================================================
         
+        // if barcode column is not set, try autoguessing
+        if(barcodeColumn == null) {
+        	barcodeColumn = tryAutoGuessingBarcodeColumn(tSpec);
+            ((SettingsModelString)this.getModelSetting(CFG_BARCODE_COLUMN)).setStringValue(barcodeColumn);
+            warnings.add("Autoguess barcode column: " + barcodeColumn);
+        } 
+        
         // check if barcode column is available in input column
-        if(barcodeColumn != null) {
-        	if(!tSpec.containsName(barcodeColumn)) {
-        		String bcColumn = barcodeColumn;        		
-        		// check if "barcode" column available
-                if(tSpec.containsName(CFG_BARCODE_COLUMN_DFT)) {
-                	if(tSpec.getColumnSpec(CFG_BARCODE_COLUMN_DFT).getType().isCompatible(StringValue.class)) {
-                		barcodeColumn = CFG_BARCODE_COLUMN_DFT;
-                	}
-                } else {
-                	// check if input table has string compatible columns at all
-                    String firstStringColumn = null;
-                    for(String col : tSpec.getColumnNames()) {
-            	        if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class)) {
-            	        	firstStringColumn = col;
-            	        	break;
-            	        }
-            	    }
-            	    if(firstStringColumn == null) {
-            	    	throw new InvalidSettingsException("Input table must contain at least one string column");
-            	    }
+        if(!tSpec.containsName(barcodeColumn))
+        	throw new InvalidSettingsException("Column '" + barcodeColumn + "' is not available in input table.");    		
+        if(!tSpec.getColumnSpec(barcodeColumn).getType().isCompatible(StringValue.class))
+        	throw new InvalidSettingsException("Column '" + barcodeColumn + "' is not a string column");
 
-                    barcodeColumn = firstStringColumn;
-                }
-        		warnings.add("Column '" + bcColumn + "' is not available in input table. Autoguess barcode column: " + barcodeColumn);
-        	} else {
-        		if(!tSpec.getColumnSpec(barcodeColumn).getType().isCompatible(StringValue.class))
-        			throw new InvalidSettingsException("Column '" + barcodeColumn + "' is not a string column");
-        	}
-       }
-  
-       
+
        // checks for pattern
        // =====================================================================================
        
@@ -299,28 +275,7 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
     	   // select pattern by fitting domain values (if available)
     	   DataColumnDomain bcDomain = tSpec.getColumnSpec(barcodeColumn).getDomain();   
     	   if(bcDomain.hasValues()) {
-    		   HashMap<NamedPattern, Integer> patternMap = new HashMap<NamedPattern, Integer>();
-    		   Set<DataCell> bcDomainValues = bcDomain.getValues();
-    		   
-    		   // count matches for each pattern
-    		   int count = 0;
-    		   for(NamedPattern np : prefPatterns) {
-    			   patternMap.put(np, new Integer(0));
-    			   for(DataCell cell : bcDomainValues) {
-    				   if(doesMatch(((StringCell)cell).getStringValue(), np))
-    					   patternMap.put(np, patternMap.get(np) + 1);
-    			   }
-    			   Integer maxCount = (Integer)patternMap.get(np);
-    			   if(maxCount > count) {
-    				   count = maxCount;
-    				   pattern = np;	// set auto-guessed pattern to the one with the most matches
-    			   }
-    		   }
-    		   
-    		   // if not pattern did match any of the barcodes
-    		   if(count == 0) {
-    			   throw new InvalidSettingsException("Domain values do not match available barcode patterns");
-    		   }
+    		   pattern = autoGuessBarcodePattern(bcDomain);
     		   
     	   } else {
     		   warnings.add("Cannot forecast output table spec as the column '" + barcodeColumn + "' does not provide domain values");
@@ -346,24 +301,74 @@ public class ExpandPlateBarcodeModel extends AbstractNodeModel {
        // push last warning message
        if(!warnings.isEmpty()) this.setWarningMessage(warnings.get(warnings.size() - 1));
        
-       updateModelSettings(barcodeColumn, pattern);
-       
        ColumnRearranger cRearr = createColumnRearranger(tSpec, pattern, tSpec.findColumnIndex(barcodeColumn));
 
        return new DataTableSpec[]{cRearr.createSpec()};
     }
-    
-    /**
-     * update model settings after auto-guessing column and pattern
-     * @param barcodeColumn
-     * @param pattern
-     */
-    private void updateModelSettings(String barcodeColumn, NamedPattern pattern) {
-		((SettingsModelString)this.getModelSetting(CFG_BARCODE_COLUMN)).setStringValue(barcodeColumn);
-		((SettingsModelOptionalString)this.getModelSetting(CFG_REGEX)).setStringValue(pattern.namedPattern());
-	}
 
     /**
+     * from domain values, try to find the best fitting barcode pattern
+     * @param bcDomain
+     * @return barcode pattern
+     * @throws InvalidSettingsException, if no pattern matches the domain values
+     */
+	private NamedPattern autoGuessBarcodePattern(DataColumnDomain bcDomain) throws InvalidSettingsException {
+		HashMap<NamedPattern, Integer> patternMap = new HashMap<NamedPattern, Integer>();
+		   Set<DataCell> bcDomainValues = bcDomain.getValues();
+		   
+		   // count matches for each pattern
+		   int count = 0;
+		   NamedPattern retPattern = null;
+		   for(NamedPattern np : prefPatterns) {
+			   patternMap.put(np, new Integer(0));
+			   for(DataCell cell : bcDomainValues) {
+				   if(doesMatch(((StringCell)cell).getStringValue(), np))
+					   patternMap.put(np, patternMap.get(np) + 1);
+			   }
+			   Integer maxCount = (Integer)patternMap.get(np);
+			   if(maxCount > count) {
+				   count = maxCount;
+				   retPattern = np;	// set auto-guessed pattern to the one with the most matches
+			   }
+		   }
+		   
+		   // if not pattern did match any of the barcodes
+		   if(count == 0) {
+			   throw new InvalidSettingsException("Domain values do not match available barcode patterns");
+		   } else
+			   return retPattern;
+	}
+
+	/**
+	 * checks input table spec for possible barcode column (if no setting available)
+	 * @param tSpec
+	 * @return column name
+	 * @throws InvalidSettingsException, if no string column available
+	 */
+    private String tryAutoGuessingBarcodeColumn(DataTableSpec tSpec) throws InvalidSettingsException {
+    	
+    	// check if "barcode" column available
+        if(tSpec.containsName(CFG_BARCODE_COLUMN_DFT)) {
+        	if(tSpec.getColumnSpec(CFG_BARCODE_COLUMN_DFT).getType().isCompatible(StringValue.class)) {
+        		return CFG_BARCODE_COLUMN_DFT;
+        	}
+        }
+       
+        // check if input table has string compatible columns at all
+        String firstStringColumn = null;
+        for(String col : tSpec.getColumnNames()) {
+        	if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class)) {
+        		firstStringColumn = col;
+        		break;
+        	}
+        }
+        if(firstStringColumn == null) {
+        	throw new InvalidSettingsException("Input table must contain at least one string column");
+        }
+        return firstStringColumn;
+	}
+
+	/**
      * @param barcode
      * @param pattern
      * @return true, if the barcode matches the pattern
