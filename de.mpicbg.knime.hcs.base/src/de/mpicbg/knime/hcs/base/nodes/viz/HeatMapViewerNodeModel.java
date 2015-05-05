@@ -53,6 +53,7 @@ import de.mpicbg.knime.hcs.base.heatmap.io.ScreenImage;
 import de.mpicbg.knime.hcs.base.heatmap.menu.HeatMapColorToolBar;
 import de.mpicbg.knime.hcs.base.heatmap.renderer.HeatTrellis;
 import de.mpicbg.knime.hcs.base.nodes.layout.ExpandPlateBarcodeModel;
+import de.mpicbg.knime.hcs.base.utils.HCSBundleUtils;
 import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
 import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;
 import de.mpicbg.knime.hcs.core.model.Plate;
@@ -529,7 +530,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 plateColAttribute,
                 parameters,
                 factors,
-                ExpandPlateBarcodeModel.loadFactory(),
+                HCSBundleUtils.loadFactory(),
                 exec));
     }
 

@@ -85,9 +85,18 @@ public class BarcodeParser {
     public BarcodeParser(String barcode, NamedPattern barcodePattern) {
         barcodeMatcher = barcodePattern.matcher(barcode);
 
-        if (!barcodeMatcher.matches()) {
+        // is it useful at any point?
+        /*if (!barcodeMatcher.matches()) {
             throw new IllegalArgumentException("barcode '" + barcode + "' doesn't match pattern: " + barcodePattern.namedPattern());
-        }
+        }*/
+    }
+    
+    /**
+     * test whether the barcode matches the pattern
+     * @return true, if pattern matches
+     */
+    public boolean doesMatchPattern() {
+    	return barcodeMatcher.matches();
     }
 
 
