@@ -1,4 +1,17 @@
 ======================================================================================================
+2015-05-28
+VERSION		v2.0.3
+
+ISSUES
+
+* fixes issue #70: MAD-Aggregation throws error for some columns
+* Plate Heatmap Viewer: fix bug with 'Global Color Scale' setting (enable/disable menu correctly)
+* change plate attribute "Date of Acquisition" into "Date"
+* fix icon for NPI Normalizer node
+* mark old Plate Viewer as deprecated and remove it from node repository
+* fix dose-response template: opts(...) is now deprecated in ggplot2, had to be replaced
+
+======================================================================================================
 2015-02-18
 VERSION		v2.0.2
 
