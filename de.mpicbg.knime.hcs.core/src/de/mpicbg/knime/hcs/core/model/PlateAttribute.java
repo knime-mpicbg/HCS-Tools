@@ -11,7 +11,7 @@ package de.mpicbg.knime.hcs.core.model;
 
 public enum PlateAttribute implements java.io.Serializable {
 
-    SCREENED_AT             ("screenedAt", "Date of Acquisition"),
+    SCREENED_AT             ("screenedAt", "Date"),
     LIBRARY_PLATE_NUMBER    ("libraryPlateNumber", "Library Plate Number"),
     BARCODE                 ("barcode", "Barcode"),
     ASSAY                   ("assay", "Assay"),
