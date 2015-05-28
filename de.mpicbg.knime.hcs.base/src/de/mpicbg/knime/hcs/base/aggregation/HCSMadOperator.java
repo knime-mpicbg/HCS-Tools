@@ -64,7 +64,7 @@ public class HCSMadOperator extends MedianOperator {
         stats.setMadImpl(new MadStatistic(madScalingFactor));
 		
 		for(DataCell dc : cells) {
-			double val = ((DoubleCell)dc).getDoubleValue();
+			double val = ((DoubleValue)dc).getDoubleValue();
 			stats.addValue(val);
 		}
 			

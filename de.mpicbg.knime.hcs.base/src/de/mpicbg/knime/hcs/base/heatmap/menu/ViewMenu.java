@@ -369,7 +369,8 @@ public class ViewMenu extends JMenu implements HeatMapModelChangeListener {
 
 	@Override
 	public void modelChanged() {
-		this.colorMapMenu.setEnabled(!heatMapModel.isGlobalScaling());
+		if(parent.getChildViews() == null)
+			this.colorMapMenu.setEnabled(!heatMapModel.isGlobalScaling());
 		
 		this.markSelection.setSelected(heatMapModel.doMarkSelection());
 		this.overlayHider.setSelected(this.heatMapModel.doHideMostFreqOverlay());

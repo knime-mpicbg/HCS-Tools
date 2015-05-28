@@ -243,11 +243,14 @@ public class TrellisMenu extends JMenu {
     private void globalScalingAction(ActionEvent event) {
         JCheckBoxMenuItem item = (JCheckBoxMenuItem) event.getSource();
 
+        // if no single plate view is opened, apply change
         if (heatTrellis.plateViewers.isEmpty()) {
             heatMapModel.setGlobalScaling(item.isSelected());
+            heatMapModel.fireModelChanged();
             return;
         }
 
+        // if single plate views are open they need to be closed to apply the change, otherwise keep old value
         Object[] options = {"Cancel", "Proceed"};
         int optionIndex = JOptionPane.showOptionDialog(getTopLevelAncestor(),
                 "<html>To keep the windows consistent,<br/>" +
@@ -263,6 +266,7 @@ public class TrellisMenu extends JMenu {
         } else {
             heatMapModel.setGlobalScaling(item.isSelected());
             heatTrellis.closePlateViewers();
+            heatMapModel.fireModelChanged();
         }
     }
 
