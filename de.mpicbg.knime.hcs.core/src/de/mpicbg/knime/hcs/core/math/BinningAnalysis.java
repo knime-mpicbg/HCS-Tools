@@ -58,7 +58,7 @@ public class BinningAnalysis {
     private void createBins() {
         double[] percentiles = new double[nBins + 1];
 
-        double delta = 100 / nBins;
+        double delta = (double) 100 / nBins;
 
         // create a sequence of breaks from 0 - 100 to calculate the percentiles
         percentiles[0] = 0;
