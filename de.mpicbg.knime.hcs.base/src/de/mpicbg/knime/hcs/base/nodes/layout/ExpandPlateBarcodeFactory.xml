@@ -20,15 +20,62 @@
                 <br/>
                 KNIME->Preferences->KNIME->HCS-Tools->Barcode patterns
             </p>
-            <p>
-                This is an example:
-                <br/>
-                (?&lt;libplatenumber&gt;[0-9]{3})(?&lt;projectcode&gt;[A-z]{2})(?&lt;date&gt;[0-9]{6})(?&lt;replicate&gt;[A-z]{1})-(?&lt;libcode&gt;[_A-z\d]{3})(?&lt;assay&gt;[-_+\s\w\d]*)
-				<br/>
-				Each wanted meta information is marked as a named group and results in a new column. Definition pattern:<br/>
-				(?&lt;groupname&gt;<i>regular expression</i>)<br/><br/>
+                <h4>This is an example:</h4>
+                <b>Selected Barcode Pattern:</b><i>(line breaks only for better visualization)</i><br/>
+                <tt>(?&lt;libplatenumber&gt;[0-9]{3})</tt><br/>
+                <tt>(?&lt;projectcode&gt;[A-z]{2})</tt><br/>
+                <tt>(?&lt;date&gt;[0-9]{6})</tt><br/>
+                <tt>(?&lt;replicate&gt;[A-z]{1})</tt><br/>
+                <tt>-</tt><br/>
+                <tt>(?&lt;libcode&gt;[_A-z\d]{3})</tt><br/>
+                <tt>(?&lt;assay&gt;[-_+\s\w\d]*)</tt><br/>
+                <table>
+                	<tr>
+                		<th></th>
+                		<th colspan="6">Extracted metadata columns</th>
+                	</tr>
+                	<tr>
+                		<th>Barcodes from input column</th>
+                		<th>library plate number</th>
+                		<th>project code</th>
+                		<th>date</th>
+                		<th>replicate</th>
+                		<th>library code</th>
+                		<th>assay</th>
+                	</tr>
+                	<tr>
+                		<td>001AL100914C-CPW1nMovn</td>
+                		<td>1</td>
+                		<td>AL</td>
+                		<td>100914</td>
+                		<td>C</td>
+                		<td>CPW</td>
+                		<td>1nMovn</td>
+                	</tr>
+                	<tr>
+                		<td>006AL100914A-CPW1nMovn</td>
+                		<td>6</td>
+                		<td>AL</td>
+                		<td>100914</td>
+                		<td>A</td>
+                		<td>CPW</td>
+                		<td>1nMovn</td>
+                	</tr>
+                	<tr>
+                		<td>001MB140502D-KBI_lowGlucose</td>
+                		<td>1</td>
+                		<td>MB</td>
+                		<td>140502</td>
+                		<td>D</td>
+                		<td>KBI</td>
+                		<td>_lowGlucose</td>
+                	</tr>
+                </table>
+				<p>Each wanted meta information is marked as a named group and results in a new column. </p>
+				<b>Definition pattern:</b> <tt>(?&lt;groupname&gt;</tt><i>regular expression</i><tt>)</tt>
+				<br/><br/>
 				The group name will be the name of the new column, beside a few exceptions:   
-            </p>
+
             <table>
 				<tr><th>group name</th><th>column name</th></tr>
 				<tr><td>libplatenumber</td><td>library plate number</td></tr>
@@ -38,10 +85,10 @@
 			</table>
         </intro>
 
-        <option name="Barcode Column">The string column containing barcodes.
+        <option name="Barcode Column">The string column containing barcodes
         </option>
-        <option name="Guess pattern">If activated, the node tries to find the best matching pattern from all available barcode patterns.<br/>
-        If deactivated, the user need to select one of the barcode patterns.
+        <option name="Guess pattern">If activated, the node tries to find the best matching pattern from all available barcode patterns. (default)<br/>
+        If deactivated, the user need to select one of the listed barcode patterns.
         </option>
 
     </fullDescription>
@@ -49,7 +96,7 @@
     <ports>
         <inPort index="0" name="Plate data">Table with barcode column
         </inPort>
-        <outPort index="0" name="Input table with barcode metadata">Input table with additional columns containing barcode metadata.
+        <outPort index="0" name="Input table with barcode metadata">Input table with additional columns containing the extracted barcode metadata.
         </outPort>
     </ports>
 
