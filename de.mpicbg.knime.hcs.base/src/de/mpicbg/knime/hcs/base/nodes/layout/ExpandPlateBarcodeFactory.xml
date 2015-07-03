@@ -90,6 +90,9 @@
         <option name="Guess pattern">If activated, the node tries to find the best matching pattern from all available barcode patterns. (default)<br/>
         If deactivated, the user need to select one of the listed barcode patterns.
         </option>
+        <option name="Insert meta information behind">Select the column behind which the new meta information columns should appear. <br/>
+        Select &lt;RowID&gt; to put them first. Default values will be 'plateColumn' (if available) or the autoguessed barcode column.
+        </option>
 
     </fullDescription>
 

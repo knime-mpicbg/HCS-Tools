@@ -5,6 +5,7 @@ package de.mpicbg.knime.hcs.base.nodes.layout;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -17,8 +18,10 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.Border;
 
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -27,7 +30,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
+import org.knime.core.node.util.ColumnFilterPanel;
 import org.knime.core.node.util.ColumnSelectionPanel;
+import org.knime.core.node.util.DataValueColumnFilter;
 
 import de.mpicbg.knime.hcs.core.barcodes.namedregexp.PatternRenderer;
 
@@ -58,6 +63,11 @@ public class ExpandPlateBarcodeDialog extends NodeDialogPane {
 	 */
 	private JList<String> m_patternListbox;
 	
+	/**
+	 * panel to select 'insert-behind' column
+	 */
+	private final ColumnSelectionPanel m_insertColumnPanel;
+	
 	// FURTHER MEMBERS
 	
 	/**
@@ -79,6 +89,14 @@ public class ExpandPlateBarcodeDialog extends NodeDialogPane {
 		
 		JPanel panel = new JPanel(new BorderLayout());
 		
+		// Barcode column selection
+		m_columnPanel = new ColumnSelectionPanel("Barcode Column", StringValue.class);
+		m_columnPanel.setRequired(true);
+
+		panel.add(m_columnPanel,BorderLayout.NORTH);
+		
+		JPanel patternSelectionPanel = new JPanel(new BorderLayout());
+		
 		m_selectAutoGuess = new JCheckBox("Guess pattern");
 		m_selectAutoGuess.addItemListener(new ItemListener(){
 
@@ -89,25 +107,32 @@ public class ExpandPlateBarcodeDialog extends NodeDialogPane {
 			
 		});
 		
-		panel.add(m_selectAutoGuess, BorderLayout.NORTH);
+		patternSelectionPanel.add(m_selectAutoGuess, BorderLayout.NORTH);
               
         // Barcode pattern selection
         m_patternListboxModel = new DefaultListModel<String>();
         m_patternListbox = new JList<String>(m_patternListboxModel);
         m_patternListbox.setCellRenderer(new PatternRenderer());
         m_patternListbox.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        //m_patternList.setPreferredSize(this.getPanel().getPreferredSize());
+        m_patternListbox.setVisibleRowCount(4);
         
+        // listbox width as the rest of the dialog components
+        // listbox height to make 4 list-entries visible
         JScrollPane scrollPane = new JScrollPane(m_patternListbox);
-        scrollPane.setPreferredSize(this.getPanel().getPreferredSize());
+        Dimension dim = m_patternListbox.getPreferredScrollableViewportSize();
+        dim.setSize(this.getPanel().getPreferredSize().getWidth(), dim.height);
+        scrollPane.setPreferredSize(dim);
         
-        panel.add(scrollPane, BorderLayout.CENTER);
+        patternSelectionPanel.add(scrollPane, BorderLayout.CENTER);
         
+		panel.add(patternSelectionPanel, BorderLayout.CENTER);
+		
 		// Barcode column selection
-		m_columnPanel = new ColumnSelectionPanel("Barcode Column", StringValue.class);
-        m_columnPanel.setRequired(true);
-        
-        panel.add(m_columnPanel,BorderLayout.SOUTH);
+		Border b = BorderFactory.createTitledBorder("Insert meta information behind");
+		m_insertColumnPanel = new ColumnSelectionPanel(b, new DataValueColumnFilter(DataValue.class), false, true);
+		m_insertColumnPanel.setRequired(true);
+
+		panel.add(m_insertColumnPanel,BorderLayout.SOUTH);
         
         this.addTab("Settings", panel);
 	}
@@ -122,6 +147,13 @@ public class ExpandPlateBarcodeDialog extends NodeDialogPane {
 		String barcodeColumn = settings.getString(ExpandPlateBarcodeModel.CFG_BARCODE_COLUMN, ExpandPlateBarcodeModel.CFG_BARCODE_COLUMN_DFT);
 		m_columnPanel.setSelectedColumn(barcodeColumn);
 		m_columnPanel.update(specs[0], barcodeColumn);
+		
+		String insertColumn = settings.getString(ExpandPlateBarcodeModel.CFG_INSERT_COLUMN, ExpandPlateBarcodeModel.CFG_INSERT_COLUMN_DFT);
+		boolean useRowIDs = settings.getBoolean(ExpandPlateBarcodeModel.CFG_INSERT_COLUMN_FIRST, ExpandPlateBarcodeModel.CFG_INSERT_COLUMN_FIRST_DFT);
+		if(useRowIDs)
+			m_insertColumnPanel.update(specs[0], null, true, true);
+		else
+			m_insertColumnPanel.update(specs[0], insertColumn, false, true);
 		
 		// barcode pattern
 		String barcodePattern = null;
@@ -163,8 +195,11 @@ public class ExpandPlateBarcodeDialog extends NodeDialogPane {
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		
+			
 		settings.addString(ExpandPlateBarcodeModel.CFG_BARCODE_COLUMN, m_columnPanel.getSelectedColumn());
+		settings.addString(ExpandPlateBarcodeModel.CFG_INSERT_COLUMN, m_insertColumnPanel.getSelectedColumn());
+		boolean useRowID = m_insertColumnPanel.rowIDSelected();
+		settings.addBoolean(ExpandPlateBarcodeModel.CFG_INSERT_COLUMN_FIRST, useRowID);
 		
 		m_barcodePatternSM.setIsActive(!m_selectAutoGuess.isSelected());
 		m_barcodePatternSM.setStringValue(m_patternListbox.getSelectedValue());
