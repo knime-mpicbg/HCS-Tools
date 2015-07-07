@@ -52,7 +52,6 @@ import de.mpicbg.knime.hcs.base.heatmap.ScreenViewer;
 import de.mpicbg.knime.hcs.base.heatmap.io.ScreenImage;
 import de.mpicbg.knime.hcs.base.heatmap.menu.HeatMapColorToolBar;
 import de.mpicbg.knime.hcs.base.heatmap.renderer.HeatTrellis;
-import de.mpicbg.knime.hcs.base.nodes.layout.ExpandPlateBarcodeModel;
 import de.mpicbg.knime.hcs.base.utils.HCSBundleUtils;
 import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
 import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;

@@ -1,7 +1,6 @@
 package de.mpicbg.knime.hcs.base.nodes.viz;
 
 import de.mpicbg.knime.hcs.base.HCSSettingsFactory;
-import de.mpicbg.knime.hcs.base.nodes.layout.ExpandPlateBarcodeModel;
 import de.mpicbg.knime.hcs.base.utils.HCSBundleUtils;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.Attribute;
