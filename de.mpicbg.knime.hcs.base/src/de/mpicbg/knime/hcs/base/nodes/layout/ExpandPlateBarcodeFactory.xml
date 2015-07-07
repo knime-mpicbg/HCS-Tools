@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 
-<knimeNode icon="./ExpandPlateBarcode.png" type="Manipulator">
+<knimeNode icon="./ExpandPlateBarcode.png" type="Manipulator" deprecated="true">
     <name>Expand Barcode</name>
 
     <shortDescription>
@@ -12,94 +12,30 @@
 
         <intro>
             <p>
-                This nodes takes a string column and appends the information content of the barcode string into several new
+                This nodes takes a string column and appends the information content of the barcode into several new
                 columns (e.g. library code, library plate number, project code, assay, date, replicate).
             </p>
             <p>
-                The node uses a regular expression that tries to match the barcode column. Possible barcode patterns can be set at:
+                The node uses a regular expression that tries to match the barcode column. To change the regular
+                expression go to:
                 <br/>
                 KNIME->Preferences->KNIME->HCS-Tools->Barcode patterns
+                <br/>
+                Several regular expressions separated by semicolon can be entered. This is an example:
+                <br/>
+                (?&lt;libplatenumber&gt;[0-9]{3})(?&lt;projectcode&gt;[A-z]{2})(?&lt;date&gt;[0-9]{6})(?&lt;replicate&gt;[A-z]{1})-(?&lt;libcode&gt;[_A-z\d]{3})(?&lt;assay&gt;[-_+\s\w\d]*)
             </p>
-                <h4>This is an example:</h4>
-                <b>Selected Barcode Pattern:</b><i>(line breaks only for better visualization)</i><br/>
-                <tt>(?&lt;libplatenumber&gt;[0-9]{3})</tt><br/>
-                <tt>(?&lt;projectcode&gt;[A-z]{2})</tt><br/>
-                <tt>(?&lt;date&gt;[0-9]{6})</tt><br/>
-                <tt>(?&lt;replicate&gt;[A-z]{1})</tt><br/>
-                <tt>-</tt><br/>
-                <tt>(?&lt;libcode&gt;[_A-z\d]{3})</tt><br/>
-                <tt>(?&lt;assay&gt;[-_+\s\w\d]*)</tt><br/>
-                <table>
-                	<tr>
-                		<th></th>
-                		<th colspan="6">Extracted metadata columns</th>
-                	</tr>
-                	<tr>
-                		<th>Barcodes from input column</th>
-                		<th>library plate number</th>
-                		<th>project code</th>
-                		<th>date</th>
-                		<th>replicate</th>
-                		<th>library code</th>
-                		<th>assay</th>
-                	</tr>
-                	<tr>
-                		<td>001AL100914C-CPW1nMovn</td>
-                		<td>1</td>
-                		<td>AL</td>
-                		<td>100914</td>
-                		<td>C</td>
-                		<td>CPW</td>
-                		<td>1nMovn</td>
-                	</tr>
-                	<tr>
-                		<td>006AL100914A-CPW1nMovn</td>
-                		<td>6</td>
-                		<td>AL</td>
-                		<td>100914</td>
-                		<td>A</td>
-                		<td>CPW</td>
-                		<td>1nMovn</td>
-                	</tr>
-                	<tr>
-                		<td>001MB140502D-KBI_lowGlucose</td>
-                		<td>1</td>
-                		<td>MB</td>
-                		<td>140502</td>
-                		<td>D</td>
-                		<td>KBI</td>
-                		<td>_lowGlucose</td>
-                	</tr>
-                </table>
-				<p>Each wanted meta information is marked as a named group and results in a new column. </p>
-				<b>Definition pattern:</b> <tt>(?&lt;groupname&gt;</tt><i>regular expression</i><tt>)</tt>
-				<br/><br/>
-				The group name will be the name of the new column, beside a few exceptions:   
-
-            <table>
-				<tr><th>group name</th><th>column name</th></tr>
-				<tr><td>libplatenumber</td><td>library plate number</td></tr>
-				<tr><td>libcode</td><td>library code</td></tr>
-				<tr><td>projectcode</td><td>project code</td></tr>
-				<tr><td>concunit</td><td>unit of concentration</td></tr>
-			</table>
         </intro>
 
-        <option name="Barcode Column">The string column containing barcodes
-        </option>
-        <option name="Guess pattern">If activated, the node tries to find the best matching pattern from all available barcode patterns. (default)<br/>
-        If deactivated, the user need to select one of the listed barcode patterns.
-        </option>
-        <option name="Insert meta information behind">Select the column behind which the new meta information columns should appear. <br/>
-        Select &lt;RowID&gt; to put them first. Default values will be 'plateColumn' (if available) or the autoguessed barcode column.
+        <option name="Barcode Column">The string column containing barcodes.
         </option>
 
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="Plate data">Table with barcode column
+        <inPort index="0" name="In-Port name">Input table
         </inPort>
-        <outPort index="0" name="Input table with barcode metadata">Input table with additional columns containing the extracted barcode metadata.
+        <outPort index="0" name="Out-Port name">Input table with additional columns for the barcode properties.
         </outPort>
     </ports>
 
