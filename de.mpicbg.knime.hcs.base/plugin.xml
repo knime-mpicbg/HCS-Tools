@@ -101,8 +101,8 @@
               id="de.mpicbg.tds.knime.hcstools.utils.JoinLayoutV2NodeFactory"/>
 
         <node category-path="/community/hcstools/util"
-              factory-class="de.mpicbg.knime.hcs.base.nodes.layout.ExpandPlateBarcodeFactory"
-              id="de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcodeFactory"/>
+              factory-class="de.mpicbg.knime.hcs.base.nodes.layout.expandbarcode2.ExpandPlateBarcodeFactory2"
+              id="de.mpicbg.tds.knime.hcstools.utils.ExpandPlateBarcodeFactory2"/>
 
 
         <!--IO data reader-->

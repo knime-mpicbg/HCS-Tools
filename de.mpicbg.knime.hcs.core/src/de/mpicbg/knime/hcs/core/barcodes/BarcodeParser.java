@@ -37,7 +37,7 @@ public class BarcodeParser {
     public static final String GROUP_CUSTOM_C = "customc";
     public static final String GROUP_CUSTOM_D = "customd";
     public static final String GROUP_TIMEPOINT = "timepoint";
-    public static final String GROUP_TIMPOINT_DESC = "Timepoint";
+    //public static final String GROUP_TIMPOINT_DESC = "Timepoint";
     public static final String GROUP_FRAME = "frame";
 
     public static final Map<String, String> longGroupNames = new HashMap<String, String>();
@@ -57,7 +57,7 @@ public class BarcodeParser {
         longGroupNames.put(GROUP_CUSTOM_B, "custom B");
         longGroupNames.put(GROUP_CUSTOM_C, "custom C");
         longGroupNames.put(GROUP_CUSTOM_D, "custom D");
-        longGroupNames.put(GROUP_CUSTOM_D, GROUP_TIMPOINT_DESC);
+        longGroupNames.put(GROUP_TIMEPOINT, "timepoint");
     }
 
 
@@ -78,15 +78,25 @@ public class BarcodeParser {
         groupTypes.put(GROUP_CUSTOM_B, String.class);
         groupTypes.put(GROUP_CUSTOM_C, String.class);
         groupTypes.put(GROUP_CUSTOM_D, String.class);
+        groupTypes.put(GROUP_TIMEPOINT, String.class);
     }
 
 
     public BarcodeParser(String barcode, NamedPattern barcodePattern) {
         barcodeMatcher = barcodePattern.matcher(barcode);
 
-        if (!barcodeMatcher.matches()) {
+        // is it useful at any point?
+        /*if (!barcodeMatcher.matches()) {
             throw new IllegalArgumentException("barcode '" + barcode + "' doesn't match pattern: " + barcodePattern.namedPattern());
-        }
+        }*/
+    }
+    
+    /**
+     * test whether the barcode matches the pattern
+     * @return true, if pattern matches
+     */
+    public boolean doesMatchPattern() {
+    	return barcodeMatcher.matches();
     }
 
 
