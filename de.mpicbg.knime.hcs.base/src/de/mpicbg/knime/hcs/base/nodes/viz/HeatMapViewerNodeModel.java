@@ -519,6 +519,27 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             // add knimeColor column to factors to store the column values within the screen object of the model (if not present)
             if(!factors.contains(knimeColor.getName())) factors.add(knimeColor.getName());
         }
+        
+        /* REPLACE THAT AS SOON AS THE IMPROVED R-TRANSFER HAS BEEN MERGED 
+		// Set the knime color column
+        int colorIdx = ColorModelUtils.getColorColumn(tableSpec);
+        if (colorIdx > -1) {
+        	DataColumnSpec cSpec = tableSpec.getColumnSpec(colorIdx);
+        	// check column data type
+        	if(cSpec.getType().isCompatible(StringValue.class)) {
+        		m_nodeConfigurations.setKnimeColorAttribute(cSpec.getName());
+            
+        		// use domain values to retrieve color model
+        		HashMap<DataCell, Color> colorMap = ColorModelUtils.parseNominalColorModel(cSpec);
+        		HashMap<String, Color> colorStringMap = new HashMap<String, Color>();
+        		for(DataCell c : colorMap.keySet())
+        			colorStringMap.put(((StringCell)c).getStringValue(), colorMap.get(c));
+        		m_nodeConfigurations.addKnimeColorMap(colorStringMap);
+            
+        		// add knimeColor column to factors to store the column values within the screen object of the model (if not present)
+        		if(!factors.contains(cSpec.getName())) factors.add(cSpec.getName());
+        	}
+        }*/
 
         // Parse the plate data.
         m_nodeConfigurations.setScreen(parseIntoPlates(splitScreen,
