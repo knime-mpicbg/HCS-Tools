@@ -219,26 +219,6 @@ public class ExpandPlateBarcodeModel2 extends AbstractNodeModel {
 		return patternStrings;
 	}
 
-
-	/**
-	 * determines, if a given group name expects to have a certain data type
-	 * @param groupName
-	 * @return
-	 */
-	private DataType getColumnType(String groupName) {
-		Object groupType = BarcodeParser.groupTypes.get(groupName);
-
-		if (groupType == null) {
-			return StringCell.TYPE;
-		} else if (groupType.equals(Integer.class)) {
-			return IntCell.TYPE;
-		} else if (groupType.equals(Double.class)) {
-			return DoubleCell.TYPE;
-		} else {
-			return StringCell.TYPE;
-		}
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -447,13 +427,12 @@ public class ExpandPlateBarcodeModel2 extends AbstractNodeModel {
 			// default data type and group name
 			String group = groupNames.get(i);
 			DataType dtype = StringCell.TYPE;
-			// if it is one of the standard groups, get their defined data type and nice name
-			if(BarcodeParser.longGroupNames.containsKey(group) && BarcodeParser.groupTypes.containsKey(group)) {
-				dtype = getColumnType(group);		
-			}
 			typeMapping.put(group, dtype);
 			// use nice name
-			group = BarcodeParser.longGroupNames.get(group);
+			if(BarcodeParser.longGroupNames.containsKey(group) && BarcodeParser.groupTypes.containsKey(group)) {
+				group = BarcodeParser.longGroupNames.get(group);	
+			}
+			
 			String name = DataTableSpec.getUniqueColumnName(inSpec, group);
 			newColSpecs[i] = new DataColumnSpecCreator(
 					name, dtype).createSpec();
