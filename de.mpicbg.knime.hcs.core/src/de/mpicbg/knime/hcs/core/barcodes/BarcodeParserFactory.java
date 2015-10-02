@@ -32,8 +32,7 @@ public class BarcodeParserFactory {
             "-" +
             "(?<libcode>[_A-z\\d]{3})" +
             "(?<assay>[-_\\s\\w\\d]*)";
-//(?<libplatenumber>[0-9]{3})(?<libcode>[_A-Z]{3})_{0,2}(?<concentration>[\d]{1,3})
-    //(?<concunit>[A-z]{2,4})_{0,2}(?<customa>[\d]{1})(?<customb>[A-z]{1})(?<customc>[A-z]{1})_(?<customd>[A-z_]{3}) 
+    
 
     public static final String ASSAY_PLATE_PATTERN_OLD 
     		= "(?<libplatenumber>[0-9]{3})" +
@@ -48,7 +47,7 @@ public class BarcodeParserFactory {
      */
     public static final String LIB_PLATE_BARCODE_PATTERN
             = "(?<libplatenumber>[0-9]{3})" +
-            "(?<libcode>[A-Z]{3})" +
+            "(?<libcode>[A-Z_]{3})" +
             "(?<" + GROUP_CONCENTRATION + ">[_\\d]{3})" +
             "(?<" + GROUP_CONCENTRATION_UNIT + ">[A-z_]{4})" +
             "(?<" + GROUP_CUSTOM_A + ">[\\d]{1})" +
