@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import org.dmg.pmml.DATATYPE;
 import org.knime.base.node.io.filereader.DataCellFactory;
+import org.knime.core.data.BooleanValue;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -61,10 +62,6 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	
 	public static final String CFG_deleteSouceCol = "delete.source.column";
 	public static final String CFG_deleteSouceRow = "delete.source.row";
-	private static final DataType String = null;
-	
-	
-	
 	
     /**
      * Constructor for the node model.
@@ -75,8 +72,9 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
         super(1, 1);
         addModelSetting(CreateWellPositionNodeModel.CFG_PlateColumn, createPlateColumn());
 		addModelSetting(CreateWellPositionNodeModel.CFG_PlateColumn, createPlateRow());
-		addModelSetting(CreateWellPositionNodeModel.CFG_deleteSouceCol, createPlateColumn());
+		addModelSetting(CreateWellPositionNodeModel.CFG_deleteSouceCol,  createDelSourceCol());
 		addModelSetting(CreateWellPositionNodeModel.CFG_deleteSouceRow, createDelSourceRow());
+		
     }
     
     private SettingsModel createPlateColumn() {
@@ -101,10 +99,12 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
      * {@inheritDoc}
      */
     @Override
-    public BufferedDataTable[] execute(BufferedDataTable[] in,
+    public BufferedDataTable[] execute(BufferedDataTable[] inData,
     	     ExecutionContext exec) throws Exception {
-    	     ColumnRearranger c = createColumnRearranger(in[0].getDataTableSpec());
-    	     BufferedDataTable out = exec.createColumnRearrangeTable(in[0], c, exec);
+    	
+    	
+    	     ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec());
+    	     BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], c, exec);
     	     return new BufferedDataTable[]{out};
     	 }
 

@@ -26,7 +26,7 @@ public class CreateWellPositionNodeFactory
      */
     @Override
     public int getNrNodeViews() {
-        return 1;
+        return 0;
     }
 
     /**
@@ -35,7 +35,7 @@ public class CreateWellPositionNodeFactory
     @Override
     public NodeView<CreateWellPositionNodeModel> createNodeView(final int viewIndex,
             final CreateWellPositionNodeModel nodeModel) {
-        return new CreateWellPositionNodeView(nodeModel);
+        return null;
     }
 
     /**
