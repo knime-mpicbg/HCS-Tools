@@ -71,19 +71,6 @@ public class CreateWellPositionNodeDialog extends DefaultNodeSettingsPane {
 			
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			DataTableSpec[] specs) throws NotConfigurableException {
-		
-		String PlateColumn = settings.getString(CreateWellPositionNodeModel.CFG_PlateColumn, CreateWellPositionNodeModel.CFG_PlateColumn_DFT);
-		
-	
-	}
-	
-	
 	
 	
 }

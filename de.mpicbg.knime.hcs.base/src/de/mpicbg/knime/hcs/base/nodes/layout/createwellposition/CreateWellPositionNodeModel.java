@@ -18,6 +18,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.container.RowAppender;
@@ -37,7 +38,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import de.mpicbg.knime.hcs.base.nodes.layout.ExpandWellPositionFactory;
-import de.mpicbg.knime.hcs.base.nodes.layout.expandbarcode2.ExpandPlateBarcodeModel2;
+
 import de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel;
 import de.mpicbg.knime.hcs.core.TdsUtils;
 
@@ -69,9 +70,9 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
     protected CreateWellPositionNodeModel() {
     
         // TODO: Specify the amount of input and output ports needed.
-        super(1, 1);
+        super(1, 1, true);
         addModelSetting(CreateWellPositionNodeModel.CFG_PlateColumn, createPlateColumn());
-		addModelSetting(CreateWellPositionNodeModel.CFG_PlateColumn, createPlateRow());
+		addModelSetting(CreateWellPositionNodeModel.CFG_PlateRow, createPlateRow());
 		addModelSetting(CreateWellPositionNodeModel.CFG_deleteSouceCol,  createDelSourceCol());
 		addModelSetting(CreateWellPositionNodeModel.CFG_deleteSouceRow, createDelSourceRow());
 		
@@ -110,6 +111,35 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
     	 public DataTableSpec[] configure(DataTableSpec[] in)
     	         throws InvalidSettingsException {
+    		 DataTableSpec tSpec = in[0];
+    		 
+    		 // get settings if available
+    			String plateColumn = null;
+    			if(getModelSetting(CFG_PlateColumn) != null) plateColumn = ((SettingsModelString) getModelSetting(CFG_PlateColumn)).getStringValue();
+    			
+    			String plateRow = null;
+    			if(getModelSetting(CFG_PlateRow) != null) plateRow = ((SettingsModelString) getModelSetting(CFG_PlateRow)).getStringValue();
+    		 
+    		// checks for barcode column
+    			// =====================================================================================
+
+    			// if barcode column is not set, try autoguessing
+    			if(plateColumn == null) {
+    				plateColumn = tryAutoGuessingPlateColumn(tSpec);
+    				((SettingsModelString)this.getModelSetting(CFG_PlateColumn)).setStringValue(plateColumn);
+    				
+    			} 
+
+    			// check if barcode column is available in input column
+    			if(!tSpec.containsName(plateColumn))
+    				throw new InvalidSettingsException("Column '" + plateColumn + "' is not available in input table.");    		
+    			//if(!tSpec.getColumnSpec(plateColumn).getType().isCompatible(StringValue.class))
+    				//throw new InvalidSettingsException("Column '" + plateColumn + "' is not a string column");
+
+    		 
+    		 
+    		 
+    		 
     	     DataColumnSpec c0 = in[0].getColumnSpec(3);
     	     DataColumnSpec c1 = in[0].getColumnSpec(2);
     	     if (!c0.getType().isCompatible(DoubleValue.class)) {
@@ -152,62 +182,33 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
     	     c.append(factory);
     	     return c;
     	 }
+
     	 
+    	 private String tryAutoGuessingPlateColumn(DataTableSpec tSpec) throws InvalidSettingsException {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void reset() {
-        // TODO: generated method stub
-    }
+    			// check if "Plate" column available
+    			if(tSpec.containsName(CFG_PlateColumn)) {
+    				if(tSpec.getColumnSpec(CFG_PlateColumn_DFT).getType().isCompatible(DoubleValue.class)) {
+    					return CFG_PlateColumn_DFT;
+    				}
+    			}
+    			
 
+    			// check if input table has string or double compatible columns at all
+    			String firstStringColumn = null;
+    			for(String col: tSpec.getColumnNames()) {
+    				if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class) || tSpec.getColumnSpec(col).getType().isCompatible(DoubleValue.class)) {
+    					if(col.contains("plateColumn")){
+    						firstStringColumn = col;
+    					}
+    					else firstStringColumn = col;break;
+    				}
+    				
+    			}
+    			if(firstStringColumn == null) {
+    				throw new InvalidSettingsException("Input table must contain at least one string column");
+    			}
+    			return "plateColumn";
+    	 }
     
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveSettingsTo(final NodeSettingsWO settings) {
-         // TODO: generated method stub
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-        // TODO: generated method stub
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void validateSettings(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-        // TODO: generated method stub
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadInternals(final File internDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
-        // TODO: generated method stub
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveInternals(final File internDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
-        // TODO: generated method stub
-    }
-
 }
-
