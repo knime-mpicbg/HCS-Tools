@@ -11,14 +11,14 @@ import org.knime.core.node.NodeView;
  * @author 
  */
 public class CreateWellPositionNodeFactory 
-        extends NodeFactory<CreateWellPositionNodeModel> {
+extends NodeFactory<CreateWellPositionNodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
     public CreateWellPositionNodeModel createNodeModel() {
-        return new CreateWellPositionNodeModel();
+	return new CreateWellPositionNodeModel();
     }
 
     /**
@@ -26,7 +26,7 @@ public class CreateWellPositionNodeFactory
      */
     @Override
     public int getNrNodeViews() {
-        return 0;
+	return 0;
     }
 
     /**
@@ -34,8 +34,8 @@ public class CreateWellPositionNodeFactory
      */
     @Override
     public NodeView<CreateWellPositionNodeModel> createNodeView(final int viewIndex,
-            final CreateWellPositionNodeModel nodeModel) {
-        return null;
+	    final CreateWellPositionNodeModel nodeModel) {
+	return null;
     }
 
     /**
@@ -43,7 +43,7 @@ public class CreateWellPositionNodeFactory
      */
     @Override
     public boolean hasDialog() {
-        return true;
+	return true;
     }
 
     /**
@@ -51,7 +51,7 @@ public class CreateWellPositionNodeFactory
      */
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return new CreateWellPositionNodeDialog();
+	return new CreateWellPositionNodeDialog();
     }
 
 }
