@@ -38,40 +38,40 @@ import org.knime.core.node.util.ColumnSelectionPanel;
  * @author 
  */
 public class CreateWellPositionNodeDialog extends DefaultNodeSettingsPane {
-	
-	
-	
 
 
-	@SuppressWarnings("unchecked")
-	public CreateWellPositionNodeDialog() {
-		super();
-	
-		addDialogComponent(new DialogComponentColumnNameSelection(
-                new SettingsModelString(
-                		CreateWellPositionNodeModel.CFG_PlateColumn,
-                    "Select a column"),
-                    "Select the Plate Column",
-                    0,
-                    DoubleValue.class, StringValue.class));     
-		
-	
-		
-		addDialogComponent(new DialogComponentColumnNameSelection(
-                new SettingsModelString(
-                		CreateWellPositionNodeModel.CFG_PlateRow,
-                    "Select a Row"), 
-                    "Select the Plate Row",
-                    0,
-                    DoubleValue.class, StringValue.class));          
-		
-		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-				CreateWellPositionNodeModel.CFG_deleteSouceCol, false), "Delete the Source Columns"));
-		
-			
-	}
-	
-	
-	
+
+
+
+    @SuppressWarnings("unchecked")
+    public CreateWellPositionNodeDialog() {
+	super();
+
+	addDialogComponent(new DialogComponentColumnNameSelection(
+		new SettingsModelString(
+			CreateWellPositionNodeModel.CFG_PlateColumn,
+			"Select a column"),
+			"Select the Plate Column",
+			0,
+			DoubleValue.class, StringValue.class));     
+
+
+
+	addDialogComponent(new DialogComponentColumnNameSelection(
+		new SettingsModelString(
+			CreateWellPositionNodeModel.CFG_PlateRow,
+			"Select a Row"), 
+			"Select the Plate Row",
+			0,
+			DoubleValue.class, StringValue.class));          
+
+	addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+		CreateWellPositionNodeModel.CFG_deleteSouceCol, false), "Delete the Source Columns"));
+
+
+    }
+
+
+
 }
 
