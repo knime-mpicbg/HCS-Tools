@@ -4,8 +4,18 @@ import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.InputTableAttribute;
 import de.mpicbg.knime.knutils.TableUpdateCache;
 
+
 import java.io.File;
 import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.dmg.pmml.DATATYPE;
 import org.knime.base.node.io.filereader.DataCellFactory;
@@ -102,10 +112,23 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
     @Override
     public BufferedDataTable[] execute(BufferedDataTable[] inData,
     	     ExecutionContext exec) throws Exception {
+	
+	BufferedDataTable input = inData[0];
+	DataTableSpec tSpec = input.getSpec();
+	
+	String plateColumn = null;
+	if(getModelSetting(CFG_PlateColumn) != null) plateColumn = ((SettingsModelString) getModelSetting(CFG_PlateColumn)).getStringValue();
+		
+	String plateRow = null;
+	if(getModelSetting(CFG_PlateRow) != null) plateRow = ((SettingsModelString) getModelSetting(CFG_PlateRow)).getStringValue();
     	
+	int idCol = tSpec.findColumnIndex(plateColumn);
+	int idRow = tSpec.findColumnIndex(plateRow);
+	     
+	     
+    	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol ,idRow);
+    	BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], c, exec);
     	
-    	     ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec());
-    	     BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], c, exec);
     	     return new BufferedDataTable[]{out};
     	 }
 
@@ -113,6 +136,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
     	         throws InvalidSettingsException {
     		 DataTableSpec tSpec = in[0];
     		 
+    		
     		 // get settings if available
     			String plateColumn = null;
     			if(getModelSetting(CFG_PlateColumn) != null) plateColumn = ((SettingsModelString) getModelSetting(CFG_PlateColumn)).getStringValue();
@@ -125,8 +149,12 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
     			// if barcode column is not set, try autoguessing
     			if(plateColumn == null) {
-    				plateColumn = tryAutoGuessingPlateColumn(tSpec);
-    				((SettingsModelString)this.getModelSetting(CFG_PlateColumn)).setStringValue(plateColumn);
+    			    List<String> guessedColums = tryAutoGuessingPlateColumns(tSpec);
+    			    plateColumn = guessedColums.get(0);
+    			    plateRow = guessedColums.get(1);
+    			    
+    			    ((SettingsModelString)this.getModelSetting(CFG_PlateColumn)).setStringValue(plateColumn);
+    			    ((SettingsModelString)this.getModelSetting(CFG_PlateRow)).setStringValue(plateRow);
     				
     			} 
 
@@ -139,18 +167,12 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
     		 
     		 
     		 
-    		 
-    	     DataColumnSpec c0 = in[0].getColumnSpec(3);
-    	     DataColumnSpec c1 = in[0].getColumnSpec(2);
-    	     if (!c0.getType().isCompatible(DoubleValue.class)) {
-    	         throw new InvalidSettingsException(
-    	           "Invalid type at first column.");
-    	     }
-    	     if (!c1.getType().isCompatible(DoubleValue.class)) {
-    	         throw new InvalidSettingsException(
-    	           "Invalid type at second column.");
-    	     }
-    	     ColumnRearranger c = createColumnRearranger(in[0]);
+    	
+    	     
+    	     int idCol = tSpec.findColumnIndex(plateColumn);
+    	     int idRow = tSpec.findColumnIndex(plateRow);
+    	     
+    	     ColumnRearranger c = createColumnRearranger(in[0], idCol , idRow);
     	     DataTableSpec result = c.createSpec();
     	     return new DataTableSpec[]{result};
     	 }
@@ -158,22 +180,22 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
     
 
-    	 private ColumnRearranger createColumnRearranger(DataTableSpec in) {
-    	     ColumnRearranger c = new ColumnRearranger(in);
+    	 private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow) {
+    	     ColumnRearranger c = new ColumnRearranger(inSpec);
     	     // column spec of the appended column
     	     DataColumnSpec newColSpec = new DataColumnSpecCreator(
     	     "WellPosition", StringCell.TYPE).createSpec();
     	     // utility object that performs the calculation
     	     CellFactory factory = new SingleCellFactory(newColSpec) {
     	         public DataCell getCell(DataRow row) {
-    	             DataCell c0 = row.getCell(1);
-    	             DataCell c1 = row.getCell(2);
+    	             DataCell c0 = row.getCell(idCol);
+    	             DataCell c1 = row.getCell(idRow);
     	             if (c0.isMissing() || c1.isMissing()) {
     	                 return DataType.getMissingCell();
     	             } else {
     	                 // configure method has checked if column 0 and 1 are numeric
     	                 // safe to type cast
-    	                 String d0 = TdsUtils.mapPlateRowNumberToString(((IntValue)c0).getIntValue());
+    	                 String d0 = TdsUtils.mapPlateRowNumberToString(((IntValue)c1).getIntValue());
     	                 String d1 = c1.toString();
     	                 return new StringCell(d0.concat(d1));
     	             }
@@ -183,15 +205,25 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
     	     return c;
     	 }
 
-    	 
-    	 private String tryAutoGuessingPlateColumn(DataTableSpec tSpec) throws InvalidSettingsException {
-
+    	 // Autoguessing for plate column and row in a dataset 
+    	 private List<String> tryAutoGuessingPlateColumns(DataTableSpec tSpec) throws InvalidSettingsException {
+    		 	
+    	     		List<String> guessedColums = new ArrayList<String>();
+    	     		
+    	     		
     			// check if "Plate" column available
-    			if(tSpec.containsName(CFG_PlateColumn)) {
+    			if(tSpec.containsName(CFG_PlateColumn_DFT)) {
     				if(tSpec.getColumnSpec(CFG_PlateColumn_DFT).getType().isCompatible(DoubleValue.class)) {
-    					return CFG_PlateColumn_DFT;
+    				    guessedColums.add(0, CFG_PlateColumn_DFT);
     				}
     			}
+    			
+    			// check if "Row" column available
+    			if(tSpec.containsName(CFG_PlateRow_DFT)) {
+				if(tSpec.getColumnSpec(CFG_PlateRow_DFT).getType().isCompatible(DoubleValue.class)) {
+				    guessedColums.add(1, CFG_PlateRow_DFT);
+				}
+			}
     			
 
     			// check if input table has string or double compatible columns at all
@@ -206,9 +238,9 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
     				
     			}
     			if(firstStringColumn == null) {
-    				throw new InvalidSettingsException("Input table must contain at least one string column");
+    				throw new InvalidSettingsException("Input table must contain at least one string or double column");
     			}
-    			return "plateColumn";
+    			return guessedColums;
     	 }
     
 }
