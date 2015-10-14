@@ -1,37 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+
 <knimeNode icon="./default.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
     <name>CreateWellPosition</name>
     
     <shortDescription>
-        
+        The node should be able to create a new string column with the well position, given two input columns with the plate row (numeric or alphabetic) and plate column (numeric) information.
+		There should be an option whether to keep (default) or remove the two input columns.
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+  		<intro>
+        	<p>
+        		This node needs to have two Columns with the specific
+        		numeric column and row position on the well. 
+        	
+        		The node will create a new string column with the well position in the format A1, B2, C3. 
+        	</p>            
+        	
+		</intro>
+		
+		  <option name="Plate column">The string, double or integer column containing columns numbers of the well.</option>
+          <option name="Plate row">The string, double or integer column containing row numbers of the well.</option>
+          <option name="Delete source Columns">Choose this if you want to dismiss the source columns</option>
+          <option name="Formate destination Column">Chosse this for better sorting options, formate like A01, B02, C03</option>
         
-        
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-        <!-- possibly more options that can also be grouped by tabs -->
-        <!--
-        <tab name="Standard Options">
-            <option name="short name of first option (like in the dialog)">description of first option</option>
-            <option name="short name of second option (like in the dialog)">description of second option</option>
-        </tab>
-        <tab name="Advanced Options">
-            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
-        </tab>
-        -->
     </fullDescription>
     
+    
+    
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
+        <inPort index="0" name="In-Port name">
+			Input port with for tables. 
+		</inPort>
         <!-- possibly more input ports here-->
         <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
         <!-- possibly more output ports here-->
     </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
+    
 </knimeNode>

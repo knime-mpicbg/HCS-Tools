@@ -44,7 +44,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
     public static final String CFG_PlateRow_DFT = "plateRow";
 
     public static final String CFG_deleteSouceCol = "delete.source.column";
-    public static final String CFG_deleteSouceRow = "delete.source.row";
+    public static final String CFG_formateColumn = "format.gen.column";
 
 
     /**
@@ -57,7 +57,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	addModelSetting(CreateWellPositionNodeModel.CFG_PlateColumn, createPlateColumn());
 	addModelSetting(CreateWellPositionNodeModel.CFG_PlateRow, createPlateRow());
 	addModelSetting(CreateWellPositionNodeModel.CFG_deleteSouceCol,  createDelSourceCol());
-	addModelSetting(CreateWellPositionNodeModel.CFG_deleteSouceRow, createDelSourceRow());
+	addModelSetting(CreateWellPositionNodeModel.CFG_formateColumn, createDelSourceRow());
 
     }
 
@@ -74,7 +74,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
     }
 
     private SettingsModel createDelSourceRow() {
-	return new SettingsModelBoolean(CFG_deleteSouceRow, false);
+	return new SettingsModelBoolean(CFG_formateColumn, false);
     }
 
 
@@ -172,6 +172,10 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		    // safe to type cast
 		    String d0 = TdsUtils.mapPlateRowNumberToString(((IntValue)c1).getIntValue());
 		    String d1 = c0.toString();
+		    if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true && ((IntValue)c0).getIntValue()  < 10) {
+			return new StringCell(d0.concat("0").concat(d1));
+			
+		    }
 		    return new StringCell(d0.concat(d1));
 		}
 	    }
