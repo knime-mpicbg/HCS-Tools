@@ -21,6 +21,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.workflow.NodeMessage;
 
 import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
@@ -163,26 +164,61 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	// utility object that performs the calculation
 	CellFactory factory = new SingleCellFactory(newColSpec) {
 	    public DataCell getCell(DataRow row) {
-		DataCell c0 = row.getCell(idCol);
-		DataCell c1 = row.getCell(idRow);
-		if (c0.isMissing() || c1.isMissing()) {
+		DataCell dcell0 = row.getCell(idCol);
+		DataCell dcell1 = row.getCell(idRow);
+		if (dcell0.isMissing() || dcell1.isMissing()) {
 		    return DataType.getMissingCell();
 		} else {
 		    // configure method has checked if column 0 and 1 are numeric
 		    // safe to type cast
-		    String d0 = TdsUtils.mapPlateRowNumberToString(((IntValue)c1).getIntValue());
-		    String d1 = c0.toString();
-		    if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true && ((IntValue)c0).getIntValue()  < 10) {
-			return new StringCell(d0.concat("0").concat(d1));
+		   
+		    String ConvData0 = dcell1.toString();
+		    
+		    try
+		    {
+			Integer.parseInt(ConvData0);
+			ConvData0 = TdsUtils.mapPlateRowNumberToString(((IntValue)dcell1).getIntValue());
+			
+			//check for row numbers compatible to supported well formats (up to 1536 well plate)
+			if(ConvData0 == null)
+			{
+			    setWarningMessage("Can not convert Row Nr. " + dcell1.toString() + " - it's out of range of the supported well formats");
+			    return DataType.getMissingCell();
+
+			}
+		    }
+	
+		    catch (NumberFormatException e)
+		    {
 			
 		    }
-		    return new StringCell(d0.concat(d1));
+		   
+		   
+		    
+		    String ConvData1 = dcell1.toString();
+		    
+		    if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) {
+			if(ConvData0.length() == 1 )
+			{
+			    ConvData0 = " " + ConvData0;
+			}
+			if(ConvData1.length() == 1)
+			{
+			    return new StringCell(ConvData0.concat("0").concat(ConvData1));
+			}
+		    }
+		    return new StringCell(ConvData0.concat(ConvData1));
 		}
 	    }
+
+	   
+	    
 	};
 	c.append(factory);
 	return c;
     }
+
+   
 
     // Autoguessing for plate column and row in a dataset 
     private List<String> tryAutoGuessingPlateColumns(DataTableSpec tSpec) throws InvalidSettingsException {

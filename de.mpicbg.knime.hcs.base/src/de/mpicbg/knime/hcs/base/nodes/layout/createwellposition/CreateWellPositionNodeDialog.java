@@ -55,7 +55,7 @@ public class CreateWellPositionNodeDialog extends DefaultNodeSettingsPane {
 		CreateWellPositionNodeModel.CFG_deleteSouceCol, false), "Delete the Source Columns"));
 	
 	addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-		CreateWellPositionNodeModel.CFG_formateColumn, false), "Formate new Column like A01, B09 for sorting."));
+		CreateWellPositionNodeModel.CFG_formateColumn, false), "Convert in sorting formate"));
 
 
     }
