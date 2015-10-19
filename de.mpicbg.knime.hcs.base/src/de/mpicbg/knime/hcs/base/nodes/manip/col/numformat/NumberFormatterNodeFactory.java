@@ -26,7 +26,7 @@ public class NumberFormatterNodeFactory
      */
     @Override
     public int getNrNodeViews() {
-        return 1;
+        return 0;
     }
 
     /**
@@ -46,8 +46,8 @@ public class NumberFormatterNodeFactory
     }
 
 	@Override
-	public NodeView<NumberFormatterNodeModel> createNodeView(int viewIndex,
-			NumberFormatterNodeModel nodeModel) {
+	public NodeView<NumberFormatterNodeModel> createNodeView(final int viewIndex,
+			final NumberFormatterNodeModel nodeModel) {
 		// TODO Auto-generated method stub
 		return null;
 	}

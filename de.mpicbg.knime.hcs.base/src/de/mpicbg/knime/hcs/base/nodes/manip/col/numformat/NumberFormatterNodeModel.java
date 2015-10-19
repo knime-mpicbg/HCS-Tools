@@ -1,29 +1,22 @@
 package de.mpicbg.knime.hcs.base.nodes.manip.col.numformat;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.RowKey;
-import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.IntCell;
+import org.knime.core.data.DataType;
+import org.knime.core.data.DoubleValue;
+import org.knime.core.data.container.CellFactory;
+import org.knime.core.data.container.ColumnRearranger;
+import org.knime.core.data.container.SingleCellFactory;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
-import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeLogger;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
@@ -32,30 +25,18 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
  * This is the model implementation of NumberFormatter.
  * 
  *
- * @author 
+ * @author
  */
 public class NumberFormatterNodeModel extends AbstractNodeModel {
     
-    // the logger instance
-    private static final NodeLogger logger = NodeLogger
-            .getLogger(NumberFormatterNodeModel.class);
-        
-    /** the settings key which is used to retrieve and 
-        store the settings (from the dialog or from a settings file)    
-       (package visibility to be usable from the dialog). */
-	static final String CFGKEY_COUNT = "Count";
+	
+	// NODE SETTINGS KEYS + DEFAULTS
 
-    /** initial default count value. */
-    static final int DEFAULT_COUNT = 100;
-
-    // example value: the models count variable filled from the dialog 
-    // and used in the models execution method. The default components of the
-    // dialog work with "SettingsModels".
-    private final SettingsModelIntegerBounded m_count =
-        new SettingsModelIntegerBounded(NumberFormatterNodeModel.CFGKEY_COUNT,
-                    NumberFormatterNodeModel.DEFAULT_COUNT,
-                    Integer.MIN_VALUE, Integer.MAX_VALUE);
+    public static final String CFG_ConcentrationColumn =  "con.column";
+    public static final String CFG_ConcentrationColumn_DFT = "conColumn";
     
+    public static final String CFG_ConcentrationRow = "con.row";
+    public static final String CFG_ConcentrationRow_DFT = "conRow";
 
     /**
      * Constructor for the node model.
@@ -63,65 +44,88 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     protected NumberFormatterNodeModel() {
     
         // TODO one incoming port and one outgoing port is assumed
-        super(1, 1);
+        super(1, 1, true);
+        addModelSetting(NumberFormatterNodeModel.CFG_ConcentrationColumn, createConcentrationColumn());
+        addModelSetting(NumberFormatterNodeModel.CFG_ConcentrationRow, createConcentrationRow());
     }
+    
+	private SettingsModel createConcentrationColumn() {
+    	return new SettingsModelString( CFG_ConcentrationColumn, null);
+	}
 
-    /**
+	private SettingsModel createConcentrationRow() {
+		// TODO Auto-generated method stub
+		return new SettingsModelString(CFG_ConcentrationRow, null);
+	}
+	
+	/**
      * {@inheritDoc}
      */
     @Override
-    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-            final ExecutionContext exec) throws Exception {
+    public BufferedDataTable[] execute(BufferedDataTable[] inData,
+            ExecutionContext exec) throws Exception {
 
-        // TODO do something here
-        logger.info("Node Model Stub... this is not yet implemented !");
-
+        BufferedDataTable input = inData[0];
+        DataTableSpec tSpec = input.getSpec();
         
-        // the data table spec of the single output table, 
-        // the table will have three columns:
-        DataColumnSpec[] allColSpecs = new DataColumnSpec[3];
-        allColSpecs[0] = 
-            new DataColumnSpecCreator("Column 0", StringCell.TYPE).createSpec();
-        allColSpecs[1] = 
-            new DataColumnSpecCreator("Column 1", DoubleCell.TYPE).createSpec();
-        allColSpecs[2] = 
-            new DataColumnSpecCreator("Column 2", IntCell.TYPE).createSpec();
-        DataTableSpec outputSpec = new DataTableSpec(allColSpecs);
-        // the execution context will provide us with storage capacity, in this
-        // case a data container to which we will add rows sequentially
-        // Note, this container can also handle arbitrary big data tables, it
-        // will buffer to disc if necessary.
-        BufferedDataContainer container = exec.createDataContainer(outputSpec);
-        // let's add m_count rows to it
-        for (int i = 0; i < m_count.getIntValue(); i++) {
-            RowKey key = new RowKey("Row " + i);
-            // the cells of the current row, the types of the cells must match
-            // the column spec (see above)
-            DataCell[] cells = new DataCell[3];
-            cells[0] = new StringCell("String_" + i); 
-            cells[1] = new DoubleCell(0.5 * i); 
-            cells[2] = new IntCell(i);
-            DataRow row = new DefaultRow(key, cells);
-            container.addRowToTable(row);
-            
-            // check if the execution monitor was canceled
-            exec.checkCanceled();
-            exec.setProgress(i / (double)m_count.getIntValue(), 
-                "Adding row " + i);
+        String conColumn = null;
+    	if(getModelSetting(CFG_ConcentrationColumn) != null) conColumn = ((SettingsModelString) getModelSetting(CFG_ConcentrationColumn)).getStringValue();
+    	int idCol = tSpec.findColumnIndex(conColumn);
+        
+    	
+    	String conRow = null;
+    	if(getModelSetting(CFG_ConcentrationRow) != null) conRow = ((SettingsModelString) getModelSetting(CFG_ConcentrationRow)).getStringValue();
+    	int idRow = tSpec.findColumnIndex(conRow);
+    	
+    	DataColumnSpec cSpec = inData[0].getDataTableSpec().getColumnSpec(idCol);
+    	DataColumnDomain domain = cSpec.getDomain();
+    	
+    	double max;
+    	if(domain == null) {
+    		max = findMaximum(inData[0], idCol);
+    	} else {
+    		if(domain.getUpperBound() != null) 
+    			max = ((DoubleValue)domain.getUpperBound()).getDoubleValue();
+    		else
+    			max = findMaximum(inData[0], idCol);
+    	}
+    	
+    	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol ,idRow, max);
+
+    	BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], c, exec);
+    	
+    	return new BufferedDataTable[]{out};
         }
-        // once we are done, we close the container and return its table
-        container.close();
-        BufferedDataTable out = container.getTable();
-        return new BufferedDataTable[]{out};
-    }
+    	
+
 
  
-    /**
+    private double findMaximum(BufferedDataTable inTable, int idCol) {
+    	double max = Double.NEGATIVE_INFINITY;
+		for(DataRow row : inTable) {
+			double newValue = ((DoubleValue)row.getCell(idCol)).getDoubleValue();
+			if(newValue > max)
+				max = newValue;
+		}
+		return max;
+	}
+
+	/**
      * {@inheritDoc}
      */
     @Override
-    protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
+    public DataTableSpec[] configure(DataTableSpec[] in)
             throws InvalidSettingsException {
+    	DataTableSpec tSpec = in[0];
+    	
+    	
+    	
+    	// get settings if available
+    	String conColumn = null;
+    	if(getModelSetting(CFG_ConcentrationColumn) != null) conColumn = ((SettingsModelString) getModelSetting(CFG_ConcentrationColumn)).getStringValue();
+
+    	String conRow = null;
+    	if(getModelSetting(CFG_ConcentrationRow) != null) conRow = ((SettingsModelString) getModelSetting(CFG_ConcentrationRow)).getStringValue();
         
         // TODO: check if user settings are available, fit to the incoming
         // table structure, and the incoming types are feasible for the node
@@ -129,9 +133,84 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
         // the spec of its output data table(s) (if you can, otherwise an array
         // with null elements), or throw an exception with a useful user message
 
-        return new DataTableSpec[]{null};
+    	// check if barcode column is available in input column
+    	if(!tSpec.containsName(conColumn))
+    	    throw new InvalidSettingsException("Column '" + conColumn + "' is not available in input table.");    		
+    	
+
+    	int idCol = tSpec.findColumnIndex(conColumn);
+    	int idRow = tSpec.findColumnIndex(conRow);
+
+
+    	ColumnRearranger c = createColumnRearranger(in[0], idCol , idRow, 0.0);
+    	DataTableSpec result = c.createSpec();
+    	return new DataTableSpec[]{result};
+        
     }
 
+    private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow, double max) {
+    	ColumnRearranger c = new ColumnRearranger(inSpec);
+    	// column spec of the appended column
+    	DataColumnSpec newColSpec = new DataColumnSpecCreator(
+    			"Concentration", StringCell.TYPE).createSpec();
 
+    	final int[] maxLength = getLength(max);
+
+    	// utility object that performs the calculation
+    	CellFactory factory = new SingleCellFactory(newColSpec) {
+    		public DataCell getCell(DataRow row) {
+    			DataCell dcell0 = row.getCell(idCol);
+    			//DataCell dcell1 = row.getCell(idRow);
+    			if (dcell0.isMissing()) {
+    				return DataType.getMissingCell();
+    			} else {
+    				// configure method has checked if column 0 and 1 are numeric
+    				// safe to type cast
+
+    				double ConvData0 = ((DoubleValue)dcell0).getDoubleValue();
+    				int[] cellLength = getLength(ConvData0);
+    				
+    				int nLeading = maxLength[0] - cellLength[0];
+    				int nTrailing = maxLength[1] - cellLength[1];
+    				
+    				String number = String.format("%s",ConvData0);
+    				
+    				for(int i = 0; i < nLeading; i++)
+    					number = "0" + number;
+
+    				for(int i = 0; i < nTrailing; i++)
+    					number = number + "0";
+    				   	
+    			
+    			    return new StringCell(number);
+    			
+    			}
+    		
+    		}
+
+
+
+
+    	};
+    	c.append(factory);
+    	return c;
+    }
+
+	private int[] getLength(double value) {
+		
+		int[] maxLength = new int[2];
+		
+	    String numString = String.format("%s",value);
+	    
+	    String[] splitStrings = numString.split("\\.");
+	    
+	    if(splitStrings.length == 2) {
+	    	maxLength[0] = splitStrings[0].length();
+	    	maxLength[1] = splitStrings[1].length();
+	    }
+		
+		return maxLength;
+	}
+    
 }
 
