@@ -72,17 +72,19 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	DataColumnSpec cSpec = inData[0].getDataTableSpec().getColumnSpec(idCol);
     	DataColumnDomain domain = cSpec.getDomain();
     	
-    	double max;
+    	double[] MinMax = new double[2];
+    	MinMax = findMinMax(inData[0], idCol);
+    	/*double[] max = new double[2];
     	if(domain == null) {
-    		max = findMaximum(inData[0], idCol);
+    		max = findMinMax(inData[0], idCol);
     	} else {
     		if(domain.getUpperBound() != null) 
     			max = ((DoubleValue)domain.getUpperBound()).getDoubleValue();
     		else
-    			max = findMaximum(inData[0], idCol);
-    	}
+    			max = findMinMax(inData[0], idCol);
+    	}*/
     	
-    	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol , null, max);
+    	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol , null, MinMax);
 
     	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
     	BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], c, exec);
@@ -93,15 +95,29 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 
 
  
-    private double findMaximum(BufferedDataTable inTable, int idCol) {
-    	double max = Double.NEGATIVE_INFINITY;
+    private double[] findMinMax(BufferedDataTable inTable, int idCol) {
+    	double[] MinMax = new double[2];
+    	double maxTrailing = 0;
+    	double maxLeading = Double.NEGATIVE_INFINITY;
 		for(DataRow row : inTable) {
 			double newValue = ((DoubleValue)row.getCell(idCol)).getDoubleValue();
-			if(newValue > max)
-				max = newValue;
-		}
-		return max;
-	}
+			if(newValue > maxLeading)
+				maxLeading = newValue;
+			
+			double[] splitted = getLength(newValue);
+			if (splitted[1] > maxTrailing){
+				
+				maxTrailing = splitted[1];				
+			}
+			}
+		MinMax[0] = maxLeading;
+		MinMax[1] = maxTrailing;
+		
+		
+		
+		
+		return MinMax;
+    }
 
 	/**
      * {@inheritDoc}
@@ -135,7 +151,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     
     	int idCol = tSpec.findColumnIndex(conColumn);
  
-    	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, 0.0);
+    	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, new double[2]);
     	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
     	
     	DataTableSpec result = c.createSpec();
@@ -143,13 +159,13 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
         
     }
 
-    private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow, double max) {
+    private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow, final double[] MinMax) {
     	ColumnRearranger c = new ColumnRearranger(inSpec);
     	// column spec of the appended column
     	DataColumnSpec newColSpec = new DataColumnSpecCreator(
     			"Modified Concentration", StringCell.TYPE).createSpec();
 
-    	final int[] maxLength = getLength(max);
+    	//final double[] maxLength = getLength(max);
 
     	// utility object that performs the calculation
     	CellFactory factory = new SingleCellFactory(newColSpec) {
@@ -159,10 +175,10 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     				return DataType.getMissingCell();
     			} else {
     				double ConvData0 = ((DoubleValue)dcell0).getDoubleValue();
-    				int[] cellLength = getLength(ConvData0);
+    				double[] cellLength = getLength(ConvData0);
     				
-    				int nLeading = maxLength[0] - cellLength[0];
-    				int nTrailing = maxLength[1] - cellLength[1];
+    				double nLeading = MinMax[0] - cellLength[0];
+    				double nTrailing = MinMax[1] - cellLength[1];
     				
     				String number = String.format("%s",ConvData0);
     				
@@ -221,9 +237,9 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		return firstDoubleCell;
 	}
 
-	private int[] getLength(double value) {
+	private double[] getLength(double value) {
 		
-		int[] maxLength = new int[2];
+		double[] maxLength = new double[2];
 		
 	    String numString = String.format("%s",value);
 	    
