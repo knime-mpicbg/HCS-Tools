@@ -58,23 +58,22 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	addModelSetting(CreateWellPositionNodeModel.CFG_PlateColumn, createPlateColumn());
 	addModelSetting(CreateWellPositionNodeModel.CFG_PlateRow, createPlateRow());
 	addModelSetting(CreateWellPositionNodeModel.CFG_deleteSouceCol,  createDelSourceCol());
-	addModelSetting(CreateWellPositionNodeModel.CFG_formateColumn, createDelSourceRow());
+	addModelSetting(CreateWellPositionNodeModel.CFG_formateColumn, createFormateColumn());
 
     }
-
-    private SettingsModel createPlateColumn() {
-	return new SettingsModelString( CFG_PlateColumn, null);
+    static final SettingsModelString createPlateColumn() {
+	return new SettingsModelString( CFG_PlateColumn, CFG_PlateColumn_DFT);
     }
 
-    private SettingsModel createPlateRow() {
+    static final SettingsModelString createPlateRow() {
 	return new SettingsModelString(CFG_PlateRow, null);
     }
 
-    private SettingsModel createDelSourceCol() {
+    static final SettingsModelBoolean createDelSourceCol() {
 	return new SettingsModelBoolean(CFG_deleteSouceCol, false);
     }
 
-    private SettingsModel createDelSourceRow() {
+    static final SettingsModelBoolean createFormateColumn() {
 	return new SettingsModelBoolean(CFG_formateColumn, false);
     }
 
@@ -217,8 +216,6 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	c.append(factory);
 	return c;
     }
-
-   
 
     // Autoguessing for plate column and row in a dataset 
     private List<String> tryAutoGuessingPlateColumns(DataTableSpec tSpec) throws InvalidSettingsException {

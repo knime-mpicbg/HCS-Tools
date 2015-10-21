@@ -26,38 +26,27 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 public class CreateWellPositionNodeDialog extends DefaultNodeSettingsPane {
 
 
-
-
-
     @SuppressWarnings("unchecked")
     public CreateWellPositionNodeDialog() {
 	super();
-
-	addDialogComponent(new DialogComponentColumnNameSelection(
-		new SettingsModelString(
-			CreateWellPositionNodeModel.CFG_PlateColumn,
-			"Select a column"),
+	
+	// adding Dialog for selecting the column
+	addDialogComponent(new DialogComponentColumnNameSelection(CreateWellPositionNodeModel.createPlateColumn(),
 			"Select the Plate Column",
 			0,
 			DoubleValue.class, StringValue.class));     
 
-
-
-	addDialogComponent(new DialogComponentColumnNameSelection(
-		new SettingsModelString(
-			CreateWellPositionNodeModel.CFG_PlateRow,
-			"Select a Row"), 
+	// adding Dialog for selecting the row
+	addDialogComponent(new DialogComponentColumnNameSelection(CreateWellPositionNodeModel.createPlateRow(), 
 			"Select the Plate Row",
 			0,
-			DoubleValue.class, StringValue.class));          
-
-	addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-		CreateWellPositionNodeModel.CFG_deleteSouceCol, false), "Delete the Source Columns"));
+			DoubleValue.class, StringValue.class)); 
 	
-	addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-		CreateWellPositionNodeModel.CFG_formateColumn, false), "Convert in sorting formate"));
-
-
+	// adding Dialog for optional deleting the source column
+	addDialogComponent(new DialogComponentBoolean(CreateWellPositionNodeModel.createDelSourceCol(), "Delete the Source Columns"));
+	
+	// adding Dialog for optional changing format into an sortable
+	addDialogComponent(new DialogComponentBoolean(CreateWellPositionNodeModel.createFormateColumn(), "Convert in sorting formate"));
     }
 
 
