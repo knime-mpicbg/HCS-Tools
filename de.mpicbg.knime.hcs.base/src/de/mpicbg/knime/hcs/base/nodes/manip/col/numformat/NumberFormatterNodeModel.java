@@ -110,7 +110,10 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 				maxTrailing = splitted[1];				
 			}
 			}
-		MinMax[0] = maxLeading;
+		double[] Leading = new double[2];
+		Leading = getLength(maxLeading);
+		
+		MinMax[0] = Leading[0];
 		MinMax[1] = maxTrailing;
 		
 		
