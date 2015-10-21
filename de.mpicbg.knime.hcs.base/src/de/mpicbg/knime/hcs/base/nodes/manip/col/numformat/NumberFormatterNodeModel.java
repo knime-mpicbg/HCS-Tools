@@ -8,6 +8,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.container.SingleCellFactory;
@@ -16,6 +17,7 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
@@ -33,31 +35,26 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 	// NODE SETTINGS KEYS + DEFAULTS
 
     public static final String CFG_ConcentrationColumn =  "con.column";
-    public static final String CFG_ConcentrationColumn_DFT = "conColumn";
+    public static final String CFG_ConcentrationColumn_DFT = "Concentration";
     
-    public static final String CFG_ConcentrationRow = "con.row";
-    public static final String CFG_ConcentrationRow_DFT = "conRow";
-
+    public static final String CFG_deleteSouceCol = "delete.source.column";
     /**
      * Constructor for the node model.
      */
     protected NumberFormatterNodeModel() {
     
-        // TODO one incoming port and one outgoing port is assumed
         super(1, 1, true);
         addModelSetting(NumberFormatterNodeModel.CFG_ConcentrationColumn, createConcentrationColumn());
-        addModelSetting(NumberFormatterNodeModel.CFG_ConcentrationRow, createConcentrationRow());
+        addModelSetting(NumberFormatterNodeModel.CFG_deleteSouceCol, createDelSourceCol());
     }
     
 	private SettingsModel createConcentrationColumn() {
     	return new SettingsModelString( CFG_ConcentrationColumn, null);
 	}
-
-	private SettingsModel createConcentrationRow() {
-		// TODO Auto-generated method stub
-		return new SettingsModelString(CFG_ConcentrationRow, null);
-	}
 	
+	private SettingsModel createDelSourceCol() {
+		return new SettingsModelBoolean(CFG_deleteSouceCol, false);
+	}
 	/**
      * {@inheritDoc}
      */
@@ -71,11 +68,6 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
         String conColumn = null;
     	if(getModelSetting(CFG_ConcentrationColumn) != null) conColumn = ((SettingsModelString) getModelSetting(CFG_ConcentrationColumn)).getStringValue();
     	int idCol = tSpec.findColumnIndex(conColumn);
-        
-    	
-    	String conRow = null;
-    	if(getModelSetting(CFG_ConcentrationRow) != null) conRow = ((SettingsModelString) getModelSetting(CFG_ConcentrationRow)).getStringValue();
-    	int idRow = tSpec.findColumnIndex(conRow);
     	
     	DataColumnSpec cSpec = inData[0].getDataTableSpec().getColumnSpec(idCol);
     	DataColumnDomain domain = cSpec.getDomain();
@@ -90,8 +82,9 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     			max = findMaximum(inData[0], idCol);
     	}
     	
-    	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol ,idRow, max);
+    	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol , null, max);
 
+    	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
     	BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], c, exec);
     	
     	return new BufferedDataTable[]{out};
@@ -122,27 +115,29 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	
     	// get settings if available
     	String conColumn = null;
+    	
+    	conColumn = tryAutoGuessingConcentrationColumn(tSpec); 
+	    
     	if(getModelSetting(CFG_ConcentrationColumn) != null) conColumn = ((SettingsModelString) getModelSetting(CFG_ConcentrationColumn)).getStringValue();
-
-    	String conRow = null;
-    	if(getModelSetting(CFG_ConcentrationRow) != null) conRow = ((SettingsModelString) getModelSetting(CFG_ConcentrationRow)).getStringValue();
-        
-        // TODO: check if user settings are available, fit to the incoming
-        // table structure, and the incoming types are feasible for the node
-        // to execute. If the node can execute in its current state return
-        // the spec of its output data table(s) (if you can, otherwise an array
-        // with null elements), or throw an exception with a useful user message
 
     	// check if barcode column is available in input column
     	if(!tSpec.containsName(conColumn))
-    	    throw new InvalidSettingsException("Column '" + conColumn + "' is not available in input table.");    		
+    	  throw new InvalidSettingsException("Column '" + conColumn + "' is not available in input table.");    		
     	
+    	if(conColumn == null) {
+    	    conColumn = tryAutoGuessingConcentrationColumn(tSpec); 
 
+    	    ((SettingsModelString)this.getModelSetting(CFG_ConcentrationColumn)).setStringValue(conColumn);
+
+    	} 
+    
+
+    
     	int idCol = tSpec.findColumnIndex(conColumn);
-    	int idRow = tSpec.findColumnIndex(conRow);
-
-
-    	ColumnRearranger c = createColumnRearranger(in[0], idCol , idRow, 0.0);
+ 
+    	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, 0.0);
+    	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
+    	
     	DataTableSpec result = c.createSpec();
     	return new DataTableSpec[]{result};
         
@@ -152,7 +147,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	ColumnRearranger c = new ColumnRearranger(inSpec);
     	// column spec of the appended column
     	DataColumnSpec newColSpec = new DataColumnSpecCreator(
-    			"Concentration", StringCell.TYPE).createSpec();
+    			"Modified Concentration", StringCell.TYPE).createSpec();
 
     	final int[] maxLength = getLength(max);
 
@@ -160,13 +155,9 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	CellFactory factory = new SingleCellFactory(newColSpec) {
     		public DataCell getCell(DataRow row) {
     			DataCell dcell0 = row.getCell(idCol);
-    			//DataCell dcell1 = row.getCell(idRow);
     			if (dcell0.isMissing()) {
     				return DataType.getMissingCell();
     			} else {
-    				// configure method has checked if column 0 and 1 are numeric
-    				// safe to type cast
-
     				double ConvData0 = ((DoubleValue)dcell0).getDoubleValue();
     				int[] cellLength = getLength(ConvData0);
     				
@@ -195,6 +186,40 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	c.append(factory);
     	return c;
     }
+    
+    private String tryAutoGuessingConcentrationColumn(DataTableSpec tSpec) throws InvalidSettingsException {
+
+		// check if "barcode" column available
+		if(tSpec.containsName(CFG_ConcentrationColumn_DFT)) {
+			if(tSpec.getColumnSpec(CFG_ConcentrationColumn_DFT).getType().isCompatible(DoubleValue.class)) {
+				return CFG_ConcentrationColumn_DFT;
+			}
+		}
+		Double smallest_LB = Double.POSITIVE_INFINITY;
+		String smallest_LB_Column = null;
+		// check if input table has string compatible columns at all
+		String firstDoubleCell = null;
+		for(String col : tSpec.getColumnNames()) {
+			if(tSpec.getColumnSpec(col).getType().isCompatible(DoubleValue.class)) {
+				DataColumnDomain domain = tSpec.getColumnSpec(col).getDomain();
+				double lowerbound = ((DoubleValue)domain.getLowerBound()).getDoubleValue();
+				if (lowerbound < smallest_LB){
+					smallest_LB = lowerbound;
+					smallest_LB_Column = col;
+				}
+			}
+			if(smallest_LB_Column != null){
+				return smallest_LB_Column;
+			}
+			firstDoubleCell = col;
+			break;
+		}
+
+		if(firstDoubleCell == null) {
+			throw new InvalidSettingsException("Input table must contain at least one double column");
+		}
+		return firstDoubleCell;
+	}
 
 	private int[] getLength(double value) {
 		
