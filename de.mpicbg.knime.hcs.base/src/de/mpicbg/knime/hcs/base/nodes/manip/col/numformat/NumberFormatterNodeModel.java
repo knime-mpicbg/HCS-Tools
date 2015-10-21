@@ -100,6 +100,9 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	double maxTrailing = 0;
     	double maxLeading = Double.NEGATIVE_INFINITY;
 		for(DataRow row : inTable) {
+			if(row.getCell(idCol).isMissing()){
+				break;
+			}
 			double newValue = ((DoubleValue)row.getCell(idCol)).getDoubleValue();
 			if(newValue > maxLeading)
 				maxLeading = newValue;
