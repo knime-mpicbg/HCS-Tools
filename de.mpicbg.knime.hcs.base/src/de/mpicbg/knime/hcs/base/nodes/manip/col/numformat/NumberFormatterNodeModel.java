@@ -1,5 +1,6 @@
 package de.mpicbg.knime.hcs.base.nodes.manip.col.numformat;
 
+import org.knime.base.node.preproc.joiner.ColumnSpecListRenderer;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
@@ -118,10 +119,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		
 		MinMax[0] = Leading[0];
 		MinMax[1] = maxTrailing;
-		
-		
-		
-		
+	
 		return MinMax;
     }
 
@@ -133,8 +131,6 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
             throws InvalidSettingsException {
     	DataTableSpec tSpec = in[0];
     	
-    	
-    	
     	// get settings if available
     	String conColumn = null;
     	
@@ -142,7 +138,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 	    
     	if(getModelSetting(CFG_ConcentrationColumn) != null) conColumn = ((SettingsModelString) getModelSetting(CFG_ConcentrationColumn)).getStringValue();
 
-    	// check if barcode column is available in input column
+    	// check if concentration column is available in input column
     	if(!tSpec.containsName(conColumn))
     	  throw new InvalidSettingsException("Column '" + conColumn + "' is not available in input table.");    		
     	
@@ -168,11 +164,11 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow, final double[] MinMax) {
     	ColumnRearranger c = new ColumnRearranger(inSpec);
     	// column spec of the appended column
-    	DataColumnSpec newColSpec = new DataColumnSpecCreator(
-    			"Modified Concentration", StringCell.TYPE).createSpec();
+ 
+    	DataColumnSpec newColSpec = new DataColumnSpecCreator(inSpec.getColumnSpec(idCol).getName()+
+    			" Formatted", StringCell.TYPE).createSpec();
 
     	//final double[] maxLength = getLength(max);
-
     	// utility object that performs the calculation
     	CellFactory factory = new SingleCellFactory(newColSpec) {
     		public DataCell getCell(DataRow row) {
@@ -189,7 +185,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     				String number = String.format("%s",ConvData0);
     				
     				for(int i = 0; i < nLeading; i++)
-    					number = "0" + number;
+    					number = " " + number;
 
     				for(int i = 0; i < nTrailing; i++)
     					number = number + "0";
@@ -211,7 +207,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     
     private String tryAutoGuessingConcentrationColumn(DataTableSpec tSpec) throws InvalidSettingsException {
 
-		// check if "barcode" column available
+		// check if "concentration" column available
 		if(tSpec.containsName(CFG_ConcentrationColumn_DFT)) {
 			if(tSpec.getColumnSpec(CFG_ConcentrationColumn_DFT).getType().isCompatible(DoubleValue.class)) {
 				return CFG_ConcentrationColumn_DFT;
