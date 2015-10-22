@@ -13,6 +13,7 @@ import org.knime.core.data.StringValue;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.container.SingleCellFactory;
+import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
@@ -74,7 +75,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	DataColumnDomain domain = cSpec.getDomain();
     	
     	double[] MinMax = new double[2];
-    	MinMax = findMinMax(inData[0], idCol);
+    	MinMax = findMinMax(inData[0], idCol, checkForDataType(cSpec));
     	/*double[] max = new double[2];
     	if(domain == null) {
     		max = findMinMax(inData[0], idCol);
@@ -85,7 +86,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     			max = findMinMax(inData[0], idCol);
     	}*/
     	
-    	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol , null, MinMax);
+    	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol , null, MinMax, checkForDataType(cSpec));
 
     	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
     	BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], c, exec);
@@ -96,7 +97,15 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 
 
  
-    private double[] findMinMax(BufferedDataTable inTable, int idCol) {
+    private int checkForDataType(DataColumnSpec cSpec) {
+		if(cSpec.getType().isCompatible(DoubleValue.class)){
+			return 0;
+		}
+		else{
+		return 1;}
+	}
+
+	private double[] findMinMax(BufferedDataTable inTable, int idCol, int namecolumntype) {
     	double[] MinMax = new double[2];
     	double maxTrailing = 0;
     	double maxLeading = Double.NEGATIVE_INFINITY;
@@ -104,7 +113,15 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			if(row.getCell(idCol).isMissing()){
 				break;
 			}
-			double newValue = ((DoubleValue)row.getCell(idCol)).getDoubleValue();
+			double newValue;
+			if(namecolumntype == 0){
+				
+			 newValue = ((DoubleValue)row.getCell(idCol)).getDoubleValue();
+			}
+			else{ 
+			newValue = Double.parseDouble(row.getCell(idCol).toString());
+			}
+				
 			if(newValue > maxLeading)
 				maxLeading = newValue;
 			
@@ -113,7 +130,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 				
 				maxTrailing = splitted[1];				
 			}
-			}
+		}
 		double[] Leading = new double[2];
 		Leading = getLength(maxLeading);
 		
@@ -121,7 +138,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		MinMax[1] = maxTrailing;
 	
 		return MinMax;
-    }
+	}
 
 	/**
      * {@inheritDoc}
@@ -153,7 +170,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     
     	int idCol = tSpec.findColumnIndex(conColumn);
  
-    	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, new double[2]);
+    	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, new double[2], 1);
     	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
     	
     	DataTableSpec result = c.createSpec();
@@ -161,22 +178,33 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
         
     }
 
-    private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow, final double[] MinMax) {
+    private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow, final double[] MinMax, final int nameColumnType) {
     	ColumnRearranger c = new ColumnRearranger(inSpec);
     	// column spec of the appended column
  
     	DataColumnSpec newColSpec = new DataColumnSpecCreator(inSpec.getColumnSpec(idCol).getName()+
     			" Formatted", StringCell.TYPE).createSpec();
 
+    	
+    	
     	//final double[] maxLength = getLength(max);
     	// utility object that performs the calculation
     	CellFactory factory = new SingleCellFactory(newColSpec) {
     		public DataCell getCell(DataRow row) {
     			DataCell dcell0 = row.getCell(idCol);
+    			double ConvData0;
     			if (dcell0.isMissing()) {
     				return DataType.getMissingCell();
     			} else {
-    				double ConvData0 = ((DoubleValue)dcell0).getDoubleValue();
+    				
+    				if(nameColumnType == 0){
+    					ConvData0 = ((DoubleValue)dcell0).getDoubleValue();
+    		    	}
+    				else{
+    					ConvData0 = Double.parseDouble(dcell0.toString());
+    					
+    				}
+    				
     				double[] cellLength = getLength(ConvData0);
     				
     				double nLeading = MinMax[0] - cellLength[0];
