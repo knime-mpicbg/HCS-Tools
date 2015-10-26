@@ -102,7 +102,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			return 0;
 		}
 		else{
-		return 1;}
+		return 1;} //1 is a string
 	}
 
 	private double[] findMinMax(BufferedDataTable inTable, int idCol, int namecolumntype) {
@@ -171,6 +171,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	int idCol = tSpec.findColumnIndex(conColumn);
  
     	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, new double[2], 1);
+    	//assume its always string - forcing
     	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
     	
     	DataTableSpec result = c.createSpec();
@@ -185,10 +186,6 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	DataColumnSpec newColSpec = new DataColumnSpecCreator(inSpec.getColumnSpec(idCol).getName()+
     			" Formatted", StringCell.TYPE).createSpec();
 
-    	
-    	
-    	//final double[] maxLength = getLength(max);
-    	// utility object that performs the calculation
     	CellFactory factory = new SingleCellFactory(newColSpec) {
     		public DataCell getCell(DataRow row) {
     			DataCell dcell0 = row.getCell(idCol);
@@ -213,7 +210,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     				String number = String.format("%s",ConvData0);
     				
     				for(int i = 0; i < nLeading; i++)
-    					number = " " + number;
+    					number = "0" + number;
 
     				for(int i = 0; i < nTrailing; i++)
     					number = number + "0";

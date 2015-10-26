@@ -27,7 +27,7 @@ public class NumberFormatterNodeDialog extends DefaultNodeSettingsPane {
     			DoubleValue.class, StringValue.class)); 
                     
         addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-        		NumberFormatterNodeModel.CFG_deleteSouceCol, false), "Delete the Source Columns"));
+        		NumberFormatterNodeModel.CFG_deleteSouceCol, false), "Delete the Source Column"));
         
     }
 }

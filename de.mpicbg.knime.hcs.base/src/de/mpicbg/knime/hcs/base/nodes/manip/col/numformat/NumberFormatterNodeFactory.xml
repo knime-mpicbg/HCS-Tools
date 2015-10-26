@@ -3,35 +3,26 @@
     <name>NumberFormatter</name>
     
     <shortDescription>
-        
+        The node is normalizing numbers in the table by adding leading and trailing zeros to provide constant length of numbers in the table.
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>
+				This node needs one column with the numbers that needs to be modified. 
+        	
+        		The node will create a new string column or replace existing one with the formatted numbers so all of them have a constant number of digits.
+
+
+		</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-        <!-- possibly more options that can also be grouped by tabs -->
-        <!--
-        <tab name="Standard Options">
-            <option name="short name of first option (like in the dialog)">description of first option</option>
-            <option name="short name of second option (like in the dialog)">description of second option</option>
-        </tab>
-        <tab name="Advanced Options">
-            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
-        </tab>
-        -->
-    </fullDescription>
-    
+        <option name="Select a column"> Choose a column to be formatted </option>
+        <option name="Delete the Source Column">Choose this if you want to dismiss the source columns</option>
+       
+     </fullDescription>
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <inPort index="0" name="In-Port name">Input port with the table to be formatted.</inPort>
+        <outPort index="0" name="Out-Port name">Output port with the table contained numbers after modification</outPort>
     </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
+   
 </knimeNode>
