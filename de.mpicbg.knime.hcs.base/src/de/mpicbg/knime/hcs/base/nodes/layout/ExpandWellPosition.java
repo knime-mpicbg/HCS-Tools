@@ -102,7 +102,7 @@ public class ExpandWellPosition extends AbstractNodeModel {
             int plateColumn = (int) Double.parseDouble(matcher.group(2));
             updateCache.add(dataRow, plateColumnAttribute, new IntCell(plateColumn));
 
-            BufTableUtils.updateProgress(exec, rowCounter, inputTable.getRowCount());
+            BufTableUtils.updateProgress(exec, rowCounter, inputTable.size());
         }
 
 
