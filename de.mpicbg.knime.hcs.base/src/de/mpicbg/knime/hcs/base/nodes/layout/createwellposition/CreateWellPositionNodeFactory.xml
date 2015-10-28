@@ -31,10 +31,10 @@
     
     <ports>
         <inPort index="0" name="In-Port name">
-			Input port with for tables. 
+			Input port with the table to be converted and formatted. 
 		</inPort>
         <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
+        <outPort index="0" name="Out-Port name">Output port with the new table</outPort>
         <!-- possibly more output ports here-->
     </ports>    
     
