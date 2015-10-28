@@ -6,6 +6,7 @@ import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
@@ -111,7 +112,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	double maxLeading = Double.NEGATIVE_INFINITY;
 		for(DataRow row : inTable) {
 			if(row.getCell(idCol).isMissing()){
-				break;
+				continue;
 			}
 			double newValue;
 			if(namecolumntype == 0){
@@ -149,15 +150,8 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	DataTableSpec tSpec = in[0];
     	
     	// get settings if available
-    	String conColumn = null;
-    	
-    	conColumn = tryAutoGuessingConcentrationColumn(tSpec); 
-	    
-    	if(getModelSetting(CFG_ConcentrationColumn) != null) conColumn = ((SettingsModelString) getModelSetting(CFG_ConcentrationColumn)).getStringValue();
-
-    	// check if concentration column is available in input column
-    	if(!tSpec.containsName(conColumn))
-    	  throw new InvalidSettingsException("Column '" + conColumn + "' is not available in input table.");    		
+    	SettingsModelString columnModelSetting = (SettingsModelString) getModelSetting(CFG_ConcentrationColumn);
+    	String conColumn = columnModelSetting.getStringValue();
     	
     	if(conColumn == null) {
     	    conColumn = tryAutoGuessingConcentrationColumn(tSpec); 
@@ -165,12 +159,20 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	    ((SettingsModelString)this.getModelSetting(CFG_ConcentrationColumn)).setStringValue(conColumn);
 
     	} 
+    	
+ 
+
+    	// check if concentration column is available in input column
+    	if(!tSpec.containsName(conColumn))
+    	  throw new InvalidSettingsException("Column '" + conColumn + "' is not available in input table.");    		
+    	
+    	
     
 
     
     	int idCol = tSpec.findColumnIndex(conColumn);
  
-    	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, new double[2], 1);
+    	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, new double[2], checkForDataType(tSpec.getColumnSpec(idCol)));
     	//assume its always string - forcing
     	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
     	

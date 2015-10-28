@@ -8,7 +8,7 @@
     
     <fullDescription>
         <intro>
-				This node needs one column with the numbers that needs to be modified. 
+				This node needs one column with the numbers that need to be modified. 
         	
         		The node will create a new string column or replace existing one with the formatted numbers so all of them have a constant number of digits.
 
@@ -21,8 +21,8 @@
        
      </fullDescription>
     <ports>
-        <inPort index="0" name="In-Port name">Input port with the table to be formatted.</inPort>
-        <outPort index="0" name="Out-Port name">Output port with the table contained numbers after modification</outPort>
+        <inPort index="0" name="Input data">Input port with the table to be formatted.</inPort>
+        <outPort index="0" name="Table with formatted numbers">Output port with the table contained numbers after modification</outPort>
     </ports>    
    
 </knimeNode>
