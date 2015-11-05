@@ -62,7 +62,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
     }
     static final SettingsModelString createPlateColumn() {
-	return new SettingsModelString( CFG_PlateColumn, CFG_PlateColumn_DFT);
+	return new SettingsModelString( CFG_PlateColumn, null);
     }
 
     static final SettingsModelString createPlateRow() {
@@ -242,13 +242,21 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	String firstStringColumn = null;
 	for(String col: tSpec.getColumnNames()) {
 	    if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class) || tSpec.getColumnSpec(col).getType().isCompatible(DoubleValue.class)) {
-		if(col.contains("plateColumn")){
+		if(col.contains(CFG_PlateColumn_DFT)){
+		    guessedColums.add(0, CFG_PlateColumn_DFT);
+		}
+		else{
 		    firstStringColumn = col;
+		    break;
+		}
+		if(col.contains(CFG_PlateRow_DFT)){
+		    guessedColums.add(1, CFG_PlateRow_DFT);
 		}
 		else firstStringColumn = col;break;
+		}
 	    }
 
-	}
+  
 	if(firstStringColumn == null) {
 	    throw new InvalidSettingsException("Input table must contain at least one string or double column");
 	}

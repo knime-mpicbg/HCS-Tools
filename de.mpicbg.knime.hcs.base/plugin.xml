@@ -104,7 +104,7 @@
         <node category-path="/community/hcstools/prepro" factory-class="de.mpicbg.knime.hcs.base.nodes.preproc.GroupMutualInformationFactory" id="de.mpicbg.tds.knime.hcstools.preprocessing.GroupMutualInformationFactory"/>
 
         <node category-path="/community/hcstools/populationanalysis" factory-class="de.mpicbg.knime.hcs.base.nodes.mine.BinningAnalysisNodeFactory" id="de.mpicbg.tds.knime.hcstools.populationanalysis.BinningAnalysisNodeFactory"/>
-    <node category-path="/" factory-class="de.mpicbg.knime.hcs.base.nodes.layout.createwellposition.CreateWellPositionNodeFactory" id="de.mpicbg.knime.hcs.base.nodes.layout.createwellposition.CreateWellPositionNodeFactory"/>
+    <node category-path="/community/hcstools/util" factory-class="de.mpicbg.knime.hcs.base.nodes.layout.createwellposition.CreateWellPositionNodeFactory" id="de.mpicbg.knime.hcs.base.nodes.layout.createwellposition.CreateWellPositionNodeFactory"/>
 </extension>
 
     <extension point="org.knime.workbench.repository.categories">

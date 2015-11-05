@@ -2,7 +2,7 @@
 
 
 <knimeNode icon="./default.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
-    <name>CreateWellPosition</name>
+    <name>Create Well Position</name>
     
     <shortDescription>
         The node should be able to create a new string column with the well position, given two input columns with the plate row (numeric or alphabetic) and plate column (numeric) information.
@@ -30,11 +30,11 @@
     
     
     <ports>
-        <inPort index="0" name="In-Port name">
+        <inPort index="0" name="Table input">
 			Input port with the table to be converted and formatted. 
 		</inPort>
         <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Output port with the new table</outPort>
+        <outPort index="0" name="new table">Output port with the new table</outPort>
         <!-- possibly more output ports here-->
     </ports>    
     
