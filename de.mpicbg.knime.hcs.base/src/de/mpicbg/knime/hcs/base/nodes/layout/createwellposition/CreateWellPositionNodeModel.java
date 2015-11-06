@@ -112,17 +112,12 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	DataTableSpec tSpec = in[0];
 
 
-	// get settings if available
+	// get settings if availableh
 	String plateColumn = null;
 	if(getModelSetting(CFG_PlateColumn) != null) plateColumn = ((SettingsModelString) getModelSetting(CFG_PlateColumn)).getStringValue();
 
 	String plateRow = null;
 	if(getModelSetting(CFG_PlateRow) != null) plateRow = ((SettingsModelString) getModelSetting(CFG_PlateRow)).getStringValue();
-
-
-
-
-
 
 	// checks for barcode column
 	// =====================================================================================
