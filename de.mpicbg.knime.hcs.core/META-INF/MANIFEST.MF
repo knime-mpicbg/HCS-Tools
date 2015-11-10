@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core functionality for the HCS Tools
 Bundle-SymbolicName: de.mpicbg.knime.hcs.core;singleton:=true
-Bundle-Version: 2.0.1.qualifier
+Bundle-Version: 2.0.200.qualifier
 Export-Package: au.com.bytecode.opencsv,
  de.mpicbg.knime.hcs.core,
  de.mpicbg.knime.hcs.core.barcodes,
@@ -73,4 +73,5 @@ Bundle-Vendor: Max Planck Institute of Molecular Cell Biology and Genetics (MPI-
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: de.mpicbg.knime.hcs.core.HcsCoreBundleActivator
-Require-Bundle: org.knime.workbench.core;bundle-version="[2.10.0,3.0.0)"
+Require-Bundle: org.eclipse.ui;bundle-version="[3.107.0,4.0.0)",
+ org.knime.core;bundle-version="[3.0.0,4.0.0)"
