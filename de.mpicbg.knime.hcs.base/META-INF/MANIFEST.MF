@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: HCS-Tools for KNIME
 Bundle-SymbolicName: de.mpicbg.knime.hcs.base;singleton:=true
 Bundle-Version: 2.0.400.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: hcstools.jar,
  lib/GradientSlider.jar
 Bundle-Activator: de.mpicbg.knime.hcs.base.HCSToolsBundleActivator
@@ -18,10 +18,45 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.7.0,4.0.0)",
  de.mpicbg.knime.scripting.r;bundle-version="[2.0.3,3.0.0)",
  de.mpicbg.knime.hcs.core;bundle-version="[2.0.1,3.0.0)"
 Eclipse-LazyStart: true
-Export-Package: de.mpicbg.knime.knutils,
- org.knime.base.data.aggregation,
- org.knime.core.data,
- org.knime.core.node,
- zorg.knime.core.node.defaultnodesettings
+Export-Package: com.bric.plaf,
+ com.bric.swing,
+ com.bric.swing.resources,
+ com.bric.util,
+ de.mpicbg.knime.hcs.base,
+ de.mpicbg.knime.hcs.base.aggregation,
+ de.mpicbg.knime.hcs.base.heatmap,
+ de.mpicbg.knime.hcs.base.heatmap.color,
+ de.mpicbg.knime.hcs.base.heatmap.dialog,
+ de.mpicbg.knime.hcs.base.heatmap.io,
+ de.mpicbg.knime.hcs.base.heatmap.menu,
+ de.mpicbg.knime.hcs.base.heatmap.menu.icons,
+ de.mpicbg.knime.hcs.base.heatmap.renderer,
+ de.mpicbg.knime.hcs.base.nodes.dose,
+ de.mpicbg.knime.hcs.base.nodes.helper,
+ de.mpicbg.knime.hcs.base.nodes.img,
+ de.mpicbg.knime.hcs.base.nodes.layout,
+ de.mpicbg.knime.hcs.base.nodes.layout.expandbarcode2,
+ de.mpicbg.knime.hcs.base.nodes.manip.col,
+ de.mpicbg.knime.hcs.base.nodes.manip.row,
+ de.mpicbg.knime.hcs.base.nodes.mine,
+ de.mpicbg.knime.hcs.base.nodes.norm,
+ de.mpicbg.knime.hcs.base.nodes.norm.npi,
+ de.mpicbg.knime.hcs.base.nodes.norm.poc,
+ de.mpicbg.knime.hcs.base.nodes.norm.vect,
+ de.mpicbg.knime.hcs.base.nodes.norm.zscore,
+ de.mpicbg.knime.hcs.base.nodes.preproc,
+ de.mpicbg.knime.hcs.base.nodes.qc,
+ de.mpicbg.knime.hcs.base.nodes.r.viz,
+ de.mpicbg.knime.hcs.base.nodes.reader,
+ de.mpicbg.knime.hcs.base.nodes.scriptlets,
+ de.mpicbg.knime.hcs.base.nodes.trans,
+ de.mpicbg.knime.hcs.base.nodes.viz,
+ de.mpicbg.knime.hcs.base.prefs,
+ de.mpicbg.knime.hcs.base.utils,
+ doc,
+ doc.com.bric.plaf,
+ doc.com.bric.swing,
+ doc.com.bric.util,
+ doc.resources
 
 
