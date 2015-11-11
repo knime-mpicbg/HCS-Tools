@@ -1,20 +1,17 @@
 package de.mpicbg.knime.hcs.base.nodes.manip.col.numformat;
 
-import org.knime.base.node.preproc.joiner.ColumnSpecListRenderer;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
-import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
-import org.knime.core.data.StringValue;
+import org.knime.core.data.IntValue;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.container.SingleCellFactory;
-import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
@@ -50,7 +47,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
         addModelSetting(NumberFormatterNodeModel.CFG_ConcentrationColumn, createConcentrationColumn());
         addModelSetting(NumberFormatterNodeModel.CFG_deleteSouceCol, createDelSourceCol());
     }
-    
+    //store and retrieve values from - transport of values
 	private SettingsModel createConcentrationColumn() {
     	return new SettingsModelString( CFG_ConcentrationColumn, null);
 	}
@@ -65,17 +62,20 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     public BufferedDataTable[] execute(BufferedDataTable[] inData,
             ExecutionContext exec) throws Exception {
 
-        BufferedDataTable input = inData[0];
-        DataTableSpec tSpec = input.getSpec();
-        
+        BufferedDataTable input = inData[0]; // take all data
+        DataTableSpec tSpec = input.getSpec(); //get specification of table
+        //choose deafult settings
         String conColumn = null;
-    	if(getModelSetting(CFG_ConcentrationColumn) != null) conColumn = ((SettingsModelString) getModelSetting(CFG_ConcentrationColumn)).getStringValue();
-    	int idCol = tSpec.findColumnIndex(conColumn);
     	
-    	DataColumnSpec cSpec = inData[0].getDataTableSpec().getColumnSpec(idCol);
-    	DataColumnDomain domain = cSpec.getDomain();
+        if(getModelSetting(CFG_ConcentrationColumn) != null) conColumn = ((SettingsModelString) getModelSetting(CFG_ConcentrationColumn)).getStringValue();
     	
-    	double[] MinMax = new double[2];
+        int idCol = tSpec.findColumnIndex(conColumn); // take an id of a column with concentration name
+    	DataColumnSpec cSpec = inData[0].getDataTableSpec().getColumnSpec(idCol); // get column specification of conColumn that have concentration data
+    	DataColumnDomain domain = cSpec.getDomain(); 
+    	
+    	//minmax - find how many zeros before and after dot need to be added
+    	
+    	double[] MinMax = new double[2]; //create an arrey, 2 columns
     	MinMax = findMinMax(inData[0], idCol, checkForDataType(cSpec));
     	/*double[] max = new double[2];
     	if(domain == null) {
@@ -117,13 +117,14 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			double newValue;
 			if(namecolumntype == 0){
 				
-			 newValue = ((DoubleValue)row.getCell(idCol)).getDoubleValue();
+			// newValue = ((DoubleValue)row.getCell(idCol)).getDoubleValue();
+				newValue = Integer.parseInt(row.getCell(idCol).toString());
 			}
 			else{ 
 			newValue = Double.parseDouble(row.getCell(idCol).toString());
 			}
 				
-			if(newValue > maxLeading)
+			if( newValue > maxLeading)
 				maxLeading = newValue;
 			
 			double[] splitted = getLength(newValue);
@@ -131,18 +132,17 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 				
 				maxTrailing = splitted[1];				
 			}
-		}
 		double[] Leading = new double[2];
 		Leading = getLength(maxLeading);
 		
 		MinMax[0] = Leading[0];
 		MinMax[1] = maxTrailing;
-	
-		return MinMax;
+		
+		}	return MinMax;
 	}
 
 	/**
-     * {@inheritDoc}
+     * {@inheritDoc
      */
     @Override
     public DataTableSpec[] configure(DataTableSpec[] in)
@@ -187,6 +187,8 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
  
     	DataColumnSpec newColSpec = new DataColumnSpecCreator(inSpec.getColumnSpec(idCol).getName()+
     			" Formatted", StringCell.TYPE).createSpec();
+    	
+    	final DataType dType = inSpec.getColumnSpec(idCol).getType();
 
     	CellFactory factory = new SingleCellFactory(newColSpec) {
     		public DataCell getCell(DataRow row) {
@@ -209,7 +211,13 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     				double nLeading = MinMax[0] - cellLength[0];
     				double nTrailing = MinMax[1] - cellLength[1];
     				
-    				String number = String.format("%s",ConvData0);
+    				String number = null;
+    				
+    				if (dType.isCompatible(IntValue.class)) {
+    					number = String.format("%s",(int)ConvData0);		
+    				} else {
+    					number = String.format("%s",ConvData0);
+    				}
     				
     				for(int i = 0; i < nLeading; i++)
     					number = "0" + number;
@@ -231,7 +239,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	c.append(factory);
     	return c;
     }
-    
+    //AUTOGUESSING
     private String tryAutoGuessingConcentrationColumn(DataTableSpec tSpec) throws InvalidSettingsException {
 
 		// check if "concentration" column available
@@ -240,6 +248,8 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 				return CFG_ConcentrationColumn_DFT;
 			}
 		}
+		
+		//looking for a lower and upper boundary (how many digits)
 		Double smallest_LB = Double.POSITIVE_INFINITY;
 		String smallest_LB_Column = null;
 		// check if input table has string compatible columns at all
@@ -265,7 +275,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		}
 		return firstDoubleCell;
 	}
-
+// GET LENGTH
 	private double[] getLength(double value) {
 		
 		double[] maxLength = new double[2];

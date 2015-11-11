@@ -25,7 +25,7 @@ public class NumberFormatterNodeDialog extends DefaultNodeSettingsPane {
     			"Select a column",
     			0,
     			DoubleValue.class, StringValue.class)); 
-                    
+                    // each dialog component requires an appropriate settings models to store the value in
         addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
         		NumberFormatterNodeModel.CFG_deleteSouceCol, false), "Delete the Source Column"));
         
