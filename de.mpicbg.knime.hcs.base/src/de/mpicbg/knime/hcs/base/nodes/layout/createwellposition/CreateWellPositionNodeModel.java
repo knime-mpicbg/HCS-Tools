@@ -1,5 +1,7 @@
 package de.mpicbg.knime.hcs.base.nodes.layout.createwellposition;
 import java.util.ArrayList;
+
+import org.knime.base.*;
 import java.util.List;
 
 import org.knime.core.data.DataCell;
@@ -9,7 +11,6 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
-import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
@@ -18,10 +19,8 @@ import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.core.node.workflow.NodeMessage;
 
 import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
@@ -36,226 +35,284 @@ There should be an option whether to keep (default) or remove the two input colu
 public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 
-    // NODE SETTINGS KEYS + DEFAULTS
+	// Node settings and keys
+	public static final String CFG_PlateColumn =  "plate.column";
+	public static final String CFG_PlateColumn_DFT = "plateColumn";
 
-    public static final String CFG_PlateColumn =  "plate.column";
-    public static final String CFG_PlateColumn_DFT = "plateColumn";
+	public static final String CFG_PlateRow = "plate.row";
+	public static final String CFG_PlateRow_DFT = "plateRow";
 
-    public static final String CFG_PlateRow = "plate.row";
-    public static final String CFG_PlateRow_DFT = "plateRow";
-
-    public static final String CFG_deleteSouceCol = "delete.source.column";
-    public static final String CFG_formateColumn = "format.gen.column";
-
-
-    /**
-     * Constructor for the node model.
-     */
-    protected CreateWellPositionNodeModel() {
-
-	// TODO: Specify the amount of input and output ports needed.
-	super(1, 1, true);
-	addModelSetting(CreateWellPositionNodeModel.CFG_PlateColumn, createPlateColumn());
-	addModelSetting(CreateWellPositionNodeModel.CFG_PlateRow, createPlateRow());
-	addModelSetting(CreateWellPositionNodeModel.CFG_deleteSouceCol,  createDelSourceCol());
-	addModelSetting(CreateWellPositionNodeModel.CFG_formateColumn, createFormateColumn());
-
-    }
-    static final SettingsModelString createPlateColumn() {
-	return new SettingsModelString( CFG_PlateColumn, null);
-    }
-
-    static final SettingsModelString createPlateRow() {
-	return new SettingsModelString(CFG_PlateRow, null);
-    }
-
-    static final SettingsModelBoolean createDelSourceCol() {
-	return new SettingsModelBoolean(CFG_deleteSouceCol, false);
-    }
-
-    static final SettingsModelBoolean createFormateColumn() {
-	return new SettingsModelBoolean(CFG_formateColumn, false);
-    }
+	public static final String CFG_deleteSouceCol = "delete.source.column";
+	public static final String CFG_formateColumn = "format.gen.column";
 
 
+	/**
+	 * Constructor for the node model.
+	 */
+	protected CreateWellPositionNodeModel() {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BufferedDataTable[] execute(BufferedDataTable[] inData,
-	    ExecutionContext exec) throws Exception {
+		// Setting up a node with one input and one output port 
+		// HINT: Constructor with parameter true is because of using the AbstractNodemodel from TdsUtils, it makes lot easier to save settings
+		super(1, 1, true);
 
-	BufferedDataTable input = inData[0];
-	DataTableSpec tSpec = input.getSpec();
-
-	String plateColumn = null;
-	if(getModelSetting(CFG_PlateColumn) != null) plateColumn = ((SettingsModelString) getModelSetting(CFG_PlateColumn)).getStringValue();
-	int idCol = tSpec.findColumnIndex(plateColumn);
-
-	String plateRow = null;
-	if(getModelSetting(CFG_PlateRow) != null) plateRow = ((SettingsModelString) getModelSetting(CFG_PlateRow)).getStringValue();
-	int idRow = tSpec.findColumnIndex(plateRow);  
-
-	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol ,idRow);
-
-
-
-	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol, idRow);}
-	BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], c, exec);
-
-	return new BufferedDataTable[]{out};
-    }
-
-    public DataTableSpec[] configure(DataTableSpec[] in)
-	    throws InvalidSettingsException {
-	DataTableSpec tSpec = in[0];
-
-
-	// get settings if availableh
-	String plateColumn = null;
-	if(getModelSetting(CFG_PlateColumn) != null) plateColumn = ((SettingsModelString) getModelSetting(CFG_PlateColumn)).getStringValue();
-
-	String plateRow = null;
-	if(getModelSetting(CFG_PlateRow) != null) plateRow = ((SettingsModelString) getModelSetting(CFG_PlateRow)).getStringValue();
-
-	// checks for barcode column
-	// =====================================================================================
-
-	// if plateColumn and plateRow column is not set, try autoguessing
-	if(plateColumn == null) {
-	    List<String> guessedColums = tryAutoGuessingPlateColumns(tSpec);
-	    plateColumn = guessedColums.get(0);
-	    plateRow = guessedColums.get(1);
-
-	    ((SettingsModelString)this.getModelSetting(CFG_PlateColumn)).setStringValue(plateColumn);
-	    ((SettingsModelString)this.getModelSetting(CFG_PlateRow)).setStringValue(plateRow);
-
-	} 
-
-	// check if barcode column is available in input column
-	if(!tSpec.containsName(plateColumn))
-	    throw new InvalidSettingsException("Column '" + plateColumn + "' is not available in input table.");    		
-	//if(!tSpec.getColumnSpec(plateColumn).getType().isCompatible(StringValue.class))
-	//throw new InvalidSettingsException("Column '" + plateColumn + "' is not a string column");
-
-	int idCol = tSpec.findColumnIndex(plateColumn);
-	int idRow = tSpec.findColumnIndex(plateRow);
-
-
-	ColumnRearranger c = createColumnRearranger(in[0], idCol , idRow);
-	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol, idRow);}
-	DataTableSpec result = c.createSpec();
-	return new DataTableSpec[]{result};
-    }
-
-
-    private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow) {
-	ColumnRearranger c = new ColumnRearranger(inSpec);
-	// column spec of the appended column
-	DataColumnSpec newColSpec = new DataColumnSpecCreator(
-		"WellPosition", StringCell.TYPE).createSpec();
-	// utility object that performs the calculation
-	CellFactory factory = new SingleCellFactory(newColSpec) {
-	    public DataCell getCell(DataRow row) {
-		DataCell dcell0 = row.getCell(idCol);
-		DataCell dcell1 = row.getCell(idRow);
-		if (dcell0.isMissing() || dcell1.isMissing()) {
-		    return DataType.getMissingCell();
-		} else {
-		    // configure method has checked if column 0 and 1 are numeric
-		    // safe to type cast
-		   
-		    String ConvData0 = dcell1.toString();
-		    
-		    try
-		    {
-			Integer.parseInt(ConvData0);
-			ConvData0 = TdsUtils.mapPlateRowNumberToString(((IntValue)dcell1).getIntValue());
-			
-			//check for row numbers compatible to supported well formats (up to 1536 well plate)
-			if(ConvData0 == null)
-			{
-			    setWarningMessage("Can not convert Row Nr. " + dcell1.toString() + " - it's out of range of the supported well formats");
-			    return DataType.getMissingCell();
-
-			}
-		    }
-	
-		    catch (NumberFormatException e)
-		    {
-			
-		    }
-		   
-		   
-		    
-		    String ConvData1 = dcell1.toString();
-		    
-		    if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) {
-			if(ConvData0.length() == 1 )
-			{
-			    ConvData0 = " " + ConvData0;
-			}
-			if(ConvData1.length() == 1)
-			{
-			    return new StringCell(ConvData0.concat("0").concat(ConvData1));
-			}
-		    }
-		    return new StringCell(ConvData0.concat(ConvData1));
-		}
-	    }
-
-	   
-	    
-	};
-	c.append(factory);
-	return c;
-    }
-
-    // Autoguessing for plate column and row in a dataset 
-    private List<String> tryAutoGuessingPlateColumns(DataTableSpec tSpec) throws InvalidSettingsException {
-
-	List<String> guessedColums = new ArrayList<String>();
-
-
-	// check if "Plate" column available
-	if(tSpec.containsName(CFG_PlateColumn_DFT)) {
-	    if(tSpec.getColumnSpec(CFG_PlateColumn_DFT).getType().isCompatible(DoubleValue.class)) {
-		guessedColums.add(0, CFG_PlateColumn_DFT);
-	    }
-	}
-
-	// check if "Row" column available
-	if(tSpec.containsName(CFG_PlateRow_DFT)) {
-	    if(tSpec.getColumnSpec(CFG_PlateRow_DFT).getType().isCompatible(DoubleValue.class)) {
-		guessedColums.add(1, CFG_PlateRow_DFT);
-	    }
+		/**
+		 * Adding model settings to node
+		 */
+		addModelSetting(CreateWellPositionNodeModel.CFG_PlateColumn, createPlateColumn());
+		addModelSetting(CreateWellPositionNodeModel.CFG_PlateRow, createPlateRow());
+		addModelSetting(CreateWellPositionNodeModel.CFG_deleteSouceCol,  createDelSourceCol());
+		addModelSetting(CreateWellPositionNodeModel.CFG_formateColumn, createFormateColumn());
 	}
 
 
-	// check if input table has string or double compatible columns at all
-	String firstStringColumn = null;
-	for(String col: tSpec.getColumnNames()) {
-	    if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class) || tSpec.getColumnSpec(col).getType().isCompatible(DoubleValue.class)) {
-		if(col.contains(CFG_PlateColumn_DFT)){
-		    guessedColums.add(0, CFG_PlateColumn_DFT);
-		}
-		else{
-		    firstStringColumn = col;
-		    break;
-		}
-		if(col.contains(CFG_PlateRow_DFT)){
-		    guessedColums.add(1, CFG_PlateRow_DFT);
-		}
-		else firstStringColumn = col;break;
-		}
-	    }
-
-  
-	if(firstStringColumn == null) {
-	    throw new InvalidSettingsException("Input table must contain at least one string or double column");
+	/**
+	 * SettingModel for the PlateColumn
+	 */
+	static final SettingsModelString createPlateColumn() {
+		return new SettingsModelString( CFG_PlateColumn, null);
 	}
-	return guessedColums;
-    }
+
+	/**
+	 * SettingModel for the PlateRow
+	 */
+	static final SettingsModelString createPlateRow() {
+		return new SettingsModelString(CFG_PlateRow, null);
+	}
+
+	/**
+	 * SettingModel for the option delete all source columns
+	 */
+	static final SettingsModelBoolean createDelSourceCol() {
+		return new SettingsModelBoolean(CFG_deleteSouceCol, false);
+	}
+
+	/**
+	 * SettingModel for the option to formate the content for better sorting
+	 */
+	static final SettingsModelBoolean createFormateColumn() {
+		return new SettingsModelBoolean(CFG_formateColumn, false);
+	}
+
+	/**
+	 * Execution class of the Node
+	 */
+	@Override
+	public BufferedDataTable[] execute(BufferedDataTable[] inData,
+			ExecutionContext exec) throws Exception {
+
+		// Reading in input table over port "Table Input"	
+		BufferedDataTable input = inData[0];
+
+		// Getting table specifications for using it later
+		DataTableSpec tSpec = input.getSpec();
+
+
+		// Reading in Settings of the node
+		String plateColumn = null;
+		if(getModelSetting(CFG_PlateColumn) != null) plateColumn = ((SettingsModelString) getModelSetting(CFG_PlateColumn)).getStringValue();
+
+		// Saving index of column "plateColumn" into variable idCol
+		int idCol = tSpec.findColumnIndex(plateColumn);
+
+
+		String plateRow = null;
+		if(getModelSetting(CFG_PlateRow) != null) plateRow = ((SettingsModelString) getModelSetting(CFG_PlateRow)).getStringValue();
+
+		// Saving index of column "plateRow" into variable idCol
+		int idRow = tSpec.findColumnIndex(plateRow);  
+
+
+		// Rearrange and creating new table wit information of id's of the columns to rearrange.
+		ColumnRearranger rearranged_table = createColumnRearranger(inData[0].getDataTableSpec(),idCol ,idRow);
+
+
+		// Checking for option to delete all source columns
+		if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) 
+		{
+			rearranged_table.remove(idCol, idRow);
+		}
+
+		// Creating new table
+		BufferedDataTable output_table = exec.createColumnRearrangeTable(inData[0], rearranged_table, exec);
+
+		return new BufferedDataTable[]{output_table};
+	}
+
+	/**
+	 * Configure Class for configuring and checking the input
+	 */
+	public DataTableSpec[] configure(DataTableSpec[] in)
+			throws InvalidSettingsException {
+
+		// Reading in input table over port "Table Input"	
+		DataTableSpec tSpec = in[0];
+
+		// Reading in Settings of the node, if available 
+		// =====================================================================================
+		String plateColumn = null;
+		if(getModelSetting(CFG_PlateColumn) != null) {
+			plateColumn = ((SettingsModelString) getModelSetting(CFG_PlateColumn)).getStringValue();
+		}
+
+		String plateRow = null;
+		if(getModelSetting(CFG_PlateRow) != null) {
+			plateRow = ((SettingsModelString) getModelSetting(CFG_PlateRow)).getStringValue();
+		}
+		// =====================================================================================
+
+
+		// if plateColumn and plateRow column is not set in the settings, try autoguessing
+		if(plateColumn == null) {
+			List<String> guessedColums = tryAutoGuessingPlateColumns(tSpec);
+
+			// saving names of the guessed Columns into variable
+			plateColumn = guessedColums.get(0);
+			plateRow = guessedColums.get(1);
+
+			// saving names of the guessed Columns into settings of the model
+			((SettingsModelString)this.getModelSetting(CFG_PlateColumn)).setStringValue(plateColumn);
+			((SettingsModelString)this.getModelSetting(CFG_PlateRow)).setStringValue(plateRow);
+
+		} 
+
+		// Saving index of column and row into variable idCol and idRow
+		int idCol = tSpec.findColumnIndex(plateColumn);
+		int idRow = tSpec.findColumnIndex(plateRow);
+
+		// Rearrange and creating new table wit information of id's of the columns to rearrange.
+		ColumnRearranger rearranged_table = createColumnRearranger(in[0], idCol , idRow);
+
+		// Checking for option to delete all source columns
+		if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) 
+		{
+			rearranged_table.remove(idCol, idRow);
+		}
+
+		DataTableSpec output_table = rearranged_table.createSpec();
+
+		return new DataTableSpec[]{output_table};
+	}
+
+
+	/**
+	 * ColumnRearranger to create output table
+	 */
+	private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow) {
+
+		// Creating new ColumRearranger instance
+		ColumnRearranger rearranged_table = new ColumnRearranger(inSpec);
+
+		// column specification of the appended column
+		DataColumnSpec newColSpec = new DataColumnSpecCreator("WellPosition", StringCell.TYPE).createSpec();
+
+		// utility object that performs the calculation
+		CellFactory factory = new SingleCellFactory(newColSpec) {
+
+			// iterating over every row of input table
+			public DataCell getCell(DataRow row) {
+
+				DataCell dcell0 = row.getCell(idCol);
+				DataCell dcell1 = row.getCell(idRow);
+				
+				// Saving value of plateColumn column into ConvData0
+				String ConvData0 = dcell0.toString();
+
+				// checking for missing cell, if so then returning missing cell
+				if (dcell0.isMissing() || dcell1.isMissing()) 
+				{
+					return DataType.getMissingCell();
+				} 
+				else 
+				{
+					try
+					{
+						// Try to parse Value to integer for using the mapPlateRowNumberToString
+						Integer.parseInt(ConvData0);
+						ConvData0 = TdsUtils.mapPlateRowNumberToString(Integer.parseInt(ConvData0));
+
+						//check for row numbers compatible to supported well formats (up to 1536 well plate)
+						if(ConvData0 == null)
+						{
+							// give a Warning message and returning a missing cell
+							setWarningMessage("Can not convert Row Nr. " + dcell1.toString() + " - it's out of range of the supported well formats");
+							return DataType.getMissingCell();
+						}
+					}
+
+					catch (NumberFormatException e)
+					{
+
+					}
+
+					
+					String ConvData1 = dcell1.toString();
+
+					// checking current setting for formate columns for better sorting
+					if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) {
+						if(ConvData0.length() == 1 )
+						{
+							ConvData0 = " " + ConvData0;
+						}
+						if(ConvData1.length() == 1)
+						{
+							return new StringCell(ConvData0.concat("0").concat(ConvData1));
+						}
+					}
+					return new StringCell(ConvData0.concat(ConvData1));
+				}
+			}
+
+
+
+		};
+		rearranged_table.append(factory);
+		return rearranged_table;
+	}
+
+	// Autoguessing for plate column and row in a dataset 
+	private List<String> tryAutoGuessingPlateColumns(DataTableSpec tSpec) throws InvalidSettingsException {
+
+		List<String> guessedColums = new ArrayList<String>();
+
+
+		// check if "Plate" column available
+		if(tSpec.containsName(CFG_PlateColumn_DFT)) {
+			if(tSpec.getColumnSpec(CFG_PlateColumn_DFT).getType().isCompatible(DoubleValue.class)) {
+				guessedColums.add(0, CFG_PlateColumn_DFT);
+			}
+		}
+
+		// check if "Row" column available
+		if(tSpec.containsName(CFG_PlateRow_DFT)) {
+			if(tSpec.getColumnSpec(CFG_PlateRow_DFT).getType().isCompatible(DoubleValue.class)) {
+				guessedColums.add(1, CFG_PlateRow_DFT);
+			}
+		}
+
+
+		// check if input table has string or double compatible columns at all
+		String firstStringColumn = null;
+		for(String col: tSpec.getColumnNames()) {
+			if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class) || tSpec.getColumnSpec(col).getType().isCompatible(DoubleValue.class)) {
+				if(col.contains(CFG_PlateColumn_DFT)){
+					guessedColums.add(0, CFG_PlateColumn_DFT);
+				}
+				else{
+					firstStringColumn = col;
+					break;
+				}
+				if(col.contains(CFG_PlateRow_DFT)){
+					guessedColums.add(1, CFG_PlateRow_DFT);
+				}
+				else firstStringColumn = col;break;
+			}
+		}
+
+
+		if(firstStringColumn == null) {
+			throw new InvalidSettingsException("Input table must contain at least one string or double column");
+		}
+		return guessedColums;
+	}
 
 }
