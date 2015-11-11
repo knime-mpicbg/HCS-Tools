@@ -1,5 +1,7 @@
 package de.mpicbg.knime.hcs.base.nodes.manip.col.numformat;
 
+import java.util.Set;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
@@ -9,6 +11,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.container.SingleCellFactory;
@@ -117,11 +120,15 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			double newValue;
 			if(namecolumntype == 0){
 				
-			// newValue = ((DoubleValue)row.getCell(idCol)).getDoubleValue();
-				newValue = Integer.parseInt(row.getCell(idCol).toString());
+			newValue = ((DoubleValue)row.getCell(idCol)).getDoubleValue();
+				
 			}
 			else{ 
-			newValue = Double.parseDouble(row.getCell(idCol).toString());
+				try {
+					newValue = Double.parseDouble(row.getCell(idCol).toString());
+				}catch (NumberFormatException e) {
+					continue;
+				}
 			}
 				
 			if( newValue > maxLeading)
@@ -165,13 +172,33 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	// check if concentration column is available in input column
     	if(!tSpec.containsName(conColumn))
     	  throw new InvalidSettingsException("Column '" + conColumn + "' is not available in input table.");    		
-    	
-    	
-    
-
     
     	int idCol = tSpec.findColumnIndex(conColumn);
- 
+    	
+    	DataColumnSpec cSpec = tSpec.getColumnSpec(idCol); //new column  spec base on column id
+    	if (checkForDataType(cSpec) == 1) //check if this is string (based on the function checkForDataType
+    	{
+    		if (cSpec.getDomain() != null){ //if domain is not null
+    			Set<DataCell> domVals = cSpec.getDomain().getValues(); //check first that getValues is a Set, thats why we do Set<DataCell>
+    			//here we get a set of data that is present in domains. the set is called domVals
+    			if (domVals != null){ //
+    				int nNumericStrings = 0;
+    				for (DataCell cell: domVals){ //iteration for all data set
+    					try {
+    					Double.parseDouble(((StringValue)cell).getStringValue()); //try to parse it to double
+    					nNumericStrings++; //this is number of successfuly converted values
+    					} catch (NumberFormatException e) {
+						}
+    				}
+    				if(nNumericStrings == 0) { //if any number converted throw an error
+    					throw new InvalidSettingsException("Selected column does not contain any numeric values");
+    				}
+    			}
+    		}
+    		
+    	}
+    	
+    	
     	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, new double[2], checkForDataType(tSpec.getColumnSpec(idCol)));
     	//assume its always string - forcing
     	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
@@ -202,8 +229,11 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     					ConvData0 = ((DoubleValue)dcell0).getDoubleValue();
     		    	}
     				else{
-    					ConvData0 = Double.parseDouble(dcell0.toString());
-    					
+    					try{
+    					ConvData0 = Double.parseDouble(((StringValue)dcell0).getStringValue());
+    					}catch(NumberFormatException e) {
+    						return DataType.getMissingCell();
+    					}
     				}
     				
     				double[] cellLength = getLength(ConvData0);
@@ -212,11 +242,12 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     				double nTrailing = MinMax[1] - cellLength[1];
     				
     				String number = null;
-    				
-    				if (dType.isCompatible(IntValue.class)) {
-    					number = String.format("%s",(int)ConvData0);		
+    				// test what type of data is in the column, convert either int to string or double.
+    				//Handle int values and not add trailing digits when they are not present
+    				if (dType.isCompatible(IntValue.class)) { //if value is compatible to int 
+    					number = String.format("%s",(int)ConvData0);		//change to int
     				} else {
-    					number = String.format("%s",ConvData0);
+    					number = String.format("%s",ConvData0); //leave it double
     				}
     				
     				for(int i = 0; i < nLeading; i++)

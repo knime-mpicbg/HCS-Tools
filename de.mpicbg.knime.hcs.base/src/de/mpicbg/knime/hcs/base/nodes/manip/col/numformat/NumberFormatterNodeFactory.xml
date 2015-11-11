@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <knimeNode icon="./icon_numform.png" type="Manipulator" >
-    <name>NumberFormatter</name>
+    <name>Number Formatter</name>
     
     <shortDescription>
         The node is normalizing numbers in the table by adding leading and trailing zeros to provide constant length of numbers in the table.
