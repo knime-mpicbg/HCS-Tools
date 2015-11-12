@@ -182,12 +182,6 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		// Rearrange and creating new table wit information of id's of the columns to rearrange.
 		ColumnRearranger rearranged_table = createColumnRearranger(in[0], idCol , idRow);
 
-		// Checking for option to delete all source columns
-		if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) 
-		{
-			rearranged_table.remove(idCol, idRow);
-		}
-
 		DataTableSpec output_table = rearranged_table.createSpec();
 
 		return new DataTableSpec[]{output_table};
@@ -215,7 +209,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 				DataCell dcell1 = row.getCell(idRow);
 
 				// Saving value of plateColumn column into ConvData0
-				String ConvData0 = dcell0.toString();
+				String ConvData0 = dcell1.toString();
 
 				// checking for missing cell, if so then returning missing cell
 				if (dcell0.isMissing() || dcell1.isMissing()) 
@@ -234,7 +228,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 						if(ConvData0 == null)
 						{
 							// give a Warning message and returning a missing cell
-							setWarningMessage("Can not convert Row Nr. " + dcell1.toString() + " - it's out of range of the supported well formats");
+							setWarningMessage("Can not convert Row Nr. " + dcell0.toString() + " - it's out of range of the supported well formats");
 							return DataType.getMissingCell();
 						}
 					}
@@ -245,7 +239,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 					}
 
 
-					String ConvData1 = dcell1.toString();
+					String ConvData1 = dcell0.toString();
 
 					// checking current setting for formating columns for better sorting
 					if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) {
@@ -285,37 +279,26 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 				guessedColums.add(0, CFG_PlateColumn_DFT);
 			}
 		}
-
+		
 		// check if "Row" column available
 		if(tSpec.containsName(CFG_PlateRow_DFT)) {
 			if(tSpec.getColumnSpec(CFG_PlateRow_DFT).getType().isCompatible(DoubleValue.class)) {
 				guessedColums.add(1, CFG_PlateRow_DFT);
 			}
 		}
-
-
-		// check if input table has string or double compatible columns at all
-		for(String col: tSpec.getColumnNames()) {
-			if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class) || tSpec.getColumnSpec(col).getType().isCompatible(DoubleValue.class)) {
-
-				// checking for default name "plateColumn"
-				if(col.contains(CFG_PlateColumn_DFT)){
-					guessedColums.add(0, CFG_PlateColumn_DFT);
-				}
-				// if there is no column like that, he should use the last string out of the table
-				else{
+		if(guessedColums.size() == 0){
+			// check if input table has string or double compatible columns at all
+			for(String col: tSpec.getColumnNames()) {
+				if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class) || tSpec.getColumnSpec(col).getType().isCompatible(DoubleValue.class)) {
+					// if there is no column like that, he should use the last string out of the table
 					guessedColums.add(0, col);
+					guessedColums.add(1, col);
+					break;
 				}
-				// checking for default name "plateRow"
-				if(col.contains(CFG_PlateRow_DFT)){
-					guessedColums.add(1, CFG_PlateRow_DFT);
-				}
-				// if there is no column like that, he should use the last string out of the table
-				else guessedColums.add(1, col);
 			}
 		}
 		// if the guessing fails and there is no compatible column it throws an exception
-		if(guessedColums == null) {
+		if(guessedColums.size() == 0) {
 			throw new InvalidSettingsException("Input table must contain at least one string or double column");
 		}
 		return guessedColums;

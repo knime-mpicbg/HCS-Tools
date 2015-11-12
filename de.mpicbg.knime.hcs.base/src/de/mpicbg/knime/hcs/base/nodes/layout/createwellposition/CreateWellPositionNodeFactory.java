@@ -8,7 +8,7 @@ import org.knime.core.node.NodeView;
  * <code>NodeFactory</code> for the "CreateWellPosition" Node.
  * 
  *
- * @author 
+ * @author Tim Nicolaisen
  */
 public class CreateWellPositionNodeFactory 
 extends NodeFactory<CreateWellPositionNodeModel> {

@@ -12,10 +12,7 @@
     <fullDescription>
   		<intro>
         	<p>
-        		This node needs to have two Columns with the specific
-        		numeric column and row position on the well. 
-        	
-        		The node will create a new string column with the well position in the format A1, B2, C3. 
+        		This node needs to have two Columns with the specific columns with the plate row (numeric or alphabetic) and plate column (numeric) information.The node will create a new string column with the well position in the format A1, B2, C3. 
         	</p>            
         	
 		</intro>
