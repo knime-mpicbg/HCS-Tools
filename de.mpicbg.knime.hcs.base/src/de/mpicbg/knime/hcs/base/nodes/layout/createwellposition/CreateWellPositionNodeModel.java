@@ -87,7 +87,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	}
 
 	/**
-	 * SettingModel for the option to formate the content for better sorting
+	 * SettingModel for the option to formating the content for better sorting
 	 */
 	static final SettingsModelBoolean createFormateColumn() {
 		return new SettingsModelBoolean(CFG_formateColumn, false);
@@ -161,7 +161,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		// =====================================================================================
 
 
-		// if plateColumn and plateRow column is not set in the settings, try autoguessing
+		// if plateColumn and plateRow column is not set in the settings, try auto guessing
 		if(plateColumn == null) {
 			List<String> guessedColums = tryAutoGuessingPlateColumns(tSpec);
 
@@ -213,7 +213,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 				DataCell dcell0 = row.getCell(idCol);
 				DataCell dcell1 = row.getCell(idRow);
-				
+
 				// Saving value of plateColumn column into ConvData0
 				String ConvData0 = dcell0.toString();
 
@@ -244,10 +244,10 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 					}
 
-					
+
 					String ConvData1 = dcell1.toString();
 
-					// checking current setting for formate columns for better sorting
+					// checking current setting for formating columns for better sorting
 					if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) {
 						if(ConvData0.length() == 1 )
 						{
@@ -269,9 +269,13 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		return rearranged_table;
 	}
 
-	// Autoguessing for plate column and row in a dataset 
+	/**
+	 * Auto guessing for plate column and row in a data set 
+	 */
+	@SuppressWarnings("unused")
 	private List<String> tryAutoGuessingPlateColumns(DataTableSpec tSpec) throws InvalidSettingsException {
 
+		// Array for guessed Columns to return
 		List<String> guessedColums = new ArrayList<String>();
 
 
@@ -291,25 +295,27 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 
 		// check if input table has string or double compatible columns at all
-		String firstStringColumn = null;
 		for(String col: tSpec.getColumnNames()) {
 			if(tSpec.getColumnSpec(col).getType().isCompatible(StringValue.class) || tSpec.getColumnSpec(col).getType().isCompatible(DoubleValue.class)) {
+
+				// checking for default name "plateColumn"
 				if(col.contains(CFG_PlateColumn_DFT)){
 					guessedColums.add(0, CFG_PlateColumn_DFT);
 				}
+				// if there is no column like that, he should use the last string out of the table
 				else{
-					firstStringColumn = col;
-					break;
+					guessedColums.add(0, col);
 				}
+				// checking for default name "plateRow"
 				if(col.contains(CFG_PlateRow_DFT)){
 					guessedColums.add(1, CFG_PlateRow_DFT);
 				}
-				else firstStringColumn = col;break;
+				// if there is no column like that, he should use the last string out of the table
+				else guessedColums.add(1, col);
 			}
 		}
-
-
-		if(firstStringColumn == null) {
+		// if the guessing fails and there is no compatible column it throws an exception
+		if(guessedColums == null) {
 			throw new InvalidSettingsException("Input table must contain at least one string or double column");
 		}
 		return guessedColums;

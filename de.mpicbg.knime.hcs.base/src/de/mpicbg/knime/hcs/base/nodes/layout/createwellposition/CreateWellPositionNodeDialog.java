@@ -5,26 +5,13 @@ import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
-
-
-
-
 
 /**
  * <code>NodeDialog</code> for the "CreateWellPosition" Node.
  * 
- *
- * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
- * creation of a simple dialog with standard components. If you need a more 
- * complex dialog please derive directly from 
- * {@link org.knime.core.node.NodeDialogPane}.
- * 
- * @author 
+ * @author Tim Nicolaisen
  */
 public class CreateWellPositionNodeDialog extends DefaultNodeSettingsPane {
-
 
     @SuppressWarnings("unchecked")
     public CreateWellPositionNodeDialog() {
@@ -48,8 +35,5 @@ public class CreateWellPositionNodeDialog extends DefaultNodeSettingsPane {
 	// adding Dialog for optional changing format into an sortable
 	addDialogComponent(new DialogComponentBoolean(CreateWellPositionNodeModel.createFormateColumn(), "Convert in sorting formate"));
     }
-
-
-
 }
 
