@@ -281,7 +281,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 					
 					//  catches missing entries in the auto guessing array
 					catch (IndexOutOfBoundsException e){
-						setWarningMessage("Autoguessing failed - the node did not get any column out of the autoguessing in row "+ dcell0.toString());
+						setWarningMessage("Autoguessing failed - the node did not get any column out of the autoguessing");
 						return DataType.getMissingCell();
 					}
 
