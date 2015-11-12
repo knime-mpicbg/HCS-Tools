@@ -181,6 +181,12 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 		// Rearrange and creating new table wit information of id's of the columns to rearrange.
 		ColumnRearranger rearranged_table = createColumnRearranger(in[0], idCol , idRow);
+		
+		// Checking for option to delete all source columns
+				if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) 
+				{
+					rearranged_table.remove(idCol, idRow);
+				}
 
 		DataTableSpec output_table = rearranged_table.createSpec();
 
@@ -207,9 +213,11 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 				DataCell dcell0 = row.getCell(idCol);
 				DataCell dcell1 = row.getCell(idRow);
-
-				// Saving value of plateColumn column into ConvData0
-				String ConvData0 = dcell1.toString();
+				
+				String ConvData0 = dcell0.toString();
+				
+				// Saving value of plateColumn column into ConvData1
+				String ConvData1 = dcell1.toString();
 
 				// checking for missing cell, if so then returning missing cell
 				if (dcell0.isMissing() || dcell1.isMissing()) 
@@ -220,39 +228,77 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 				{
 					try
 					{
-						// Try to parse Value to integer for using the mapPlateRowNumberToString
-						Integer.parseInt(ConvData0);
-						ConvData0 = TdsUtils.mapPlateRowNumberToString(Integer.parseInt(ConvData0));
-
-						//check for row numbers compatible to supported well formats (up to 1536 well plate)
-						if(ConvData0 == null)
+						// checking if the value of the position of the column is compatible to the supported well format
+						if(Double.parseDouble(ConvData0) > 768)
 						{
-							// give a Warning message and returning a missing cell
-							setWarningMessage("Can not convert Row Nr. " + dcell0.toString() + " - it's out of range of the supported well formats");
+							setWarningMessage("Can not use plate Column value of row " + dcell0.toString() + " - it's out of range of the supported well formats");
 							return DataType.getMissingCell();
 						}
+						
+						
+						// check for column which is already alphabetical
+						if(ConvData1.matches("[a-zA-Z]"))
+						{
+							
+						}
+					
+						// Converting the numeric column to alphabetical
+						else
+						{
+							// Try to parse String value to double for using the mapPlateRowNumberToString
+							Double ConvDataDouble = Double.parseDouble(ConvData1);
+							
+							// Cast double to integer for handling with double columns
+							Integer ConvDataINT = (int)ConvDataDouble.doubleValue();
+							
+							// Converting numeric values to alphabetical
+							ConvData1 = TdsUtils.mapPlateRowNumberToString(ConvDataINT);
+
+							//check for row numbers compatible to supported well formats (up to 1536 well plate)
+							if(ConvData1 == null)
+							{
+								// give a Warning message and returning a missing cell
+								setWarningMessage("Can not convert Row Nr. " + dcell0.toString() + " - it's out of range of the supported well formats");
+								return DataType.getMissingCell();
+							}
+							
+						}
+						
 					}
 
+					// catches number format exception while converting the values to alphabetical format
 					catch (NumberFormatException e)
 					{
-
+						setWarningMessage("The number format is not ok - check the plate row column in row" + dcell0.toString());
+						return DataType.getMissingCell();
+					}
+					
+					// catches Null pointer exception while converting the values to alphabetical format
+					catch (NullPointerException e){
+						setWarningMessage("Null Pointer Exception by converting your row column to alphabetical values - check row "+ dcell0.toString() + " in your source column");
+						return DataType.getMissingCell();
+					}
+					
+					//  catches missing entries in the auto guessing array
+					catch (IndexOutOfBoundsException e){
+						setWarningMessage("Autoguessing failed - the node did not get any column out of the autoguessing in row "+ dcell0.toString());
+						return DataType.getMissingCell();
 					}
 
-
-					String ConvData1 = dcell0.toString();
+				
 
 					// checking current setting for formating columns for better sorting
 					if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) {
-						if(ConvData0.length() == 1 )
+						if(ConvData1.length() == 1 )
 						{
-							ConvData0 = " " + ConvData0;
+							ConvData1 = " " + ConvData1;
 						}
-						if(ConvData1.length() == 1)
+						if(ConvData0.length() == 1)
 						{
-							return new StringCell(ConvData0.concat("0").concat(ConvData1));
+							return new StringCell(ConvData1.concat("0").concat(ConvData0));
 						}
 					}
-					return new StringCell(ConvData0.concat(ConvData1));
+					return new StringCell(ConvData1.concat(ConvData0));
 				}
 			}
 
