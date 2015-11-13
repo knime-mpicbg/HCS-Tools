@@ -239,7 +239,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 						// check if row format already alphabetical
 						if(ConvData1.matches("[a-zA-Z]"))
 						{
-							// Converts lower case input to upper case
+							// Converts lower case input to upper case - better looking
 							ConvData1 = ConvData1.toUpperCase();
 						}
 					
