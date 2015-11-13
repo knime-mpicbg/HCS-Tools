@@ -269,7 +269,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 					// catches number format exception while converting the values to alphabetical format
 					catch (NumberFormatException e)
 					{
-						setWarningMessage("The number format is not ok - check the plate row column in row" + dcell0.toString());
+						setWarningMessage("Wrong number format - Not able to convert or process the given values - check your selected columns in row " + dcell0.toString());
 						return DataType.getMissingCell();
 					}
 					
@@ -317,7 +317,6 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 		// Array for guessed Columns to return
 		List<String> guessedColums = new ArrayList<String>();
-
 
 		// check if "Plate" column available
 		if(tSpec.containsName(CFG_PlateColumn_DFT)) {
