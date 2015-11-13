@@ -229,7 +229,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 					try
 					{
 						// checking if the value of the position of the column is compatible to the supported well format
-						if(Double.parseDouble(ConvData0) > 768)
+						if(Double.parseDouble(ConvData0) > TdsUtils.MAX_PLATE_COLUMN)
 						{
 							setWarningMessage("Can not use plate Column value of row " + dcell0.toString() + " - it's out of range of the supported well formats");
 							return DataType.getMissingCell();
@@ -284,8 +284,6 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 						setWarningMessage("Autoguessing failed - the node did not get any column out of the autoguessing");
 						return DataType.getMissingCell();
 					}
-
-				
 
 					// checking current setting for formating columns for better sorting
 					if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) {
