@@ -236,10 +236,11 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 						}
 						
 						
-						// check for column which is already alphabetical
+						// check if row format already alphabetical
 						if(ConvData1.matches("[a-zA-Z]"))
 						{
-							
+							// Converts lower case input to upper case
+							ConvData1 = ConvData1.toUpperCase();
 						}
 					
 						// Converting the numeric column to alphabetical
