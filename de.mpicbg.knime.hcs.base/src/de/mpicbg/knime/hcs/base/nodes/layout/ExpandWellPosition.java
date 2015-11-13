@@ -70,7 +70,7 @@ public class ExpandWellPosition extends AbstractNodeModel {
         StringBuffer errorLog = new StringBuffer();
 
         // convert all rows in the table
-        int rowCounter = 0;
+        long rowCounter = 0;
 
         for (DataRow dataRow : inputTable) {
             String wellPosition = wellPositionAttribute.getValue(dataRow);
