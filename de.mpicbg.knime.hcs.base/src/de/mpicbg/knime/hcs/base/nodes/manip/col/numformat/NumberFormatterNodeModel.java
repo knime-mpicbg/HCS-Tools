@@ -1,7 +1,11 @@
 package de.mpicbg.knime.hcs.base.nodes.manip.col.numformat;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+
+import org.knime.base.node.preproc.regexsplit.RegexSplitNodeFactory;
+//import org.knime.base.node.preproc.regexsplit.RegexSplitNodeModel;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
@@ -19,6 +23,7 @@ import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -186,7 +191,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     				for (DataCell cell: domVals){ //iteration for all data set
     					try {
     					Double.parseDouble(((StringValue)cell).getStringValue()); //try to parse it to double
-    					nNumericStrings++; //this is number of successfuly converted values
+    					nNumericStrings++; //this is number of successfully converted values
     					} catch (NumberFormatException e) {
 						}
     				}
@@ -220,6 +225,18 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	CellFactory factory = new SingleCellFactory(newColSpec) {
     		public DataCell getCell(DataRow row) {
     			DataCell dcell0 = row.getCell(idCol);
+    
+    			//NodeModel model = new RegexSplitNodeFactory().createNodeModel();
+    		
+    				
+    			//AtomicInteger count = new AtomicInteger();
+    			//if (dType.isCompatible(IntValue.class) || dType.isCompatible(DoubleValue.class) ){
+    				
+    			//continue;} else{
+    			//	count.getAndIncrement();
+    			//}
+    			
+    			
     			double ConvData0;
     			if (dcell0.isMissing()) {
     				return DataType.getMissingCell();
