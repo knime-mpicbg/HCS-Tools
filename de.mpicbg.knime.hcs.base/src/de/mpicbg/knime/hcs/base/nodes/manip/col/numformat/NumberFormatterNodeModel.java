@@ -1,5 +1,7 @@
 package de.mpicbg.knime.hcs.base.nodes.manip.col.numformat;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,6 +31,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
 
 
 /**
@@ -94,12 +97,18 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     		else
     			max = findMinMax(inData[0], idCol);
     	}*/
-    	
-    	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol , null, MinMax, checkForDataType(cSpec));
+    	 AtomicInteger neg = new AtomicInteger();
+    	 AtomicInteger nnum = new AtomicInteger();
+
+    	ColumnRearranger c = createColumnRearranger(inData[0].getDataTableSpec(),idCol , null, MinMax, checkForDataType(cSpec), nnum, neg);
 
     	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
-    	BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], c, exec);
     	
+    	
+    	BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], c, exec);
+    	if (neg.get() > 0 || nnum.get() > 0) {
+            setWarningMessage(neg.get() + " input string(s) can not be represented as a number, " 
+                    + nnum.get() + " have a negative value");}
     	return new BufferedDataTable[]{out};
         }
     	
@@ -201,10 +210,19 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     			}
     		}
     		
-    	}
+    	}else {	
+			DataColumnDomain domain = tSpec.getColumnSpec(idCol).getDomain();
+			if (domain != null){
+			double lower = ((DoubleValue)domain.getLowerBound()).getDoubleValue();
+				
+			if (lower <= 0 ){ 
+				throw new InvalidSettingsException ("Negative values in the column");}
+			
+			}
+		}
     	
     	
-    	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, new double[2], checkForDataType(tSpec.getColumnSpec(idCol)));
+    	ColumnRearranger c = createColumnRearranger(in[0], idCol , null, new double[2], checkForDataType(tSpec.getColumnSpec(idCol)),null, null); //why null there?
     	//assume its always string - forcing
     	if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) {c.remove(idCol);}
     	
@@ -213,7 +231,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
         
     }
 
-    private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow, final double[] MinMax, final int nameColumnType) {
+    private ColumnRearranger createColumnRearranger(final DataTableSpec inSpec, final Integer idCol, final Integer idRow, final double[] MinMax, final int nameColumnType,  final AtomicInteger errorCounter_nnum,final AtomicInteger errorCounter_neg ) {
     	ColumnRearranger c = new ColumnRearranger(inSpec);
     	// column spec of the appended column
  
@@ -224,24 +242,32 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 
     	CellFactory factory = new SingleCellFactory(newColSpec) {
     		public DataCell getCell(DataRow row) {
+    			
     			DataCell dcell0 = row.getCell(idCol);
-    
-    			//NodeModel model = new RegexSplitNodeFactory().createNodeModel();
-    		
-    				
-    			//AtomicInteger count = new AtomicInteger();
-    			//if (dType.isCompatible(IntValue.class) || dType.isCompatible(DoubleValue.class) ){
-    				
-    			//continue;} else{
-    			//	count.getAndIncrement();
-    			//}
-    			
-    			
-    			double ConvData0;
     			if (dcell0.isMissing()) {
-    				return DataType.getMissingCell();
-    			} else {
-    				
+    				return DataType.getMissingCell(); //check if value is missed
+    			}
+    			double	positivevalue = 0;
+    			if(nameColumnType == 1){ // if string data type
+
+    				String value = ((StringValue) dcell0).getStringValue(); // get value of each row
+    				try {
+    					positivevalue = Double.parseDouble(value); // check if can be parse to double
+    				}catch (NumberFormatException e){ // if not its not numeric
+    					errorCounter_nnum.incrementAndGet();//increase atomicinteger strong not a number
+    				}
+    				if (positivevalue < 0){ //checj if this string is below zero
+    					errorCounter_neg.incrementAndGet();//increase atomicinteger values below zero
+    					return DataType.getMissingCell();}	// make a ? instead negative value
+    			}else { // is numeric
+    				Double value1 = ((DoubleValue) dcell0).getDoubleValue(); // get the double value of each row
+    				if (value1 < 0){ //check if it is more than zero
+    					errorCounter_neg.incrementAndGet();//increase atomicinteger values below zero
+    					return DataType.getMissingCell();}	
+    			}
+			
+    			double ConvData0;
+    			 
     				if(nameColumnType == 0){
     					ConvData0 = ((DoubleValue)dcell0).getDoubleValue();
     		    	}
@@ -278,7 +304,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     			
     			}
     		
-    		}
+    		
 
 
 
