@@ -29,6 +29,17 @@
         
         <option name="Select a column"> Choose a column to be formatted </option>
         <option name="Delete the Source Column">Choose this if you want to dismiss the source columns</option>
+       <option name="Choose the leading character">Choose what kind of character should appear as a leading: "0", "empty space" or "_" 
+       <table>
+       
+       <tr><th>Leading character</th><th>Number Formatted</th></tr>
+				<tr><td align="center">0</td><td align="center">02.00</td></tr>
+				<tr><td align="center"> "empty space" </td><td align="center"> 2.00</td></tr>
+				<tr><td align="center">_</td><td align="center">_2.00</td></tr>
+       </table>
+       
+       </option>
+       
        
      </fullDescription>
     <ports>

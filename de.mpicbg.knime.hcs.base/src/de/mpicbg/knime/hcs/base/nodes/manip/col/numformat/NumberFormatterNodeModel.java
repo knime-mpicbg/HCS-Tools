@@ -42,6 +42,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     public static final String CFG_ConcentrationColumn_DFT = "Concentration";
     
     public static final String CFG_deleteSouceCol = "delete.source.column";
+    public static final String CFG_leadingCharacter = "leading.character";
     /**
      * Constructor for the node model.
      */
@@ -50,14 +51,20 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
         super(1, 1, true);
         addModelSetting(NumberFormatterNodeModel.CFG_ConcentrationColumn, createConcentrationColumn());
         addModelSetting(NumberFormatterNodeModel.CFG_deleteSouceCol, createDelSourceCol());
+        addModelSetting(NumberFormatterNodeModel.CFG_leadingCharacter, createleadingCharacter());
     }
-    //store and retrieve values from - transport of values
+    
+	//store and retrieve values from - transport of values
 	private SettingsModel createConcentrationColumn() {
     	return new SettingsModelString( CFG_ConcentrationColumn, null);
 	}
 	
 	private SettingsModel createDelSourceCol() {
 		return new SettingsModelBoolean(CFG_deleteSouceCol, false);
+	}
+	
+	private SettingsModel createleadingCharacter() {
+		return new SettingsModelString(CFG_leadingCharacter, "0");
 	}
 	/**
      * {@inheritDoc}

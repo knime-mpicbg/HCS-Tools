@@ -5,6 +5,7 @@ import org.knime.core.data.StringValue;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
@@ -18,7 +19,6 @@ public class NumberFormatterNodeDialog extends DefaultNodeSettingsPane {
     public NumberFormatterNodeDialog() {
         super();
         
-        
         addDialogComponent(new DialogComponentColumnNameSelection(
         		new SettingsModelString(
         		NumberFormatterNodeModel.CFG_ConcentrationColumn,NumberFormatterNodeModel.CFG_ConcentrationColumn_DFT),
@@ -29,6 +29,9 @@ public class NumberFormatterNodeDialog extends DefaultNodeSettingsPane {
         addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
         		NumberFormatterNodeModel.CFG_deleteSouceCol, false), "Delete the Source Column"));
         
+        addDialogComponent(new DialogComponentStringSelection(
+                new SettingsModelString(NumberFormatterNodeModel.CFG_leadingCharacter, "0"),
+                "Choose the leading character:", "0", " ", "_"));
     }
 }
 
