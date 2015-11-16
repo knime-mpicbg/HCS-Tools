@@ -1,13 +1,8 @@
 package de.mpicbg.knime.hcs.base.nodes.manip.col.numformat;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
-import org.knime.base.node.preproc.regexsplit.RegexSplitNodeFactory;
-//import org.knime.base.node.preproc.regexsplit.RegexSplitNodeModel;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
@@ -25,20 +20,18 @@ import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeModel;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
-import de.mpicbg.knime.knutils.Attribute;
 
 
 /**
  * This is the model implementation of NumberFormatter.
  * 
  *
- * @author
+ * @author: Magda Rucinska
  */
 public class NumberFormatterNodeModel extends AbstractNodeModel {
     
@@ -82,21 +75,12 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	
         int idCol = tSpec.findColumnIndex(conColumn); // take an id of a column with concentration name
     	DataColumnSpec cSpec = inData[0].getDataTableSpec().getColumnSpec(idCol); // get column specification of conColumn that have concentration data
-    	DataColumnDomain domain = cSpec.getDomain(); 
+    //	DataColumnDomain domain = cSpec.getDomain(); 
     	
     	//minmax - find how many zeros before and after dot need to be added
     	
     	double[] MinMax = new double[2]; //create an arrey, 2 columns
     	MinMax = findMinMax(inData[0], idCol, checkForDataType(cSpec));
-    	/*double[] max = new double[2];
-    	if(domain == null) {
-    		max = findMinMax(inData[0], idCol);
-    	} else {
-    		if(domain.getUpperBound() != null) 
-    			max = ((DoubleValue)domain.getUpperBound()).getDoubleValue();
-    		else
-    			max = findMinMax(inData[0], idCol);
-    	}*/
     	 AtomicInteger neg = new AtomicInteger();
     	 AtomicInteger nnum = new AtomicInteger();
 
@@ -113,7 +97,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
         }
     	
 
-
+    /** check what kind of Type is your data:  0 - Numeric, 1 - String */
  
     private int checkForDataType(DataColumnSpec cSpec) {
 		if(cSpec.getType().isCompatible(DoubleValue.class)){
@@ -122,7 +106,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		else{
 		return 1;} //1 is a string
 	}
-
+    /** find how many digits you need to add before and after dot */
 	private double[] findMinMax(BufferedDataTable inTable, int idCol, int namecolumntype) {
     	double[] MinMax = new double[2];
     	double maxTrailing = 0;
@@ -230,7 +214,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	return new DataTableSpec[]{result};
         
     }
-
+    /** create new column */
     private ColumnRearranger createColumnRearranger(final DataTableSpec inSpec, final Integer idCol, final Integer idRow, final double[] MinMax, final int nameColumnType,  final AtomicInteger errorCounter_nnum,final AtomicInteger errorCounter_neg ) {
     	ColumnRearranger c = new ColumnRearranger(inSpec);
     	// column spec of the appended column
@@ -241,7 +225,8 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     	final DataType dType = inSpec.getColumnSpec(idCol).getType();
 
     	CellFactory factory = new SingleCellFactory(newColSpec) {
-    		public DataCell getCell(DataRow row) {
+    		@Override
+			public DataCell getCell(DataRow row) {
     			
     			DataCell dcell0 = row.getCell(idCol);
     			if (dcell0.isMissing()) {
@@ -304,16 +289,11 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     			
     			}
     		
-    		
-
-
-
-
     	};
     	c.append(factory);
     	return c;
     }
-    //AUTOGUESSING
+    /** Autoguessing */ 
     private String tryAutoGuessingConcentrationColumn(DataTableSpec tSpec) throws InvalidSettingsException {
 
 		// check if "concentration" column available
@@ -349,7 +329,8 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		}
 		return firstDoubleCell;
 	}
-// GET LENGTH
+
+    /** get length of each number in column */
 	private double[] getLength(double value) {
 		
 		double[] maxLength = new double[2];
@@ -367,4 +348,3 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 	}
     
 }
-
