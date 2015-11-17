@@ -285,7 +285,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 					else
 					{
-						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
+						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idRow]);
 						return DataType.getMissingCell();
 					}
 				}
@@ -296,7 +296,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 					if(ConvDataDouble > TdsUtils.MAX_PLATE_ROW)
 					{
-						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
+						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idRow]);
 						return DataType.getMissingCell();
 					}
 
@@ -309,7 +309,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 						if(ConvData1 == null)
 						{
 							// give a Warning message and returning a missing cell
-							SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
+							SendWarning(1, dcell0.toString(), RowId, ColumnNames[idRow]);
 							
 							return DataType.getMissingCell();
 						}
