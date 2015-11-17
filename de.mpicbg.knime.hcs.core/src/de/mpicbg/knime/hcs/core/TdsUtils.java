@@ -39,6 +39,8 @@ public class TdsUtils {
     public static final String TREATMENT_LIBRARY = "library";
     public static final String TREATMENT_UNTREATED = "untreated";
     public static final int MAX_PLATE_COLUMN = 48;
+    public static final int MAX_PLATE_ROW = 32;
+    
 
     // row labels up to 1536 well plate ('A','B',...'Z','AA','AB',...)
     public static final List<String> rowLabels;

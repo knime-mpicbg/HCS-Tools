@@ -11,10 +11,13 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.container.SingleCellFactory;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
@@ -181,12 +184,12 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 		// Rearrange and creating new table wit information of id's of the columns to rearrange.
 		ColumnRearranger rearranged_table = createColumnRearranger(in[0], idCol , idRow);
-		
+
 		// Checking for option to delete all source columns
-				if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) 
-				{
-					rearranged_table.remove(idCol, idRow);
-				}
+		if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) 
+		{
+			rearranged_table.remove(idCol, idRow);
+		}
 
 		DataTableSpec output_table = rearranged_table.createSpec();
 
@@ -213,58 +216,91 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 				DataCell dcell0 = row.getCell(idCol);
 				DataCell dcell1 = row.getCell(idRow);
-				
-				String ConvData0 = dcell0.toString();
-				
-				// Saving value of plateColumn column into ConvData1
-				String ConvData1 = dcell1.toString();
+
+				String ConvData0 = null;
+				String ConvData1 = null;
+
 
 				// checking for missing cell, if so then returning missing cell
 				if (dcell0.isMissing() || dcell1.isMissing()) 
 				{
 					return DataType.getMissingCell();
 				} 
-				else 
+
+
+				//=========== Checking and Converting Column ===========//
+
+				// checking the value for the column position on the well is supported
+				if(dcell0.getType() == DoubleCell.TYPE || dcell0.getType() == IntCell.TYPE )
 				{
+					Integer ConvDataInt0 = ((IntValue) dcell0).getIntValue();
+
+					if(ConvDataInt0 > TdsUtils.MAX_PLATE_COLUMN)
+					{
+						setWarningMessage("ValueError - can not use cell value for creating column position in row " + dcell0.toString() + " - it's out of range of the supported well formats");
+						return DataType.getMissingCell();
+					}
+
+					ConvData0 = ConvDataInt0.toString();
+				}
+				// now its have to be a alphabetical format - checking compatibility of supported wells
+				else
+				{
+					ConvData0 = ((StringValue) dcell0).getStringValue();
+
+					// Converting alphabetical to number
+					Integer ConvDataInt0 = TdsUtils.mapPlateRowStringToNumber(ConvData0);
+					if(ConvDataInt0 > TdsUtils.MAX_PLATE_COLUMN || ConvDataInt0 < 0)
+					{
+						setWarningMessage("ValueError - can not use cell value for creating column position in row " + dcell0.toString() + " - it's out of range of the supported well formats");
+						return DataType.getMissingCell();
+					}
+					ConvData0 = ConvDataInt0.toString();
+
+				}
+
+				//=========== Checking and Converting ROW ===========//
+
+				if(dcell1.getType() == StringCell.TYPE)
+				{
+					ConvData1 = ((StringValue) dcell1).getStringValue();
+
+					if(ConvData1.matches("^[aA]{0,1}[a-zA-Z]{1}$"))
+					{
+						// Converts lower case input to upper case - better looking
+						ConvData1 = ConvData1.toUpperCase();
+					}
+
+					else
+					{
+						setWarningMessage("Can not use plate Row value of row " + dcell0.toString() + " - it's out of range of the supported well formats");
+						return DataType.getMissingCell();
+					}
+				}
+
+				if(dcell1.getType() == DoubleCell.TYPE || dcell1.getType() == IntCell.TYPE )
+				{
+					Double ConvDataDouble = ((DoubleValue) dcell1).getDoubleValue();
+
+					if(ConvDataDouble > TdsUtils.MAX_PLATE_ROW)
+					{
+						setWarningMessage("ValueError - can not use cell value for creating row position in row " + dcell1.toString() + " - it's out of range of the supported well formats");
+						return DataType.getMissingCell();
+					}
+
 					try
 					{
-						// checking if the value of the position of the column is compatible to the supported well format
-						if(Double.parseDouble(ConvData0) > TdsUtils.MAX_PLATE_COLUMN)
+						Integer ConvDataInt = (int)ConvDataDouble.doubleValue();
+						ConvData1 = TdsUtils.mapPlateRowNumberToString(ConvDataInt);
+
+						//check for row numbers compatible to supported well formats (up to 1536 well plate)
+						if(ConvData1 == null)
 						{
-							setWarningMessage("Can not use plate Column value of row " + dcell0.toString() + " - it's out of range of the supported well formats");
+							// give a Warning message and returning a missing cell
+							setWarningMessage("Can not convert Row Nr. " + dcell0.toString() + " - it's out of range of the supported well formats");
 							return DataType.getMissingCell();
 						}
-						
-						
-						// check if row format already alphabetical
-						if(ConvData1.matches("^[aA]{0,1}[a-zA-Z]{1}$"))
-						{
-							// Converts lower case input to upper case - better looking
-							ConvData1 = ConvData1.toUpperCase();
-						}
-					
-						// Converting the numeric column to alphabetical
-						else
-						{
-							// Try to parse String value to double for using the mapPlateRowNumberToString
-							Double ConvDataDouble = Double.parseDouble(ConvData1);
-							
-							// Cast double to integer for handling with double columns
-							Integer ConvDataINT = (int)ConvDataDouble.doubleValue();
-							
-							// Converting numeric values to alphabetical
-							ConvData1 = TdsUtils.mapPlateRowNumberToString(ConvDataINT);
 
-							//check for row numbers compatible to supported well formats (up to 1536 well plate)
-							if(ConvData1 == null)
-							{
-								// give a Warning message and returning a missing cell
-								setWarningMessage("Can not convert Row Nr. " + dcell0.toString() + " - it's out of range of the supported well formats");
-								return DataType.getMissingCell();
-							}
-							
-						}
-						
 					}
 
 					// catches number format exception while converting the values to alphabetical format
@@ -273,36 +309,34 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 						setWarningMessage("Wrong number format - Not able to convert or process the given values - check your selected columns in row " + dcell0.toString());
 						return DataType.getMissingCell();
 					}
-					
 					// catches Null pointer exception while converting the values to alphabetical format
-					catch (NullPointerException e){
+					catch (NullPointerException e)
+					{
 						setWarningMessage("Null Pointer Exception by converting your row column to alphabetical values - check row "+ dcell0.toString() + " in your source column");
 						return DataType.getMissingCell();
 					}
-					
 					//  catches missing entries in the auto guessing array
-					catch (IndexOutOfBoundsException e){
-						setWarningMessage("Autoguessing failed - the node did not get any column out of the autoguessing");
+					catch (IndexOutOfBoundsException e)
+					{
+						setWarningMessage("ValueError - can not use cell value for creating row position in row " + dcell1.toString() + " - it's out of range of the supported well formats");
 						return DataType.getMissingCell();
 					}
-
-					// checking current setting for formating columns for better sorting
-					if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) {
-						if(ConvData1.length() == 1 )
-						{
-							ConvData1 = " " + ConvData1;
-						}
-						if(ConvData0.length() == 1)
-						{
-							return new StringCell(ConvData1.concat("0").concat(ConvData0));
-						}
-					}
-					return new StringCell(ConvData1.concat(ConvData0));
 				}
+
+				// checking current setting for formating columns for better sorting
+				if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) 
+				{
+					if(ConvData1.length() == 1 )
+					{
+						ConvData1 = " " + ConvData1;
+					}
+					if(ConvData0.length() == 1)
+					{
+						return new StringCell(ConvData1.concat("0").concat(ConvData0));
+					}
+				}
+				return new StringCell(ConvData1.concat(ConvData0));
 			}
-
-
-
 		};
 		rearranged_table.append(factory);
 		return rearranged_table;
@@ -323,7 +357,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 				guessedColums.add(0, CFG_PlateColumn_DFT);
 			}
 		}
-		
+
 		// check if "Row" column available
 		if(tSpec.containsName(CFG_PlateRow_DFT)) {
 			if(tSpec.getColumnSpec(CFG_PlateRow_DFT).getType().isCompatible(DoubleValue.class)) {
