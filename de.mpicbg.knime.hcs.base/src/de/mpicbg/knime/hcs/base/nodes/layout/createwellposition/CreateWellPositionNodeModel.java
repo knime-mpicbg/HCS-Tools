@@ -95,6 +95,20 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	static final SettingsModelBoolean createFormateColumn() {
 		return new SettingsModelBoolean(CFG_formateColumn, false);
 	}
+	
+	
+	private void SendWarning(Integer WarnNum, String CellValue, String RowNum, String ColumnName) {
+		String[] ValueErrorRange = new String[20];
+		
+		// Value Error - the column value for the well position is not supported or in a wrong type
+		ValueErrorRange[0] = "Error in RowID \"" + RowNum + "\" in Column " + ColumnName + " - the cell value " + CellValue + " seems to be not supported or in a wrong format";
+		
+		// Value Error - the column value for the well position is not supported or in a wrong type
+		ValueErrorRange[1] = "Error in RowID \"" + RowNum + "\" in Column \"" + ColumnName +"\" - the cell value " + CellValue + " seems to be not supported or in a wrong format";
+		
+		
+		setWarningMessage(ValueErrorRange[WarnNum]);
+	}
 
 	/**
 	 * Execution class of the Node
@@ -204,9 +218,12 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 		// Creating new ColumRearranger instance
 		ColumnRearranger rearranged_table = new ColumnRearranger(inSpec);
+		
 
 		// column specification of the appended column
 		DataColumnSpec newColSpec = new DataColumnSpecCreator("WellPosition", StringCell.TYPE).createSpec();
+
+		String[] ColumnNames = inSpec.getColumnNames();
 
 		// utility object that performs the calculation
 		CellFactory factory = new SingleCellFactory(newColSpec) {
@@ -214,11 +231,14 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 			// iterating over every row of input table
 			public DataCell getCell(DataRow row) {
 
+				
 				DataCell dcell0 = row.getCell(idCol);
 				DataCell dcell1 = row.getCell(idRow);
 
 				String ConvData0 = null;
 				String ConvData1 = null;
+				
+				String RowId = row.getKey().getString();
 
 
 				// checking for missing cell, if so then returning missing cell
@@ -237,7 +257,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 					if(ConvDataInt0 > TdsUtils.MAX_PLATE_COLUMN)
 					{
-						setWarningMessage("ValueError - can not use cell value for creating column position in row " + dcell0.toString() + " - it's out of range of the supported well formats");
+						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
 						return DataType.getMissingCell();
 					}
 
@@ -246,17 +266,9 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 				// now its have to be a alphabetical format - checking compatibility of supported wells
 				else
 				{
-					ConvData0 = ((StringValue) dcell0).getStringValue();
-
-					// Converting alphabetical to number
-					Integer ConvDataInt0 = TdsUtils.mapPlateRowStringToNumber(ConvData0);
-					if(ConvDataInt0 > TdsUtils.MAX_PLATE_COLUMN || ConvDataInt0 < 0)
-					{
-						setWarningMessage("ValueError - can not use cell value for creating column position in row " + dcell0.toString() + " - it's out of range of the supported well formats");
-						return DataType.getMissingCell();
-					}
-					ConvData0 = ConvDataInt0.toString();
-
+					SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
+					return DataType.getMissingCell();
+					
 				}
 
 				//=========== Checking and Converting ROW ===========//
@@ -273,7 +285,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 					else
 					{
-						setWarningMessage("Can not use plate Row value of row " + dcell0.toString() + " - it's out of range of the supported well formats");
+						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
 						return DataType.getMissingCell();
 					}
 				}
@@ -284,7 +296,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 					if(ConvDataDouble > TdsUtils.MAX_PLATE_ROW)
 					{
-						setWarningMessage("ValueError - can not use cell value for creating row position in row " + dcell1.toString() + " - it's out of range of the supported well formats");
+						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
 						return DataType.getMissingCell();
 					}
 
@@ -297,7 +309,8 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 						if(ConvData1 == null)
 						{
 							// give a Warning message and returning a missing cell
-							setWarningMessage("Can not convert Row Nr. " + dcell0.toString() + " - it's out of range of the supported well formats");
+							SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
+							
 							return DataType.getMissingCell();
 						}
 
@@ -322,6 +335,9 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 						return DataType.getMissingCell();
 					}
 				}
+				
+				
+				
 
 				// checking current setting for formating columns for better sorting
 				if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) 
@@ -332,9 +348,11 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 					}
 					if(ConvData0.length() == 1)
 					{
+						
 						return new StringCell(ConvData1.concat("0").concat(ConvData0));
 					}
 				}
+				
 				return new StringCell(ConvData1.concat(ConvData0));
 			}
 		};
