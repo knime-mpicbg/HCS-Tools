@@ -285,13 +285,29 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
     					number = String.format("%s",ConvData0); //leave it double
     				}
     				
-    				for(int i = 0; i < nLeading; i++)
-    					number = "0" + number;
-
+    				
+					for(int i = 0; i < nLeading; i++)
+						//number =  "0" + number;
+					{
+    					String leading_char =  ((SettingsModelString) getModelSetting(CFG_leadingCharacter)).getStringValue();
+    					number = leading_char + number;
+    					//a string can not be compered to integer
+    					/*if (leading_char.equals("0")){
+    					number =  "0" + leading_char;
+    					}
+    					else if (leading_char.equals(" ") ){
+    						number = " " + leading_char;
+    						
+    					}else if (leading_char.equals("_")){
+    						
+    						number = "_" + leading_char;
+    					}*/
+					}
+    				
     				for(int i = 0; i < nTrailing; i++)
-    					number = number + "0";
-    				   	
-    			
+    					number =  number + "0";
+    	  	
+    		
     			    return new StringCell(number);
     			
     			}
