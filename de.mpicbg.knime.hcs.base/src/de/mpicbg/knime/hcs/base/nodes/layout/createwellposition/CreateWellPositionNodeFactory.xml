@@ -50,10 +50,10 @@
     
     <ports>
         <inPort index="0" name="Table input">
-			Input port with the table to be converted and formatted. 
+			Input port with the table to be converted. 
 		</inPort>
         <!-- possibly more input ports here-->
-        <outPort index="0" name="new table">Output port with the new table</outPort>
+        <outPort index="0" name="table with WellPosition">Output port with the new colum WellPosition</outPort>
         <!-- possibly more output ports here-->
     </ports>    
     
