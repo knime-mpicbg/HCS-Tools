@@ -39,8 +39,8 @@
 		</intro>
 		
 		
-		  <option name="Plate column">The string, double or integer column containing columns numbers of the well.</option>
-          <option name="Plate row">The string, double or integer column containing row numbers of the well.</option>
+		  <option name="Plate column">The string, double or integer column containing the column position on the well.</option>
+          <option name="Plate row">The string, double or integer column containing the column position on the well.</option>
           <option name="Delete source Columns">Choose this if you want to dismiss the source columns</option>
           <option name="Formate destination Column">Choose this for better sorting options, formate like A01, B02, C03</option>
         
