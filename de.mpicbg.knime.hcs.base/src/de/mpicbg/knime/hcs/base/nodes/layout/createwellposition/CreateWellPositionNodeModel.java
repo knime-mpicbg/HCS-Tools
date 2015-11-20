@@ -253,7 +253,17 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 				// checking the value for the column position on the well is supported
 				if(dcell0.getType() == DoubleCell.TYPE || dcell0.getType() == IntCell.TYPE )
 				{
-					Integer ConvDataInt0 = ((IntValue) dcell0).getIntValue();
+					Integer ConvDataInt0 = null;
+					if(dcell0.getType() == DoubleCell.TYPE)
+					{
+						Double ConvDataDouble = ((DoubleValue) dcell0).getDoubleValue();
+						ConvDataInt0 = (int)ConvDataDouble.doubleValue();
+					}
+					else
+					{
+						ConvDataInt0 = ((IntValue) dcell0).getIntValue();
+					}
+					
 
 					if(ConvDataInt0 > TdsUtils.MAX_PLATE_COLUMN)
 					{
@@ -271,13 +281,15 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 					
 				}
 
-				//=========== Checking and Converting ROW ===========//
+				//=========== Checking and Converting Row ===========//
 
 				if(dcell1.getType() == StringCell.TYPE)
 				{
 					ConvData1 = ((StringValue) dcell1).getStringValue();
 
-					if(ConvData1.matches("^[aA]{0,1}[a-zA-Z]{1}$"))
+					
+					// Checking if the alphabetical input values are compatible t
+					if(ConvData1.matches("^[aA]{0,1}[aA-fF]{1}$"))
 					{
 						// Converts lower case input to upper case - better looking
 						ConvData1 = ConvData1.toUpperCase();
@@ -319,19 +331,20 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 					// catches number format exception while converting the values to alphabetical format
 					catch (NumberFormatException e)
 					{
-						setWarningMessage("Wrong number format - Not able to convert or process the given values - check your selected columns in row " + dcell0.toString());
+						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
 						return DataType.getMissingCell();
 					}
 					// catches Null pointer exception while converting the values to alphabetical format
 					catch (NullPointerException e)
 					{
-						setWarningMessage("Null Pointer Exception by converting your row column to alphabetical values - check row "+ dcell0.toString() + " in your source column");
+						setWarningMessage("Null Pointer Exception please check your input table");
 						return DataType.getMissingCell();
 					}
 					//  catches missing entries in the auto guessing array
 					catch (IndexOutOfBoundsException e)
 					{
-						setWarningMessage("ValueError - can not use cell value for creating row position in row " + dcell1.toString() + " - it's out of range of the supported well formats");
+						//setWarningMessage("ValueError - can not use cell value for creating row position in row " + dcell1.toString() + " - it's out of range of the supported well formats");
+						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
 						return DataType.getMissingCell();
 					}
 				}
