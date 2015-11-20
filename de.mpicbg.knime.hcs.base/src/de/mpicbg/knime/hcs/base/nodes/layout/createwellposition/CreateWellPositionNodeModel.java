@@ -288,7 +288,8 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 					ConvData1 = ((StringValue) dcell1).getStringValue();
 
 					
-					// Checking if the alphabetical input values are compatible t
+					// Checking if the alphabetical input values are compatible to well plates
+					// IMPORTANT: if the supported well plates is gonna change - its necessary to change the regex
 					if(ConvData1.matches("^[aA]{0,1}[aA-fF]{1}$"))
 					{
 						// Converts lower case input to upper case - better looking
