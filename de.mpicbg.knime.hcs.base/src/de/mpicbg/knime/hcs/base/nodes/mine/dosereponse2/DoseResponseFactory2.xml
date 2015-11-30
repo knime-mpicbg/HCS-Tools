@@ -4,60 +4,83 @@
     <name>Dose Response (R)</name>
 
     <shortDescription>
-        Caclulates and visualizes dose repsonse curves
+        Calculates and visualizes dose response curves
     </shortDescription>
 
     <fullDescription>
         <intro>
-            <p>Caclulates and visualizes dose repsonse curves. This is achieved by fitting several non-linear regression
-                models to your data.
+            <p>Calculates and visualizes dose response curves. This is achieved by fitting several non-linear regression
+                models to your data. 
                 <br/>
+                Measurements are grouped per <i>Compound</i> and <i>Concentration</i> (see Options).<br/>
                 Measurements from a zero concentration are used to calculate the fit but are not displayed in the plot
                 because of its logarithmic scale.
                 <br/>
-                For a conceptutal and technical overview have a look at "Bioassay Analysis using R", Ritz and Streibig,
+                For a conceptual and technical overview have a look at "Bioassay Analysis using R", Ritz and Streibig,
                 2005, 5:12, Journal of Statistical Software.
             </p>
             <p>
-                IMPORTANT :
+                <u>IMPORTANT:</u>
                 <br/>
-                This node is using R as backend, make sure that Rserve is running somewhere, and Knime is accordingly
-                configured (Knime->Preferences).
+                This node is using R as back end, make sure that Rserve is running somewhere, and KNIME is accordingly
+                configured (KNIME->Preferences).
                 <a href="https://github.com/knime-mpicbg/knime-scripting/wiki/R-server-for-knime">HCS-Tools Wiki</a>
             </p>
         </intro>
+        
+        <tab name = "Script Editor">
 
-
-        <option name="Parameters of interest">The assay parameters for which a dose response analysis should be carried
-            out.
-        </option>
-        <option name="Compound">A grouping attribute to group wells according to replicate or compound
-        </option>
-        <option name="Concentration">The column which contains the concentrations
-        </option>
-        <option name="Plot title">Adds a custom main title to the plot
-        </option>
-
-        <option name="Regression Model">The folloing models (referrerd to their abbreviation in the configuration
-            dialog) are supported:
-            <ol>
-                <li>LL.3 : Three-parameter logistic</li>
-                <li>LL.4 : Four-parameter logistic (default)</li>
-                <li>LL.5 : Five-parameter logistic</li>
-                <li>BC.5 : The Brain-Cousens hormesis models</li>
-                <li>W1.2 : Two-parameter Weibull</li>
-                <li>W1.3 : Three-parameter Weibull</li>
-                <li>W1.4 : Four-parameter Weibull</li>
-            </ol>
-        </option>
-
-        <option name="Parameter constraints">Allows to set constraints for some or all parameters of the model. This
-            requires
-            knowledge about the model structure, which can be obtained easily using R (e.g. just type ?LL.4 for the
-            configuration of the 4-parametric logistic model. Use NA for no constraint.
-            <br/>
-            Example for LL.4 which imposes a upper limit at 3: NA, NA, 3, NA
-        </option>
+	        <option name="Parameters of interest">The assay parameters for which a dose response analysis should be carried
+	            out.
+	        </option>
+	        <option name="Compound">The column containing the compound information (group1)
+	        </option>
+	        <option name="Concentration">The column containing the concentrations (group2)
+	        </option>
+	        <option name="Plot title">Adds a custom main title to the plot
+	        </option>
+	
+	        <option name="Regression Model">The following models (referred to their abbreviation in the configuration
+	            dialog) are supported:
+	            <ol>
+	                <li>LL.3 : Three-parameter logistic</li>
+	                <li>LL.4 : Four-parameter logistic (default)</li>
+	                <li>LL.5 : Five-parameter logistic</li>
+	                <li>W1.2 : Two-parameter Weibull</li>
+	                <li>W1.3 : Three-parameter Weibull</li>
+	                <li>W1.4 : Four-parameter Weibull</li>
+	            </ol>
+	            For a mathematical model definition see <a href="https://cran.r-project.org/web/packages/drc/drc.pdf">Package 'drc'</a>
+	        </option>
+	        <option name="Plotting Options"> Several plot options additional to the dose response curve are available:
+	        	<ol>
+	        		<li>Data points - single measurements</li>
+	        		<li>SEM - standard error of the mean (default)</li>
+	        		<li>SD - standard deviation</li>
+	        	</ol>
+	        </option>
+	
+	        <option name="Parameter constraints">Allows to set constraints for some or all parameters of the model. This
+	            requires
+	            knowledge about the model structure, which can be obtained easily using R (e.g. just type ?LL.4 for the
+	            configuration of the 4-parametric logistic model. Use NA for no constraint.
+	            <br/>
+	            Example for LL.4 which imposes a upper limit at 3: NA, NA, 3, NA
+	        </option>
+        
+        </tab>
+        <tab name = "Chunk Settings">
+        	<option name="Several settings">
+        	Settings to transfer the data between KNIME and R in chunks (only necessary for very big tables)
+        	For documentation please check out the node description of the <i>RSnippet</i> node.
+        	</option>
+        </tab>
+        <tab name = "Output Options">
+        	<option name="Several settings">
+        	Settings to control plot size and whether it should be exported as file.
+        	For documentation please check out the node description of the <i>RPlot</i> node.
+        	</option>
+        </tab>
 
     </fullDescription>
 
@@ -68,7 +91,7 @@
         </outPort>
         <outPort index="1" name="dose response plot">The generated dose response curve plotted as PNG-image 
         </outPort>
-        <outPort index="2" name="model">The model for further analysis
+        <outPort index="2" name="model">An R list with all dose response models for further analysis
         </outPort>
 
     </ports>
