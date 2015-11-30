@@ -33,12 +33,25 @@ import de.mpicbg.knime.scripting.r.generic.RPortObjectSpec;
 import de.mpicbg.knime.scripting.r.plots.RPlotCanvas;
 import de.mpicbg.knime.scripting.r.rgg.HardwiredGenericRPlotNodeFactory;
 
+/**
+ * Node Factory for 'Dose Response' node
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class DoseResponseFactory2 extends HardwiredGenericRPlotNodeFactory {
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getTemplateFileName() {
         return "DoseResponse.rgg";
     }
 
+	/**
+	 * creates an array of output port types for that node
+	 * @return
+	 */
     private static PortType[] createOutputPorts() {
         PortType[] tablePort = AbstractNodeModel.createPorts(1);
         PortType[] modelPort = AbstractNodeModel.createPorts(1, RPortObject.TYPE, RPortObject.class);
@@ -48,6 +61,7 @@ public class DoseResponseFactory2 extends HardwiredGenericRPlotNodeFactory {
 
 	@Override
 	protected GenericRPlotNodeModel createNodeModelInternal() {
+		
 		return new GenericRPlotNodeModel(AbstractNodeModel.createPorts(1), createOutputPorts()) {
 
             protected PortObject[] prepareOutput(ExecutionContext exec, RConnection connection) {
