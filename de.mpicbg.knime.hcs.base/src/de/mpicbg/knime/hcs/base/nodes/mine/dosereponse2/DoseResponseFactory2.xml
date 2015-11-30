@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode type="Learner" icon="./DoseResponse.png" deprecated="true">
-    <name>Dose Response</name>
+<knimeNode type="Learner" icon="doseresponseIcon.png">
+    <name>Dose Response (R)</name>
 
     <shortDescription>
         Caclulates and visualizes dose repsonse curves
@@ -66,7 +66,9 @@
         </inPort>
         <outPort index="0" name="parameter table">A table which contains ic50s, model parameters, and error estimates
         </outPort>
-        <outPort index="1" name="model">The model for further analysis
+        <outPort index="1" name="dose response plot">The generated dose response curve plotted as PNG-image 
+        </outPort>
+        <outPort index="2" name="model">The model for further analysis
         </outPort>
 
     </ports>
