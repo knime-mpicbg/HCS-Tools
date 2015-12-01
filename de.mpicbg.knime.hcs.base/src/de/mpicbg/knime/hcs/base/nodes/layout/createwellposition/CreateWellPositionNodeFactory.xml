@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
-<knimeNode icon="./default.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+<knimeNode icon="./createWellPosition.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
     <name>Create Well Position</name>
     
     <shortDescription>
-        The node should be able to create a new string column with the well position, given two input columns with the plate row (numeric or alphabetic) and plate column (numeric) information.
-		There should be an option whether to keep (default) or remove the two input columns.
+    Creates a well position column (e.g. B6) based on plate row and plate column information
     </shortDescription>
     
     <fullDescription>
   		<intro>
         	<p>
-        		This node needs to have two Columns with the specific columns with the plate row (numeric or alphabetic) and plate column (numeric) information.The node will create a new string column with the well position in the format you can see in the table below. 
+        	The node creates a new string column with the well position, 
+        	given two input columns with the plate row (numeric or alphabetic) and plate column (numeric) information. 
         	</p>  
         	
-        	<table><tr>
-					<th>Column Position</th>
-					<th>Row Position</th>
-					<th>Combined Position</th>
+        	<table>
+        		<tr>
+					<th>plateRow</th>
+					<th>plateColumn</th>
+					<th>Well Position</th>
 				</tr>
 				<tr>
 					<td align="center">1</td>
@@ -29,31 +29,29 @@
 					<td align="center">27</td>
 					<td align="center">AA27</td>
 				</tr><tr>
-					<td align="center">1</td>
 					<td align="center">a</td>
+					<td align="center">1</td>
 					<td align="center">A1</td>
 				</tr></table>       
 				
 				<p>This node supports well plates up to 1536 wells.</p>   
         	
 		</intro>
-		
-		
-		  <option name="Plate column">The string, double or integer column containing the column position on the well.</option>
-          <option name="Plate row">The string, double or integer column containing the column position on the well.</option>
-          <option name="Delete source Columns">Choose this if you want to dismiss the source columns</option>
-          <option name="Formate destination Column">Choose this for better sorting options, formate like A01, B02, C03</option>
+	
+          <option name="Plate row">The string, double or integer column containing the row information of the well.</option>
+          <option name="Plate column">The string, double or integer column containing the column information of the well.</option>
+          <option name="Delete source columns">If checked, source columns will be dismissed</option>
+          <option name="Use sortable format">If checked, 'Well Position' will become alphabetical sortable like A01, A02, A13</option>
         
     </fullDescription>
     
     
     
     <ports>
-        <inPort index="0" name="Table input">
-			Input port with the table to be converted. 
+        <inPort index="0" name="Input table">
+			Table with plate row and plate column information 
 		</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="table with WellPosition">Output port with the new colum WellPosition</outPort>
+        <outPort index="0" name="Table with well position">Input table with 'Well Position' column appended</outPort>
         <!-- possibly more output ports here-->
     </ports>    
     

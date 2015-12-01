@@ -17,23 +17,23 @@ public class CreateWellPositionNodeDialog extends DefaultNodeSettingsPane {
     public CreateWellPositionNodeDialog() {
 	super();
 	
-	// adding Dialog for selecting the column
-	addDialogComponent(new DialogComponentColumnNameSelection(CreateWellPositionNodeModel.createPlateColumn(),
-			"Select the Plate Column",
-			0,
-			DoubleValue.class, StringValue.class));     
-
 	// adding Dialog for selecting the row
 	addDialogComponent(new DialogComponentColumnNameSelection(CreateWellPositionNodeModel.createPlateRow(), 
-			"Select the Plate Row",
+			"Select the plate row",
 			0,
 			DoubleValue.class, StringValue.class)); 
 	
+	// adding Dialog for selecting the column
+	addDialogComponent(new DialogComponentColumnNameSelection(CreateWellPositionNodeModel.createPlateColumn(),
+			"Select the plate column",
+			0,
+			DoubleValue.class, StringValue.class));     
+
 	// adding Dialog for optional deleting the source column
-	addDialogComponent(new DialogComponentBoolean(CreateWellPositionNodeModel.createDelSourceCol(), "Delete the Source Columns"));
+	addDialogComponent(new DialogComponentBoolean(CreateWellPositionNodeModel.createDelSourceCol(), "Delete source columns"));
 	
 	// adding Dialog for optional changing format into an sortable
-	addDialogComponent(new DialogComponentBoolean(CreateWellPositionNodeModel.createFormateColumn(), "Convert in sorting formate"));
+	addDialogComponent(new DialogComponentBoolean(CreateWellPositionNodeModel.createFormateColumn(), "Use sortable format"));
     }
 }
 

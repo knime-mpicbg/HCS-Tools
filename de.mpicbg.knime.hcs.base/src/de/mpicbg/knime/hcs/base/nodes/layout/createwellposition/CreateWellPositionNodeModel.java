@@ -101,10 +101,10 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		String[] ValueErrorRange = new String[20];
 		
 		// Value Error - the column value for the well position is not supported or in a wrong type
-		ValueErrorRange[0] = "Error in RowID \"" + RowNum + "\" in Column " + ColumnName + " - the cell value " + CellValue + " seems to be not supported or in a wrong format";
+		ValueErrorRange[0] = "Error in RowID \"" + RowNum + "\" in column " + ColumnName + " - the cell value " + CellValue + " seems to be not supported or in a wrong format";
 		
 		// Value Error - the column value for the well position is not supported or in a wrong type
-		ValueErrorRange[1] = "Error in RowID \"" + RowNum + "\" in Column \"" + ColumnName +"\" - the cell value " + CellValue + " seems to be not supported or in a wrong format";
+		ValueErrorRange[1] = "Error in RowID \"" + RowNum + "\" in column \"" + ColumnName +"\" - the cell value " + CellValue + " seems to be not supported or in a wrong format";
 		
 		
 		setWarningMessage(ValueErrorRange[WarnNum]);
@@ -221,7 +221,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		
 
 		// column specification of the appended column
-		DataColumnSpec newColSpec = new DataColumnSpecCreator("WellPosition", StringCell.TYPE).createSpec();
+		DataColumnSpec newColSpec = new DataColumnSpecCreator("Well Position", StringCell.TYPE).createSpec();
 
 		String[] ColumnNames = inSpec.getColumnNames();
 
