@@ -185,8 +185,8 @@ public class Correlation extends AbstractNodeModel {
 
     protected double monoParametricCorrelation(BufferedDataTable sbs1, BufferedDataTable sbs2, List<Attribute> param, String method) {
         DescriptiveStatistics stats = new DescriptiveStatistics();
-        stats.addValue(sbs1.getRowCount());
-        stats.addValue(sbs2.getRowCount());
+        stats.addValue(sbs1.size());
+        stats.addValue(sbs2.size());
         double numberOfRows = stats.getMin();
 
         RealVector v1 = getMeasurmentsVector(sbs1, param.get(0));
@@ -206,7 +206,7 @@ public class Correlation extends AbstractNodeModel {
 
 
     protected RealVector getMeasurmentsVector(BufferedDataTable inputTable, Attribute param) {
-        double[] vector = new double[inputTable.getRowCount()];
+        double[] vector = new double[(int)inputTable.size()];
         int m = 0;
         for (DataRow row : inputTable) {
             Double val = param.getDoubleAttribute(row);
