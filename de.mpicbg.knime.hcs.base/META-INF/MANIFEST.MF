@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: HCS-Tools for KNIME
 Bundle-SymbolicName: de.mpicbg.knime.hcs.base;singleton:=true
 Bundle-Version: 3.0.000.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: hcstools.jar,
  lib/GradientSlider.jar
 Bundle-Activator: de.mpicbg.knime.hcs.base.HCSToolsBundleActivator
@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="[3.7.0,4.0.0)",
  de.mpicbg.knime.knutils;bundle-version="[3.0.0,4.0.0)",
  de.mpicbg.knime.scripting.core;bundle-version="[3.0.0,4.0.0)",
  de.mpicbg.knime.scripting.r;bundle-version="[3.0.0,4.0.0)",
- de.mpicbg.knime.hcs.core;bundle-version="[3.0.0,4.0.0)"
+ de.mpicbg.knime.hcs.core;bundle-version="[3.0.0,4.0.0)",
+ org.knime.core
 Eclipse-LazyStart: true
 
 
