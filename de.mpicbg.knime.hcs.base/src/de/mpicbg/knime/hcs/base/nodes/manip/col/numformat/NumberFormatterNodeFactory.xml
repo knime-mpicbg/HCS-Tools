@@ -3,7 +3,7 @@
     <name>Number Formatter</name>
     
     <shortDescription>
-        The node is normalizing numbers in the table by adding leading and trailing zeros to provide constant length of numbers in the table.
+        The node is formatting numbers in the table by adding leading and trailing zeros to provide constant length of numbers in the table.
     </shortDescription>
     
     <fullDescription>
