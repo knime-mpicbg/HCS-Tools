@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./icon_numform.png" type="Manipulator" >
+<knimeNode icon="./NumberFormatterIcon.png" type="Manipulator" >
     <name>Number Formatter</name>
     
     <shortDescription>
