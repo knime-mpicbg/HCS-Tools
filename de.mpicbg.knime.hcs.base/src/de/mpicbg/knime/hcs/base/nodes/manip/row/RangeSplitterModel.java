@@ -61,7 +61,7 @@ public class RangeSplitterModel extends RangeFilterV2NodeModel {
         exec.setMessage("Searching first matching row...");
 
         // number of rows to process
-        int nRows = inTable.getRowCount();
+        long nRows = inTable.size();
         int currentRow = 0;
 
         for (DataRow row : inTable) {

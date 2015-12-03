@@ -70,7 +70,7 @@ public class ExpandWellPosition extends AbstractNodeModel {
         StringBuffer errorLog = new StringBuffer();
 
         // convert all rows in the table
-        int rowCounter = 0;
+        long rowCounter = 0;
 
         for (DataRow dataRow : inputTable) {
             String wellPosition = wellPositionAttribute.getValue(dataRow);
@@ -102,7 +102,7 @@ public class ExpandWellPosition extends AbstractNodeModel {
             int plateColumn = (int) Double.parseDouble(matcher.group(2));
             updateCache.add(dataRow, plateColumnAttribute, new IntCell(plateColumn));
 
-            BufTableUtils.updateProgress(exec, rowCounter, inputTable.getRowCount());
+            BufTableUtils.updateProgress(exec, rowCounter, inputTable.size());
         }
 
 

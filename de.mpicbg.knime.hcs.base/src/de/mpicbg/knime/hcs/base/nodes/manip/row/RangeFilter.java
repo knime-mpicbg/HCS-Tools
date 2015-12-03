@@ -97,7 +97,7 @@ public class RangeFilter extends AbstractNodeModel {
         Double lowerBound = lowerBoundSetting.getDoubleValue();
         Double upperBound = upperBoundSetting.getDoubleValue();
         int N = parameter.size();
-        int S = input.getRowCount();
+        long S = input.size();
         int s = 1;
 
         // Filter rows

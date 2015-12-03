@@ -99,7 +99,7 @@ public class VectorLengthNormalizer extends AbstractNodeModel {
                 }
             }
 
-            BufTableUtils.updateProgress(exec, rowCounter++, input.getRowCount());
+            BufTableUtils.updateProgress(exec, rowCounter++, input.size());
         }
 
         ColumnRearranger c = updateCache.createColRearranger();
