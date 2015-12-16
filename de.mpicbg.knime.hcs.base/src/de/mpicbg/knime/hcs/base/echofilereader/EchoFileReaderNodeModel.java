@@ -1,245 +1,298 @@
 package de.mpicbg.knime.hcs.base.echofilereader;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.knime.core.data.DataCell;
-import org.knime.core.data.DataColumnDomain;
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
+import org.knime.core.node.ExecutionContext;
+import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.ExecutionMonitor;
-import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeLogger;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
+import org.xml.sax.helpers.DefaultHandler;
 
-import de.mpicbg.knime.hcs.base.nodes.manip.col.numformat.NumberFormatterNodeModel;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
 
 
 /**
  * This is the model implementation of EchoFileReader.
  * 
  *
- * @author 
+ * @author Magda Rucinska
+ * 
  */
 public class EchoFileReaderNodeModel extends AbstractNodeModel {
-    
+
 	// NODE SETTINGS KEYS + DEFAULTS
-	private final EchoFileReaderNodeSettings m_settings;
-    public static final String CFG_FileXML =  "fileXML";
-   
-    public static final String CFG_Metadata =  "metadata.table";
-    public static final String CFG_metadata_DFT = "Metadata";
-    
-    public static final String CFG_splitSouceCol = "split.source.column";
-    public static final String CFG_splitDestinationCol = "split.destination.column";
-    
 
+	public static final String CFG_FILE_URL = "fileUrl";
 
+	/*public static final String CFG_Metadata =  "metadata.table";
+	public static final String CFG_metadata_DFT = "Metadata";*/
 
-    /**
-     * Constructor for the node model.
-     */
-    protected EchoFileReaderNodeModel() {
-    
-        // TODO one incoming port and one outgoing port is assumed
-        super(0, 1, true);
-        m_settings = new EchoFileReaderNodeSettings();
-        addModelSetting(EchoFileReaderNodeModel.CFG_Metadata, createMetadata());
-        addModelSetting(EchoFileReaderNodeModel.CFG_splitDestinationCol, createSplitDestinationCol());
-        addModelSetting(EchoFileReaderNodeModel.CFG_splitSouceCol, createSplitSourceCol());
-    }
+	public static final String CFG_splitSourceCol = "split.source.column";
+	public static final int IDsourceColumn = 2;
+	public static final int IDdestinationColumn = 5;
+	public static final String CFG_splitDestinationCol = "split.destination.column";
 
-    private SettingsModel createSplitSourceCol() {
-    	return new SettingsModelBoolean(CFG_splitDestinationCol, false);
+	/**
+	 * Constructor for the node model.
+	 */
+	protected EchoFileReaderNodeModel() {
+
+		// TODO one incoming port and one outgoing port is assumed
+		super(0, 2, true);
+		addModelSetting(EchoFileReaderNodeModel.CFG_FILE_URL, createFileURL());
+		//addModelSetting(EchoFileReaderNodeModel.CFG_Metadata, createMetadata());
+		addModelSetting(EchoFileReaderNodeModel.CFG_splitDestinationCol, createSplitDestinationCol());
+		addModelSetting(EchoFileReaderNodeModel.CFG_splitSourceCol, createSplitSourceCol());
+	}
+
+	private SettingsModel createFileURL() {
+		return new SettingsModelString(CFG_FILE_URL, null);
+	}
+
+	private SettingsModel createSplitSourceCol() {
+		return new SettingsModelBoolean(CFG_splitSourceCol, false);
 	}
 
 	private SettingsModel createSplitDestinationCol() {
-    	return new SettingsModelBoolean(CFG_splitDestinationCol, false);
+		return new SettingsModelBoolean(CFG_splitDestinationCol, false);
 	}
 
-	private SettingsModel createMetadata() {
-    	return new SettingsModelString( CFG_metadata_DFT, null);
+	/*private SettingsModel createMetadata() {
+		return new SettingsModelString( CFG_metadata_DFT, null);
 	}
-	
-	 public static SettingsModelString createFileChooser() {
-	        return new SettingsModelString("input.files", "");
-	    }
-   
+*/
+	public static SettingsModelString createFileChooser() {
+		return new SettingsModelString("input.files", "");
+	}
+
 
 	/**
-     * {@inheritDoc}
-     */
-    @Override
-    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
-            final ExecutionContext exec) throws Exception {
-    	
-    	
-    	
-        
-        
-        
-        
-        
-        
-        
-        // the data table spec of the single output table, 
-        // the table will have three columns:
-        DataColumnSpec[] allColSpecs = new DataColumnSpec[3];
-        allColSpecs[0] = 
-            new DataColumnSpecCreator("Column 0", StringCell.TYPE).createSpec();
-        allColSpecs[1] = 
-            new DataColumnSpecCreator("Column 1", DoubleCell.TYPE).createSpec();
-        allColSpecs[2] = 
-            new DataColumnSpecCreator("Column 2", IntCell.TYPE).createSpec();
-        DataTableSpec outputSpec = new DataTableSpec(allColSpecs);
-        // the execution context will provide us with storage capacity, in this
-        // case a data container to which we will add rows sequentially
-        // Note, this container can also handle arbitrary big data tables, it
-        // will buffer to disc if necessary.
-        BufferedDataContainer container = exec.createDataContainer(outputSpec);
-        // let's add m_count rows to it
-        for (int i = 0; i < m_count.getIntValue(); i++) {
-            RowKey key = new RowKey("Row " + i);
-            // the cells of the current row, the types of the cells must match
-            // the column spec (see above)
-            DataCell[] cells = new DataCell[3];
-            cells[0] = new StringCell("String_" + i); 
-            cells[1] = new DoubleCell(0.5 * i); 
-            cells[2] = new IntCell(i);
-            DataRow row = new DefaultRow(key, cells);
-            container.addRowToTable(row);
-            
-            // check if the execution monitor was canceled
-            exec.checkCanceled();
-            exec.setProgress(i / (double)m_count.getIntValue(), 
-                "Adding row " + i);
-        }
-        // once we are done, we close the container and return its table
-        container.close();
-        BufferedDataTable out = container.getTable();
-        return new BufferedDataTable[]{out};
-    }
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
+			final ExecutionContext exec) throws Exception {
+		/**
+		 * read xml file
+		 */
+		String xml_file = null;
+		if (getModelSetting(CFG_FILE_URL) != null){
+			xml_file = ((SettingsModelString) getModelSetting(CFG_FILE_URL))
+					.getStringValue();
+		}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void reset() {
-        // TODO Code executed on reset.
-        // Models build during execute are cleared here.
-        // Also data handled in load/saveInternals will be erased here.
-    }
+		/**
+		 * SAX library implementation
+		 */
+		DefaultHandler handler = new ParseXML();
+		SAXParserFactory factory = SAXParserFactory.newInstance();
+		factory.setValidating(false);
+		SAXParser parser = factory.newSAXParser();
+		parser.parse(xml_file, handler);
+		
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-            throws InvalidSettingsException {
-        
-        // TODO: check if user settings are available, fit to the incoming
-        // table structure, and the incoming types are feasible for the node
-        // to execute. If the node can execute in its current state return
-        // the spec of its output data table(s) (if you can, otherwise an array
-        // with null elements), or throw an exception with a useful user message
+		/**
+		 * Creation of First Table with Echo information
+		 */	
+		int nrColumns = 0;
+		//check the settings and specify the number of columns in the table
+		 if(((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
+				.getBooleanValue() && ((SettingsModelBoolean) getModelSetting(CFG_splitDestinationCol)).getBooleanValue() == true) {
+			nrColumns = 17;
+		}
+		 else if (((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
+				.getBooleanValue() == true) {
+			nrColumns = 15;
+		} else if(((SettingsModelBoolean) getModelSetting(CFG_splitDestinationCol))
+				.getBooleanValue() == true) {
+			nrColumns = 15;
+		} 
+		else
+		{
+			nrColumns = 13;
+		}
 
-        return new DataTableSpec[]{null};
-    }
+		
+		List<Attribute> colAttributes = getEchoColumnModel(); // call the list of names form getEchoColumnModel
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveSettingsTo(final NodeSettingsWO settings) {
+		BufferedDataContainer buf = exec.createDataContainer(AttributeUtils.compileTableSpecs(colAttributes));
+		//create data container and take the attributes
+			DataCell[] cells = new DataCell[nrColumns]; //create table with specify number of columns
+			setWarningMessage("size: " + EchoReportRecords.records.size());
+		//	int counter =0;
+			for (EchoReportRecords r : EchoReportRecords.records) {
+				//get all values form parsed xml file
+				cells[0] = new StringCell(r.getSrcPlateName());
+				cells[1] = new StringCell(r.getSrcPlateBarcode());
+				cells[2] = new StringCell(r.getSrcWell());
+				cells[3] = new StringCell(r.getDestPlateName());
+				cells[4] = new StringCell(r.getDestPlateBarcode());
+				cells[5] = new StringCell(r.getDestWell());
+				cells[6] = new StringCell(r.getXferVol());
+				cells[7] = new StringCell(r.getActualVol());
+				cells[8] = new StringCell(r.getCurrentFluidVolume());
+				cells[9] = new StringCell(r.getFluidComposition());
+				cells[10] = new StringCell(r.getFluidUnits());
+				cells[11] = new StringCell(r.getFluidType());
+				cells[12] = new StringCell(r.getXferStatus());
+				int index =12;
+				// number of columns depends on user settings - add 2 or 4 columns
+				if (((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
+						.getBooleanValue() == true) {
+					String[] parts = splitPosition(r.getSrcWell());
+					cells[index +1] = new StringCell(parts[0]);
+					cells[index +2] = new StringCell(parts[1]);
+					index = index + 2;
+				}
+				if(((SettingsModelBoolean) getModelSetting(CFG_splitDestinationCol))
+						.getBooleanValue() == true) {
+					String[] parts = splitPosition(r.getDestWell());
+					cells[index +1] = new StringCell(parts[0]);
+					cells[index +2] = new StringCell(parts[1]);
+				}
+			
+		    	DataRow row = new DefaultRow("RowKey_", cells);
+		    	buf.addRowToTable(row);
+		    	//counter++;
+			}
+			buf.close();
+			BufferedDataTable table = buf.getTable();
 
-        // TODO save user settings to the config object.
-        
-        m_count.saveSettingsTo(settings);
+			
+			/**
+			 * Creation of Second Table with Echo METADATA
+			 */
+			int meta_nrColumns = 10;
+			List<Attribute> colAttributes1 = getMetaDataColumnModel();
+			BufferedDataContainer buf1 = exec.createDataContainer(AttributeUtils.compileTableSpecs(colAttributes1));
+			DataCell[] cells1 = new DataCell[meta_nrColumns];
+			setWarningMessage("size: " + EchoReportHeader.headers.size());
+			
+			int counter1= 0;
+				for (EchoReportHeader rh : EchoReportHeader.headers) {
+					
+					cells1[0] = new StringCell(rh.getRunID());
+					cells1[1] = new StringCell(rh.getRunDateTime());
+					cells1[2] = new StringCell(rh.getAppName());
+					cells1[3] = new StringCell(rh.getAppVersion());
+					cells1[4] = new StringCell(rh.getProtocolName());
+					cells1[5] = new StringCell(rh.getUserName());
+					
+				}
+				for (EchoReportFooter rf : EchoReportFooter.footers) {
+					
+					cells1[6] = new StringCell(rf.getInstrName());
+					cells1[7] = new StringCell(rf.getInstrModel());
+					cells1[8] = new StringCell(rf.getInstrSN());
+					cells1[9] = new StringCell(rf.getInstrSWVersion());
+					DataRow row = new DefaultRow("RowKey_" + counter1, cells1);
+			    	buf1.addRowToTable(row);
+			    	counter1++;
+				}
+				
+				buf1.close();
+				BufferedDataTable table1 = buf1.getTable();
+				
+				
+			return new BufferedDataTable[]{table, table1}; 
+	}
 
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
+			throws InvalidSettingsException {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-            
-        // TODO load (valid) settings from the config object.
-        // It can be safely assumed that the settings are valided by the 
-        // method below.
-        
-        m_count.loadSettingsFrom(settings);
+		if (getModelSetting(CFG_FILE_URL) == null) {
+			throw new InvalidSettingsException("No input file selected");
+		}
+		String loc = getModelSetting(CFG_FILE_URL).toString();
+		if (loc == null || loc.length() == 0) {
+			throw new InvalidSettingsException("No location provided");
+		}
+		
 
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void validateSettings(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-            
-        // TODO check if the settings could be applied to our model
-        // e.g. if the count is in a certain range (which is ensured by the
-        // SettingsModel).
-        // Do not actually set any values of any member variables.
+		List<Attribute> colAttributes = getEchoColumnModel();
+		List<Attribute> colAttributes1 = getMetaDataColumnModel();
+		return new DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes),AttributeUtils.compileTableSpecs(colAttributes1)};// DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes)}; //create the table
 
-        m_count.validateSettings(settings);
+	}
 
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void loadInternals(final File internDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
-        
-        // TODO load internal data. 
-        // Everything handed to output ports is loaded automatically (data
-        // returned by the execute method, models loaded in loadModelContent,
-        // and user settings set through loadSettingsFrom - is all taken care 
-        // of). Load here only the other internals that need to be restored
-        // (e.g. data used by the views).
+private List<Attribute> getEchoColumnModel() {
 
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void saveInternals(final File internDir,
-            final ExecutionMonitor exec) throws IOException,
-            CanceledExecutionException {
-       
-        // TODO save internal models. 
-        // Everything written to output ports is saved automatically (data
-        // returned by the execute method, models saved in the saveModelContent,
-        // and user settings saved through saveSettingsTo - is all taken care 
-        // of). Save here only the other internals that need to be preserved
-        // (e.g. data used by the views).
-
-    }
-
+		List<Attribute> colAttributes = new ArrayList<Attribute>();
+//create a list and fill with attributes in xml fiml - always the same
+		colAttributes.add(new Attribute("Source Plate Name", StringCell.TYPE));
+		colAttributes.add(new Attribute("Source Plate Barcode", StringCell.TYPE));
+		colAttributes.add(new Attribute("Source Well", StringCell.TYPE));
+		colAttributes.add(new Attribute("Destination Plate Name", StringCell.TYPE));
+		colAttributes.add(new Attribute("Destination Plate Barcode", StringCell.TYPE));
+		colAttributes.add(new Attribute("Destination Well", StringCell.TYPE));
+		colAttributes.add(new Attribute("Transfer Volume", StringCell.TYPE));
+		colAttributes.add(new Attribute("Actual Volume", StringCell.TYPE));
+		colAttributes.add(new Attribute("Current Fluid Volume", StringCell.TYPE));
+		colAttributes.add(new Attribute("Fluid Composition", StringCell.TYPE));
+		colAttributes.add(new Attribute("Fluid Units", StringCell.TYPE));
+		colAttributes.add(new Attribute("Fluid Type", StringCell.TYPE));
+		colAttributes.add(new Attribute("Transfer Status", StringCell.TYPE));
+		
+		if (((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
+				.getBooleanValue() == true) {
+			colAttributes.add(new Attribute("Source_plateColumn", StringCell.TYPE));
+			colAttributes.add(new Attribute("Source_rowColumn", StringCell.TYPE));
+		}
+		if(((SettingsModelBoolean) getModelSetting(CFG_splitDestinationCol))
+				.getBooleanValue() == true) {
+			colAttributes.add(new Attribute("Destination_plateColumn", StringCell.TYPE));
+			colAttributes.add(new Attribute("Destination_rowColumn", StringCell.TYPE));
+		}
+		
+		return colAttributes;
+	}
+private List<Attribute> getMetaDataColumnModel() {
+	
+	List<Attribute> colAttributes1 = new ArrayList<Attribute>();
+	//create a list and fill with attributes in xml fiml - always the same
+			colAttributes1.add(new Attribute("Run ID", StringCell.TYPE));
+			colAttributes1.add(new Attribute("Run Date/Time", StringCell.TYPE));
+			colAttributes1.add(new Attribute("Application Name", StringCell.TYPE));
+			colAttributes1.add(new Attribute("Application Version", StringCell.TYPE));
+			colAttributes1.add(new Attribute("Protocol Name", StringCell.TYPE));
+			colAttributes1.add(new Attribute("User Name", StringCell.TYPE));
+			
+			colAttributes1.add(new Attribute("Instrument Name", StringCell.TYPE));
+			colAttributes1.add(new Attribute("Instrument Model", StringCell.TYPE));
+			colAttributes1.add(new Attribute("Instrument Serial Number", StringCell.TYPE));
+			colAttributes1.add(new Attribute("Instrument Software Version", StringCell.TYPE));
+	
+	return colAttributes1;
+	
+	
 }
-
+	
+private static String[] splitPosition(String wellPosition) {
+				
+				//String regex = "([a-zA-Z])";
+				String regex = "(?<=\\d)(?=\\p{L})|(?<=\\p{L})(?)"; 
+				String[] parts = wellPosition.split(regex);
+				
+				
+				return parts;
+				}
+}
