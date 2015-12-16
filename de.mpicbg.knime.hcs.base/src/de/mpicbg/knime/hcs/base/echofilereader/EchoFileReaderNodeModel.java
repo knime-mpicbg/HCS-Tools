@@ -133,7 +133,7 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 		//create data container and take the attributes
 			DataCell[] cells = new DataCell[nrColumns]; //create table with specify number of columns
 			setWarningMessage("size: " + EchoReportRecords.records.size());
-		//	int counter =0;
+		int counter =0;
 			for (EchoReportRecords r : EchoReportRecords.records) {
 				//get all values form parsed xml file
 				cells[0] = new StringCell(r.getSrcPlateName());
@@ -165,9 +165,9 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 					cells[index +2] = new StringCell(parts[1]);
 				}
 			
-		    	DataRow row = new DefaultRow("RowKey_", cells);
+		    	DataRow row = new DefaultRow("RowKey_"+counter, cells);
 		    	buf.addRowToTable(row);
-		    	//counter++;
+		    	counter++;
 			}
 			buf.close();
 			BufferedDataTable table = buf.getTable();
