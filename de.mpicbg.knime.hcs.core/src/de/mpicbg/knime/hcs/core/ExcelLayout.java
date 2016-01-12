@@ -209,7 +209,7 @@ public class ExcelLayout implements Serializable {
             if (curRow != null) curCell = curRow.getCell(sCol, Row.RETURN_BLANK_AS_NULL);
         }
         
-        
+        // check for using the same key/label name more then once
         if(labels.containsKey(curLayoutlabel))
         {
         	throw new ExcelLayoutException("Please be sure to not use the name of your label \"" + curLayoutlabel + "\" more then once.");
