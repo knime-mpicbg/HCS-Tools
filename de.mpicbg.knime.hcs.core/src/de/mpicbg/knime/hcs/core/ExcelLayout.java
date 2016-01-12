@@ -208,7 +208,13 @@ public class ExcelLayout implements Serializable {
             curRow = sheet.getRow(curRow.getRowNum() + 1);
             if (curRow != null) curCell = curRow.getCell(sCol, Row.RETURN_BLANK_AS_NULL);
         }
-
+        
+        
+        if(labels.containsKey(curLayoutlabel))
+        {
+        	throw new ExcelLayoutException("Please be sure to not use the name of your label \"" + curLayoutlabel + "\" more then once.");
+        }
+        	
         labels.put(curLayoutlabel, null);
 
         if (numRows > 0 && numCols > 0) {
