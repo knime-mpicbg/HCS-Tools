@@ -104,6 +104,8 @@
         <node category-path="/community/hcstools/prepro" factory-class="de.mpicbg.knime.hcs.base.nodes.preproc.GroupMutualInformationFactory" id="de.mpicbg.tds.knime.hcstools.preprocessing.GroupMutualInformationFactory"/>
 
         <node category-path="/community/hcstools/populationanalysis" factory-class="de.mpicbg.knime.hcs.base.nodes.mine.BinningAnalysisNodeFactory" id="de.mpicbg.tds.knime.hcstools.populationanalysis.BinningAnalysisNodeFactory"/>
+        
+         <node category-path="/community/hcstools/populationanalysis" factory-class="de.mpicbg.knime.hcs.base.nodes.mine.binningcalculate.BinningCalculateNodeFactory" id="de.mpicbg.knime.hcs.base.nodes.mine.binningcalculate.BinningCalculateNodeFactory"/>
 
     <node category-path="/community/hcstools/manipulation/column" factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.numformat.NumberFormatterNodeFactory" id="de.mpicbg.knime.hcs.base.nodes.manip.col.numformat.NumberFormatterNodeFactory"/>
 

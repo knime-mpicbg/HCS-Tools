@@ -22,13 +22,14 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnFilter2;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumberEdit;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.util.filter.InputFilter;
 import org.knime.core.node.util.filter.column.DataColumnSpecFilterConfiguration;
 import org.knime.core.node.util.filter.column.DataTypeColumnFilter;
 
-import de.mpicbg.knime.hcs.base.nodes.mine.BinningAnalysisNodeModel;
+
 import de.mpicbg.knime.knutils.AbstractConfigDialog;
 
 /**
@@ -76,21 +77,21 @@ public class BinningCalculateNodeDialog extends AbstractConfigDialog {
     protected void createControls() {
 
         // Group data by
-        addDialogComponent(new DialogComponentColumnNameSelection(BinningAnalysisNodeModel.createAggregationSelectionModel(), "Aggregate object data by", 0,
+        addDialogComponent(new DialogComponentColumnNameSelection(BinningCalculateNodeModel.createAggregationSelectionModel(), "Aggregate object data by", 0,
                 true, false, new Class[]{org.knime.core.data.StringValue.class}));
 
         // numerical column selection component
-        addDialogComponent(new DialogComponentColumnFilter(BinningAnalysisNodeModel.createColumnSelectionModel(), 0, true,
+        addDialogComponent(new DialogComponentColumnFilter(BinningCalculateNodeModel.createColumnSelectionModel(), 0, true,
                 new Class[]{DoubleValue.class}));
 
         // numeric field to configure number of bins
-        DialogComponentNumberEdit nEdit = new DialogComponentNumberEdit(BinningAnalysisNodeModel.createBinSelectionModel(), "Number of Bins");
+        DialogComponentNumberEdit nEdit = new DialogComponentNumberEdit(BinningCalculateNodeModel.createBinSelectionModel(), "Number of Bins");
         addDialogComponent(nEdit);
 
         setHorizontalPlacement(true);
 
         // settings model with change listener for choice of reference column
-        SettingsModelString refColumn = BinningAnalysisNodeModel.createRefColumnSelectionModel();
+        SettingsModelString refColumn = BinningCalculateNodeModel.createRefColumnSelectionModel();
         refColumn.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent changeEvent) {
@@ -104,7 +105,7 @@ public class BinningCalculateNodeDialog extends AbstractConfigDialog {
         addDialogComponent(refColumncomponent);
 
 
-        refLabelString = BinningAnalysisNodeModel.createRefStringSelectionModel();
+        refLabelString = BinningCalculateNodeModel.createRefStringSelectionModel();
 
         // combobox to choose the reference label
         refLabel = new DialogComponentStringSelection(refLabelString, "subset by:", "");
@@ -127,8 +128,8 @@ public class BinningCalculateNodeDialog extends AbstractConfigDialog {
         try {
             String refColumn;
             // test whether the reference column already has been chosen; if yes update the content of the combobox containing the domain values
-            if (settings.containsKey(BinningAnalysisNodeModel.CFG_REFCOLUMN)) {
-                refColumn = settings.getString(BinningAnalysisNodeModel.CFG_REFCOLUMN);
+            if (settings.containsKey(BinningCalculateNodeModel.CFG_REFCOLUMN)) {
+                refColumn = settings.getString(BinningCalculateNodeModel.CFG_REFCOLUMN);
                 this.setFirstTableSpecs(specs[0]);
                 updateSubsetSelector(refColumn);
                 boolean componentEnables = refLabelString.isEnabled();

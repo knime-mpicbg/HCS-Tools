@@ -4,6 +4,8 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
+import de.mpicbg.knime.hcs.base.nodes.mine.BinningAnalysisNodeModel;
+
 /**
  * <code>NodeFactory</code> for the "BinningCalculate" Node.
  * 
@@ -34,9 +36,10 @@ public class BinningCalculateNodeFactory
      */
     @Override
     public NodeView<BinningCalculateNodeModel> createNodeView(final int viewIndex,
-            final BinningCalculateNodeModel nodeModel) {
-        return new BinningCalculateNodeView(nodeModel);
+                                                             final BinningCalculateNodeModel nodeModel) {
+        return null;
     }
+
 
     /**
      * {@inheritDoc}
