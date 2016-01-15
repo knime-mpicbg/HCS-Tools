@@ -3,6 +3,8 @@ package de.mpicbg.knime.hcs.base.echofilereader;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 public class EchoReportRecords {
 	
 	
@@ -121,11 +123,16 @@ public class EchoReportRecords {
 		}
 
 		public String getXferStatus() {
+
+			if(XferStatus == null){
+				XferStatus = "ok";	
+			}
 			return XferStatus;
 		}
 
 		public void setXferStatus(String xferStatus) {
-			XferStatus = xferStatus;
+			
+			XferStatus = StringUtils.trim(XferStatus);
 		}
 		
 }
