@@ -42,9 +42,9 @@ public class EchoFileReaderNodeDialog extends DefaultNodeSettingsPane {
        
 			
 			addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-	        		EchoFileReaderNodeModel.CFG_splitDestinationCol, false), "Split Destination Well column int two rows"));
+	        		EchoFileReaderNodeModel.CFG_splitDestinationCol, false), "Split Destination Well column in two rows"));
 			addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-	        		EchoFileReaderNodeModel.CFG_splitSourceCol, false), "Split Source Well column int two rows"));  
+	        		EchoFileReaderNodeModel.CFG_splitSourceCol, false), "Split Source Well column in two rows"));  
         }
 		
     }
