@@ -9,8 +9,6 @@ import javax.xml.parsers.SAXParserFactory;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataType;
-import org.knime.core.data.MissingCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
@@ -40,8 +38,7 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 
 	public static final String CFG_FILE_URL = "fileUrl";
 	public static final String CFG_FlowVariable = "flowVariable";
-	/*public static final String CFG_Metadata =  "metadata.table";
-	public static final String CFG_metadata_DFT = "Metadata";*/
+	
 
 	public static final String CFG_splitSourceCol = "split.source.column";
 	public static final int IDsourceColumn = 2;
@@ -94,7 +91,13 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 			xml_file = ((SettingsModelString) getModelSetting(CFG_FILE_URL))
 					.getStringValue();
 		}
-
+		if (getModelSetting(CFG_FILE_URL) == null) {
+			throw new InvalidSettingsException("No input file selected");
+		}
+		//String loc = getModelSetting(CFG_FILE_URL).toString();
+		if (xml_file.isEmpty() || xml_file.length() == 0) {
+			throw new InvalidSettingsException("No location provided");
+		}
 		/**
 		 * SAX library implementation
 		 */
@@ -149,10 +152,6 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 				cells[10] = new StringCell(r.getFluidUnits());
 				cells[11] = new StringCell(r.getFluidType());
 				cells[12] = new StringCell(r.getXferStatus());
-				
-				if(cells[12]==null){
-					
-				}
 				
 				int index =12;
 				// number of columns depends on user settings - add 2 or 4 columns
@@ -224,13 +223,7 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 
-		if (getModelSetting(CFG_FILE_URL) == null) {
-			throw new InvalidSettingsException("No input file selected");
-		}
-		String loc = getModelSetting(CFG_FILE_URL).toString();
-		if (loc == null || loc.length() == 0) {
-			throw new InvalidSettingsException("No location provided");
-		}
+		
 		
 
 

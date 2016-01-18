@@ -1,18 +1,8 @@
 package de.mpicbg.knime.hcs.base.echofilereader;
 
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import de.mpicbg.knime.hcs.base.echofilereader.EchoReportRecords;
-import de.mpicbg.knime.hcs.base.echofilereader.EchoReportFooter;
-import de.mpicbg.knime.hcs.base.echofilereader.EchoReportHeader;
 
 
 
@@ -25,59 +15,8 @@ public class ParseXML extends DefaultHandler{
 	public EchoReportFooter reportfooter;
 	private  String value = "test";
 	
-	
-	
-	
-	
-	 
-	 /*public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
-   
 
-    SAXParserFactory factory = SAXParserFactory.newInstance();
-
-factory.setValidating(false);
-
-SAXParser parser = factory.newSAXParser();
-parser.parse("/Users/rucinska/Documents/echo files/E5XX-1107_Print_1314172473.xml", handler);
-//parser.parse(xml_file, handler);
-		
-	    for (EchoReportHeader rh : EchoReportHeader.headers) {
-
-			System.out.println(rh.getRunID());
-	        System.out.println(rh.getAppVersion());
-	        System.out.println(rh.getProtocolName());
-	        System.out.println(rh.getRunDateTime());
-	        System.out.println(rh.getAppName());
-
-		 }
-		for (EchoReportRecords r : EchoReportRecords.records) {
-
-				System.out.println(r.getSrcPlateName());
-	            System.out.println(r.getSrcPlateBarcode());
-	            System.out.println(r.getSrcWell());
-	            System.out.println(r.getDestPlateName());
-	            System.out.println(r.getDestPlateBarcode());
-	            System.out.println(r.getDestWell());
-	            System.out.println(r.getXferVol());
-	            System.out.println(r.getActualVol());
-	            System.out.println(r.getCurrentFluidVolume());
-	            System.out.println(r.getFluidComposition());
-	            System.out.println(r.getFluidUnits());
-	            System.out.println(r.getFluidType());
-	            System.out.println(r.getXferStatus());
-
-				}
-		
-			for (EchoReportFooter rf : EchoReportFooter.footers) {
-
-				System.out.println(rf.getInstrName());
-				System.out.println(rf.getInstrModel());
-				System.out.println(rf.getInstrSN());
-				System.out.println(rf.getInstrSWVersion());
-
-				}
-}*/
-
+	@Override
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
 
