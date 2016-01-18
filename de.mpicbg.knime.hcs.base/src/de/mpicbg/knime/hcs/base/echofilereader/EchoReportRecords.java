@@ -27,104 +27,139 @@ public class EchoReportRecords {
     	
     	
 		public String getSrcPlateBarcode() {
+			if(SrcPlateBarcode.equals("")){
+				SrcPlateBarcode = "Missing value";	
+			}
 			return SrcPlateBarcode;
 		}
 
 		public void setSrcPlateBarcode(String srcPlateBarcode) {
-			SrcPlateBarcode = srcPlateBarcode;
+			SrcPlateBarcode = StringUtils.trim(srcPlateBarcode);
 		}
 
 		public String getSrcPlateName() {
+			if(SrcPlateName.equals("")){
+				SrcPlateName = "Missing value";	
+			}
 			return SrcPlateName;
 		}
 
 		public void setSrcPlateName(String srcPlateName) {
-			SrcPlateName = srcPlateName;
+			SrcPlateName = StringUtils.trim(srcPlateName);
 		}
 
 		public String getSrcWell() {
+			if(SrcWell.equals("")){
+				SrcWell = "Missing value";	
+			}
 			return SrcWell;
 		}
 
 		public void setSrcWell(String srcWell) {
-			SrcWell = srcWell;
+			SrcWell = StringUtils.trim(srcWell);
 		}
 
 		public String getDestPlateName() {
+			if(DestPlateName.equals("")){
+				DestPlateName = "Missing value";	
+			}
 			return DestPlateName;
 		}
 
 		public void setDestPlateName(String destPlateName) {
-			DestPlateName = destPlateName;
+			DestPlateName = StringUtils.trim(destPlateName);
 		}
 
 		public String getDestPlateBarcode() {
+			if(DestPlateBarcode.equals("")){
+				DestPlateBarcode = "Missing value";	
+			}
 			return DestPlateBarcode;
 		}
 
 		public void setDestPlateBarcode(String destPlateBarcode) {
-			DestPlateBarcode = destPlateBarcode;
+			DestPlateBarcode = StringUtils.trim(destPlateBarcode);
 		}
 
 		public String getDestWell() {
+			if(DestWell.equals("")){
+				DestWell = "Missing value";	
+			}
 			return DestWell;
 		}
 
 		public void setDestWell(String destWell) {
-			DestWell = destWell;
+			DestWell = StringUtils.trim(destWell);
 		}
 
 		public String getXferVol() {
+			if(XferVol.equals("")){
+				XferVol = "Missing value";	
+			}
 			return XferVol;
 		}
 
 		public void setXferVol(String xferVol) {
-			XferVol = xferVol;
+			XferVol = StringUtils.trim(xferVol);
 		}
 
 		public String getActualVol() {
+			if(ActualVol.equals("")){
+				ActualVol = "Missing value";	
+			}
 			return ActualVol;
 		}
 
 		public void setActualVol(String actualVol) {
-			ActualVol = actualVol;
+			ActualVol = StringUtils.trim(actualVol);
 		}
 
 		public String getCurrentFluidVolume() {
+			if(CurrentFluidVolume.equals("")){
+				CurrentFluidVolume = "Missing value";	
+			}
 			return CurrentFluidVolume;
 		}
 
 		public void setCurrentFluidVolume(String currentFluidVolume) {
-			CurrentFluidVolume = currentFluidVolume;
+			CurrentFluidVolume = StringUtils.trim(currentFluidVolume);
 		}
 
 		public String getFluidComposition() {
+			if(FluidComposition.equals("")){
+				FluidComposition = "Missing value";	
+			}
 			return FluidComposition;
 		}
 
 		public void setFluidComposition(String fluidComposition) {
-			FluidComposition = fluidComposition;
+			FluidComposition = StringUtils.trim(fluidComposition);
 		}
 
 		public String getFluidUnits() {
+			if(FluidUnits.equals("")){
+				FluidUnits = "Missing value";	
+			}
 			return FluidUnits;
 		}
 
 		public void setFluidUnits(String fluidUnits) {
-			FluidUnits = fluidUnits;
+			FluidUnits = StringUtils.trim(fluidUnits);
 		}
 
 		public String getFluidType() {
+			if(FluidType.equals("")){
+				FluidType = "Missing value";	
+			}
 			return FluidType;
 		}
 
 		public void setFluidType(String fluidType) {
-			FluidType = fluidType;
+			FluidType = StringUtils.trim(fluidType);
 		}
 
 		public String getXferStatus() {
-
-			if(XferStatus == null){
+			if(XferStatus.equals("")){
 				XferStatus = "ok";	
 			}
 			return XferStatus;
@@ -132,7 +167,10 @@ public class EchoReportRecords {
 
 		public void setXferStatus(String xferStatus) {
 			
-			XferStatus = StringUtils.trim(XferStatus);
+			XferStatus = StringUtils.trim(xferStatus);
+			
+			
+			
 		}
 		
 }

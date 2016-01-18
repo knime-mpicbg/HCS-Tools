@@ -240,21 +240,11 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 		DataTableSpec[] spec = new DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes)};
 		DataTableSpec[] spec1 = new DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes1)};
 		
-		
-	//return DataTableSpec("echo", spec, "meta",spec1);	
 		return new DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes),AttributeUtils.compileTableSpecs(colAttributes1)};// DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes)}; //create the table
 		
 	}
 	
 
-/*private DataTableSpec[] DataTableSpec(String string, DataTableSpec[] spec,
-			String string2, DataTableSpec[] spec1) {
-		string = "echo";
-		string2 = "meta";
-		spec = new DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes)};
-		return null;
-	}
-*/
 private List<Attribute> getEchoColumnModel() {
 
 		List<Attribute> colAttributes = new ArrayList<Attribute>();
