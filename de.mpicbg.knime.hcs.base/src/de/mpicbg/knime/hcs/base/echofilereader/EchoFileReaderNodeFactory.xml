@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./default.png" type="Visualizer" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>Echo File Reader</name>
+    
+    <shortDescription>
+        Select a file within a directory that contains Labcyte Echo 550 files.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>
+        
+        This node reads one result files (.xml) of the Acoustic dispensing (Labcyte Echo 550). This is done by searching for '.xml'-files recursively within the specified directory. 
+        
+        The node reads data provided by Labcyte Echo 550.
+        
+        </intro>
+        
+        
+        
+    </fullDescription>
+    
+    <ports>
+        <outPort index="0" name="Echo Data">A table which contains data from Labcyte Echo 550.
+        </outPort>
+        <outPort index="1" name="Metadata"> Metadata information
+        </outPort>  
+    </ports>
+</knimeNode>
