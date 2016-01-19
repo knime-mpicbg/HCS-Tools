@@ -49,7 +49,7 @@ public class EchoReportHeader {
 			public void setUserName(String userName) {
 				UserName = userName;
 			}
-			public static final List<EchoReportHeader> headers = new LinkedList<EchoReportHeader>();
+			//public static final List<EchoReportHeader> headers = new LinkedList<EchoReportHeader>();
 			
 			
 }
