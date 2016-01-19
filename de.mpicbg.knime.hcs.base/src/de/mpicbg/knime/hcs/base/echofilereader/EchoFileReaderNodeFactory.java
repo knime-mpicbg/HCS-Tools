@@ -26,16 +26,7 @@ public class EchoFileReaderNodeFactory
      */
     @Override
     public int getNrNodeViews() {
-        return 1;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<EchoFileReaderNodeModel> createNodeView(final int viewIndex,
-            final EchoFileReaderNodeModel nodeModel) {
-        return new EchoFileReaderNodeView(nodeModel);
+        return 0;
     }
 
     /**
@@ -53,6 +44,15 @@ public class EchoFileReaderNodeFactory
     public NodeDialogPane createNodeDialogPane() {
         return new EchoFileReaderNodeDialog();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public NodeView<EchoFileReaderNodeModel> createNodeView(int viewIndex, EchoFileReaderNodeModel nodeModel) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }
 
