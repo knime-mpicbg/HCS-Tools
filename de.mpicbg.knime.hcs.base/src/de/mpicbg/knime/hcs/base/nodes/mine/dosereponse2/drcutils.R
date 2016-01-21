@@ -154,6 +154,9 @@ visualizeDrModels <- function(plotdata, plotOpts) {
 	rawDF <- lapply(rawData,"[[", "rawdata")
 	rawDF <- do.call("rbind", rawDF)
 	rawDF$respVarName <- factor(rawDF$respVarName, levels = plotOpts$varOrder)
+	
+	uniqueConc <- unique(rawDF$conc)
+	#rawDF <- replaceZeroConc(rawDF)
 
 	# data frame containing fitted data
 	fitDF <- lapply(rawData,"[[", "smoothfitfuns")
@@ -182,7 +185,7 @@ visualizeDrModels <- function(plotdata, plotOpts) {
 	p <- p + geom_line(data = fitDF, mapping = aes(x = conc, y = predictResVar, colour = compound, group = compound)) }
 
 	# set log-scale
-	p <- p + scale_x_continuous(breaks = unique(rawDF$conc), labels = formatC(unique(rawDF$conc), digit = 2), trans="log10")
+	p <- p + scale_x_log10(breaks = unique(rawDF$conc), labels = formatC(uniqueConc, digit = 2))
 	# one plot per response variable
 	p <- p + facet_wrap( ~ respVarName, ncol = numGridCols, scales = "free_y")
 	p <- p + ylab("") + ggtitle(paste(title, " (Model: ", mName, ")", sep = ""))
@@ -191,7 +194,37 @@ visualizeDrModels <- function(plotdata, plotOpts) {
 	print(p) 
 }
 
-
+# method replace 0 concentration values (leave here: in case this is wanted at some point)
+# replaceZeroConc <- function(rawDF, concIdx) {
+#   
+#   # if no zero value concentrations: return
+#   if(nrow(rawDF[rawDF[,concIdx] == 0,]) == 0) return(rawDF)
+#   
+#   # index of zero value concentrations
+#   zeroIdx <- which(rawDF[,concIdx] == 0)
+#   
+#   # sorted unique concentration values without 0
+#   conc <- unique(rawDF[-zeroIdx, concIdx])
+#   conc <- sort(conc)
+#   
+#   # log10 of concentrations
+#   log10conc <- log10(conc) 
+#   
+#   # absolute difference between single log10-conectrations
+#   diffVec <- abs(log10conc - c(log10conc[2:length(log10conc)], NA))
+#   # minimum of this difference vector
+#   minDiff <- min(diffVec, na.rm = TRUE)
+#   
+#   # substract mindiff from first log10-concentration to get a new smaller log10-concentration
+#   newLogVal <- log10conc[1] - minDiff
+#   # revert the log10 for new value
+#   newVal <- 10 ^ newLogVal
+#   
+#   # replace 0 concentration with this new value
+#   rawDF[zeroIdx,concIdx] <- newVal
+#   
+#   return(rawDF)
+# }
 
 
 #### compile the plot data-structure for a set of componud model for a single response variable
@@ -201,6 +234,9 @@ compilePlotData <- function(cpmdModels, drdata, resVarName, concColIndex, cmpndC
   plotSD <- plotOptions == "SD"
   plotSEM <- plotOptions == "SEM"
 
+  #drdata <- replaceZeroConc(drdata, concColIndex)
+  # remove zero concentration
+  drdata <- drdata[drdata[,concColIndex] > 0,]
 	# 1) create the fit data
 
 	# just select the subset which is of interest
@@ -212,9 +248,6 @@ compilePlotData <- function(cpmdModels, drdata, resVarName, concColIndex, cmpndC
 	# in case the smallest concentration value is zero, set it to 0 + very small value for log10 method. comment: plot looks weird as the zero is very far away from the other data pointd
     #if(range[1] == 0) range[1] <- 0 + .Machine$double.eps
 
-    if(range(drdata[, concColIndex])[1] == 0) {
-    	drdata <- drdata[drdata[,concColIndex] != 0,]
-    }
     range <- range(drdata[, concColIndex])
 
 	concRange <-log10(range)
@@ -247,7 +280,7 @@ compilePlotData <- function(cpmdModels, drdata, resVarName, concColIndex, cmpndC
 			return(NA)
 		}
 
-		drConcs <- unique(drmodel$data$conc)
+		drConcs <- unique(drdata[, concColIndex])
 
 		errorDF <- data.frame(conc = drConcs)
 		errorDF$concPredict <- predict(drmodel, errorDF)
