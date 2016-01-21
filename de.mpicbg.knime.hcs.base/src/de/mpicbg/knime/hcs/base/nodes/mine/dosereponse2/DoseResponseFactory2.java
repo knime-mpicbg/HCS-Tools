@@ -19,6 +19,7 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
+import org.knime.core.node.port.image.ImagePortObjectSpec;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
 
@@ -40,6 +41,8 @@ import de.mpicbg.knime.scripting.r.rgg.HardwiredGenericRPlotNodeFactory;
  *
  */
 public class DoseResponseFactory2 extends HardwiredGenericRPlotNodeFactory {
+	
+	private static final ImagePortObjectSpec IM_PORT_SPEC = new ImagePortObjectSpec(PNGImageContent.TYPE);
 
 	/**
 	 * {@inheritDoc}

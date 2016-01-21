@@ -182,7 +182,7 @@ visualizeDrModels <- function(plotdata, plotOpts) {
 	p <- p + geom_line(data = fitDF, mapping = aes(x = conc, y = predictResVar, colour = compound, group = compound)) }
 
 	# set log-scale
-	p <- p + scale_x_log10(breaks = unique(rawDF$conc), labels = formatC(unique(rawDF$conc), digit = 2))
+	p <- p + scale_x_continuous(breaks = unique(rawDF$conc), labels = formatC(unique(rawDF$conc), digit = 2), trans="log1p")
 	# one plot per response variable
 	p <- p + facet_wrap( ~ respVarName, ncol = numGridCols, scales = "free_y")
 	p <- p + ylab("") + ggtitle(paste(title, " (Model: ", mName, ")", sep = ""))
