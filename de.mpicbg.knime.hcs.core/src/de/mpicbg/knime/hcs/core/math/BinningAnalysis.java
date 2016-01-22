@@ -5,6 +5,9 @@ import au.com.bytecode.opencsv.CSVWriter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretizeBin;
+import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval;
+import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval.Closure;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -21,6 +24,7 @@ import java.util.*;
  * Date: 2/27/12
  * Time: 9:57 AM
  */
+
 public class BinningAnalysis {
 
     // name of the parameter
@@ -54,6 +58,38 @@ public class BinningAnalysis {
         createBins();
         calculateRefStats();
     }
+    
+    private Map<String, List<PMMLDiscretizeBin>> ConvBinFormate(HashMap<Object, List<Double>> refData) 
+    {
+    	
+    	
+    	// Getting generate Bins 
+    	LinkedList<Interval> Bins = getBins();
+    	
+    	// 
+    	Map<String, List<PMMLDiscretizeBin>> binMap = new HashMap<String, List<PMMLDiscretizeBin>>();
+    	
+    	List<PMMLDiscretizeBin> PMMLDiscretBins = new ArrayList<PMMLDiscretizeBin>();
+    	int count = 0;           
+    	for(Interval Bin : Bins	)
+    	{
+    		
+    		double lbound = Bin.getLowerBound();
+    		double ubound = Bin.getLowerBound();
+    		
+    		if(count == Bins.size() - 1)
+    		{
+    			PMMLDiscretBins.add(new PMMLDiscretizeBin("Bin_" + count,
+                        Arrays.asList(new PMMLInterval(lbound, ubound,Closure.closedClosed))));
+    		}
+    		    		
+    		PMMLDiscretBins.add(new PMMLDiscretizeBin("Bin_" + count,
+                         Arrays.asList(new PMMLInterval(lbound, ubound,Closure.closedOpen))));
+        }
+    	
+    	return binMap;
+    }
+
 
     private void createBins() {
         double[] percentiles = new double[nBins + 1];
@@ -226,7 +262,12 @@ public class BinningAnalysis {
         }
         return zScoreData;
     }
-
+    
+    public LinkedList<Interval> getBins() {
+        return bins;
+    }
+    
+  
     public String getParameterName() {
         return parameterName;
     }

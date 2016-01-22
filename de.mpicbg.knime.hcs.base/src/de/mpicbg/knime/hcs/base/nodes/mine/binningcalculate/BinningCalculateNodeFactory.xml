@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./default.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
-    <name>BinningCalculate</name>
+<knimeNode icon="./BinningAnalysisNode.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>Binning Calculate</name>
     
     <shortDescription>
         
@@ -25,9 +25,11 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
+        <inPort index="0" name="Input Data">Description of first input port...</inPort>
         <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
+        <outPort index="0" name="Output Data">Description of first output port...</outPort>
+        <!-- possibly more output ports here-->
+         <outPort index="1" name="PMML Model">Description of first output port...</outPort>
         <!-- possibly more output ports here-->
     </ports>    
     <views>
