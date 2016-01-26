@@ -1,18 +1,24 @@
-Time				Description							Question			Status
+Time		Description							Question			Status
 
 KW 5 
-				Converting Bins compatible to PMMLTranslator   							100%
-				Implement PMMLModel to Node									100%
-				Inherit BinningAnalysis						yes or no?
-				Improve View and using SettingsModelColumnFilter2						80%
+		Converting Bins compatible to PMMLTranslator   							100%
+		Implement PMMLModel to Node									100%
+		Inherit BinningAnalysis						yes or no?
+		Improve View and using SettingsModelColumnFilter2						80%
 
 KW 6
-				Create second table with statistically relevant information	which information?		0%
-				Testing
-				
+		Create second table with statistically relevant information	which information?		0%
+		Testing
+			
 KW 7
-				Creating BinningCalculate Apply - Node								0%
+		Creating BinningCalculate Apply - Node								0%
 
-KW 8				using Interval table #36
+KW 8		
+		using Interval table #36					using existing IntervallCell
+		https://tech.knime.org/docs/api/org/knime/base/node/preproc/discretization/caim2/Interval.html
 
-KW 9 (Monday)
+KW 9
+
+
+
+								
