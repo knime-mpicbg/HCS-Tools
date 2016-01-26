@@ -10,8 +10,18 @@
         <intro>Insert long description here...</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
+        <option name="Aggregate object data by">object data of each subgroup will be applied to the bins (e.g. well)
+        </option>
+        <option name="Column selection">the data of the selected columns will be used for the binning analysis (e.g.
+            different parameters)
+        </option>
+        <option name="Number of bins">the reference population is divided into the given number of bins</option>
+        <option name="Column with reference label">the chosen column contains the label to describe the reference
+            population.
+            If all data should be used as reference population, the option can be set to "None"
+        </option>
+        <option name="Subset by">if a reference population should be used, the chosen label defines this subpopulation
+        </option>
         <!-- possibly more options that can also be grouped by tabs -->
         <!--
         <tab name="Standard Options">

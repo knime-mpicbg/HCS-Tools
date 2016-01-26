@@ -77,7 +77,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			private final Map<String, String> m_columnToAppended =
 					new HashMap<String, String>();
 
-
+ 
 
 
 			/** Creates a new binner.
