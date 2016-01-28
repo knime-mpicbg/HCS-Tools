@@ -24,10 +24,13 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import org.apache.commons.lang.StringUtils;
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.StringValue;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.data.image.ImageValue;
 import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.BufferedDataTable;
@@ -508,7 +511,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         	logger.warn("There are no reference groups selected ('Control' tab in the configure dialog)!");
 
         // Set the knime color column
-        Attribute<Object> knimeColor =  AttributeUtils.getKnimeColorAttribute(input.getDataTableSpec());
+        /*Attribute<Object> knimeColor =  AttributeUtils.getKnimeColorAttribute(input.getDataTableSpec());
         if (knimeColor != null) {
             m_nodeConfigurations.setKnimeColorAttribute(knimeColor.getName());
             
@@ -518,9 +521,9 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             
             // add knimeColor column to factors to store the column values within the screen object of the model (if not present)
             if(!factors.contains(knimeColor.getName())) factors.add(knimeColor.getName());
-        }
+        }*/
         
-        /* REPLACE THAT AS SOON AS THE IMPROVED R-TRANSFER HAS BEEN MERGED 
+        /* REPLACE THAT AS SOON AS THE IMPROVED R-TRANSFER HAS BEEN MERGED */
 		// Set the knime color column
         int colorIdx = ColorModelUtils.getColorColumn(tableSpec);
         if (colorIdx > -1) {
@@ -539,7 +542,7 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         		// add knimeColor column to factors to store the column values within the screen object of the model (if not present)
         		if(!factors.contains(cSpec.getName())) factors.add(cSpec.getName());
         	}
-        }*/
+        }
 
         // Parse the plate data.
         m_nodeConfigurations.setScreen(parseIntoPlates(splitScreen,
