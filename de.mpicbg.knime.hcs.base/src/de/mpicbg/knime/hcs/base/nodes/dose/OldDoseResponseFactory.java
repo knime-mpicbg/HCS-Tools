@@ -3,6 +3,8 @@ package de.mpicbg.knime.hcs.base.nodes.dose;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.scripting.core.ScriptingModelConfig;
+import de.mpicbg.knime.scripting.r.RColumnSupport;
 import de.mpicbg.knime.scripting.r.RUtils;
 import de.mpicbg.knime.scripting.r.generic.GenericRPlotNodeModel;
 import de.mpicbg.knime.scripting.r.generic.RPortObject;
@@ -34,9 +36,17 @@ import java.util.Map;
  * @deprecated
  */
 public class OldDoseResponseFactory extends HardwiredGenericRPlotNodeFactory {
+	
+	private static ScriptingModelConfig nodeModelConfig = new ScriptingModelConfig(
+			AbstractNodeModel.createPorts(1), 	// 1 table input
+			createOutputPorts(), 				// 1 table, 1 R port 
+			new RColumnSupport(), 	
+			true, 					// no script
+			false, 					// open in functionality
+			true);					// use chunk settings
 
     public GenericRPlotNodeModel createNodeModelInternal() {
-        return new GenericRPlotNodeModel(AbstractNodeModel.createPorts(1), createOutputPorts()) {
+        return new GenericRPlotNodeModel(nodeModelConfig) {
 
             protected PortObject[] prepareOutput(ExecutionContext exec, RConnection connection) {
                 try {
