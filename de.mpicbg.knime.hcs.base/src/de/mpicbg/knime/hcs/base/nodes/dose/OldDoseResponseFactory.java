@@ -1,15 +1,9 @@
 package de.mpicbg.knime.hcs.base.nodes.dose;
 
-import de.mpicbg.knime.knutils.AbstractNodeModel;
-import de.mpicbg.knime.knutils.Attribute;
-import de.mpicbg.knime.knutils.AttributeUtils;
-import de.mpicbg.knime.scripting.core.ScriptingModelConfig;
-import de.mpicbg.knime.scripting.r.RColumnSupport;
-import de.mpicbg.knime.scripting.r.RUtils;
-import de.mpicbg.knime.scripting.r.generic.GenericRPlotNodeModel;
-import de.mpicbg.knime.scripting.r.generic.RPortObject;
-import de.mpicbg.knime.scripting.r.generic.RPortObjectSpec;
-import de.mpicbg.knime.scripting.r.rgg.HardwiredGenericRPlotNodeFactory;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DoubleCell;
@@ -23,10 +17,16 @@ import org.knime.core.node.port.PortType;
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.Rserve.RConnection;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.scripting.core.ScriptingModelConfig;
+import de.mpicbg.knime.scripting.r.RColumnSupport;
+import de.mpicbg.knime.scripting.r.RUtils;
+import de.mpicbg.knime.scripting.r.generic.GenericRPlotNodeModel;
+import de.mpicbg.knime.scripting.r.generic.ROldPortObject;
+import de.mpicbg.knime.scripting.r.generic.ROldPortObjectSpec;
+import de.mpicbg.knime.scripting.r.rgg.HardwiredGenericRPlotNodeFactory;
 
 
 /**
@@ -57,7 +57,7 @@ public class OldDoseResponseFactory extends HardwiredGenericRPlotNodeFactory {
                     File rWorkspaceFile = File.createTempFile("genericR", "R");
                     RUtils.saveToLocalFile(rWorkspaceFile, connection, RUtils.getHost(), "R");
 
-                    return new PortObject[]{dataTable, new RPortObject(rWorkspaceFile)};
+                    return new PortObject[]{dataTable, new ROldPortObject(rWorkspaceFile)};
 
                 } catch (Throwable e) {
                     throw new RuntimeException("Could not save rmodel: " + e);
@@ -80,7 +80,7 @@ public class OldDoseResponseFactory extends HardwiredGenericRPlotNodeFactory {
                 outputSpecs.add(new Attribute("Std. Error", DoubleCell.TYPE));
 
                 DataTableSpec tableSpec = AttributeUtils.compileTableSpecs(outputSpecs);
-                return new PortObjectSpec[]{tableSpec, RPortObjectSpec.INSTANCE};
+                return new PortObjectSpec[]{tableSpec, ROldPortObjectSpec.INSTANCE};
             }
         };
     }
@@ -93,7 +93,7 @@ public class OldDoseResponseFactory extends HardwiredGenericRPlotNodeFactory {
 
     private static PortType[] createOutputPorts() {
         PortType[] tablePort = AbstractNodeModel.createPorts(1);
-        PortType[] modelPort = AbstractNodeModel.createPorts(1, RPortObject.TYPE, RPortObject.class);
+        PortType[] modelPort = AbstractNodeModel.createPorts(1, ROldPortObject.TYPE, ROldPortObject.class);
 
         return new PortType[]{tablePort[0], modelPort[0]};
     }

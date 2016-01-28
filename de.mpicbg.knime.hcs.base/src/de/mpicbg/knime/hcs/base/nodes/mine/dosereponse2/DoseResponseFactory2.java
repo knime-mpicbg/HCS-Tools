@@ -28,12 +28,12 @@ import de.mpicbg.knime.knutils.BufTableUtils;
 import de.mpicbg.knime.scripting.core.ScriptingModelConfig;
 import de.mpicbg.knime.scripting.core.rgg.TemplateUtils;
 import de.mpicbg.knime.scripting.r.RColumnSupport;
-import de.mpicbg.knime.scripting.r.RSnippetNodeModel;
 import de.mpicbg.knime.scripting.r.RUtils;
 import de.mpicbg.knime.scripting.r.generic.GenericRPlotNodeModel;
-import de.mpicbg.knime.scripting.r.generic.RPortObject;
-import de.mpicbg.knime.scripting.r.generic.RPortObjectSpec;
-import de.mpicbg.knime.scripting.r.plots.RPlotCanvas;
+import de.mpicbg.knime.scripting.r.node.plot.RPlotCanvas;
+import de.mpicbg.knime.scripting.r.node.snippet.RSnippetNodeModel;
+import de.mpicbg.knime.scripting.r.port.RPortObject;
+import de.mpicbg.knime.scripting.r.port.RPortObjectSpec;
 import de.mpicbg.knime.scripting.r.rgg.HardwiredGenericRPlotNodeFactory;
 
 /**
