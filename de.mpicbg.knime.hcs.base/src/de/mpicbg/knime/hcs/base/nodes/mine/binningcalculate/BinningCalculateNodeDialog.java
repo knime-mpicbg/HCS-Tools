@@ -65,9 +65,7 @@ public class BinningCalculateNodeDialog extends AbstractConfigDialog {
 	 * New Dialog for choosing Columns for binning
 	 */
 
-	addDialogComponent(new DialogComponentColumnFilter2(
-		new SettingsModelColumnFilter2("column.filter", new DataTypeColumnFilter(DoubleValue.class),1)
-		,0, false));
+	
 
 	
     }
@@ -81,8 +79,9 @@ public class BinningCalculateNodeDialog extends AbstractConfigDialog {
                 true, false, new Class[]{org.knime.core.data.StringValue.class}));
 
         // numerical column selection component
-        addDialogComponent(new DialogComponentColumnFilter(BinningCalculateNodeModel.createColumnSelectionModel(), 0, true,
-                new Class[]{DoubleValue.class}));
+        addDialogComponent(new DialogComponentColumnFilter2(
+        		new SettingsModelColumnFilter2("column.filter", new DataTypeColumnFilter(DoubleValue.class),1)
+        		,0, false));
 
         // numeric field to configure number of bins
         DialogComponentNumberEdit nEdit = new DialogComponentNumberEdit(BinningCalculateNodeModel.createBinSelectionModel(), "Number of Bins");

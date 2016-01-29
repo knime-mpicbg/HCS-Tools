@@ -58,7 +58,7 @@ public class BinningAnalysis {
         createBins();
         calculateRefStats();
     }
-    
+      
     private Map<String, List<PMMLDiscretizeBin>> ConvBinFormate(HashMap<Object, List<Double>> refData) 
     {
     	
@@ -135,6 +135,10 @@ public class BinningAnalysis {
             lowerBreak = upperBreak;
         }
     }
+    
+    
+    
+    
 
     /**
      * percentile implementation
