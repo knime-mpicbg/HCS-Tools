@@ -1,0 +1,41 @@
+Time		Description							Question			Status
+
+KW 4		
+		Converting Bins compatible to PMMLTranslator   							100%
+		Implement PMMLModel to Node									100%
+		
+		Improve View and using SettingsModelColumnFilter2						100%
+		Implenting executive procedure
+			Reading in and checking all Settings							100%
+			Creating right Specs for statistic table						100%
+			
+KW 5 
+		Problems using SettingsModelColumnFilter2 - no access to selected columns			100%
+		Generating Bins											50%
+		Writing information (parameter, bin_total, bin_1..n) in tables					0%
+		Creating Superclass for Node Model								0%
+	
+
+KW 6
+		Creating Superclass for Node Model								0%
+		Checking if possible to handover statistic with PMML						0%
+		Testing
+			
+KW 7
+		Create second table with statistically relevant information	Amount of Bins			0%
+										p-Value (Antje take care)
+										
+		using Interval table #36					using existing IntervallCell
+		
+	
+
+KW 8		
+		Creating BinningCalculate Apply - Node								0%
+
+KW 9
+
+Notes:
+Calculating p-Value - http://www.codeproject.com/Articles/432194/How-to-Calculate-the-Chi-Squared-P-Value
+Problems of p-Value - http://www.nature.com/news/scientific-method-statistical-errors-1.14700
+
+								
