@@ -10,6 +10,7 @@ KW 4
 			Creating right Specs for statistic table						100%
 			
 KW 5 
+		Problems using SettingsModelColumnFilter2 - no access to selected columns			100%
 		Generating Bins											50%
 		Writing information (parameter, bin_total, bin_1..n) in tables					0%
 		Creating Superclass for Node Model								0%
