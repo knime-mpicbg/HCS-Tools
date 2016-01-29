@@ -1,10 +1,19 @@
 Time		Description							Question			Status
 
-KW 5 
+KW 4		
 		Converting Bins compatible to PMMLTranslator   							100%
 		Implement PMMLModel to Node									100%
+		
+		Improve View and using SettingsModelColumnFilter2						100%
+		Implenting executive procedure
+			Reading in and checking all Settings							100%
+			Creating right Specs for statistic table						100%
+			
+KW 5 
+		Generating Bins											50%
+		Writing information (parameter, bin_total, bin_1..n) in tables					0%
 		Creating Superclass for Node Model								0%
-		Improve View and using SettingsModelColumnFilter2						80%
+	
 
 KW 6
 		Creating Superclass for Node Model								0%
