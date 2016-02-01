@@ -11,13 +11,15 @@ KW 4
 			
 KW 5 
 		Problems using SettingsModelColumnFilter2 - no access to selected columns			100%
-		Generating Bins											50%
-		Writing information (parameter, bin_total, bin_1..n) in tables					0%
-		Creating Superclass for Node Model								0%
+		Generating Bins											100%
+		Writing information (parameter, bin_total, bin_1..n) in tables					100%
+		Solved problems with ColumnFilter (Still no excluding List)					80%
+		Creating Superclass for Node Model			not necessary?				0%
+		handing over converted PMML bins 								0%
 	
 
 KW 6
-		Creating Superclass for Node Model								0%
+		
 		Checking if possible to handover statistic with PMML						0%
 		Testing
 			
