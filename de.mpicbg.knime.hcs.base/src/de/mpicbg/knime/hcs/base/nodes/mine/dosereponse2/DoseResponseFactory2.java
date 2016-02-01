@@ -1,40 +1,26 @@
 package de.mpicbg.knime.hcs.base.nodes.mine.dosereponse2;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import javax.imageio.ImageIO;
 
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.data.image.png.PNGImageContent;
-import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
-import org.knime.core.node.port.image.ImagePortObjectSpec;
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.Rserve.RConnection;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.BufTableUtils;
 import de.mpicbg.knime.scripting.core.ScriptingModelConfig;
 import de.mpicbg.knime.scripting.core.rgg.TemplateUtils;
 import de.mpicbg.knime.scripting.r.RColumnSupport;
-import de.mpicbg.knime.scripting.r.RUtils;
-import de.mpicbg.knime.scripting.r.generic.GenericRPlotNodeModel;
-import de.mpicbg.knime.scripting.r.node.plot.RPlotCanvas;
-import de.mpicbg.knime.scripting.r.node.snippet.RSnippetNodeModel;
+import de.mpicbg.knime.scripting.r.node.generic.plot.GenericRPlotNodeModel2;
+import de.mpicbg.knime.scripting.r.node.hardwired.HardwiredGenericRPlotNodeFactory2;
 import de.mpicbg.knime.scripting.r.port.RPortObject;
 import de.mpicbg.knime.scripting.r.port.RPortObjectSpec;
-import de.mpicbg.knime.scripting.r.rgg.HardwiredGenericRPlotNodeFactory;
 
 /**
  * Node Factory for 'Dose Response' node
@@ -42,9 +28,7 @@ import de.mpicbg.knime.scripting.r.rgg.HardwiredGenericRPlotNodeFactory;
  * @author Antje Janosch
  *
  */
-public class DoseResponseFactory2 extends HardwiredGenericRPlotNodeFactory {
-	
-	private static final ImagePortObjectSpec IM_PORT_SPEC = new ImagePortObjectSpec(PNGImageContent.TYPE);
+public class DoseResponseFactory2 extends HardwiredGenericRPlotNodeFactory2 {
 	
 	private static ScriptingModelConfig nodeModelConfig = new ScriptingModelConfig(
 			AbstractNodeModel.createPorts(1), 	// 1 table input
@@ -73,39 +57,14 @@ public class DoseResponseFactory2 extends HardwiredGenericRPlotNodeFactory {
     }
 
 	@Override
-	protected GenericRPlotNodeModel createNodeModelInternal() {
+	protected GenericRPlotNodeModel2 createNodeModelInternal() {
 		
-		return new GenericRPlotNodeModel(nodeModelConfig) {
-
-            protected PortObject[] prepareOutput(ExecutionContext exec, RConnection connection) {
-                try {
-                    // prepare the output model  (table as well as model port)
-                    REXP resultTable = connection.eval("ictable");
-                    BufferedDataTable dataTable = RUtils.convert2DataTable(exec, resultTable, null);
-
-                    File rWorkspaceFile = File.createTempFile("genericR", "R");
-                    RUtils.saveToLocalFile(rWorkspaceFile, connection, RUtils.getHost(), RSnippetNodeModel.R_OUTVAR_BASE_NAME);
-                    
-                    // Rerun the image
-                    PNGImageContent content;
-                    File m_imageFile = File.createTempFile("RImage", ".png");
-                    ImageIO.write(RPlotCanvas.toBufferedImage(image), "png", m_imageFile);
-                    FileInputStream in = new FileInputStream(m_imageFile);
-                    content = new PNGImageContent(in);
-                    in.close();
-
-                    PortObject imgPort = new ImagePortObject(content, IM_PORT_SPEC);
-
-                    return new PortObject[]{dataTable, imgPort, new RPortObject(rWorkspaceFile)};
-
-                } catch (Throwable e) {
-                    throw new RuntimeException("Could not save rmodel: " + e);
-                }
-            }
-
+		return new GenericRPlotNodeModel2(nodeModelConfig) {
 
             @Override
             protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+            	
+            	super.configure(inSpecs);
 
                 // get the parameter value from the ui
                 Map<String, Object> getTemplateConfig = getTemplateConfig(inSpecs);
@@ -136,7 +95,6 @@ public class DoseResponseFactory2 extends HardwiredGenericRPlotNodeFactory {
             @Override
             public String prepareScript() {
                 String utilsFuns = TemplateUtils.readResourceAsString(this, "drcutils.R");
-
                 return utilsFuns + super.prepareScript();
             }
         };

@@ -46,8 +46,6 @@
 # just necessary for debugging from within R
 #source('/Users/brandl/projects/knime/hcstools/src/de/mpicbg/tds/knime/hcstools/screenmining/doseresponse/drcutils.R')
 
-
-
 drdata <- kIn
 
 # 1)  define parameter constraints and create the model
@@ -171,6 +169,10 @@ icList <- lapply(1:length(drmodels), FUN = function(cmpndIndex){
 ictable = do.call("rbind", icList)
 names(ictable) <-c(treatmentColName, "Response Variable", "IC 50", "Std. Error (IC 50)", "Lower Limit", "Std. Error (Lower Limit)",
                    "Upper Limit", "Std. Error (Upper Limit)", "Slope", "Std. Error (Slope)", "Symmetry", "Std. Error (Symmetry)", "Residual standard error", "DoF")
+ictable$DoF <- as.integer(ictable$DoF)                   
+rOut <- ictable
+
+rm(list = ls()[-which(ls() %in% c("rOut", "drmodels"))])
 
 ]]>
 
