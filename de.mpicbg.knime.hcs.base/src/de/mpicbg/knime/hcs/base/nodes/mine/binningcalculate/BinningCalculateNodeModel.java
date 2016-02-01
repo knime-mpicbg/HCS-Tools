@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 
 import org.knime.base.node.preproc.pmml.binner.PMMLBinningTranslator;
 import org.knime.base.node.preproc.pmml.binner.BinnerColumnFactory.Bin;
@@ -52,6 +54,7 @@ import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
 import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.hcs.core.math.BinningAnalysis;
 import de.mpicbg.knime.hcs.core.math.BinningData;
+import de.mpicbg.knime.hcs.core.math.Interval;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
 /**
@@ -63,9 +66,11 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
 
 public class BinningCalculateNodeModel extends AbstractNodeModel {
 
-	public static final String CFG_AGGR = "groupBy";
+	
 	private static final String CFG_AGGR_DFT = TdsUtils.SCREEN_MODEL_WELL;
-
+	public static final String CFG_AGGR = "groupBy";
+	
+	
 	// Configuration for Bins
 	public static final String CFG_BIN = "nBins";
 	private static final Integer CFG_BIN_DFT = 5;
@@ -90,6 +95,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	static final int OUTPORT = 0;
 	
 	public static final String CFG_COLUMN = "selectedCols";
+	
 
 
 	private final Map<String, Bin[]> m_columnToBins =
@@ -98,28 +104,107 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	private final Map<String, String> m_columnToAppended =
 			new HashMap<String, String>();
 
+	
+	
+	
+	
+	static final String COLUMN_NAMES = "GroupColNames";
+	
+	private final SettingsModelColumnFilter2 m_filterGroupColModel =
+	        BinningCalculateNodeDialog.getFilterDoubleColModel();
+	
+	
 	protected BinningCalculateNodeModel() {
 			super(new PortType[]{BufferedDataTable.TYPE}, new PortType[]{BufferedDataTable.TYPE, PMMLPortObject.TYPE}, true);
 			
 			initializeSettings();
 			}
+	
+	/**
+	 * selection model for numeric columns
+	 *
+	 * @return selection model
+	 
+	public final SettingsModelColumnFilter2 CFG_aggregationCols = createAggregationColsModel();
+	
+	private final SettingsModelBoolean m_removeRetainedCols = createRemoveRetainedColsModel();
+
+    private final SettingsModelBoolean m_removeAggregationCols =createRemoveAggregationColsModel();
+    
+	*/
+	
+
+	/**
+	 * selection model for number of bins
+	 *
+	 * @return selection model
+	 */
+	public static SettingsModelNumber createBinSelectionModel() {
+
+		return new SettingsModelIntegerBounded(CFG_BIN, CFG_BIN_DFT, CFG_BIN_MIN, CFG_BIN_MAX);
+	}
+
+	/**
+	 * selection model for reference column
+	 *
+	 * @return selection model
+	 */
+	public static SettingsModelString createRefColumnSelectionModel() {
+
+		return new SettingsModelString(CFG_REFCOLUMN, null);
+	}
+
+	/**
+	 * selection model for reference label
+	 *
+	 * @return selection model
+	 */
+	public static SettingsModelString createRefStringSelectionModel() {
+
+		return new SettingsModelString(CFG_REFSTRING, null);
+	}
+
+	/**
+	 * selection model for aggregating object based data
+	 *
+	 * @return selection model
+	 */
+	public static SettingsModelString createAggregationSelectionModel() {
+
+		return new SettingsModelString(CFG_AGGR, CFG_AGGR_DFT);
+	}
+
+
+
+
 
 
 	private void initializeSettings() {
-		 
-		
-		this.addModelSetting(CFG_COLUMN, createAggregationSelectionModel());
-		
+		this.addModelSetting(CFG_AGGR, createAggregationSelectionModel());
 		this.addModelSetting(CFG_BIN, createBinSelectionModel());
 		this.addModelSetting(CFG_REFCOLUMN, createRefColumnSelectionModel());
 		this.addModelSetting(CFG_REFSTRING, createRefStringSelectionModel());
 		
-		this.addModelSetting(CFG_AGGR, createAggregationSelectionModel());
+		
 		
 	}
 
 	static SettingsModelColumnFilter2 createAggregationColsModel() {
         return new SettingsModelColumnFilter2("aggregationColumns");
+    }
+	
+	/**
+     * @return the remove aggregation column model
+     */
+    static SettingsModelBoolean createRemoveAggregationColsModel() {
+        return new SettingsModelBoolean("removeAggregationColumns", false);
+    }
+
+    /**
+     * @return the remove aggregation column model
+     */
+    static SettingsModelBoolean createRemoveRetainedColsModel() {
+        return new SettingsModelBoolean("removeRetainedColumns", false);
     }
 
 	
@@ -141,10 +226,10 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		int nBins = ((SettingsModelIntegerBounded) getModelSetting(CFG_BIN)).getIntValue();
 		
 		
-		FilterResult filterResult = m_aggregationCols.applyTo(inSpec);
+		FilterResult filterResult = m_filterGroupColModel.applyTo(inSpec);
 			    List<String> selectedCols = Arrays.asList(filterResult.getIncludes());
 		
-        String aggColumn = ((SettingsModelString) getModelSetting(CFG_AGGR)).getStringValue();
+        
       
         boolean hasRefColumn = true;
         
@@ -161,7 +246,15 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
         		refString = ((SettingsModelString) getModelSetting(CFG_REFSTRING)).getStringValue();
         	}
 
-        int aggIdx = inSpec.findColumnIndex(aggColumn);
+
+		/**
+		 * 
+		 *			IMPORTANT - the aggIdx is set to 6 (well) - this needs to be changed
+		 * 
+		 */
+        
+       //int aggIdx = inSpec.findColumnIndex(aggColumn);
+        int aggIdx = 6;
         int refIdx = -1;
         if (hasRefColumn) refIdx = inSpec.findColumnIndex(refColumn);
 
@@ -197,11 +290,14 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
             HashMap<Object, List<Double>> refData = new HashMap<Object, List<Double>>();
             HashMap<Object, List<Double>> allData = new HashMap<Object, List<Double>>();
 
+           
+            
             for (DataRow row : inData) {
 
             	
                 DataCell aggCell = row.getCell(aggIdx);
                 
+                //System.out.println(rowCount);
                 
                 String aggString = null;
                 if (!aggCell.isMissing()) aggString = ((StringCell) aggCell).getStringValue();
@@ -245,7 +341,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
                 doubleList.add(value);
                 allData.put(aggString, doubleList);
-
+                rowCount++;
                 // check whether execution was canceled
                 exec.checkCanceled();
             }
@@ -269,20 +365,49 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
             // do the binning analysis on the collected data
             BinningAnalysis binAnalysis = new BinningAnalysis(refData, nBins, col);
-            HashMap<Object, List<BinningData>> ret = binAnalysis.getZscore(allData);
+            LinkedList<Interval> bins = binAnalysis.getBins();
+            //HashMap<Object, List<BinningData>> ret = binAnalysis.getZscore(allData);
 
             // fill binning data into the new table
-            for (Object aggLabel : ret.keySet()) {
-                DataRow[] newRows = createDataRow(col, (String) aggLabel, ret.get(aggLabel));
-                for (DataRow row : newRows) {
-                	StatisticDataContainer.addRowToTable(row);
-                }
-            }
+            
+            
+            List<DataCell> cells = new ArrayList<DataCell>();
 
+           
+            
+          
+            if(bins.size() > 0){
+            	 cells.add(new StringCell(col));
+                 cells.add(new StringCell("5"));
+                 
+            	for(i= 0; i < (bins.size() - 1); i++)
+            	{
+            		cells.add(new IntervalCell(bins.get(i).getLowerBound(),bins.get(i).getUpperBound(), bins.get(i).checkModeLowerBound(), bins.get(i).checkModeUpperBound()));
+
+            	}
+            	
+            	if((bins.size()-1) < nBins)
+                {
+                	for(i= 0; i < (nBins - (bins.size() -  1)); i++){
+                		cells.add(DataType.getMissingCell());
+                	}
+                }
+            	
+            	
+            }
+            else{continue;}
+        
+            
+         
+            DataRow currentRow = new DefaultRow(new RowKey(Integer.toString(rowCount)), cells);
+            StatisticDataContainer.addRowToTable(currentRow);
+            
+            
             // set progress
             progress = progress + 1.0 / n;
             i++;
             exec.setProgress(progress, "Binning done for parameter " + col + " (" + i + "/" + n + ")");
+       
         }
 
         StatisticDataContainer.close();
@@ -436,58 +561,5 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				// no internals to save
 			}
 
-			/**
-			 * selection model for numeric columns
-			 *
-			 * @return selection model
-			 */
-			private final SettingsModelColumnFilter2 m_aggregationCols = createAggregationColsModel();
-			public static SettingsModelColumnFilter2 createColumnSelectionModel() {
-
-				return new SettingsModelColumnFilter2(CFG_COLUMN);
-			}
-
-			/**
-			 * selection model for number of bins
-			 *
-			 * @return selection model
-			 */
-			public static SettingsModelNumber createBinSelectionModel() {
-
-				return new SettingsModelIntegerBounded(CFG_BIN, CFG_BIN_DFT, CFG_BIN_MIN, CFG_BIN_MAX);
-			}
-
-			/**
-			 * selection model for reference column
-			 *
-			 * @return selection model
-			 */
-			public static SettingsModelString createRefColumnSelectionModel() {
-
-				return new SettingsModelString(CFG_REFCOLUMN, null);
-			}
-
-			/**
-			 * selection model for reference label
-			 *
-			 * @return selection model
-			 */
-			public static SettingsModelString createRefStringSelectionModel() {
-
-				return new SettingsModelString(CFG_REFSTRING, null);
-			}
-
-			/**
-			 * selection model for aggregating object based data
-			 *
-			 * @return selection model
-			 */
-			public static SettingsModelString createAggregationSelectionModel() {
-
-				return new SettingsModelString(CFG_AGGR, CFG_AGGR_DFT);
-			}
-
-
-
-
+			
 }

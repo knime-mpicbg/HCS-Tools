@@ -75,3 +75,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: de.mpicbg.knime.hcs.core.HcsCoreBundleActivator
 Require-Bundle: org.eclipse.ui;bundle-version="[3.107.0,4.0.0)",
  org.knime.core;bundle-version="[3.0.0,4.0.0)"
+

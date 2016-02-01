@@ -2,12 +2,11 @@ package de.mpicbg.knime.hcs.core.math;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
+import de.mpicbg.knime.hcs.core.math.Interval.Mode;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretizeBin;
-import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval;
-import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval.Closure;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -58,7 +57,9 @@ public class BinningAnalysis {
         createBins();
         calculateRefStats();
     }
-      
+ 
+    
+    /*
     private Map<String, List<PMMLDiscretizeBin>> ConvBinFormate(HashMap<Object, List<Double>> refData) 
     {
     	
@@ -90,7 +91,7 @@ public class BinningAnalysis {
     	return binMap;
     }
 
-
+*/
     private void createBins() {
         double[] percentiles = new double[nBins + 1];
 
@@ -131,7 +132,14 @@ public class BinningAnalysis {
             // therefor the calculation was reimplemented
             upperBreak = evalPercentile(percentiles[i], data);
             // only keep bin, if the bounds differ
-            if (upperBreak > lowerBreak) bins.add(new Interval(lowerBreak, upperBreak, percentiles[i] + "%"));
+            if (upperBreak > lowerBreak) {
+            	if(i == (percentiles.length - 1)){
+            		bins.add(new Interval(lowerBreak, upperBreak, percentiles[i] + "%", Mode.INCL_BOTH));
+            	}
+            	bins.add(new Interval(lowerBreak, upperBreak, percentiles[i] + "%", Mode.INCL_LEFT));
+            }
+            	
+            
             lowerBreak = upperBreak;
         }
     }

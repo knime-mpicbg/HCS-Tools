@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
@@ -28,6 +29,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.util.filter.InputFilter;
 import org.knime.core.node.util.filter.column.DataColumnSpecFilterConfiguration;
 import org.knime.core.node.util.filter.column.DataTypeColumnFilter;
+import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 
 
 import de.mpicbg.knime.knutils.AbstractConfigDialog;
@@ -51,6 +53,15 @@ public class BinningCalculateNodeDialog extends AbstractConfigDialog {
     private DialogComponentColumnNameSelection refColumncomponent;
 
     private SettingsModelString refLabelString;
+    
+  
+    
+    @SuppressWarnings("unchecked")
+	static final SettingsModelColumnFilter2 getFilterDoubleColModel() {
+        return new SettingsModelColumnFilter2(BinningCalculateNodeModel.COLUMN_NAMES, new DataTypeColumnFilter(DoubleValue.class),1);
+    }
+    
+    
     
     /**
      * New pane for configuring the BinningCalculate node.
@@ -78,10 +89,11 @@ public class BinningCalculateNodeDialog extends AbstractConfigDialog {
         addDialogComponent(new DialogComponentColumnNameSelection(BinningCalculateNodeModel.createAggregationSelectionModel(), "Aggregate object data by", 0,
                 true, false, new Class[]{org.knime.core.data.StringValue.class}));
 
+      
+        
         // numerical column selection component
         addDialogComponent(new DialogComponentColumnFilter2(
-        		new SettingsModelColumnFilter2("column.filter", new DataTypeColumnFilter(DoubleValue.class),1)
-        		,0, false));
+                getFilterDoubleColModel(), 0));
 
         // numeric field to configure number of bins
         DialogComponentNumberEdit nEdit = new DialogComponentNumberEdit(BinningCalculateNodeModel.createBinSelectionModel(), "Number of Bins");
