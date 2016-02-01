@@ -16,6 +16,8 @@ public class Interval {
 
     // upper Bound
     double upperBound;
+    
+    Mode mode = Mode.INCL_BOTH;
 
     // Label
     String label;
@@ -39,6 +41,13 @@ public class Interval {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.label = label;
+    }
+    
+    public Interval(double lowerBound, double upperBound, String label, Mode mode) {
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+        this.label = label;
+        this.mode = mode;
     }
 
 
@@ -72,6 +81,20 @@ public class Interval {
 
     public void setLowerBound(double lowerBound) {
         this.lowerBound = lowerBound;
+    }
+    
+    public boolean checkModeLowerBound(){
+    	if(this.mode == Mode.INCL_LEFT || this.mode == Mode.INCL_BOTH){
+    		return true;
+    	}
+    	else{return false;}
+    }
+    
+    public boolean checkModeUpperBound(){
+    	if(this.mode == Mode.INCL_RIGHT || this.mode == Mode.INCL_BOTH){
+    		return true;
+    	}
+    	else{return false;}
     }
 
     public double getUpperBound() {
