@@ -127,7 +127,7 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 		BufferedDataContainer buf = exec.createDataContainer(colAttributes);
 		//create data container and take the attributes
 			DataCell[] cells = new DataCell[nrColumns]; //create table with specify number of columns
-			setWarningMessage("size: " + EchoReportRecords.records.size());
+			
 			int counter =0;
 			for (EchoReportRecords r : EchoReportRecords.records) {
 				//get all values form parsed xml file
@@ -177,7 +177,6 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 			BufferedDataContainer buf1 = exec.createDataContainer(colAttributes1);
 			DataCell[] cells1 = new DataCell[meta_nrColumns];
 			
-			setWarningMessage("size: " + EchoReportHeader.headers.size());
 			
 			int counter1= 0;
 				for (EchoReportHeader rh : EchoReportHeader.headers) {
@@ -215,8 +214,19 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 
+//check if a file is set otherwise throw InvalidSettingsException (the node will not be executable until a file location is set)		
+		String xml_file = null;
+		if (getModelSetting(CFG_FILE_URL) != null){
+			xml_file = ((SettingsModelString) getModelSetting(CFG_FILE_URL))
+					.getStringValue();
+		}
+		if (getModelSetting(CFG_FILE_URL) == null) {
+			throw new InvalidSettingsException("No input file selected");
+		}
 		
-		
+		if (xml_file.isEmpty() || xml_file.length() == 0) {
+			throw new InvalidSettingsException("No location provided");
+		}
 
 
 		DataTableSpec colAttributes = getEchoColumnModel();
