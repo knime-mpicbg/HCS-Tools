@@ -19,8 +19,8 @@ import de.mpicbg.knime.scripting.core.rgg.TemplateUtils;
 import de.mpicbg.knime.scripting.r.RColumnSupport;
 import de.mpicbg.knime.scripting.r.node.generic.plot.GenericRPlotNodeModel2;
 import de.mpicbg.knime.scripting.r.node.hardwired.HardwiredGenericRPlotNodeFactory2;
-import de.mpicbg.knime.scripting.r.port.RPortObject;
-import de.mpicbg.knime.scripting.r.port.RPortObjectSpec;
+import de.mpicbg.knime.scripting.r.port.RPortObject2;
+import de.mpicbg.knime.scripting.r.port.RPortObjectSpec2;
 
 /**
  * Node Factory for 'Dose Response' node
@@ -51,7 +51,7 @@ public class DoseResponseFactory2 extends HardwiredGenericRPlotNodeFactory2 {
 	 */
     private static PortType[] createOutputPorts() {
         PortType[] tablePort = AbstractNodeModel.createPorts(1);
-        PortType[] modelPort = AbstractNodeModel.createPorts(1, RPortObject.TYPE, RPortObject.class);
+        PortType[] modelPort = AbstractNodeModel.createPorts(1, RPortObject2.TYPE, RPortObject2.class);
 
         return new PortType[]{tablePort[0], ImagePortObject.TYPE, modelPort[0]};
     }
@@ -88,7 +88,7 @@ public class DoseResponseFactory2 extends HardwiredGenericRPlotNodeFactory2 {
                 newColumns.put("Residual standard error", DoubleCell.TYPE);
                 newColumns.put("DoF", IntCell.TYPE);
                 
-                return new PortObjectSpec[]{BufTableUtils.createNewDataTableSpec(newColumns), IM_PORT_SPEC, RPortObjectSpec.INSTANCE};
+                return new PortObjectSpec[]{BufTableUtils.createNewDataTableSpec(newColumns), IM_PORT_SPEC, RPortObjectSpec2.INSTANCE};
             }
 
 
