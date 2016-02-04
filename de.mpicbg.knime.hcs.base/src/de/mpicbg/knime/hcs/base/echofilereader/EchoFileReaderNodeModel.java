@@ -1,14 +1,13 @@
 package de.mpicbg.knime.hcs.base.echofilereader;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataTableSpecCreator;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
@@ -21,8 +20,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.xml.sax.helpers.DefaultHandler;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
-import de.mpicbg.knime.knutils.Attribute;
-import de.mpicbg.knime.knutils.AttributeUtils;
 
 
 /**
@@ -37,9 +34,6 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 	// NODE SETTINGS KEYS + DEFAULTS
 
 	public static final String CFG_FILE_URL = "fileUrl";
-	public static final String CFG_FlowVariable = "flowVariable";
-	
-
 	public static final String CFG_splitSourceCol = "split.source.column";
 	public static final int IDsourceColumn = 2;
 	public static final int IDdestinationColumn = 5;
@@ -53,7 +47,7 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 		// TODO one incoming port and one outgoing port is assumed
 		super(0, 2, true);
 		addModelSetting(EchoFileReaderNodeModel.CFG_FILE_URL, createFileURL());
-		addModelSetting(EchoFileReaderNodeModel.CFG_FlowVariable, createFlowVariable());
+		
 		addModelSetting(EchoFileReaderNodeModel.CFG_splitDestinationCol, createSplitDestinationCol());
 		addModelSetting(EchoFileReaderNodeModel.CFG_splitSourceCol, createSplitSourceCol());
 	}
@@ -61,9 +55,7 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 	private SettingsModel createFileURL() {
 		return new SettingsModelString(CFG_FILE_URL, null);
 	}
-	private SettingsModel createFlowVariable() {
-		return new SettingsModelString(CFG_FlowVariable, null);
-	}
+	
 	private SettingsModel createSplitSourceCol() {
 		return new SettingsModelBoolean(CFG_splitSourceCol, false);
 	}
@@ -130,9 +122,9 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 		}
 
 		
-		List<Attribute> colAttributes = getEchoColumnModel(); // call the list of names form getEchoColumnModel
+		DataTableSpec colAttributes = getEchoColumnModel(); // call the list of names form getEchoColumnModel
 
-		BufferedDataContainer buf = exec.createDataContainer(AttributeUtils.compileTableSpecs(colAttributes));
+		BufferedDataContainer buf = exec.createDataContainer(colAttributes);
 		//create data container and take the attributes
 			DataCell[] cells = new DataCell[nrColumns]; //create table with specify number of columns
 			setWarningMessage("size: " + EchoReportRecords.records.size());
@@ -181,8 +173,8 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 			 * Creation of Second Table with Echo METADATA
 			 */
 			int meta_nrColumns = 10;
-			List<Attribute> colAttributes1 = getMetaDataColumnModel();
-			BufferedDataContainer buf1 = exec.createDataContainer(AttributeUtils.compileTableSpecs(colAttributes1));
+			DataTableSpec colAttributes1 = getMetaDataColumnModel();
+			BufferedDataContainer buf1 = exec.createDataContainer(colAttributes1);
 			DataCell[] cells1 = new DataCell[meta_nrColumns];
 			
 			setWarningMessage("size: " + EchoReportHeader.headers.size());
@@ -227,67 +219,97 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 		
 
 
-		List<Attribute> colAttributes = getEchoColumnModel();
-		List<Attribute> colAttributes1 = getMetaDataColumnModel();
+		DataTableSpec colAttributes = getEchoColumnModel();
+		DataTableSpec colAttributes1 = getMetaDataColumnModel();
 		
-		DataTableSpec[] spec = new DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes)};
-		DataTableSpec[] spec1 = new DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes1)};
+		/*DataTableSpec[] spec = new DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes)};
+		DataTableSpec[] spec1 = new DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes1)};*/
 		
-		return new DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes),AttributeUtils.compileTableSpecs(colAttributes1)};// DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes)}; //create the table
+		return new DataTableSpec[]{colAttributes,colAttributes1};// DataTableSpec[]{AttributeUtils.compileTableSpecs(colAttributes)}; //create the table
 		
 	}
 	
 
-private List<Attribute> getEchoColumnModel() {
-
-		List<Attribute> colAttributes = new ArrayList<Attribute>();
-//create a list and fill with attributes in xml fiml - always the same
-		colAttributes.add(new Attribute("Source Plate Name", StringCell.TYPE));
-		colAttributes.add(new Attribute("Source Plate Barcode", StringCell.TYPE));
-		colAttributes.add(new Attribute("Source Well", StringCell.TYPE));
-		colAttributes.add(new Attribute("Destination Plate Name", StringCell.TYPE));
-		colAttributes.add(new Attribute("Destination Plate Barcode", StringCell.TYPE));
-		colAttributes.add(new Attribute("Destination Well", StringCell.TYPE));
-		colAttributes.add(new Attribute("Transfer Volume", StringCell.TYPE));
-		colAttributes.add(new Attribute("Actual Volume", StringCell.TYPE));
-		colAttributes.add(new Attribute("Current Fluid Volume", StringCell.TYPE));
-		colAttributes.add(new Attribute("Fluid Composition", StringCell.TYPE));
-		colAttributes.add(new Attribute("Fluid Units", StringCell.TYPE));
-		colAttributes.add(new Attribute("Fluid Type", StringCell.TYPE));
-		colAttributes.add(new Attribute("Transfer Status", StringCell.TYPE));
-		
-		
+private DataTableSpec getEchoColumnModel() {
+ //create a new table spec and add columns according to xml file
+	DataTableSpecCreator specCreator = new DataTableSpecCreator();
+	DataColumnSpecCreator cspecCreator = null;
+	
+	cspecCreator = new DataColumnSpecCreator("Source Plate Name", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Source Plate Barcode", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Source Well", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Destination Plate Name", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Destination Plate Barcode", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Destination Well", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Transfer Volume", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Actual Volume", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Current Fluid Volume", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Fluid Composition", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Fluid Units", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Fluid Type", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Transfer Status", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	
 		
 		if (((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
 				.getBooleanValue() == true) {
-			colAttributes.add(new Attribute("Source_plateColumn", StringCell.TYPE));
-			colAttributes.add(new Attribute("Source_rowColumn", StringCell.TYPE));
+			cspecCreator = new DataColumnSpecCreator("plateRow (Source Well)", StringCell.TYPE);
+			specCreator.addColumns(cspecCreator.createSpec());
+			cspecCreator = new DataColumnSpecCreator("plateColumn (Source Well)", StringCell.TYPE);
+			specCreator.addColumns(cspecCreator.createSpec());
+		
 		}
 		if(((SettingsModelBoolean) getModelSetting(CFG_splitDestinationCol))
 				.getBooleanValue() == true) {
-			colAttributes.add(new Attribute("Destination_plateColumn", StringCell.TYPE));
-			colAttributes.add(new Attribute("Destination_rowColumn", StringCell.TYPE));
+			cspecCreator = new DataColumnSpecCreator("plateRow (Destination Well)", StringCell.TYPE);
+			specCreator.addColumns(cspecCreator.createSpec());
+			cspecCreator = new DataColumnSpecCreator("plateColumn (Destination Well)", StringCell.TYPE);
+			specCreator.addColumns(cspecCreator.createSpec());
+			
 		}
 		
-		return colAttributes;
+		return specCreator.createSpec();
 	}
-private List<Attribute> getMetaDataColumnModel() {
+private DataTableSpec getMetaDataColumnModel() {
 	
-	List<Attribute> colAttributes1 = new ArrayList<Attribute>();
-	//create a list and fill with attributes in xml fiml - always the same
-			colAttributes1.add(new Attribute("Run ID", StringCell.TYPE));
-			colAttributes1.add(new Attribute("Run Date/Time", StringCell.TYPE));
-			colAttributes1.add(new Attribute("Application Name", StringCell.TYPE));
-			colAttributes1.add(new Attribute("Application Version", StringCell.TYPE));
-			colAttributes1.add(new Attribute("Protocol Name", StringCell.TYPE));
-			colAttributes1.add(new Attribute("User Name", StringCell.TYPE));
-			
-			colAttributes1.add(new Attribute("Instrument Name", StringCell.TYPE));
-			colAttributes1.add(new Attribute("Instrument Model", StringCell.TYPE));
-			colAttributes1.add(new Attribute("Instrument Serial Number", StringCell.TYPE));
-			colAttributes1.add(new Attribute("Instrument Software Version", StringCell.TYPE));
+	DataTableSpecCreator specCreator = new DataTableSpecCreator();
+	DataColumnSpecCreator cspecCreator = null;
 	
-	return colAttributes1;
+	cspecCreator = new DataColumnSpecCreator("Run ID", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Run Date/Time", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Application Name", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Application Version", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Protocol Name", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("User Name", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Instrument Name", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Instrument Model", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Instrument Serial Number", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+	cspecCreator = new DataColumnSpecCreator("Instrument Software Version", StringCell.TYPE);
+	specCreator.addColumns(cspecCreator.createSpec());
+
+	
+	return specCreator.createSpec();
 	
 	
 }
