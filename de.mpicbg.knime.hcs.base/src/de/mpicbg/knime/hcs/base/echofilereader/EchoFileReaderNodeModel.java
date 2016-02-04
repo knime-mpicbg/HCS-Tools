@@ -8,6 +8,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
@@ -17,8 +18,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.xml.sax.helpers.DefaultHandler;
-
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
 
@@ -93,23 +92,23 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 		/**
 		 * SAX library implementation
 		 */
-		DefaultHandler handler = new ParseXML();
+		ParseXML handler = new ParseXML();
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setValidating(false);
 		SAXParser parser = factory.newSAXParser();
 		parser.parse(xml_file, handler);
-		
+
 
 		/**
 		 * Creation of First Table with Echo information
 		 */	
 		int nrColumns = 0;
 		//check the settings and specify the number of columns in the table
-		 if(((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
+		if(((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
 				.getBooleanValue() && ((SettingsModelBoolean) getModelSetting(CFG_splitDestinationCol)).getBooleanValue() == true) {
 			nrColumns = 17;
 		}
-		 else if (((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
+		else if (((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
 				.getBooleanValue() == true) {
 			nrColumns = 15;
 		} else if(((SettingsModelBoolean) getModelSetting(CFG_splitDestinationCol))
@@ -126,86 +125,80 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 
 		BufferedDataContainer buf = exec.createDataContainer(colAttributes);
 		//create data container and take the attributes
-			DataCell[] cells = new DataCell[nrColumns]; //create table with specify number of columns
-			setWarningMessage("size: " + EchoReportRecords.records.size());
-			int counter =0;
-			for (EchoReportRecords r : EchoReportRecords.records) {
-				//get all values form parsed xml file
-				cells[0] = new StringCell(r.getSrcPlateName());
-				cells[1] = new StringCell(r.getSrcPlateBarcode());
-				cells[2] = new StringCell(r.getSrcWell());
-				cells[3] = new StringCell(r.getDestPlateName());
-				cells[4] = new StringCell(r.getDestPlateBarcode());
-				cells[5] = new StringCell(r.getDestWell());
-				cells[6] = new StringCell(r.getXferVol());
-				cells[7] = new StringCell(r.getActualVol());
-				cells[8] = new StringCell(r.getCurrentFluidVolume());
-				cells[9] = new StringCell(r.getFluidComposition());
-				cells[10] = new StringCell(r.getFluidUnits());
-				cells[11] = new StringCell(r.getFluidType());
-				cells[12] = new StringCell(r.getXferStatus());
-				
-				int index =12;
-				// number of columns depends on user settings - add 2 or 4 columns
-				if (((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
-						.getBooleanValue() == true) {
-					String[] parts = splitPosition(r.getSrcWell());
-					cells[index +1] = new StringCell(parts[0]);
-					cells[index +2] = new StringCell(parts[1]);
-					index = index + 2;
-				}
-				if(((SettingsModelBoolean) getModelSetting(CFG_splitDestinationCol))
-						.getBooleanValue() == true) {
-					String[] parts = splitPosition(r.getDestWell());
-					cells[index +1] = new StringCell(parts[0]);
-					cells[index +2] = new StringCell(parts[1]);
-				}
-			
-		    	DataRow row = new DefaultRow("RowKey_"+counter, cells);
-		    	buf.addRowToTable(row);
-		    	counter++;
-			}
-			buf.close();
-			BufferedDataTable table = buf.getTable();
+		DataCell[] cells = new DataCell[nrColumns]; //create table with specify number of columns
+		//setWarningMessage("size: " + EchoRecord.records.size());
+		int counter =0;
+		for (EchoRecord r : handler.getRecords()) {
+			//get all values form parsed xml file
+			cells[0] = new StringCell(r.getSrcPlateName());
+			cells[1] = new StringCell(r.getSrcPlateBarcode());
+			cells[2] = new StringCell(r.getSrcWell());
+			cells[3] = new StringCell(r.getDestPlateName());
+			cells[4] = new StringCell(r.getDestPlateBarcode());
+			cells[5] = new StringCell(r.getDestWell());
+			cells[6] = new StringCell(r.getXferVol());
+			cells[7] = new StringCell(r.getActualVol());
+			cells[8] = new StringCell(r.getCurrentFluidVolume());
+			cells[9] = new StringCell(r.getFluidComposition());
+			cells[10] = new StringCell(r.getFluidUnits());
+			cells[11] = new StringCell(r.getFluidType());
+			cells[12] = new StringCell(r.getXferStatus());
 
-			
-			/**
-			 * Creation of Second Table with Echo METADATA
-			 */
-			int meta_nrColumns = 10;
-			DataTableSpec colAttributes1 = getMetaDataColumnModel();
-			BufferedDataContainer buf1 = exec.createDataContainer(colAttributes1);
-			DataCell[] cells1 = new DataCell[meta_nrColumns];
-			
-			setWarningMessage("size: " + EchoReportHeader.headers.size());
-			
-			int counter1= 0;
-				for (EchoReportHeader rh : EchoReportHeader.headers) {
-					
-					cells1[0] = new StringCell(rh.getRunID());
-					cells1[1] = new StringCell(rh.getRunDateTime());
-					cells1[2] = new StringCell(rh.getAppName());
-					cells1[3] = new StringCell(rh.getAppVersion());
-					cells1[4] = new StringCell(rh.getProtocolName());
-					cells1[5] = new StringCell(rh.getUserName());
-					
-				}
-				for (EchoReportFooter rf : EchoReportFooter.footers) {
-					
-					cells1[6] = new StringCell(rf.getInstrName());
-					cells1[7] = new StringCell(rf.getInstrModel());
-					cells1[8] = new StringCell(rf.getInstrSN());
-					cells1[9] = new StringCell(rf.getInstrSWVersion());
-					DataRow row = new DefaultRow("RowKey_" + counter1, cells1);
-			    	buf1.addRowToTable(row);
-			    	counter1++;
-				}
-				
-				buf1.close();
-				BufferedDataTable table1 = buf1.getTable();
-				
-				
-			return new BufferedDataTable[]{table, table1}; 
+			int index =12;
+			// number of columns depends on user settings - add 2 or 4 columns
+			if (((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
+					.getBooleanValue() == true) {
+				String[] parts = splitPosition(r.getSrcWell());
+				cells[index +1] = new StringCell(parts[0]);
+				cells[index +2] = new StringCell(parts[1]);
+				index = index + 2;
+			}
+			if(((SettingsModelBoolean) getModelSetting(CFG_splitDestinationCol))
+					.getBooleanValue() == true) {
+				String[] parts = splitPosition(r.getDestWell());
+				cells[index +1] = new StringCell(parts[0]);
+				cells[index +2] = new StringCell(parts[1]);
+			}
+
+			DataRow row = new DefaultRow("RowKey_"+counter, cells);
+			buf.addRowToTable(row);
+			counter++;
+		}
+		buf.close();
+		BufferedDataTable table = buf.getTable();
+
+
+		/**
+		 * Creation of Second Table with Echo METADATA
+		 */
+		int meta_nrColumns = 10;
+		List<Attribute> colAttributes1 = getMetaDataColumnModel();
+		BufferedDataContainer buf1 = exec.createDataContainer(AttributeUtils.compileTableSpecs(colAttributes1));
+		DataCell[] cells1 = new DataCell[meta_nrColumns];
+
+		//setWarningMessage("size: " + EchoReportHeader.headers.size());
+
+		EchoReportHeader rh = handler.getReportHeader();
+		EchoReportFooter rf = handler.getReportFooter();
+
+		cells1[0] = new StringCell(rh.getRunID());
+		cells1[1] = new StringCell(rh.getRunDateTime());
+		cells1[2] = new StringCell(rh.getAppName());
+		cells1[3] = new StringCell(rh.getAppVersion());
+		cells1[4] = new StringCell(rh.getProtocolName());
+		cells1[5] = new StringCell(rh.getUserName());
+		cells1[6] = new StringCell(rf.getInstrName());
+		cells1[7] = new StringCell(rf.getInstrModel());
+		cells1[8] = new StringCell(rf.getInstrSN());
+		cells1[9] = new StringCell(rf.getInstrSWVersion());
+		
+		DataRow row = new DefaultRow(RowKey.createRowKey((long)1), cells1);
+		buf1.addRowToTable(row);
+
+		buf1.close();
+		BufferedDataTable table1 = buf1.getTable();
+
+		return new BufferedDataTable[]{table, table1}; 
 	}
 
 	/**
@@ -215,8 +208,8 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 
-		
-		
+
+
 
 
 		DataTableSpec colAttributes = getEchoColumnModel();
@@ -263,6 +256,29 @@ private DataTableSpec getEchoColumnModel() {
 	specCreator.addColumns(cspecCreator.createSpec());
 	
 		
+=======
+
+	private List<Attribute> getEchoColumnModel() {
+
+		List<Attribute> colAttributes = new ArrayList<Attribute>();
+		//create a list and fill with attributes in xml fiml - always the same
+		colAttributes.add(new Attribute("Source Plate Name", StringCell.TYPE));
+		colAttributes.add(new Attribute("Source Plate Barcode", StringCell.TYPE));
+		colAttributes.add(new Attribute("Source Well", StringCell.TYPE));
+		colAttributes.add(new Attribute("Destination Plate Name", StringCell.TYPE));
+		colAttributes.add(new Attribute("Destination Plate Barcode", StringCell.TYPE));
+		colAttributes.add(new Attribute("Destination Well", StringCell.TYPE));
+		colAttributes.add(new Attribute("Transfer Volume", StringCell.TYPE));
+		colAttributes.add(new Attribute("Actual Volume", StringCell.TYPE));
+		colAttributes.add(new Attribute("Current Fluid Volume", StringCell.TYPE));
+		colAttributes.add(new Attribute("Fluid Composition", StringCell.TYPE));
+		colAttributes.add(new Attribute("Fluid Units", StringCell.TYPE));
+		colAttributes.add(new Attribute("Fluid Type", StringCell.TYPE));
+		colAttributes.add(new Attribute("Transfer Status", StringCell.TYPE));
+
+
+
+>>>>>>> EchoReader2.12
 		if (((SettingsModelBoolean) getModelSetting(CFG_splitSourceCol))
 				.getBooleanValue() == true) {
 			cspecCreator = new DataColumnSpecCreator("plateRow (Source Well)", StringCell.TYPE);

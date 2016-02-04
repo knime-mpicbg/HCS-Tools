@@ -274,9 +274,11 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			final AtomicInteger errorCounter_neg) {
 		ColumnRearranger c = new ColumnRearranger(inSpec);
 		// column spec of the appended column
+		
+		String newColName = inSpec.getColumnSpec(idCol).getName() + " (formatted)";
+		newColName = DataTableSpec.getUniqueColumnName(inSpec, newColName);
 
-		DataColumnSpec newColSpec = new DataColumnSpecCreator(inSpec
-				.getColumnSpec(idCol).getName() + " Formatted", StringCell.TYPE)
+		DataColumnSpec newColSpec = new DataColumnSpecCreator(newColName, StringCell.TYPE)
 				.createSpec();
 
 		final DataType dType = inSpec.getColumnSpec(idCol).getType();

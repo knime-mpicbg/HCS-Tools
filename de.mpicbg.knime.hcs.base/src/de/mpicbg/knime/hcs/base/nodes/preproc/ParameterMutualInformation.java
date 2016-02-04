@@ -34,6 +34,7 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.*;
@@ -114,7 +115,11 @@ public class ParameterMutualInformation extends AbstractNodeModel {
             mutualinfo.set_binning(binning.getIntValue());
 
         // Load data.
-        Double[][] table = new Double[Np][input.getRowCount()];
+        long tableSize = input.size();
+        if(tableSize > Integer.MAX_VALUE)
+        	throw new CanceledExecutionException("Cannot process tables with more than " + Integer.MAX_VALUE + " rows (Integer.MAX_VALUE)");
+        
+        Double[][] table = new Double[Np][(int)tableSize];
         int j = 0;
         for (DataRow row : input) {
             int i = 0;

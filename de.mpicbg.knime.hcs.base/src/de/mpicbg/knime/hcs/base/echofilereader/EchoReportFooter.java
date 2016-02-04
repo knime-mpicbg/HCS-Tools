@@ -10,7 +10,7 @@ public class EchoReportFooter {
 	private  String InstrSN;
     private  String InstrSWVersion;
     
-    public static final List<EchoReportFooter> footers = new LinkedList<EchoReportFooter>();
+    //public static final List<EchoReportFooter> footers = new LinkedList<EchoReportFooter>();
     
     public String getInstrName() {
 		return InstrName;

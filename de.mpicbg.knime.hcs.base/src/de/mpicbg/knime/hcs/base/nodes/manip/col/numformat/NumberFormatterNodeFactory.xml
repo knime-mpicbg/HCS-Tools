@@ -1,50 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./icon_numform.png" type="Manipulator" >
-    <name>Number Formatter</name>
-    
-    <shortDescription>
-        The node is normalizing numbers in the table by adding leading and trailing zeros to provide constant length of numbers in the table.
-    </shortDescription>
-    
-    <fullDescription>
-        <intro>
-				This node needs one column with the numbers that need to be modified. 
-        	
-        		The node will create a new sortable string column or replace existing one with the formatted numbers so all of them have a constant number of digits.
+<knimeNode icon="./NumberFormatterIcon.png" type="Manipulator">
+	<name>Number Formatter</name>
 
-		 <table>
-		 
-				<tr><th>Number</th><th>Number Formatted</th></tr>
-				<tr><td align="center">2</td><td align="center">02.00</td></tr>
-				<tr><td align="center">10.5</td><td align="center">10.50</td></tr>
-				<tr><td align="center">3.33</td><td align="center">03.33</td></tr>
-				
+	<shortDescription>
+		The node is formatting numbers in the table by adding leading and
+		trailing zeros to provide constant length of numbers in the table.
+	</shortDescription>
+
+	<fullDescription>
+		<intro>
+			This node needs one column with the numbers that need to be modified.
+
+			The node will create a new sortable string column or replace existing
+			one with the formatted numbers so all of them have a constant number
+			of digits.
+
+			<table>
+				<tr>
+					<th>Number</th>
+					<th>Number Formatted</th>
+				</tr>
+				<tr>
+					<td align="center">2</td>
+					<td align="center">02.00</td>
+				</tr>
+				<tr>
+					<td align="center">10.5</td>
+					<td align="center">10.50</td>
+				</tr>
+				<tr>
+					<td align="center">3.33</td>
+					<td align="center">03.33</td>
+				</tr>
 			</table>
-			
-			
-			<string><b>Node works only on positive numbers.</b></string>
-			
+
+			The leading character can be chosen:
+			<br />
+			<table>
+				<tr>
+					<th>Leading character</th>
+					<th>Number Formatted</th>
+				</tr>
+				<tr>
+					<td align="center">0</td>
+					<td align="center">02.00</td>
+				</tr>
+				<tr>
+					<td align="center"> "empty space" </td>
+					<td align="center"> 2.00</td>
+				</tr>
+				<tr>
+					<td align="center">_</td>
+					<td align="center">_2.00</td>
+				</tr>
+			</table>
+			<b>Node works only on positive numbers.</b>
+
 		</intro>
-        
-        
-        <option name="Select a column"> Choose a column to be formatted </option>
-        <option name="Delete the Source Column">Choose this if you want to dismiss the source columns</option>
-       <option name="Choose the leading character">Choose what kind of character should appear as a leading: "0", "empty space" or "_" 
-       <table>
-       
-       <tr><th>Leading character</th><th>Number Formatted</th></tr>
-				<tr><td align="center">0</td><td align="center">02.00</td></tr>
-				<tr><td align="center"> "empty space" </td><td align="center"> 2.00</td></tr>
-				<tr><td align="center">_</td><td align="center">_2.00</td></tr>
-       </table>
-       
-       </option>
-       
-       
-     </fullDescription>
-    <ports>
-        <inPort index="0" name="Input data">Input port with the table to be formatted.</inPort>
-        <outPort index="0" name="Table with formatted numbers">Output port with the table contained numbers after modification</outPort>
-    </ports>    
-   
+
+
+		<option name="Select a column"> Choose a column to be formatted </option>
+		<option name="Delete the Source Column">Choose this if you want to dismiss the source
+			columns</option>
+		<option name="Choose the leading character">Choose what kind of character should appear as a
+			leading: "0", "empty space" or "_"
+		</option>
+
+	</fullDescription>
+	<ports>
+		<inPort index="0" name="Input data">Input port with the table to be
+			formatted.</inPort>
+		<outPort index="0" name="Table with formatted numbers">Output port with the table contained
+			numbers after modification</outPort>
+	</ports>
+
 </knimeNode>
