@@ -22,7 +22,7 @@ public class EchoRecord {
 		if(SrcPlateBarcode.equals("")){
 			SrcPlateBarcode = "Missing value";	
 		}
-		return SrcPlateBarcode;
+		return SrcPlateBarcode; 
 	}
 
 	public void setSrcPlateBarcode(String srcPlateBarcode) {
