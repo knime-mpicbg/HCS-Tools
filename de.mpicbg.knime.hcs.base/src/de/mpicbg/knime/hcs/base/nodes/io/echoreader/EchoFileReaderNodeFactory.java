@@ -1,4 +1,4 @@
-package de.mpicbg.knime.hcs.base.echofilereader;
+package de.mpicbg.knime.hcs.base.nodes.io.echoreader;
 
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;

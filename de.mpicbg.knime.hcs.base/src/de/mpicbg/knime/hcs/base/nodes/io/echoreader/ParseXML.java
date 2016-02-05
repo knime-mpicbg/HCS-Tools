@@ -1,4 +1,4 @@
-package de.mpicbg.knime.hcs.base.echofilereader;
+package de.mpicbg.knime.hcs.base.nodes.io.echoreader;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class ParseXML extends DefaultHandler{
 	public EchoRecord record;
 	public EchoReportFooter reportfooter;
 	
-	
+	private LinkedList<EchoRecord> recordList = new LinkedList<EchoRecord>();
 
 	@Override
 	public void startElement(String uri, String localName, String qName,
@@ -26,7 +26,7 @@ public class ParseXML extends DefaultHandler{
 
 		if (localName.equals("report")) {
 
-			new EchoReportRecords();
+			new EchoRecord();
 		}
 		else if (qName.equals("reportheader")) {
 			reportheader = new EchoReportHeader();
@@ -142,7 +142,5 @@ public class ParseXML extends DefaultHandler{
 	}
 
 	}
-	/*public String getValue(){
-		return value;
-	}*/
-}
+
+
