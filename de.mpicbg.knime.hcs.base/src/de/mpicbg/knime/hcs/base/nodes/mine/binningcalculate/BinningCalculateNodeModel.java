@@ -10,7 +10,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
+import org.knime.base.node.preproc.autobinner.pmml.DisretizeConfiguration;
+import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretize;
+import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretizeBin;
+import org.knime.base.node.preproc.autobinner.pmml.PMMLPreprocDiscretize;
+import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval.Closure;
 import org.knime.base.node.preproc.pmml.binner.PMMLBinningTranslator;
 import org.knime.base.node.preproc.pmml.binner.BinnerColumnFactory.Bin;
 import org.knime.core.data.DataCell;
@@ -21,7 +25,6 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
-import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -37,24 +40,21 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
-import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortType;
-import org.knime.core.node.port.database.DatabasePortObject;
 import org.knime.core.node.port.pmml.PMMLPortObject;
-import org.knime.core.node.port.pmml.PMMLPortObjectSpec;
 import org.knime.core.node.port.pmml.PMMLPortObjectSpecCreator;
 import org.knime.core.node.port.pmml.preproc.DerivedFieldMapper;
-import org.knime.core.node.streamable.OutputPortRole;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
 
 import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.hcs.core.math.BinningAnalysis;
 import de.mpicbg.knime.hcs.core.math.BinningData;
 import de.mpicbg.knime.hcs.core.math.Interval;
+
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
 /**
@@ -66,11 +66,11 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
 
 public class BinningCalculateNodeModel extends AbstractNodeModel {
 
-	
+
 	private static final String CFG_AGGR_DFT = TdsUtils.SCREEN_MODEL_WELL;
 	public static final String CFG_AGGR = "groupBy";
-	
-	
+
+
 	// Configuration for Bins
 	public static final String CFG_BIN = "nBins";
 	private static final Integer CFG_BIN_DFT = 5;
@@ -93,391 +93,415 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 	/** Keeps index of the output port which is 0. */
 	static final int OUTPORT = 0;
-	
+
 	public static final String CFG_COLUMN = "selectedCols";
-	
+
 
 
 	private final Map<String, Bin[]> m_columnToBins =
 			new HashMap<String, Bin[]>();
 
-	private final Map<String, String> m_columnToAppended =
-			new HashMap<String, String>();
+			private final Map<String, String> m_columnToAppended =
+					new HashMap<String, String>();
 
-	
-	
-	
-	
-	static final String COLUMN_NAMES = "GroupColNames";
-	
-	private final SettingsModelColumnFilter2 m_filterGroupColModel =
-	        BinningCalculateNodeDialog.getFilterDoubleColModel();
-	
-	
-	protected BinningCalculateNodeModel() {
-			super(new PortType[]{BufferedDataTable.TYPE}, new PortType[]{BufferedDataTable.TYPE, PMMLPortObject.TYPE}, true);
-			
-			initializeSettings();
+
+
+
+
+			static final String COLUMN_NAMES = "GroupColNames";
+
+			private final SettingsModelColumnFilter2 m_filterGroupColModel =
+					BinningCalculateNodeDialog.getFilterDoubleColModel();
+
+
+			protected BinningCalculateNodeModel() {
+				super(new PortType[]{BufferedDataTable.TYPE}, new PortType[]{BufferedDataTable.TYPE, PMMLPortObject.TYPE}, true);
+
+				initializeSettings();
 			}
-	
-	/**
-	 * selection model for numeric columns
-	 *
-	 * @return selection model
-	 
+
+			/**
+			 * selection model for numeric columns
+			 *
+			 * @return selection model
+
 	public final SettingsModelColumnFilter2 CFG_aggregationCols = createAggregationColsModel();
-	
+
 	private final SettingsModelBoolean m_removeRetainedCols = createRemoveRetainedColsModel();
 
     private final SettingsModelBoolean m_removeAggregationCols =createRemoveAggregationColsModel();
-    
-	*/
-	
 
-	/**
-	 * selection model for number of bins
-	 *
-	 * @return selection model
-	 */
-	public static SettingsModelNumber createBinSelectionModel() {
-
-		return new SettingsModelIntegerBounded(CFG_BIN, CFG_BIN_DFT, CFG_BIN_MIN, CFG_BIN_MAX);
-	}
-
-	/**
-	 * selection model for reference column
-	 *
-	 * @return selection model
-	 */
-	public static SettingsModelString createRefColumnSelectionModel() {
-
-		return new SettingsModelString(CFG_REFCOLUMN, null);
-	}
-
-	/**
-	 * selection model for reference label
-	 *
-	 * @return selection model
-	 */
-	public static SettingsModelString createRefStringSelectionModel() {
-
-		return new SettingsModelString(CFG_REFSTRING, null);
-	}
-
-	/**
-	 * selection model for aggregating object based data
-	 *
-	 * @return selection model
-	 */
-	public static SettingsModelString createAggregationSelectionModel() {
-
-		return new SettingsModelString(CFG_AGGR, CFG_AGGR_DFT);
-	}
+			 */
 
 
+			/**
+			 * selection model for number of bins
+			 *
+			 * @return selection model
+			 */
+			public static SettingsModelNumber createBinSelectionModel() {
+
+				return new SettingsModelIntegerBounded(CFG_BIN, CFG_BIN_DFT, CFG_BIN_MIN, CFG_BIN_MAX);
+			}
+
+			/**
+			 * selection model for reference column
+			 *
+			 * @return selection model
+			 */
+			public static SettingsModelString createRefColumnSelectionModel() {
+
+				return new SettingsModelString(CFG_REFCOLUMN, null);
+			}
+
+			/**
+			 * selection model for reference label
+			 *
+			 * @return selection model
+			 */
+			public static SettingsModelString createRefStringSelectionModel() {
+
+				return new SettingsModelString(CFG_REFSTRING, null);
+			}
+
+			/**
+			 * selection model for aggregating object based data
+			 *
+			 * @return selection model
+			 */
+			public static SettingsModelString createAggregationSelectionModel() {
+
+				return new SettingsModelString(CFG_AGGR, CFG_AGGR_DFT);
+			}
 
 
 
 
-	private void initializeSettings() {
-		this.addModelSetting(CFG_AGGR, createAggregationSelectionModel());
-		this.addModelSetting(CFG_BIN, createBinSelectionModel());
-		this.addModelSetting(CFG_REFCOLUMN, createRefColumnSelectionModel());
-		this.addModelSetting(CFG_REFSTRING, createRefStringSelectionModel());
-		
-		
-		
-	}
-
-	static SettingsModelColumnFilter2 createAggregationColsModel() {
-        return new SettingsModelColumnFilter2("aggregationColumns");
-    }
-	
-	/**
-     * @return the remove aggregation column model
-     */
-    static SettingsModelBoolean createRemoveAggregationColsModel() {
-        return new SettingsModelBoolean("removeAggregationColumns", false);
-    }
-
-    /**
-     * @return the remove aggregation column model
-     */
-    static SettingsModelBoolean createRemoveRetainedColsModel() {
-        return new SettingsModelBoolean("removeRetainedColumns", false);
-    }
-
-	
-	@Override
-	protected PortObject[] execute(final PortObject[] inPorts,
-			final ExecutionContext exec) throws Exception {
-		
-		BufferedDataTable inData = (BufferedDataTable)inPorts[DATA_INPORT];
-		DataTableSpec inSpec = inData.getDataTableSpec();
-
-		
-
-		/**
-		 * 
-		 *			Reading in all Settings 
-		 * 
-		 */
-		
-		int nBins = ((SettingsModelIntegerBounded) getModelSetting(CFG_BIN)).getIntValue();
-		
-		
-		FilterResult filterResult = m_filterGroupColModel.applyTo(inSpec);
-			    List<String> selectedCols = Arrays.asList(filterResult.getIncludes());
-		
-        
-      
-        boolean hasRefColumn = true;
-        
-        String refColumn = ((SettingsModelString) getModelSetting(CFG_REFCOLUMN)).getStringValue();
-        	// Checking if RefColumn is selected
-        	if (refColumn == null)
-        		{
-        			hasRefColumn = false;
-        		}
-        String refString = null;
-        
-        if (hasRefColumn)
-        	{
-        		refString = ((SettingsModelString) getModelSetting(CFG_REFSTRING)).getStringValue();
-        	}
 
 
-		/**
-		 * 
-		 *			IMPORTANT - the aggIdx is set to 6 (well) - this needs to be changed
-		 * 
-		 */
-        
-       //int aggIdx = inSpec.findColumnIndex(aggColumn);
-        int aggIdx = 6;
-        int refIdx = -1;
-        if (hasRefColumn) refIdx = inSpec.findColumnIndex(refColumn);
+			private void initializeSettings() {
+				this.addModelSetting(CFG_AGGR, createAggregationSelectionModel());
+				this.addModelSetting(CFG_BIN, createBinSelectionModel());
+				this.addModelSetting(CFG_REFCOLUMN, createRefColumnSelectionModel());
+				this.addModelSetting(CFG_REFSTRING, createRefStringSelectionModel());
 
-        List<Double> doubleList;
 
-       
-        int i = 1;
-        int n = selectedCols.size();
-        double progress = 0.0;
-        int countMissing;
-        
-        BufferedDataContainer StatisticDataContainer = exec.createDataContainer(createStatisticOutSpec(inData.getSpec()));
-        rowCount = 0;
-        
-        
 
-		/**
-		 * 
-		 *			Iterate for each parameter through the table and creating bins
-		 * 
-		 */
-        
-        // gets the selected Columns in the dialog on by one
-        for (String col : selectedCols) {
-        	
-        	//delivers the index of the column to get the cell 
-            int colIdx = inSpec.findColumnIndex(col);
-            
-            // I DONT KNOW
-            countMissing = 0;
+			}
 
-            // parameter / aggregation string / values
-            HashMap<Object, List<Double>> refData = new HashMap<Object, List<Double>>();
-            HashMap<Object, List<Double>> allData = new HashMap<Object, List<Double>>();
+			static SettingsModelColumnFilter2 createAggregationColsModel() {
+				return new SettingsModelColumnFilter2("aggregationColumns");
+			}
 
-           
-            
-            for (DataRow row : inData) {
+			/**
+			 * @return the remove aggregation column model
+			 */
+			static SettingsModelBoolean createRemoveAggregationColsModel() {
+				return new SettingsModelBoolean("removeAggregationColumns", false);
+			}
 
-            	
-                DataCell aggCell = row.getCell(aggIdx);
-                
-                //System.out.println(rowCount);
-                
-                String aggString = null;
-                if (!aggCell.isMissing()) aggString = ((StringCell) aggCell).getStringValue();
+			/**
+			 * @return the remove aggregation column model
+			 */
+			static SettingsModelBoolean createRemoveRetainedColsModel() {
+				return new SettingsModelBoolean("removeRetainedColumns", false);
+			}
 
-                String label = null;
-                if (hasRefColumn) {
-                    DataCell labelCell = row.getCell(refIdx);
-                    if (!labelCell.isMissing()) label = ((StringCell) labelCell).getStringValue();
-                }
 
-                DataCell valueCell = row.getCell(colIdx);
-                Double value = null;
-                // int cell represents numeric cell (can deliver int and double, double cell can be cast to int cell)
-                if (!valueCell.isMissing()) value = ((DoubleValue) valueCell).getDoubleValue();
+			@Override
+			protected PortObject[] execute(final PortObject[] inPorts,
+					final ExecutionContext exec) throws Exception {
 
-                // skip data row if
-                // - aggregation information is not available
-                // - data value is missing
-                // - reference column was selected but reference label is not available
-                if (aggString == null || value == null || (hasRefColumn && label == null)) {
-                    countMissing++;
-                    continue;
-                }
+				BufferedDataTable inData = (BufferedDataTable)inPorts[DATA_INPORT];
+				DataTableSpec inSpec = inData.getDataTableSpec();
 
-                // fill list of reference data
-                if (hasRefColumn) {
 
-                    if (label.equals(refString)) {
 
-                        if (refData.containsKey(aggString)) doubleList = refData.get(aggString);
-                        else doubleList = new ArrayList<Double>();
+				/**
+				 * 
+				 *			Reading in all Settings 
+				 * 
+				 */
 
-                        doubleList.add(value);
-                        refData.put(aggString, doubleList);
-                    }
-                }
+				int nBins = ((SettingsModelIntegerBounded) getModelSetting(CFG_BIN)).getIntValue();
 
-                // fill list with all data
-                if (allData.containsKey(aggString)) doubleList = allData.get(aggString);
-                else doubleList = new ArrayList<Double>();
 
-                doubleList.add(value);
-                allData.put(aggString, doubleList);
-                rowCount++;
-                // check whether execution was canceled
-                exec.checkCanceled();
-            }
+				FilterResult filterResult = m_filterGroupColModel.applyTo(inSpec);
+				List<String> selectedCols = Arrays.asList(filterResult.getIncludes());
 
-            // if there is no reference column selected, take the whole dataset as reference
-            if (!hasRefColumn) {
-                refData = allData;
-            }
-            // warning if the reference label does not contain any data (domain available though no data in the table
-            // don't calculate the binning for this parameter
-            if (refData.isEmpty()) {
-                setWarningMessage("there is no reference data available for " + col);
-                continue;
-            }
 
-            // warning if missing values were filtered from the column
-            if (countMissing > 0) {
-                this.logger.info(col + ": " + countMissing + " values were skipped because of missing values");
-                //setWarningMessage( col + ": " + countMissing + " rows were skipped because of missing values");
-            }
 
-            // do the binning analysis on the collected data
-            BinningAnalysis binAnalysis = new BinningAnalysis(refData, nBins, col);
-            LinkedList<Interval> bins = binAnalysis.getBins();
-            //HashMap<Object, List<BinningData>> ret = binAnalysis.getZscore(allData);
+				boolean hasRefColumn = true;
 
-            // fill binning data into the new table
-            
-            
-            List<DataCell> cells = new ArrayList<DataCell>();
+				String refColumn = ((SettingsModelString) getModelSetting(CFG_REFCOLUMN)).getStringValue();
+				// Checking if RefColumn is selected
+				if (refColumn == null)
+				{
+					hasRefColumn = false;
+				}
+				String refString = null;
 
-           
-            
-          
-            if(bins.size() > 0){
-            	 cells.add(new StringCell(col));
-                 cells.add(new StringCell(Integer.toString(bins.size())));
-                 
-            	for(i= 0; i < (bins.size()); i++)
-            	{
-            		cells.add(new IntervalCell(bins.get(i).getLowerBound(),bins.get(i).getUpperBound(), bins.get(i).checkModeLowerBound(), bins.get(i).checkModeUpperBound()));
+				if (hasRefColumn)
+				{
+					refString = ((SettingsModelString) getModelSetting(CFG_REFSTRING)).getStringValue();
+				}
 
-            	}
-            	
-            	if((bins.size()) < nBins)
-                {
-                	for(i= 0; i < (nBins - (bins.size())); i++){
-                		cells.add(DataType.getMissingCell());
-                	}
-                }
-            	
-            	
-            }
-            else{continue;}
-        
-            
-         
-            DataRow currentRow = new DefaultRow(new RowKey(Integer.toString(rowCount)), cells);
-            StatisticDataContainer.addRowToTable(currentRow);
-            
-            
-            // set progress
-            progress = progress + 1.0 / n;
-            i++;
-            exec.setProgress(progress, "Binning done for parameter " + col + " (" + i + "/" + n + ")");
-       
-        }
 
-        StatisticDataContainer.close();
-        
+				/**
+				 * 
+				 *			IMPORTANT - the aggIdx is set to 6 (well) - this needs to be changed
+				 * 
+				 */
 
-		PMMLPortObject outPMMLPort = createPMMLModel(null, inSpec, inData.getDataTableSpec());
-		return new PortObject[]{StatisticDataContainer.getTable(), outPMMLPort};
-	}
+				//int aggIdx = inSpec.findColumnIndex(aggColumn);
+				int aggIdx = 6;
+				int refIdx = -1;
+				if (hasRefColumn) refIdx = inSpec.findColumnIndex(refColumn);
 
-	
-	
-	
-	
-	/**
-     * generates the table specs for the ouput table
-     *
-     * @param inSpec
-     * @return new specs
-     */
-    private DataTableSpec createStatisticOutSpec(DataTableSpec inSpec) {
-    	
-    	int nBins = ((SettingsModelIntegerBounded) getModelSetting(CFG_BIN)).getIntValue();
-        DataColumnSpec[] columnArray = new DataColumnSpec[2 + nBins];
+				List<Double> doubleList;
 
-        DataColumnSpecCreator colCreator;
 
-        colCreator = new DataColumnSpecCreator("parameter", StringCell.TYPE);
-        columnArray[0] = colCreator.createSpec();
-        
-        colCreator = new DataColumnSpecCreator("bin_total", StringCell.TYPE);
-        columnArray[1] = colCreator.createSpec();
-        
-        for(int i = 0; i < nBins; i++){
-        	  colCreator = new DataColumnSpecCreator("bin_" + (i + 1), IntervalCell.TYPE);
-              columnArray[2 + i] = colCreator.createSpec();
-        }
-      
+				int i = 1;
+				int n = selectedCols.size();
+				double progress = 0.0;
+				int countMissing;
 
-        return new DataTableSpec("Binning Specs", columnArray);  //To change body of created methods use File | Settings | File Templates.
-    }
+				BufferedDataContainer StatisticDataContainer = exec.createDataContainer(createStatisticOutSpec(inData.getSpec()));
+				rowCount = 0;
 
-	
-    private DataRow[] createDataRow(String col, String aggLabel, List<BinningData> binningDatas) {
-        DataRow[] newRows = new DataRow[binningDatas.size()];
 
-        int i = 0;
-        for (BinningData binData : binningDatas) {
-            List<DataCell> cells = new ArrayList<DataCell>();
 
-            cells.add(new StringCell(col));
-            cells.add(new StringCell(aggLabel));
-            cells.add(new StringCell(binData.getInterval().getLabel()));
-            cells.add(new DoubleCell(binData.getPercentage()));
-            double zval = binData.getZscore();
-            if (Double.isNaN(zval)) cells.add(DataType.getMissingCell());
-            else cells.add(new DoubleCell(zval));
-            cells.add(new IntCell((int) binData.getCount()));
+				/**
+				 * 
+				 *			Iterate for each parameter through the table and creating bins
+				 * 
+				 */
 
-            DataRow currentRow = new DefaultRow(new RowKey(Integer.toString(rowCount)), cells);
-            newRows[i] = currentRow;
-            i++;
-            rowCount++;
-        }
-        return newRows;
-    }
-	
-	
-	
-	
-	
+				// gets the selected Columns in the dialog on by one
+				for (String col : selectedCols) {
+
+					//delivers the index of the column to get the cell 
+					int colIdx = inSpec.findColumnIndex(col);
+
+					// I DONT KNOW
+					countMissing = 0;
+
+					// parameter / aggregation string / values
+					HashMap<Object, List<Double>> refData = new HashMap<Object, List<Double>>();
+					HashMap<Object, List<Double>> allData = new HashMap<Object, List<Double>>();
+
+
+
+					for (DataRow row : inData) {
+
+
+						DataCell aggCell = row.getCell(aggIdx);
+
+						//System.out.println(rowCount);
+
+						String aggString = null;
+						if (!aggCell.isMissing()) aggString = ((StringCell) aggCell).getStringValue();
+
+						String label = null;
+						if (hasRefColumn) {
+							DataCell labelCell = row.getCell(refIdx);
+							if (!labelCell.isMissing()) label = ((StringCell) labelCell).getStringValue();
+						}
+
+						DataCell valueCell = row.getCell(colIdx);
+						Double value = null;
+						// int cell represents numeric cell (can deliver int and double, double cell can be cast to int cell)
+						if (!valueCell.isMissing()) value = ((DoubleValue) valueCell).getDoubleValue();
+
+						// skip data row if
+						// - aggregation information is not available
+						// - data value is missing
+						// - reference column was selected but reference label is not available
+						if (aggString == null || value == null || (hasRefColumn && label == null)) {
+							countMissing++;
+							continue;
+						}
+
+						// fill list of reference data
+						if (hasRefColumn) {
+
+							if (label.equals(refString)) {
+
+								if (refData.containsKey(aggString)) doubleList = refData.get(aggString);
+								else doubleList = new ArrayList<Double>();
+
+								doubleList.add(value);
+								refData.put(aggString, doubleList);
+							}
+						}
+
+						// fill list with all data
+						if (allData.containsKey(aggString)) doubleList = allData.get(aggString);
+						else doubleList = new ArrayList<Double>();
+
+						doubleList.add(value);
+						allData.put(aggString, doubleList);
+						rowCount++;
+						// check whether execution was canceled
+						exec.checkCanceled();
+					}
+
+					// if there is no reference column selected, take the whole dataset as reference
+					if (!hasRefColumn) {
+						refData = allData;
+					}
+					// warning if the reference label does not contain any data (domain available though no data in the table
+					// don't calculate the binning for this parameter
+					if (refData.isEmpty()) {
+						setWarningMessage("there is no reference data available for " + col);
+						continue;
+					}
+
+					// warning if missing values were filtered from the column
+					if (countMissing > 0) {
+						this.logger.info(col + ": " + countMissing + " values were skipped because of missing values");
+						//setWarningMessage( col + ": " + countMissing + " rows were skipped because of missing values");
+					}
+
+					// do the binning analysis on the collected data
+					BinningAnalysis binAnalysis = new BinningAnalysis(refData, nBins, col);
+					LinkedList<Interval> bins = binAnalysis.getBins();
+					//HashMap<Object, List<BinningData>> ret = binAnalysis.getZscore(allData);
+
+					// fill binning data into the new table
+
+
+					List<DataCell> cells = new ArrayList<DataCell>();
+
+
+
+
+					if(bins.size() > 0){
+						cells.add(new StringCell(col));
+						cells.add(new StringCell(Integer.toString(bins.size())));
+
+						for(i= 0; i < (bins.size()); i++)
+						{
+							cells.add(new IntervalCell(bins.get(i).getLowerBound(),bins.get(i).getUpperBound(), bins.get(i).checkModeLowerBound(), bins.get(i).checkModeUpperBound()));
+
+						}
+
+						if((bins.size()) < nBins)
+						{
+							for(i= 0; i < (nBins - (bins.size())); i++){
+								cells.add(DataType.getMissingCell());
+							}
+						}
+
+
+					}
+					else{continue;}
+
+
+
+					DataRow currentRow = new DefaultRow(new RowKey(Integer.toString(rowCount)), cells);
+					StatisticDataContainer.addRowToTable(currentRow);
+
+
+					// set progress
+					progress = progress + 1.0 / n;
+					i++;
+					exec.setProgress(progress, "Binning done for parameter " + col + " (" + i + "/" + n + ")");
+
+				}
+
+				StatisticDataContainer.close();
+
+
+				PMMLPortObject outPMMLPort = createPMMLModel(null, inSpec, inData.getDataTableSpec());
+				return new PortObject[]{StatisticDataContainer.getTable(), outPMMLPort};
+			}
+
+
+
+
+
+			/**
+			 * generates the table specs for the ouput table
+			 *
+			 * @param inSpec
+			 * @return new specs
+			 */
+			private DataTableSpec createStatisticOutSpec(DataTableSpec inSpec) {
+
+				int nBins = ((SettingsModelIntegerBounded) getModelSetting(CFG_BIN)).getIntValue();
+				DataColumnSpec[] columnArray = new DataColumnSpec[2 + nBins];
+
+				DataColumnSpecCreator colCreator;
+
+				colCreator = new DataColumnSpecCreator("parameter", StringCell.TYPE);
+				columnArray[0] = colCreator.createSpec();
+
+				colCreator = new DataColumnSpecCreator("bin_total", StringCell.TYPE);
+				columnArray[1] = colCreator.createSpec();
+
+				for(int i = 0; i < nBins; i++){
+					colCreator = new DataColumnSpecCreator("bin_" + (i + 1), IntervalCell.TYPE);
+					columnArray[2 + i] = colCreator.createSpec();
+				}
+
+
+				return new DataTableSpec("Binning Specs", columnArray);  //To change body of created methods use File | Settings | File Templates.
+			}
+
+
+
+
+			private Map<String, List<PMMLDiscretizeBin>> ConvBinFormate(LinkedList<Interval> Bins) 
+			{
+
+				// 
+				Map<String, List<PMMLDiscretizeBin>> binMap = new HashMap<String, List<PMMLDiscretizeBin>>();
+
+				List<PMMLDiscretizeBin> PMMLDiscretBins = new ArrayList<PMMLDiscretizeBin>();
+				int count = 0;           
+				for(Interval Bin : Bins	)
+				{
+
+					double lbound = Bin.getLowerBound();
+					double ubound = Bin.getLowerBound();
+
+					if(count == Bins.size() - 1)
+					{
+						PMMLDiscretBins.add(new PMMLDiscretizeBin("Bin_" + count,
+								Arrays.asList(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedClosed))));
+					}
+
+					PMMLDiscretBins.add(new PMMLDiscretizeBin("Bin_" + count,
+							Arrays.asList(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedOpen))));
+				}
+
+				return binMap;
+			}
+
+
+			@SuppressWarnings("unused")
+			private PMMLPreprocDiscretize createDisretizeOp(
+					final Map<String, List<PMMLDiscretizeBin>> binMap, List<String> selectedCols) {
+
+				List<String> names = new ArrayList<String>();
+				Map<String, PMMLDiscretize> discretize =
+						new HashMap<String, PMMLDiscretize>();
+				for (String target : selectedCols) {
+
+					names.add(target);
+					discretize.put(target, new PMMLDiscretize(target,
+							binMap.get(target)));
+				}
+
+				DisretizeConfiguration config = new DisretizeConfiguration(names,
+						discretize);
+
+				PMMLPreprocDiscretize op = new PMMLPreprocDiscretize(config);
+				return op;
+			}
+
+
 			/**
 			 * Creates the pmml port object.
 			 * @param the in-port pmml object. Can be <code>null</code> (optional in-port)
@@ -491,6 +515,11 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				return outputPMMLPort;
 			}
 
+			
+			 /*public static PMMLPortObject translate(final PMMLPreprocDiscretize pmmlDiscretize,
+				        final DataTableSpec dataTableSpec) {
+				 
+			 }*/
 
 			/**
 			 * {@inheritDoc}
@@ -561,5 +590,5 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				// no internals to save
 			}
 
-			
+
 }
