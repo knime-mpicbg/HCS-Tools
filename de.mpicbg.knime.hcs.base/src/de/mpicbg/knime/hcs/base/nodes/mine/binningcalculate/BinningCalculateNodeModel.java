@@ -378,17 +378,17 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
           
             if(bins.size() > 0){
             	 cells.add(new StringCell(col));
-                 cells.add(new StringCell("5"));
+                 cells.add(new StringCell(Integer.toString(bins.size())));
                  
-            	for(i= 0; i < (bins.size() - 1); i++)
+            	for(i= 0; i < (bins.size()); i++)
             	{
             		cells.add(new IntervalCell(bins.get(i).getLowerBound(),bins.get(i).getUpperBound(), bins.get(i).checkModeLowerBound(), bins.get(i).checkModeUpperBound()));
 
             	}
             	
-            	if((bins.size()-1) < nBins)
+            	if((bins.size()) < nBins)
                 {
-                	for(i= 0; i < (nBins - (bins.size() -  1)); i++){
+                	for(i= 0; i < (nBins - (bins.size())); i++){
                 		cells.add(DataType.getMissingCell());
                 	}
                 }
