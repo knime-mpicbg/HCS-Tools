@@ -1,4 +1,4 @@
-package de.mpicbg.knime.hcs.base.echofilereader;
+package de.mpicbg.knime.hcs.base.nodes.io.echoreader;
 
 import javax.swing.JFileChooser;
 
