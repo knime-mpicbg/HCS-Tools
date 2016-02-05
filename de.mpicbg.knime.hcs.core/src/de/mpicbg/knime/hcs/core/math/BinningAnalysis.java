@@ -57,6 +57,20 @@ public class BinningAnalysis {
         createBins();
         calculateRefStats();
     }
+    
+    public BinningAnalysis(HashMap<Object, List<Double>> refData, int nBins, String parameterName, boolean opt) {
+        this.parameterName = parameterName;
+        this.nBins = nBins;
+
+        this.bins = new LinkedList<Interval>();
+        this.refStats = new HashMap<Interval, Double[]>();
+        this.zScoreData = new HashMap<Object, List<BinningData>>();
+
+        this.refData = refData;
+
+        createBins();
+        
+    }
  
     
     /*
@@ -131,14 +145,7 @@ public class BinningAnalysis {
             // tried to use Percentile class of commons-Math but it was much too slow for the example data
             // therefor the calculation was reimplemented
             upperBreak = evalPercentile(percentiles[i], data);
-            // only keep bin, if the bounds differ
-            if (upperBreak > lowerBreak) {
-            	if(i == (percentiles.length - 1)){
-            		bins.add(new Interval(lowerBreak, upperBreak, percentiles[i] + "%", Mode.INCL_BOTH));
-            	}
-            	bins.add(new Interval(lowerBreak, upperBreak, percentiles[i] + "%", Mode.INCL_LEFT));
-            }
-            	
+            if (upperBreak > lowerBreak) bins.add(new Interval(lowerBreak, upperBreak, percentiles[i] + "%"));
             
             lowerBreak = upperBreak;
         }
