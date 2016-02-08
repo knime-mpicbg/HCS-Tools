@@ -26,7 +26,7 @@ KW 6
 				reading in bins out of pmml port
 				calculate p-value for each sel. column with imported bin intervals
 				evaluates plausibility of sel. columns with p-Value
-				option to delete columns within a selected threshold
+				option to delete columns within a selected threshold of the p-Value
 
 
 KW 7
