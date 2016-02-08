@@ -3,7 +3,6 @@ Time		Description							Question			Status
 KW 4		
 		Converting Bins compatible to PMMLTranslator   							100%
 		Implement PMMLModel to Node									100%
-		
 		Improve View and using SettingsModelColumnFilter2						100%
 		Implenting executive procedure
 			Reading in and checking all Settings							100%
@@ -13,17 +12,17 @@ KW 5
 		Problems using SettingsModelColumnFilter2 - no access to selected columns			100%
 		Generating Bins											100%
 		Writing information (parameter, bin_total, bin_1..n) in tables					100%
-		Solved problems with ColumnFilter (Still no excluding List)					80%
-		Creating Superclass for Node Model			not necessary?				0%
-		handing over converted PMML bins 								80%
+		handing over converted PMML bins 								100%
 	
 
 KW 6
-		
-		Checking if possible to handover statistic with PMML						0%
-		Testing
-			
+		Solved problems with ColumnFilter (Still no excluding List)					80%
+		Problem with random input data - cell creating is not yet working				 0%
+		Problem with PMML Port - handing over not all bins						 0%
+
+
 KW 7
+		Checking if possible to handover statistic with PMML						0%
 		Create second table with statistically relevant information	Amount of Bins			0%
 										p-Value (Antje take care)
 										
