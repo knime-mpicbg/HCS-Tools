@@ -10,11 +10,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.dmg.pmml.TransformationDictionaryDocument.TransformationDictionary;
 import org.knime.base.node.preproc.autobinner.pmml.DisretizeConfiguration;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretize;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretizeBin;
+import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLPreprocDiscretize;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval.Closure;
+import org.knime.base.node.preproc.pmml.binner.NumericBin;
 import org.knime.base.node.preproc.pmml.binner.PMMLBinningTranslator;
 import org.knime.base.node.preproc.pmml.binner.BinnerColumnFactory.Bin;
 import org.knime.core.data.DataCell;
@@ -412,6 +415,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 				StatisticDataContainer.close();
 
+				
 
 				PMMLPortObject outPMMLPort = createPMMLModel(null, inSpec, inData.getDataTableSpec());
 				return new PortObject[]{StatisticDataContainer.getTable(), outPMMLPort};
@@ -501,7 +505,79 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				return op;
 			}
 
+			
+			public static PMMLPortObject translate(final PMMLPreprocDiscretize pmmlDiscretize,
+			        final DataTableSpec dataTableSpec) {
 
+			        final Map<String, Bin[]> columnToBins = new HashMap<>();
+			        final Map<String, String> columnToAppend = new HashMap<>();
+
+			        List<String> replacedColumnNames = pmmlDiscretize.getConfiguration().getNames();
+			        for (String replacedColumnName : replacedColumnNames) {
+			            PMMLDiscretize discretize = pmmlDiscretize.getConfiguration().getDiscretize(replacedColumnName);
+			            List<PMMLDiscretizeBin> bins = discretize.getBins();
+			            String originalColumnName = discretize.getField();
+
+			            if (replacedColumnName.equals(originalColumnName)) { // wenn replaced, dann nicht anhängen
+			                columnToAppend.put(originalColumnName, null);
+			            } else { // nicht replaced -> anhängen
+			                columnToAppend.put(originalColumnName, replacedColumnName);
+			            }
+
+			            NumericBin[] numericBin = new NumericBin[bins.size()];
+			            int counter = 0;
+			            for (PMMLDiscretizeBin bin : bins) {
+			                String binName = bin.getBinValue();
+			                List<PMMLInterval> intervals = bin.getIntervals();
+			                boolean leftOpen = false;
+			                boolean rightOpen = false;
+			                double leftMargin = 0;
+			                double rightMargin = 0;
+			                //always returns only one interval
+			                for (PMMLInterval interval : intervals) {
+			                    Closure closure = interval.getClosure();
+			                    switch (closure) {
+			                        case openClosed:
+			                            leftOpen = true;
+			                            rightOpen = false;
+			                            break;
+			                        case openOpen:
+			                            leftOpen = true;
+			                            rightOpen = true;
+			                            break;
+			                        case closedOpen:
+			                            leftOpen = false;
+			                            rightOpen = true;
+			                        case closedClosed:
+			                            leftOpen = false;
+			                            rightOpen = false;
+			                            break;
+			                        default:
+			                            leftOpen = true;
+			                            rightOpen = false;
+			                            break;
+			                    }
+			                    leftMargin = interval.getLeftMargin();
+			                    rightMargin = interval.getRightMargin();
+			                }
+
+			                numericBin[counter] = new NumericBin(binName, leftOpen, leftMargin, rightOpen, rightMargin);
+			                counter++;
+			            }
+			            columnToBins.put(originalColumnName, numericBin);
+			        }
+
+			        //ColumnRearranger createColReg = createColReg(dataTableSpec, columnToBins, columnToAppended);
+			
+			        PMMLPortObjectSpecCreator pmmlSpecCreator = new PMMLPortObjectSpecCreator(dataTableSpec);
+			        PMMLPortObject pmmlPortObject = new PMMLPortObject(pmmlSpecCreator.createSpec(), null, dataTableSpec);
+			        PMMLBinningTranslator trans =
+			            new PMMLBinningTranslator(columnToBins, columnToAppend, new DerivedFieldMapper(pmmlPortObject));
+			        TransformationDictionary exportToTransDict = trans.exportToTransDict();
+			        pmmlPortObject.addGlobalTransformations(exportToTransDict);
+			        return pmmlPortObject;
+
+			    }
 			/**
 			 * Creates the pmml port object.
 			 * @param the in-port pmml object. Can be <code>null</code> (optional in-port)
