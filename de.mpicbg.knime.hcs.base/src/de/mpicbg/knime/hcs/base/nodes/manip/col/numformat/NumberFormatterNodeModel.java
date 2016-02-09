@@ -22,6 +22,7 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
@@ -41,6 +42,9 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 
 	public static final String CFG_deleteSouceCol = "delete.source.column";
 	public static final String CFG_leadingCharacter = "leading.character";
+	
+	public static final String CFG_DECIMALS = "number.decimals";
+	public static final int CFG_DECIMALS_DFT = -1;
 
 	/**
 	 * Constructor for the node model.
@@ -54,6 +58,11 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 				createDelSourceCol());
 		addModelSetting(NumberFormatterNodeModel.CFG_leadingCharacter,
 				createleadingCharacter());
+		addModelSetting(CFG_DECIMALS, createDecimalSM());
+	}
+
+	public static SettingsModel createDecimalSM() {
+		return new SettingsModelIntegerBounded(CFG_DECIMALS, CFG_DECIMALS_DFT, -1, Integer.MAX_VALUE);
 	}
 
 	// store and retrieve values from - transport of values
@@ -135,6 +144,12 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		double[] MinMax = new double[2];
 		double maxTrailing = 0;
 		double maxLeading = Double.NEGATIVE_INFINITY;
+		int nDecimals = ((SettingsModelIntegerBounded) getModelSetting(CFG_DECIMALS)).getIntValue();
+		boolean estimateDecimals = (nDecimals == CFG_DECIMALS_DFT);
+		
+		if(!estimateDecimals)
+			MinMax[1] = nDecimals;
+		
 		for (DataRow row : inTable) {
 			if (row.getCell(idCol).isMissing()) {
 				continue;
@@ -156,18 +171,22 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			if (newValue > maxLeading)
 				maxLeading = newValue;
 
-			double[] splitted = getLength(newValue);
-			if (splitted[1] > maxTrailing) {
-
-				maxTrailing = splitted[1];
+			// set max trailing if not defined by node settings
+			if(estimateDecimals) {
+				double[] splitted = getLength(newValue);
+				if (splitted[1] > maxTrailing) {
+					maxTrailing = splitted[1];
+					MinMax[1] = maxTrailing;
+				}
 			}
+			
+			// set max leading
 			double[] Leading = new double[2];
 			Leading = getLength(maxLeading);
 
 			MinMax[0] = Leading[0];
-			MinMax[1] = maxTrailing;
-
 		}
+		
 		return MinMax;
 	}
 
