@@ -245,7 +245,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 				double lower = ((DoubleValue) domain.getLowerBound())
 						.getDoubleValue();
 
-				if (lower <= 0) {
+				if (lower < 0) {
 					throw new InvalidSettingsException(
 							"Negative values in the column");
 				}
