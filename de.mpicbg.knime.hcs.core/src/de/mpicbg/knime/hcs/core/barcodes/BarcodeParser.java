@@ -139,6 +139,9 @@ public class BarcodeParser {
 
 
     public String getGroup(String groupKey) {
+    	
+    	doesMatchPattern();
+    	
         if (barcodeMatcher.groupIndex(groupKey) == 0)
             return null;
 
