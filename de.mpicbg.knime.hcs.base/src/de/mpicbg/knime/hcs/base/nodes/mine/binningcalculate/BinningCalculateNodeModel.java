@@ -97,12 +97,21 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	/** Keeps index of the output port which is 0. */
 	static final int OUTPORT = 0;
 
+
+
 	public static final String CFG_COLUMN = "selectedCols";
 
 
 
 	private final Map<String, Bin[]> m_columnToBins =
 			new HashMap<String, Bin[]>();
+			
+			private Map<String, List<PMMLDiscretizeBin>>  m_binMap =
+					new HashMap<String, List<PMMLDiscretizeBin>>();	
+			
+	
+						
+					
 
 			private final Map<String, String> m_columnToAppended =
 					new HashMap<String, String>();
@@ -280,6 +289,8 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				 * 
 				 */
 
+				List<PMMLDiscretizeBin>  pmml_DicretizeBins =  new ArrayList<PMMLDiscretizeBin>();
+				
 				// gets the selected Columns in the dialog on by one
 				for (String col : selectedCols) {
 
@@ -293,6 +304,8 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 					HashMap<Object, List<Double>> refData = new HashMap<Object, List<Double>>();
 					HashMap<Object, List<Double>> allData = new HashMap<Object, List<Double>>();
 
+					
+					
 
 
 					for (DataRow row : inData) {
@@ -369,6 +382,10 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 					// do the binning analysis on the collected data
 					BinningAnalysis binAnalysis = new BinningAnalysis(refData, nBins, col);
 					LinkedList<Interval> bins = binAnalysis.getBins();
+					
+					PMMLDiscretizeBin pmmlBin = ConvBinFormate(col, bins);
+					pmml_DicretizeBins.add(pmmlBin);
+					
 					//HashMap<Object, List<BinningData>> ret = binAnalysis.getZscore(allData);
 
 					// fill binning data into the new table
@@ -376,7 +393,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 					List<DataCell> cells = new ArrayList<DataCell>();
 
-
+					
 
 
 					if(bins.size() > 0){
@@ -400,7 +417,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 					}
 					else{continue;}
 
-
+					
 
 					DataRow currentRow = new DefaultRow(new RowKey(Integer.toString(rowCount)), cells);
 					StatisticDataContainer.addRowToTable(currentRow);
@@ -412,12 +429,15 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 					exec.setProgress(progress, "Binning done for parameter " + col + " (" + i + "/" + n + ")");
 
 				}
-
+				
+				
+				m_binMap.put("binning_1", pmml_DicretizeBins);
 				StatisticDataContainer.close();
 
 				
-
-				PMMLPortObject outPMMLPort = createPMMLModel(null, inSpec, inData.getDataTableSpec());
+				PMMLPreprocDiscretize pmmlDiscretize = createDisretizeOp(m_binMap, selectedCols);
+				PMMLPortObject pmmlPortObject = translate(pmmlDiscretize, inSpec);
+				PMMLPortObject outPMMLPort = createPMMLModel(pmmlPortObject, inSpec, inData.getDataTableSpec());
 				return new PortObject[]{StatisticDataContainer.getTable(), outPMMLPort};
 			}
 
@@ -456,31 +476,28 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 
 
-			private Map<String, List<PMMLDiscretizeBin>> ConvBinFormate(LinkedList<Interval> Bins) 
+			private PMMLDiscretizeBin ConvBinFormate(String col, LinkedList<Interval> bins) 
 			{
 
-				// 
-				Map<String, List<PMMLDiscretizeBin>> binMap = new HashMap<String, List<PMMLDiscretizeBin>>();
+				
 
-				List<PMMLDiscretizeBin> PMMLDiscretBins = new ArrayList<PMMLDiscretizeBin>();
+				List<PMMLInterval> PMMLIntervals = new ArrayList<PMMLInterval>();
 				int count = 0;           
-				for(Interval Bin : Bins	)
+				for(Interval bin : bins	)
 				{
 
-					double lbound = Bin.getLowerBound();
-					double ubound = Bin.getLowerBound();
+					double lbound = bin.getLowerBound();
+					double ubound = bin.getLowerBound();
 
-					if(count == Bins.size() - 1)
+					if(count == bins.size() - 1)
 					{
-						PMMLDiscretBins.add(new PMMLDiscretizeBin("Bin_" + count,
-								Arrays.asList(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedClosed))));
+						PMMLIntervals.add(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedClosed));
 					}
 
-					PMMLDiscretBins.add(new PMMLDiscretizeBin("Bin_" + count,
-							Arrays.asList(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedOpen))));
+					PMMLIntervals.add(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedOpen));
 				}
-
-				return binMap;
+				PMMLDiscretizeBin discretizeBin = new PMMLDiscretizeBin(col, PMMLIntervals);
+				return discretizeBin;
 			}
 
 
@@ -505,79 +522,82 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				return op;
 			}
 
-			
+
 			public static PMMLPortObject translate(final PMMLPreprocDiscretize pmmlDiscretize,
-			        final DataTableSpec dataTableSpec) {
+					final DataTableSpec dataTableSpec) {
 
-			        final Map<String, Bin[]> columnToBins = new HashMap<>();
-			        final Map<String, String> columnToAppend = new HashMap<>();
+				final Map<String, Bin[]> columnToBins = new HashMap<>();
+				final Map<String, String> columnToAppend = new HashMap<>();
 
-			        List<String> replacedColumnNames = pmmlDiscretize.getConfiguration().getNames();
-			        for (String replacedColumnName : replacedColumnNames) {
-			            PMMLDiscretize discretize = pmmlDiscretize.getConfiguration().getDiscretize(replacedColumnName);
-			            List<PMMLDiscretizeBin> bins = discretize.getBins();
-			            String originalColumnName = discretize.getField();
-
-			            if (replacedColumnName.equals(originalColumnName)) { // wenn replaced, dann nicht anhängen
-			                columnToAppend.put(originalColumnName, null);
-			            } else { // nicht replaced -> anhängen
-			                columnToAppend.put(originalColumnName, replacedColumnName);
-			            }
-
-			            NumericBin[] numericBin = new NumericBin[bins.size()];
-			            int counter = 0;
-			            for (PMMLDiscretizeBin bin : bins) {
-			                String binName = bin.getBinValue();
-			                List<PMMLInterval> intervals = bin.getIntervals();
-			                boolean leftOpen = false;
-			                boolean rightOpen = false;
-			                double leftMargin = 0;
-			                double rightMargin = 0;
-			                //always returns only one interval
-			                for (PMMLInterval interval : intervals) {
-			                    Closure closure = interval.getClosure();
-			                    switch (closure) {
-			                        case openClosed:
-			                            leftOpen = true;
-			                            rightOpen = false;
-			                            break;
-			                        case openOpen:
-			                            leftOpen = true;
-			                            rightOpen = true;
-			                            break;
-			                        case closedOpen:
-			                            leftOpen = false;
-			                            rightOpen = true;
-			                        case closedClosed:
-			                            leftOpen = false;
-			                            rightOpen = false;
-			                            break;
-			                        default:
-			                            leftOpen = true;
-			                            rightOpen = false;
-			                            break;
-			                    }
-			                    leftMargin = interval.getLeftMargin();
-			                    rightMargin = interval.getRightMargin();
-			                }
-
-			                numericBin[counter] = new NumericBin(binName, leftOpen, leftMargin, rightOpen, rightMargin);
-			                counter++;
-			            }
-			            columnToBins.put(originalColumnName, numericBin);
-			        }
-
-			        //ColumnRearranger createColReg = createColReg(dataTableSpec, columnToBins, columnToAppended);
+				List<String> replacedColumnNames = pmmlDiscretize.getConfiguration().getNames();
 			
-			        PMMLPortObjectSpecCreator pmmlSpecCreator = new PMMLPortObjectSpecCreator(dataTableSpec);
-			        PMMLPortObject pmmlPortObject = new PMMLPortObject(pmmlSpecCreator.createSpec(), null, dataTableSpec);
-			        PMMLBinningTranslator trans =
-			            new PMMLBinningTranslator(columnToBins, columnToAppend, new DerivedFieldMapper(pmmlPortObject));
-			        TransformationDictionary exportToTransDict = trans.exportToTransDict();
-			        pmmlPortObject.addGlobalTransformations(exportToTransDict);
-			        return pmmlPortObject;
+				for (String replacedColumnName : replacedColumnNames) {
+					PMMLDiscretize discretize = pmmlDiscretize.getConfiguration().getDiscretize(replacedColumnName);
+					List<PMMLDiscretizeBin> bins = discretize.getBins();
+					String originalColumnName = discretize.getField();
 
-			    }
+					if (replacedColumnName.equals(originalColumnName)) { // wenn replaced, dann nicht anhängen
+						columnToAppend.put(originalColumnName, null);
+					} else { // nicht replaced -> anhängen
+						columnToAppend.put(originalColumnName, replacedColumnName);
+					}
+
+					
+					NumericBin[] numericBin = new NumericBin[bins.size()];
+					int counter = 0;
+					for (PMMLDiscretizeBin bin : bins) {
+						String binName = bin.getBinValue();
+						List<PMMLInterval> intervals = bin.getIntervals();
+						boolean leftOpen = false;
+						boolean rightOpen = false;
+						double leftMargin = 0;
+						double rightMargin = 0;
+						//always returns only one interval
+						for (PMMLInterval interval : intervals) {
+							Closure closure = interval.getClosure();
+							switch (closure) {
+							case openClosed:
+								leftOpen = true;
+								rightOpen = false;
+								break;
+							case openOpen:
+								leftOpen = true;
+								rightOpen = true;
+								break;
+							case closedOpen:
+								leftOpen = false;
+								rightOpen = true;
+							case closedClosed:
+								leftOpen = false;
+								rightOpen = false;
+								break;
+							default:
+								leftOpen = true;
+								rightOpen = false;
+								break;
+							}
+							leftMargin = interval.getLeftMargin();
+							rightMargin = interval.getRightMargin();
+						}
+
+						numericBin[counter] = new NumericBin(binName, leftOpen, leftMargin, rightOpen, rightMargin);
+						counter++;
+					}
+				
+					columnToBins.put(originalColumnName, numericBin);
+				}
+
+				//ColumnRearranger createColReg = createColReg(dataTableSpec, columnToBins, columnToAppended);
+
+				PMMLPortObjectSpecCreator pmmlSpecCreator = new PMMLPortObjectSpecCreator(dataTableSpec);
+				PMMLPortObject pmmlPortObject = new PMMLPortObject(pmmlSpecCreator.createSpec(), null, dataTableSpec);
+				PMMLBinningTranslator trans =
+						new PMMLBinningTranslator(columnToBins, columnToAppend, new DerivedFieldMapper(pmmlPortObject));
+				TransformationDictionary exportToTransDict = trans.exportToTransDict();
+				pmmlPortObject.addGlobalTransformations(exportToTransDict);
+				return pmmlPortObject;
+
+			}
 			/**
 			 * Creates the pmml port object.
 			 * @param the in-port pmml object. Can be <code>null</code> (optional in-port)
@@ -591,10 +611,10 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				return outputPMMLPort;
 			}
 
-			
-			 /*public static PMMLPortObject translate(final PMMLPreprocDiscretize pmmlDiscretize,
+
+			/*public static PMMLPortObject translate(final PMMLPreprocDiscretize pmmlDiscretize,
 				        final DataTableSpec dataTableSpec) {
-				 
+
 			 }*/
 
 			/**
