@@ -19,9 +19,18 @@ KW 6
 		Solved problems with ColumnFilter (Still no excluding List)					80%
 		Problem with random input data - cell creating is not yet working				 0%
 		Problem with PMML Port - handing over not all bins						 0%
+		Creating new Node: Binning QC									 0%
+			Ports: 	input -> input data (table), pmml
+				output -> new table, pmml?
+			Features:
+				reading in bins out of pmml port
+				calculate p-value for each sel. column with imported bin intervals
+				evaluates plausibility of sel. columns with p-Value
+				option to delete columns within a selected threshold of the p-Value
 
 
 KW 7
+		
 		Checking if possible to handover statistic with PMML						0%
 		Create second table with statistically relevant information	Amount of Bins			0%
 										p-Value (Antje take care)
