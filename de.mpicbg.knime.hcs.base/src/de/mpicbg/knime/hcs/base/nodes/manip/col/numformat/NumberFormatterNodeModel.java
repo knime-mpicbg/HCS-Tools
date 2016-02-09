@@ -259,16 +259,18 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			}
 
 		} else {
+			//if a lower bound is available make sure it is not < 0
 			DataColumnDomain domain = tSpec.getColumnSpec(idCol).getDomain();
 			if (domain != null) {
-				double lower = ((DoubleValue) domain.getLowerBound())
-						.getDoubleValue();
-
-				if (lower < 0) {
-					throw new InvalidSettingsException(
-							"Negative values in the column");
+				if(domain.getLowerBound() != null) {
+					double lower = ((DoubleValue) domain.getLowerBound())
+							.getDoubleValue();
+	
+					if (lower < 0) {
+						throw new InvalidSettingsException(
+								"Negative values in the column");
+					}
 				}
-
 			}
 		}
 
