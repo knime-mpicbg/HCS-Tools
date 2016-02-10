@@ -500,7 +500,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 					List<PMMLInterval> PMMLIntervals = new ArrayList<PMMLInterval>();
 
 					double lbound = bin.getLowerBound();
-					double ubound = bin.getLowerBound();
+					double ubound = bin.getUpperBound();
 					
 					// finding the last bin and closing it - else using always closedOpen
 					if(count == bins.size() - 1)
