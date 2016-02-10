@@ -85,10 +85,7 @@ public class BinningCalculateNodeDialog extends AbstractConfigDialog {
     @SuppressWarnings("unchecked")
     protected void createControls() {
 
-        // Group data by
-        addDialogComponent(new DialogComponentColumnNameSelection(BinningCalculateNodeModel.createAggregationSelectionModel(), "Aggregate object data by", 0,
-                true, false, new Class[]{org.knime.core.data.StringValue.class}));
-
+       
       
         
         // numerical column selection component

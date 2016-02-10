@@ -74,40 +74,7 @@ public class BinningAnalysis {
     }
  
     
-   /*
-    private Map<String, List<PMMLDiscretizeBin>> ConvBinFormate() 
-    {
-    	
-    	
-    	// Getting generate Bins 
-    	LinkedList<Interval> Bins = getBins();
-    	
-    	// 
-    	Map<String, List<PMMLDiscretizeBin>> binMap = new HashMap<String, List<PMMLDiscretizeBin>>();
-    	
-    	List<PMMLDiscretizeBin> PMMLDiscretBins = new ArrayList<PMMLDiscretizeBin>();
-    	int count = 0;           
-    	for(Interval Bin : Bins	)
-    	{
-    		
-    		double lbound = Bin.getLowerBound();
-    		double ubound = Bin.getLowerBound();
-    		
-    		if(count == Bins.size() - 1)
-    		{
-    			PMMLDiscretBins.add(new PMMLDiscretizeBin("Bin_" + count,
-                        Arrays.asList(new PMMLInterval(lbound, ubound,Closure.closedClosed))));
-    		}
-    		    		
-    		PMMLDiscretBins.add(new PMMLDiscretizeBin("Bin_" + count,
-                         Arrays.asList(new PMMLInterval(lbound, ubound,Closure.closedOpen))));
-        }
-    	
-    	return binMap;
-    }
-*/
-
-    private void createBins() {
+      private void createBins() {
         double[] percentiles = new double[nBins + 1];
 
         double delta = (double) 100 / nBins;

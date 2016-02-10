@@ -524,31 +524,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			
 			
 
-			private PMMLDiscretizeBin ConvBinFormate(String col, LinkedList<Interval> bins) 
-			{
-
-				
-
-				List<PMMLInterval> PMMLIntervals = new ArrayList<PMMLInterval>();
-				int count = 0;           
-				for(Interval bin : bins	)
-				{
-
-					double lbound = bin.getLowerBound();
-					double ubound = bin.getLowerBound();
-					
 			
-
-					if(count == bins.size() - 1)
-					{
-						PMMLIntervals.add(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedClosed));
-					}
-
-					PMMLIntervals.add(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedOpen));
-				}
-				PMMLDiscretizeBin discretizeBin = new PMMLDiscretizeBin("test", PMMLIntervals);
-				return discretizeBin;
-			}
 
 
 			@SuppressWarnings("unused")
