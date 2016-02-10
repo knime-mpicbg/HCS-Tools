@@ -309,49 +309,36 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			public DataCell getCell(DataRow row) {
 
 				DataCell dcell0 = row.getCell(idCol);
+				// check if value is missing
 				if (dcell0.isMissing()) {
-					return DataType.getMissingCell(); // check if value is
-														// missed
+					return DataType.getMissingCell(); 
 				}
 				double positivevalue = 0;
 				if (nameColumnType == 1) { // if string data type
-
-					String value = ((StringValue) dcell0).getStringValue(); // get
-																			// value
-																			// of
-																			// each
-																			// row
+					// get value of each row
+					String value = ((StringValue) dcell0).getStringValue(); 
 					try {
-						positivevalue = Double.parseDouble(value); // check if
-																	// can be
-																	// parse to
-																	// double
-					} catch (NumberFormatException e) { // if not its not
-														// numeric
-						errorCounter_nnum.incrementAndGet();// increase
-															// atomicinteger
-															// strong not a
-															// number
+						// check if can be parse to double
+						positivevalue = Double.parseDouble(value); 
+					// if it's not numeric
+					} catch (NumberFormatException e) { 
+						// increase atomicinteger string not a number
+						errorCounter_nnum.incrementAndGet();
 					}
-					if (positivevalue < 0) { // checj if this string is below
-												// zero
-						errorCounter_neg.incrementAndGet();// increase
-															// atomicinteger
-															// values below zero
+					// check if this string is below zero
+					if (positivevalue < 0) { 
+						// increase atomicinteger values below zero
+						errorCounter_neg.incrementAndGet();
 						return DataType.getMissingCell();
 					} // make a ? instead negative value
+					
 				} else { // is numeric
-					Double value1 = ((DoubleValue) dcell0).getDoubleValue(); // get
-																				// the
-																				// double
-																				// value
-																				// of
-																				// each
-																				// row
-					if (value1 < 0) { // check if it is more than zero
-						errorCounter_neg.incrementAndGet();// increase
-															// atomicinteger
-															// values below zero
+					// get the double value of each row
+					Double value1 = ((DoubleValue) dcell0).getDoubleValue(); 
+					// check if it is more than zero
+					if (value1 < 0) { 
+						// increase atomicinteger values below zero
+						errorCounter_neg.incrementAndGet();
 						return DataType.getMissingCell();
 					}
 				}
@@ -393,25 +380,13 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 					String leading_char = ((SettingsModelString) getModelSetting(CFG_leadingCharacter))
 							.getStringValue();
 					number = leading_char + number;
-					// a string can not be compered to integer
-					/*
-					 * if (leading_char.equals("0")){ number = "0" +
-					 * leading_char; } else if (leading_char.equals(" ") ){
-					 * number = " " + leading_char;
-					 * 
-					 * }else if (leading_char.equals("_")){
-					 * 
-					 * number = "_" + leading_char; }
-					 */
 				}
 
 				for (int i = 0; i < nTrailing; i++)
 					number = number + "0";
 
 				return new StringCell(number);
-
 			}
-
 		};
 		c.append(factory);
 		return c;
