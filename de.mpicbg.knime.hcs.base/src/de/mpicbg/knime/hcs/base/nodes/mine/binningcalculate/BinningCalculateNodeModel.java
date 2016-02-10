@@ -10,10 +10,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.dmg.pmml.TransformationDictionaryDocument.TransformationDictionary;
 import org.knime.base.node.preproc.autobinner.pmml.DisretizeConfiguration;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretize;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretizeBin;
+import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretizePreprocPortObjectSpec;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLPreprocDiscretize;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval.Closure;
@@ -51,6 +53,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.pmml.PMMLPortObject;
 import org.knime.core.node.port.pmml.PMMLPortObjectSpecCreator;
 import org.knime.core.node.port.pmml.preproc.DerivedFieldMapper;
+import org.knime.core.node.port.pmml.preproc.PMMLPreprocPortObjectSpec;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
 
 import de.mpicbg.knime.hcs.core.TdsUtils;
@@ -187,20 +190,6 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			}
 
 
-
-
-
-
-			private void initializeSettings() {
-				this.addModelSetting(CFG_AGGR, createAggregationSelectionModel());
-				this.addModelSetting(CFG_BIN, createBinSelectionModel());
-				this.addModelSetting(CFG_REFCOLUMN, createRefColumnSelectionModel());
-				this.addModelSetting(CFG_REFSTRING, createRefStringSelectionModel());
-
-
-
-			}
-
 			static SettingsModelColumnFilter2 createAggregationColsModel() {
 				return new SettingsModelColumnFilter2("aggregationColumns");
 			}
@@ -219,6 +208,24 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				return new SettingsModelBoolean("removeRetainedColumns", false);
 			}
 
+
+
+			  private PMMLPreprocPortObjectSpec m_pmmlOutSpec;
+			
+			
+
+
+			private void initializeSettings() {
+				this.addModelSetting(CFG_AGGR, createAggregationSelectionModel());
+				this.addModelSetting(CFG_BIN, createBinSelectionModel());
+				this.addModelSetting(CFG_REFCOLUMN, createRefColumnSelectionModel());
+				this.addModelSetting(CFG_REFSTRING, createRefStringSelectionModel());
+
+
+
+			}
+
+			
 
 			@Override
 			protected PortObject[] execute(final PortObject[] inPorts,
@@ -289,10 +296,13 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				 * 
 				 */
 
-				List<PMMLDiscretizeBin>  pmml_DicretizeBins =  new ArrayList<PMMLDiscretizeBin>();
+				
 				
 				// gets the selected Columns in the dialog on by one
 				for (String col : selectedCols) {
+					
+					// One PMMLDiscretizeBin contains one bin for a single column - therefore we need a List of all bins
+					List<PMMLDiscretizeBin>  pmml_DicretizeBins =  new ArrayList<PMMLDiscretizeBin>();
 
 					//delivers the index of the column to get the cell 
 					int colIdx = inSpec.findColumnIndex(col);
@@ -382,19 +392,12 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 					// do the binning analysis on the collected data
 					BinningAnalysis binAnalysis = new BinningAnalysis(refData, nBins, col);
 					LinkedList<Interval> bins = binAnalysis.getBins();
-					
-					PMMLDiscretizeBin pmmlBin = ConvBinFormate(col, bins);
-					pmml_DicretizeBins.add(pmmlBin);
-					
-					//HashMap<Object, List<BinningData>> ret = binAnalysis.getZscore(allData);
-
+					List<PMMLDiscretizeBin> DiscretizeBins = DiscretizeBins(bins);
+					m_binMap.put(col, DiscretizeBins);
 					// fill binning data into the new table
 
 
 					List<DataCell> cells = new ArrayList<DataCell>();
-
-					
-
 
 					if(bins.size() > 0){
 						cells.add(new StringCell(col));
@@ -403,6 +406,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 						for(i= 0; i < (bins.size()); i++)
 						{
 							cells.add(new IntervalCell(bins.get(i).getLowerBound(),bins.get(i).getUpperBound(), bins.get(i).checkModeLowerBound(), bins.get(i).checkModeUpperBound()));
+							
 
 						}
 
@@ -427,18 +431,23 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 					progress = progress + 1.0 / n;
 					i++;
 					exec.setProgress(progress, "Binning done for parameter " + col + " (" + i + "/" + n + ")");
+					
 
 				}
 				
 				
-				m_binMap.put("binning_1", pmml_DicretizeBins);
+				
 				StatisticDataContainer.close();
 
-				
+				// not in use
 				PMMLPreprocDiscretize pmmlDiscretize = createDisretizeOp(m_binMap, selectedCols);
+				//m_pmmlOutSpec = new PMMLDiscretizePreprocPortObjectSpec(pmmlDiscretize);
+				//
+				
+				
 				PMMLPortObject pmmlPortObject = translate(pmmlDiscretize, inSpec);
 				PMMLPortObject outPMMLPort = createPMMLModel(pmmlPortObject, inSpec, inData.getDataTableSpec());
-				return new PortObject[]{StatisticDataContainer.getTable(), outPMMLPort};
+				return new PortObject[]{StatisticDataContainer.getTable(), pmmlPortObject};
 			}
 
 
@@ -474,7 +483,46 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			}
 
 
+			
+			private List<PMMLDiscretizeBin> DiscretizeBins(LinkedList<Interval> bins) 
+			{
 
+				// List of all discretize bins with information of label and interval
+				List<PMMLDiscretizeBin> PMMLBins = new ArrayList<PMMLDiscretizeBin>();
+				
+				// counter for finding last bin
+				int count = 0;    
+				
+				// Iterates through all bins
+				for(Interval bin : bins	)
+				{
+					// List of PMML intervals
+					List<PMMLInterval> PMMLIntervals = new ArrayList<PMMLInterval>();
+
+					double lbound = bin.getLowerBound();
+					double ubound = bin.getLowerBound();
+					
+					// finding the last bin and closing it - else using always closedOpen
+					if(count == bins.size() - 1)
+					{
+						PMMLIntervals.add(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedClosed));
+					}
+					else
+					{
+						PMMLIntervals.add(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedOpen));
+						count++;
+					}
+					
+					PMMLBins.add(new PMMLDiscretizeBin(bin.getLabel(), PMMLIntervals));
+				}
+				
+				
+				
+				return PMMLBins;
+			}
+			
+			
+			
 
 			private PMMLDiscretizeBin ConvBinFormate(String col, LinkedList<Interval> bins) 
 			{
@@ -488,6 +536,8 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 					double lbound = bin.getLowerBound();
 					double ubound = bin.getLowerBound();
+					
+			
 
 					if(count == bins.size() - 1)
 					{
@@ -496,7 +546,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 					PMMLIntervals.add(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedOpen));
 				}
-				PMMLDiscretizeBin discretizeBin = new PMMLDiscretizeBin(col, PMMLIntervals);
+				PMMLDiscretizeBin discretizeBin = new PMMLDiscretizeBin("test", PMMLIntervals);
 				return discretizeBin;
 			}
 
@@ -567,6 +617,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 							case closedOpen:
 								leftOpen = false;
 								rightOpen = true;
+								break;
 							case closedClosed:
 								leftOpen = false;
 								rightOpen = false;
@@ -582,6 +633,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 						numericBin[counter] = new NumericBin(binName, leftOpen, leftMargin, rightOpen, rightMargin);
 						counter++;
+						
 					}
 				
 					columnToBins.put(originalColumnName, numericBin);
@@ -595,9 +647,13 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 						new PMMLBinningTranslator(columnToBins, columnToAppend, new DerivedFieldMapper(pmmlPortObject));
 				TransformationDictionary exportToTransDict = trans.exportToTransDict();
 				pmmlPortObject.addGlobalTransformations(exportToTransDict);
+				
+				
+				
 				return pmmlPortObject;
 
 			}
+			
 			/**
 			 * Creates the pmml port object.
 			 * @param the in-port pmml object. Can be <code>null</code> (optional in-port)
