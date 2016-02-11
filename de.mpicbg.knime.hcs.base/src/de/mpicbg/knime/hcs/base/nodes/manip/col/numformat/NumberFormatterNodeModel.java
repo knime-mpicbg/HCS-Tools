@@ -1,5 +1,7 @@
 package de.mpicbg.knime.hcs.base.nodes.manip.col.numformat;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -61,6 +63,10 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		addModelSetting(CFG_DECIMALS, createDecimalSM());
 	}
 
+	/**
+	 * setting model for number of decimals
+	 * @return
+	 */
 	public static SettingsModel createDecimalSM() {
 		return new SettingsModelIntegerBounded(CFG_DECIMALS, CFG_DECIMALS_DFT, -1, Integer.MAX_VALUE);
 	}
@@ -91,26 +97,20 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		String conColumn = null;
 
 		if (getModelSetting(CFG_ConcentrationColumn) != null)
-			conColumn = ((SettingsModelString) getModelSetting(CFG_ConcentrationColumn))
-					.getStringValue();
+			conColumn = ((SettingsModelString) getModelSetting(CFG_ConcentrationColumn)).getStringValue();
 
-		int idCol = tSpec.findColumnIndex(conColumn); // take an id of a column
-														// with concentration
-														// name
-		DataColumnSpec cSpec = inData[0].getDataTableSpec()
-				.getColumnSpec(idCol); // get column specification of conColumn
-										// that have concentration data
-		// DataColumnDomain domain = cSpec.getDomain();
+		// take an id of a column with concentration name
+		int idCol = tSpec.findColumnIndex(conColumn); 
+		// get column specification of conColumn that have concentration data
+		DataColumnSpec cSpec = inData[0].getDataTableSpec().getColumnSpec(idCol); 
 
-		// minmax - find how many zeros before and after dot need to be added
-
-		double[] MinMax = new double[2]; // create an arrey, 2 columns
-		MinMax = findMinMax(inData[0], idCol, checkForDataType(cSpec));
+		NumberFormatSettings nf = getFormatSettings(inData[0], idCol, checkForDataType(cSpec));
+			
 		AtomicInteger neg = new AtomicInteger();
 		AtomicInteger nnum = new AtomicInteger();
 
 		ColumnRearranger c = createColumnRearranger(
-				inData[0].getDataTableSpec(), idCol, null, MinMax,
+				inData[0].getDataTableSpec(), idCol, null, nf,
 				checkForDataType(cSpec), nnum, neg);
 
 		if (((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol))
@@ -139,55 +139,57 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 	}
 
 	/** find how many digits you need to add before and after dot */
-	private double[] findMinMax(BufferedDataTable inTable, int idCol,
+	private NumberFormatSettings getFormatSettings(BufferedDataTable inTable, int idCol,
 			int namecolumntype) {
-		double[] MinMax = new double[2];
-		double maxTrailing = 0;
-		double maxLeading = Double.NEGATIVE_INFINITY;
+		NumberFormatSettings nf = new NumberFormatSettings();
+		nf.setAsWholeNumber(true);
+		nf.setNLeading(1);
+		nf.setNTrailing(0);
+
 		int nDecimals = ((SettingsModelIntegerBounded) getModelSetting(CFG_DECIMALS)).getIntValue();
 		boolean estimateDecimals = (nDecimals == CFG_DECIMALS_DFT);
-		
-		if(!estimateDecimals)
-			MinMax[1] = nDecimals;
-		
+
 		for (DataRow row : inTable) {
 			if (row.getCell(idCol).isMissing()) {
 				continue;
 			}
-			double newValue;
+			
+			// retrieve double value from cell
+			double value;
 			if (namecolumntype == 0) {
-
-				newValue = ((DoubleValue) row.getCell(idCol)).getDoubleValue();
-
+				value = ((DoubleValue) row.getCell(idCol)).getDoubleValue();
 			} else {
 				try {
-					newValue = Double
-							.parseDouble(row.getCell(idCol).toString());
+					value = Double.parseDouble(row.getCell(idCol).toString());
 				} catch (NumberFormatException e) {
 					continue;
 				}
 			}
-
-			if (newValue > maxLeading)
-				maxLeading = newValue;
-
-			// set max trailing if not defined by node settings
-			if(estimateDecimals) {
-				double[] splitted = getLength(newValue);
-				if (splitted[1] > maxTrailing) {
-					maxTrailing = splitted[1];
-					MinMax[1] = maxTrailing;
-				}
-			}
 			
-			// set max leading
-			double[] Leading = new double[2];
-			Leading = getLength(maxLeading);
+			// split number into integer-part and decimal-part
+			String[] splitted = splitNumber(value);
+			boolean hasDecimal = splitted.length > 1;
+			if(hasDecimal) 
+				if(!splitted[1].equals("0"))
+					nf.setAsWholeNumber(false);
 
-			MinMax[0] = Leading[0];
+			// get length of both parts
+			int nLeading = splitted[0].length();
+			int nTrailing = hasDecimal ? splitted[1].length() : 0;
+			
+			// replace leading/trailing if necessary
+			if(nLeading > nf.getNLeading())
+				nf.setNLeading(nLeading);
+			if(nTrailing > nf.getNTrailing())
+				nf.setNTrailing(nTrailing);
 		}
 		
-		return MinMax;
+		if(!estimateDecimals) {
+			nf.setNTrailing(nDecimals);
+			nf.setAsWholeNumber(false);
+		}
+
+		return nf;
 	}
 
 	/**
@@ -219,39 +221,31 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 
 		int idCol = tSpec.findColumnIndex(conColumn);
 
-		DataColumnSpec cSpec = tSpec.getColumnSpec(idCol); // new column spec
-															// base on column id
-		if (checkForDataType(cSpec) == 1) // check if this is string (based on
-											// the function checkForDataType
+		// new column spec based on column id
+		DataColumnSpec cSpec = tSpec.getColumnSpec(idCol); 
+		// check if this is string (based on the function checkForDataType
+		if (checkForDataType(cSpec) == 1) 
 		{
-			if (cSpec.getDomain() != null) { // if domain is not null
-				Set<DataCell> domVals = cSpec.getDomain().getValues(); // check
-																		// first
-																		// that
-																		// getValues
-																		// is a
-																		// Set,
-																		// thats
-																		// why
-																		// we do
-																		// Set<DataCell>
-				// here we get a set of data that is present in domains. the set
-				// is called domVals
+			// if domain is not null
+			if (cSpec.getDomain() != null) { 
+				
+				// check first that getValues is a Set, thats why we do Set<DataCell>
+				// here we get a set of data that is present in domains. the set is called domVals
+				Set<DataCell> domVals = cSpec.getDomain().getValues(); 
 				if (domVals != null) { //
 					int nNumericStrings = 0;
-					for (DataCell cell : domVals) { // iteration for all data
-													// set
+					// iteration for all data set
+					for (DataCell cell : domVals) { 
 						try {
-							Double.parseDouble(((StringValue) cell)
-									.getStringValue()); // try to parse it to
-														// double
-							nNumericStrings++; // this is number of successfully
-												// converted values
+							// try to parse it to double
+							Double.parseDouble(((StringValue) cell).getStringValue()); 
+							// this is number of successfully converted values
+							nNumericStrings++; 
 						} catch (NumberFormatException e) {
 						}
 					}
-					if (nNumericStrings == 0) { // if any number converted throw
-												// an error
+					// if any number converted throw an error
+					if (nNumericStrings == 0) { 
 						throw new InvalidSettingsException(
 								"Selected column does not contain any numeric values");
 					}
@@ -275,7 +269,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		}
 
 		ColumnRearranger c = createColumnRearranger(in[0], idCol, null,
-				new double[2], checkForDataType(tSpec.getColumnSpec(idCol)),
+				null, checkForDataType(tSpec.getColumnSpec(idCol)),
 				null, null); // why null there?
 		// assume its always string - forcing
 		if (((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol))
@@ -290,7 +284,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 
 	/** create new column */
 	private ColumnRearranger createColumnRearranger(final DataTableSpec inSpec,
-			final Integer idCol, final Integer idRow, final double[] MinMax,
+			final Integer idCol, final Integer idRow, final NumberFormatSettings nf,
 			final int nameColumnType, final AtomicInteger errorCounter_nnum,
 			final AtomicInteger errorCounter_neg) {
 		ColumnRearranger c = new ColumnRearranger(inSpec);
@@ -298,35 +292,37 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		
 		String newColName = inSpec.getColumnSpec(idCol).getName() + " (formatted)";
 		newColName = DataTableSpec.getUniqueColumnName(inSpec, newColName);
+		
+		String leading_char = ((SettingsModelString) getModelSetting(CFG_leadingCharacter)).getStringValue();
+		int decimalsSetting = ((SettingsModelIntegerBounded) getModelSetting(CFG_DECIMALS)).getIntValue();
 
 		DataColumnSpec newColSpec = new DataColumnSpecCreator(newColName, StringCell.TYPE)
 				.createSpec();
-
-		final DataType dType = inSpec.getColumnSpec(idCol).getType();
 
 		CellFactory factory = new SingleCellFactory(newColSpec) {
 			@Override
 			public DataCell getCell(DataRow row) {
 
 				DataCell dcell0 = row.getCell(idCol);
+				double doubleValue;
 				// check if value is missing
 				if (dcell0.isMissing()) {
 					return DataType.getMissingCell(); 
 				}
-				double positivevalue = 0;
 				if (nameColumnType == 1) { // if string data type
 					// get value of each row
 					String value = ((StringValue) dcell0).getStringValue(); 
 					try {
 						// check if can be parse to double
-						positivevalue = Double.parseDouble(value); 
+						doubleValue = Double.parseDouble(value); 
 					// if it's not numeric
 					} catch (NumberFormatException e) { 
 						// increase atomicinteger string not a number
 						errorCounter_nnum.incrementAndGet();
+						return DataType.getMissingCell(); 
 					}
 					// check if this string is below zero
-					if (positivevalue < 0) { 
+					if (doubleValue < 0) { 
 						// increase atomicinteger values below zero
 						errorCounter_neg.incrementAndGet();
 						return DataType.getMissingCell();
@@ -334,58 +330,48 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 					
 				} else { // is numeric
 					// get the double value of each row
-					Double value1 = ((DoubleValue) dcell0).getDoubleValue(); 
+					doubleValue = ((DoubleValue) dcell0).getDoubleValue(); 
 					// check if it is more than zero
-					if (value1 < 0) { 
+					if (doubleValue < 0) { 
 						// increase atomicinteger values below zero
 						errorCounter_neg.incrementAndGet();
 						return DataType.getMissingCell();
 					}
 				}
-
-				double ConvData0;
-
-				if (nameColumnType == 0) {
-					ConvData0 = ((DoubleValue) dcell0).getDoubleValue();
-				} else {
-					try {
-						ConvData0 = Double.parseDouble(((StringValue) dcell0)
-								.getStringValue());
-					} catch (NumberFormatException e) {
-						return DataType.getMissingCell();
-					}
+				
+				// round double value if decimal setting available
+				if(decimalsSetting != CFG_DECIMALS_DFT) {
+					BigDecimal bd = new BigDecimal(doubleValue);
+				    bd = bd.setScale(decimalsSetting, BigDecimal.ROUND_HALF_UP);
+				    doubleValue = bd.doubleValue();
 				}
+				
+				// split number into integer and decimal part (if decimal part available, might not be present)
+				String[] splitted = splitNumber(doubleValue);
+					
+				// set integer part
+				String formatted = splitted[0];
+				// decimal string or "0" otherwise
+				String decimalPart = splitted.length > 1 ? splitted[1] : "0";
+			
+				if(decimalsSetting != CFG_DECIMALS_DFT && decimalPart.length() > decimalsSetting)
+					decimalPart = decimalPart.substring(0, decimalsSetting);
+				
+				// set decimal part if representation as decimal number
+				formatted = nf.asWholeNumber() ? formatted : formatted + "." + decimalPart;
+				
+				// calculate the number of leading and trailing characters to add
+				double addNLeading = nf.getNLeading() - splitted[0].length();
+				double addNTrailing = nf.asWholeNumber() ? 0 : nf.getNTrailing() - decimalPart.length();
+	
+				// add leading and trailing characters
+				for (int i = 0; i < addNLeading; i++)
+					formatted = leading_char + formatted;
 
-				double[] cellLength = getLength(ConvData0);
+				for (int i = 0; i < addNTrailing; i++)
+					formatted = formatted + "0";
 
-				double nLeading = MinMax[0] - cellLength[0];
-				double nTrailing = MinMax[1] - cellLength[1];
-
-				String number = null;
-				// test what type of data is in the column, convert either int
-				// to string or double.
-				// Handle int values and not add trailing digits when they are
-				// not present
-				if (dType.isCompatible(IntValue.class)) { // if value is
-															// compatible to int
-					number = String.format("%s", (int) ConvData0); // change to
-																	// int
-				} else {
-					number = String.format("%s", ConvData0); // leave it double
-				}
-
-				for (int i = 0; i < nLeading; i++)
-				// number = "0" + number;
-				{
-					String leading_char = ((SettingsModelString) getModelSetting(CFG_leadingCharacter))
-							.getStringValue();
-					number = leading_char + number;
-				}
-
-				for (int i = 0; i < nTrailing; i++)
-					number = number + "0";
-
-				return new StringCell(number);
+				return new StringCell(formatted);
 			}
 		};
 		c.append(factory);
@@ -433,22 +419,18 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		}
 		return firstDoubleCell;
 	}
+	
+	private String[] splitNumber(double value) {
+	
+		BigDecimal decimal = BigDecimal.valueOf(value);
+		String numString = decimal.toPlainString();
+		
+		// remove trailing 0 or .0 (for integers)
+		numString = numString.replaceAll("\\.*0+$","");
 
-	/** get length of each number in column */
-	private double[] getLength(double value) {
+		String[] split = numString.split("\\.");
 
-		double[] maxLength = new double[2];
-
-		String numString = String.format("%s", value);
-
-		String[] splitStrings = numString.split("\\.");
-
-		if (splitStrings.length == 2) {
-			maxLength[0] = splitStrings[0].length();
-			maxLength[1] = splitStrings[1].length();
-		}
-
-		return maxLength;
+		return split;
 	}
 
 }
