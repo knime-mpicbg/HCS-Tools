@@ -155,12 +155,12 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			}
 			
 			// retrieve double value from cell
-			double value;
+			BigDecimal value = null;
 			if (namecolumntype == 0) {
-				value = ((DoubleValue) row.getCell(idCol)).getDoubleValue();
+				value = new BigDecimal(((DoubleValue) row.getCell(idCol)).getDoubleValue());
 			} else {
 				try {
-					value = Double.parseDouble(row.getCell(idCol).toString());
+					value = new BigDecimal(((StringValue) row.getCell(idCol)).getStringValue());
 				} catch (NumberFormatException e) {
 					continue;
 				}
@@ -304,7 +304,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			public DataCell getCell(DataRow row) {
 
 				DataCell dcell0 = row.getCell(idCol);
-				double doubleValue;
+				BigDecimal decimalValue = null;
 				// check if value is missing
 				if (dcell0.isMissing()) {
 					return DataType.getMissingCell(); 
@@ -314,7 +314,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 					String value = ((StringValue) dcell0).getStringValue(); 
 					try {
 						// check if can be parse to double
-						doubleValue = Double.parseDouble(value); 
+						decimalValue = new BigDecimal(value); 
 					// if it's not numeric
 					} catch (NumberFormatException e) { 
 						// increase atomicinteger string not a number
@@ -322,7 +322,7 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 						return DataType.getMissingCell(); 
 					}
 					// check if this string is below zero
-					if (doubleValue < 0) { 
+					if (decimalValue.compareTo(BigDecimal.ZERO) == -1) { 
 						// increase atomicinteger values below zero
 						errorCounter_neg.incrementAndGet();
 						return DataType.getMissingCell();
@@ -330,9 +330,9 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 					
 				} else { // is numeric
 					// get the double value of each row
-					doubleValue = ((DoubleValue) dcell0).getDoubleValue(); 
+					decimalValue = new BigDecimal(((DoubleValue) dcell0).getDoubleValue()); 
 					// check if it is more than zero
-					if (doubleValue < 0) { 
+					if (decimalValue.compareTo(BigDecimal.ZERO) == -1) { 
 						// increase atomicinteger values below zero
 						errorCounter_neg.incrementAndGet();
 						return DataType.getMissingCell();
@@ -340,14 +340,11 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 				}
 				
 				// round double value if decimal setting available
-				if(decimalsSetting != CFG_DECIMALS_DFT) {
-					BigDecimal bd = new BigDecimal(doubleValue);
-				    bd = bd.setScale(decimalsSetting, BigDecimal.ROUND_HALF_UP);
-				    doubleValue = bd.doubleValue();
-				}
+				if(decimalsSetting != CFG_DECIMALS_DFT) 
+				    decimalValue = decimalValue.setScale(decimalsSetting, BigDecimal.ROUND_HALF_UP);
 				
 				// split number into integer and decimal part (if decimal part available, might not be present)
-				String[] splitted = splitNumber(doubleValue);
+				String[] splitted = splitNumber(decimalValue);
 					
 				// set integer part
 				String formatted = splitted[0];
@@ -420,10 +417,9 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		return firstDoubleCell;
 	}
 	
-	private String[] splitNumber(double value) {
+	private String[] splitNumber(BigDecimal value) {
 	
-		BigDecimal decimal = BigDecimal.valueOf(value);
-		String numString = decimal.toPlainString();
+		String numString = value.toPlainString();
 		
 		// remove trailing 0 or .0 (for integers)
 		numString = numString.replaceAll("\\.*0+$","");
