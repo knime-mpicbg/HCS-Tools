@@ -18,8 +18,9 @@ KW 5
 KW 6
 		Solved problems with ColumnFilter (Still no excluding List)					80%
 		Problem with random input data - cell creating is not yet working				 0%
-		Problem with PMML Port - handing over not all bins						 0%
-		Creating new Node: Binning QC									 0%
+		issues with settings, ex.: number of bins not working						10%
+		Problem with PMML Port - handing over not all bins						100% - YEEEEAH
+		Creating new Node: Binning QC									 10%
 			Ports: 	input -> input data (table), pmml
 				output -> new table, pmml?
 			Features:
