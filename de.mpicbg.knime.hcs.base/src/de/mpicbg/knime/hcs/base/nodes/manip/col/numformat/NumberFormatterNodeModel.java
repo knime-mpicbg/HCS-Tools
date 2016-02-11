@@ -129,7 +129,6 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 	}
 
 	/** check what kind of Type is your data: 0 - Numeric, 1 - String */
-
 	private int checkForDataType(DataColumnSpec cSpec) {
 		if (cSpec.getType().isCompatible(DoubleValue.class)) {
 			return 0;
@@ -138,7 +137,14 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		} // 1 is a string
 	}
 
-	/** find how many digits you need to add before and after dot */
+	/**
+	 * parse the whole column to retrieve the formatting setting (number of leading/trailing characters and if 
+	 * number should be represented as whole number or not
+	 * @param inTable
+	 * @param idCol index of the selected column
+	 * @param namecolumntype
+	 * @return settings to format the numbers
+	 */
 	private NumberFormatSettings getFormatSettings(BufferedDataTable inTable, int idCol,
 			int namecolumntype) {
 		NumberFormatSettings nf = new NumberFormatSettings();
@@ -417,6 +423,10 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		return firstDoubleCell;
 	}
 	
+	/**
+	 * @param value
+	 * @return integer and decimal part (if available) of the value (as strings)
+	 */
 	private String[] splitNumber(BigDecimal value) {
 	
 		String numString = value.toPlainString();
