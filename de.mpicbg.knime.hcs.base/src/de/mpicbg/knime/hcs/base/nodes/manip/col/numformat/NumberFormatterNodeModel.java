@@ -163,7 +163,8 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 			// retrieve double value from cell
 			BigDecimal value = null;
 			if (namecolumntype == 0) {
-				value = new BigDecimal(((DoubleValue) row.getCell(idCol)).getDoubleValue());
+				double cellVal = ((DoubleValue) row.getCell(idCol)).getDoubleValue();
+				value = new BigDecimal(String.valueOf(cellVal));
 			} else {
 				try {
 					value = new BigDecimal(((StringValue) row.getCell(idCol)).getStringValue());
@@ -336,7 +337,8 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 					
 				} else { // is numeric
 					// get the double value of each row
-					decimalValue = new BigDecimal(((DoubleValue) dcell0).getDoubleValue()); 
+					double cellVal = ((DoubleValue) row.getCell(idCol)).getDoubleValue();
+					decimalValue = new BigDecimal(String.valueOf(cellVal));
 					// check if it is more than zero
 					if (decimalValue.compareTo(BigDecimal.ZERO) == -1) { 
 						// increase atomicinteger values below zero
