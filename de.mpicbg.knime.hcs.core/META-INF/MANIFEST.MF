@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core functionality for the HCS Tools
 Bundle-SymbolicName: de.mpicbg.knime.hcs.core;singleton:=true
-Bundle-Version: 3.0.001.qualifier
+Bundle-Version: 3.1.000.qualifier
 Export-Package: au.com.bytecode.opencsv,
  de.mpicbg.knime.hcs.core,
  de.mpicbg.knime.hcs.core.barcodes,
