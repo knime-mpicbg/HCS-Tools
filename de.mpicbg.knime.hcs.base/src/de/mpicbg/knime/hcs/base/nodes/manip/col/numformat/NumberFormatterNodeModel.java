@@ -1,7 +1,6 @@
 package de.mpicbg.knime.hcs.base.nodes.manip.col.numformat;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,7 +12,6 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
-import org.knime.core.data.IntValue;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
