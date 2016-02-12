@@ -145,6 +145,12 @@ public class ExcelLayout implements Serializable {
             while (cellIdx.getX() < sheet.getLastRowNum()) {
                 String label = getLayoutLabel(cellIdx);
                 if (label == null) break;
+                // check for using the same key/label name more then once
+                if(labels.containsKey(label))
+                {
+                	throw new ExcelLayoutException("Please be sure to not use the name of your label \"" + label + "\" more then once.");
+                }
+                
                 cellIdx = parseDimensions(cellIdx, label);
             }
         }
@@ -162,6 +168,8 @@ public class ExcelLayout implements Serializable {
      */
     private Point parseDimensions(Point cellIdx, String curLayoutlabel) throws ExcelLayoutException {
 
+    	
+        
         int sRow = (int) cellIdx.getX();
         int sCol = (int) cellIdx.getY();
 
@@ -208,7 +216,9 @@ public class ExcelLayout implements Serializable {
             curRow = sheet.getRow(curRow.getRowNum() + 1);
             if (curRow != null) curCell = curRow.getCell(sCol, Row.RETURN_BLANK_AS_NULL);
         }
-
+        
+       
+        	
         labels.put(curLayoutlabel, null);
 
         if (numRows > 0 && numCols > 0) {

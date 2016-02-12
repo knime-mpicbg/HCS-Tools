@@ -32,16 +32,22 @@ public class BarcodeParserFactory {
             "-" +
             "(?<libcode>[_A-z\\d]{3})" +
             "(?<assay>[-_\\s\\w\\d]*)";
+    
 
-
-    public static final String ASSAY_PLATE_PATTERN_OLD = "(?<libplatenumber>[0-9]{3})(?<projectcode>[A-z]{2})(?<libcode>[_A-z\\d]{3})(?<assay>[-_\\s\\w\\d]{3})(?<date>[0-9]{6})(?<replicate>[A-z]{1})";
+    public static final String ASSAY_PLATE_PATTERN_OLD 
+    		= "(?<libplatenumber>[0-9]{3})" +
+    		"(?<projectcode>[A-z]{2})" + 
+    		"(?<libcode>[_A-z\\d]{3})" + 
+    		"(?<assay>[-_\\s\\w\\d]{3})" + 
+    		"(?<date>[0-9]{6})" + 
+    		"(?<replicate>[A-z]{1})";
 
     /**
      * An example pattern which define the library-plate barcode-schema of the tds-facility.
      */
     public static final String LIB_PLATE_BARCODE_PATTERN
             = "(?<libplatenumber>[0-9]{3})" +
-            "(?<libcode>[A-Z]{3})" +
+            "(?<libcode>[A-Z_]{3})" +
             "(?<" + GROUP_CONCENTRATION + ">[_\\d]{3})" +
             "(?<" + GROUP_CONCENTRATION_UNIT + ">[A-z_]{4})" +
             "(?<" + GROUP_CUSTOM_A + ">[\\d]{1})" +
