@@ -488,7 +488,7 @@ class CellSplitterCellFactory implements CellFactory {
         }
 
         long rowCnt = 0;
-        long numOfRows = table.getRowCount();
+        long numOfRows = table.size();
 
         for (DataRow row : table) {
             rowCnt++;

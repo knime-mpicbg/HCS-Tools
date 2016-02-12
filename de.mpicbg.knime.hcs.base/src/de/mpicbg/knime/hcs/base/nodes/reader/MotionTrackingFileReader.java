@@ -118,7 +118,7 @@ public class MotionTrackingFileReader extends AbstractNodeModel {
                         knimeRow[colIndex++] = new IntCell(Integer.parseInt(parser.getGroup(GROUP_WELL_FIELD)));
                     }
 
-                    if (AttributeUtils.contains(colAttributes, BarcodeParser.GROUP_TIMPOINT_DESC)) {
+                    if (AttributeUtils.contains(colAttributes, GROUP_TIMEPOINT_DESC)) {
                         knimeRow[colIndex++] = new IntCell(Integer.parseInt(parser.getGroup(BarcodeParser.GROUP_TIMEPOINT)));
                     }
 
@@ -210,6 +210,7 @@ public class MotionTrackingFileReader extends AbstractNodeModel {
     public static final String GROUP_BARCODE = "barcode";
     public static final String GROUP_ROW = "row";
     public static final String GROUP_COLUMN = "column";
+    public static final String GROUP_TIMEPOINT_DESC = "Timepoint";
 
 
     public static SettingsModelString createSuffixPatternProperty() {
@@ -236,7 +237,7 @@ public class MotionTrackingFileReader extends AbstractNodeModel {
             }
 
             if (barcodeParser.getAvailableGroups().contains(BarcodeParser.GROUP_TIMEPOINT)) {
-                colAttributes.add(new Attribute(BarcodeParser.GROUP_TIMPOINT_DESC, IntCell.TYPE));
+                colAttributes.add(new Attribute(GROUP_TIMEPOINT_DESC, IntCell.TYPE));
             }
 
             if (barcodeParser.getAvailableGroups().contains(BarcodeParser.GROUP_FRAME)) {

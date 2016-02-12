@@ -1,0 +1,180 @@
+<rgg>
+
+
+    # 1. Parameter selection
+
+    <group>
+
+        # a) Select thereadout of interest
+        readoutNames =c(<panellistbox label="Parameters of interest" items="$$$NUM_ATTRIBUTES$$$" span="full"/>)
+        readoutIndices = which(names(kIn) %in% readoutNames)
+
+        # b) select the grouping attibute for replicates
+        treatmentColName =
+        <combobox items="$$$STR_ATTRIBUTES$$$" label="Compound" selected-item="Compound" span="full"/>
+        treatmentColIndex = which(names(kIn) == treatmentColName)
+
+
+        # c) Select the concentration attribute
+        doseName =
+        <combobox items="$$$NUM_ATTRIBUTES$$$" label="Concentration" selected-item="Concentration" span="full"/>
+        concentrationColIndex = which(names(kIn) == doseName)
+
+        # d) add a custom title to the plot
+        plotTitle =
+        <textfield label="Plot title" data-type="text" default-value="" size="10" span="full"/>
+
+        # e) select regression model
+        regModelName =
+        <combobox items="LL.3,LL.4,LL.5,W1.2,W1.3,W1.4" selected-item="LL.4" label="Regression Model" span="full"/>
+
+        # f) Define the plotting mode (Not yet implemented)
+        plotOptions =
+        <combobox items="Data points, SD, SEM" selected-item="SEM" label="Plotting Options" span="full"/>
+
+        # h) provide lower and upper bounds for the parameters
+        parBoundsText =
+        <textfield label="Parameter constraints" data-type="text" default-value="" size="10" span="full"/>
+
+    </group>
+
+
+    # 2. R-code
+
+    <![CDATA[
+
+# just necessary for debugging from within R
+#source('/Users/brandl/projects/knime/hcstools/src/de/mpicbg/tds/knime/hcstools/screenmining/doseresponse/drcutils.R')
+
+drdata <- kIn
+
+# 1)  define parameter constraints and create the model
+if(is.na(parBoundsText)){
+    regModel <- eval(parse(text = paste(regModelName, "()", sep = '')))
+
+}else{
+
+    # include the defined constraints
+    regModel <- eval(parse(text = paste(regModelName, "(fixed=c(", parBoundsText, "))", sep = '')))
+}
+
+
+# 2) fit the models
+drmodels <- calcDRModelsListList(drdata, readoutIndices, treatmentColIndex, concentrationColIndex, model=regModel)
+
+
+# 3) plot the result
+plotdata <- compileDRData4Vis(drmodels,drdata, concentrationColIndex, treatmentColIndex, plotOptions)
+
+pLabels <- c(xLab = doseName, legendLab = treatmentColName, title = if(is.na(plotTitle)) "" else plotTitle)
+plotOpts <- list(	varOrder = readoutNames,
+					mName = regModelName,
+					plotOptions = plotOptions,
+					plotLabels = pLabels)
+
+visualizeDrModels(plotdata, plotOpts)
+
+
+# define the value for the generic output
+rOut <- drmodels
+
+
+# 4) prepare the ic50 table
+
+# per compound
+icList <- lapply(1:length(drmodels), FUN = function(cmpndIndex){
+  
+  resVarModels = drmodels[[cmpndIndex]]
+  treatmentName <- names(drmodels)[cmpndIndex]
+  
+  # per readout
+  oneCmpdTableList <- lapply(1:length(resVarModels), FUN = function(resVarIndex){
+    
+    drmodel = resVarModels[[resVarIndex]]
+    responseVarName <- names(resVarModels)[resVarIndex]
+    
+    icDF <- data.frame(treatment = character(),
+                       param = character(),
+                       ic50 = double(),
+                       ic50_err = double(),
+                       min = double(),
+                       min_err = double(),
+                       max = double(),
+                       max_err = double(),
+                       slope = double(),
+                       slope_err = double(),
+                       sym = double(),
+                       sym_err = double(),
+                       res_err = double(),
+                       res_df = integer(),
+                       stringsAsFactors = FALSE
+                       )
+    icDF[1,] <- rep(NA, ncol(icDF))
+    icDF[1,]$treatment <- treatmentName
+    icDF[1,]$param <- responseVarName
+    
+    if(inherits(drmodel, 'drc')){
+      
+      # calculate the goodness of fit and append it to the table
+      sum.drm <- summary(drmodel)
+      coeff <- sum.drm$coefficients
+      
+      search <- grepl("^e.*",rownames(coeff))
+      if(sum(search)) {
+        idx <- which(search, arr.ind = TRUE)
+        icDF[1,]$ic50 <- coeff[idx,1]
+        icDF[1,]$ic50_err <- coeff[idx,2]
+      }
+      
+      search <- grepl("^c.*",rownames(coeff))
+      if(sum(search)) {
+        idx <- which(search, arr.ind = TRUE)
+        icDF[1,]$min <- coeff[idx,1]
+        icDF[1,]$min_err <- coeff[idx,2]
+      }
+      
+      search <- grepl("^d.*",rownames(coeff))
+      if(sum(search)) {
+        idx <- which(search, arr.ind = TRUE)
+        icDF[1,]$max <- coeff[idx,1]
+        icDF[1,]$max_err <- coeff[idx,2]
+      }
+      
+      search <- grepl("^b.*",rownames(coeff))
+      if(sum(search)) {
+        idx <- which(search, arr.ind = TRUE)
+        icDF[1,]$slope <- coeff[idx,1]
+        icDF[1,]$slope_err <- coeff[idx,2]
+      }
+      
+      search <- grepl("^f.*",rownames(coeff))
+      if(sum(search)) {
+        idx <- which(search, arr.ind = TRUE)
+        icDF[1,]$sym <- coeff[idx,1]
+        icDF[1,]$sym_err <- coeff[idx,2]
+      }
+      
+      icDF[1,]$res_err <- sum.drm$rseMat[1]
+      icDF[1,]$res_df <- sum.drm$rseMat[2]
+    }
+      
+    return(icDF)
+  });
+  
+  oneCmpdTable <- do.call("rbind", oneCmpdTableList)
+  return(oneCmpdTable)
+})
+
+# convert into data-frame
+ictable = do.call("rbind", icList)
+names(ictable) <-c(treatmentColName, "Response Variable", "IC 50", "Std. Error (IC 50)", "Lower Limit", "Std. Error (Lower Limit)",
+                   "Upper Limit", "Std. Error (Upper Limit)", "Slope", "Std. Error (Slope)", "Symmetry", "Std. Error (Symmetry)", "Residual standard error", "DoF")
+ictable$DoF <- as.integer(ictable$DoF)                   
+rOut <- ictable
+
+rm(list = ls()[-which(ls() %in% c("rOut", "drmodels"))])
+
+]]>
+
+</rgg>
+

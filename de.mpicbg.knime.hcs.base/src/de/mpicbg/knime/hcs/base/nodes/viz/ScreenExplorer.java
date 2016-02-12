@@ -1,7 +1,7 @@
 package de.mpicbg.knime.hcs.base.nodes.viz;
 
 import de.mpicbg.knime.hcs.base.HCSSettingsFactory;
-import de.mpicbg.knime.hcs.base.nodes.layout.ExpandPlateBarcode;
+import de.mpicbg.knime.hcs.base.utils.HCSBundleUtils;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.AttributeUtils;
@@ -134,7 +134,7 @@ public class ScreenExplorer extends AbstractNodeModel {
         List<Plate> allPlates = new ArrayList<Plate>();
         //List<String> ignoreProps = Arrays.asList("barcode", "numrows", "numcolumns", "screenedat", "librarycode");
 
-        BarcodeParserFactory bpf = ExpandPlateBarcode.loadFactory();
+        BarcodeParserFactory bpf = HCSBundleUtils.loadFactory();
 
         for (String barcode : splitScreen.keySet()) {
             Plate curPlate = new Plate();

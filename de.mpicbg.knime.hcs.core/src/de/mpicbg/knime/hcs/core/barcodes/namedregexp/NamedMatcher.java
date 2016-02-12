@@ -127,6 +127,8 @@ public class NamedMatcher implements NamedMatchResult {
 
     public Map<String, String> namedGroups() {
         Map<String, String> result = new LinkedHashMap<String, String>();
+        
+        matches();
 
         for (int i = 1; i <= groupCount(); i++) {
             String groupName = parentPattern.groupNames().get(i - 1);
