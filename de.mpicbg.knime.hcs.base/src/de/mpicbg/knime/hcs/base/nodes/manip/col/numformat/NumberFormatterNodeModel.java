@@ -298,8 +298,8 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 		String newColName = inSpec.getColumnSpec(idCol).getName() + " (formatted)";
 		newColName = DataTableSpec.getUniqueColumnName(inSpec, newColName);
 		
-		String leading_char = ((SettingsModelString) getModelSetting(CFG_leadingCharacter)).getStringValue();
-		int decimalsSetting = ((SettingsModelIntegerBounded) getModelSetting(CFG_DECIMALS)).getIntValue();
+		final String leading_char = ((SettingsModelString) getModelSetting(CFG_leadingCharacter)).getStringValue();
+		final int decimalsSetting = ((SettingsModelIntegerBounded) getModelSetting(CFG_DECIMALS)).getIntValue();
 
 		DataColumnSpec newColSpec = new DataColumnSpecCreator(newColName, StringCell.TYPE)
 				.createSpec();
@@ -431,8 +431,9 @@ public class NumberFormatterNodeModel extends AbstractNodeModel {
 	
 		String numString = value.toPlainString();
 		
-		// remove trailing 0 or .0 (for integers)
-		numString = numString.replaceAll("\\.*0+$","");
+		// remove trailing 0 or .0 (for integers represented as double)
+		if(numString.contains("."))
+			numString = numString.replaceAll("\\.*0+$","");
 
 		String[] split = numString.split("\\.");
 
