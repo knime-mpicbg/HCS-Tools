@@ -30,8 +30,9 @@ KW 6
 				option to delete columns within a selected threshold of the p-Value
 
 
+
 KW 7
-		
+		 
 		Checking if possible to handover statistic with PMML						0%
 		Create second table with statistically relevant information	Amount of Bins			0%
 										p-Value (Antje take care)
@@ -39,11 +40,37 @@ KW 7
 		using Interval table #36					using existing IntervallCell
 		
 	
+Steps ToDo
 
-KW 8		
-		Creating BinningCalculate Apply - Node								0%
+BinningCalculate
 
-KW 9
+- Changing titles of column to 10%…
+- using right label and right position of bin, in case theres is only a bin for 20%...
+- PMML Model
+	- needs to have the right data type showing in the PMML Model
+- What kind of error handling?
+	- not compatble to all kind of tables - table cell creating still causes errors
+	- describing what kind of data i need and how can i help the user 
+- Issues in Dialogue
+	- DialogComponentColumnFilter2
+		- excluded columns does not work -  he is not affecting the tablespecs
+	- Issue with saving or reading in node settings - need to find out whats the problem 
+- Writing all descriptions and specifications
+
+BinningQC
+
+- Reading in PMML Model
+- Creating table layout like
+		Group1  Group2  Group3 parameter1 parameter2 parameter3
+- using dialogue component like in GroupBy
+- PMML outPort with PMML inPort
+- Calculating the p-Value
+- Writing all descriptions and specifications
+
+Deploying
+- checking all descriptions 
+- check code documentation
+- creating test workflows and check node with checklist
 
 Notes:
 Calculating p-Value - http://www.codeproject.com/Articles/432194/How-to-Calculate-the-Chi-Squared-P-Value
