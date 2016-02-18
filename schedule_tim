@@ -53,7 +53,7 @@ BinningCalculate
 	- describing what kind of data i need and how can i help the user 
 - Issues in Dialogue
 	- DialogComponentColumnFilter2
-		- excluded columns does not work -  he is not affecting the tablespecs
+		- excluded columns does not work -  it is not affecting the tablespecs
 	- Issue with saving or reading in node settings - need to find out whats the problem 
 - Writing all descriptions and specifications
 
