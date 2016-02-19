@@ -75,5 +75,21 @@ Deploying
 Notes:
 Calculating p-Value - http://www.codeproject.com/Articles/432194/How-to-Calculate-the-Chi-Squared-P-Value
 Problems of p-Value - http://www.nature.com/news/scientific-method-statistical-errors-1.14700
+Calc Chi Square Test Java - http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/stat/inference/ChiSquareTest.html
+Example from Antje in R: 
+
+binCounts <- c(2486,1653,1897,1879,2085)
+#binCounts <- c(2034,1945,2001,1923,1932)
+binPercent <- binCounts / sum(binCounts)
+binExpect <- rep(0.2,5)
+
+testStat <- chisq.test(binCounts, p=binExpect)
+testStat$p.value
+
+testStat <- chisq.test(binPercent, p=binExpect)
+testStat$p.value
+
+testStat <- chisq.test(binPercent*100, p=binExpect)
+testStat$p.value
 
 								
