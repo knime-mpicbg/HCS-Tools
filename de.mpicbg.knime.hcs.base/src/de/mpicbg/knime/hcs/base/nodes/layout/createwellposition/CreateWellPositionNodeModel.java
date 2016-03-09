@@ -223,7 +223,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		// column specification of the appended column
 		DataColumnSpec newColSpec = new DataColumnSpecCreator("Well Position", StringCell.TYPE).createSpec();
 
-		String[] ColumnNames = inSpec.getColumnNames();
+		final String[] ColumnNames = inSpec.getColumnNames();
 
 		// utility object that performs the calculation
 		CellFactory factory = new SingleCellFactory(newColSpec) {

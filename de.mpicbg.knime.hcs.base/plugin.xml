@@ -53,8 +53,9 @@
         <!--screen mining-->
         <node category-path="/community/hcstools/screenmining" factory-class="de.mpicbg.knime.hcs.base.nodes.mine.EnrichmentAnalyzerFactory" id="de.mpicbg.tds.knime.hcstools.screenmining.EnrichmentAnalyzerFactory"/>
 
-        <node category-path="/community/hcstools/screenmining" factory-class="de.mpicbg.knime.hcs.base.nodes.dose.DoseResponseFactory" id="de.mpicbg.tds.knime.hcstools.screenmining.doseresponse.DoseResponseFactory"/>
-
+        <node category-path="/community/hcstools/screenmining"
+              factory-class="de.mpicbg.knime.hcs.base.nodes.mine.dosereponse2.DoseResponseFactory2"
+              id="de.mpicbg.tds.knime.hcstools.screenmining.doseresponse.DoseResponseFactory2"/>
 
         <!--utilities-->
         <node category-path="/community/hcstools/util" factory-class="de.mpicbg.knime.hcs.base.nodes.layout.ConvertPlateRowsFactory" id="de.mpicbg.tds.knime.hcstools.utils.ConvertPlateRowsFactory"/>
