@@ -19,34 +19,28 @@ import org.knime.core.node.workflow.FlowVariable.Type;
  * complex dialog please derive directly from 
  * {@link org.knime.core.node.NodeDialogPane}.
  * 
- * @author 
+ * @author Magda Rucinska
  */
 public class EchoFileReaderNodeDialog extends DefaultNodeSettingsPane {
 
-    /**
-     * New pane for configuring EchoFileReader node dialog.
-     * This is just a suggestion to demonstrate possible default dialog
-     * components.
-     */
-	
-	   
-    protected EchoFileReaderNodeDialog() {
-        super();
-   
-        
-        FlowVariableModel flowVarBrowseModel = createFlowVariableModel(EchoFileReaderNodeModel.CFG_FILE_URL, Type.STRING);
-        
-            addDialogComponent(new DialogComponentFileChooser(new SettingsModelString(EchoFileReaderNodeModel.CFG_FILE_URL, ""),
-    		   EchoFileReaderNodeModel.CFG_FILE_URL, JFileChooser.OPEN_DIALOG, false, flowVarBrowseModel, ".xml"));
-		
-       
-			
-			addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-	        		EchoFileReaderNodeModel.CFG_splitDestinationCol, false), "Split Destination Well column in two rows"));
-			addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
-	        		EchoFileReaderNodeModel.CFG_splitSourceCol, false), "Split Source Well column in two rows"));  
-        }
-		
-    }
+	/**
+	 * New pane for configuring EchoFileReader node dialog.
+	 * This is just a suggestion to demonstrate possible default dialog
+	 * components.
+	 */
+	protected EchoFileReaderNodeDialog() {
+		super();
+
+		FlowVariableModel flowVarBrowseModel = createFlowVariableModel(EchoFileReaderNodeModel.CFG_FILE_URL, Type.STRING);
+
+		addDialogComponent(new DialogComponentFileChooser(new SettingsModelString(EchoFileReaderNodeModel.CFG_FILE_URL, ""),
+				EchoFileReaderNodeModel.CFG_FILE_URL, JFileChooser.OPEN_DIALOG, false, flowVarBrowseModel, ".xml"));
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				EchoFileReaderNodeModel.CFG_splitDestinationCol, false), "Split Destination Well column in two rows"));
+		addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+				EchoFileReaderNodeModel.CFG_splitSourceCol, false), "Split Source Well column in two rows"));  
+	}
+
+}
 
 

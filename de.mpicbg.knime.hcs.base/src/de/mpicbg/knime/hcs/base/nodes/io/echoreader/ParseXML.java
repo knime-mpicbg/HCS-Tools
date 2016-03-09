@@ -5,22 +5,31 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * parse echo xml
+ * 
+ * @author Magda Rucinska
+ *
+ */
 public class ParseXML extends DefaultHandler {
 
 	private StringBuffer buffer = new StringBuffer();
+	
+	private EchoRecord record;
+	
 	private EchoReportHeader reportheader;
-	public EchoRecord record;
-	public EchoReportFooter reportfooter;
-
+	private EchoReportFooter reportfooter;
 	private LinkedList<EchoRecord> recordList = new LinkedList<EchoRecord>();
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
-		buffer.setLength(0);
+		buffer = new StringBuffer();
 
 		if (localName.equals("report")) {
-
 			new EchoRecord();
 		} else if (qName.equals("reportheader")) {
 			reportheader = new EchoReportHeader();
@@ -31,6 +40,9 @@ public class ParseXML extends DefaultHandler {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		
@@ -74,9 +86,7 @@ public class ParseXML extends DefaultHandler {
 			 record.setFluidType(buffer.toString());
 		 } else if (qName.equals("XferStatus")) {
 			 record.setXferStatus(buffer.toString());
-		 }
-
-		 else if (qName.equals("InstrName")) {
+		 } else if (qName.equals("InstrName")) {
 			 reportfooter.setInstrName(buffer.toString());
 		 } else if (qName.equals("InstrModel")) {
 			 reportfooter.setInstrModel(buffer.toString());
@@ -89,19 +99,31 @@ public class ParseXML extends DefaultHandler {
 		 }
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void characters(char[] ch, int start, int length) {
 		buffer.append(ch, start, length);
 	}
 
+	/**
+	 * @return list of echo records
+	 */
 	public LinkedList<EchoRecord> getRecords() {
 		return recordList;
 	}
 
+	/**
+	 * @return echo header
+	 */
 	public EchoReportHeader getReportHeader() {
 		return reportheader;
 	}
 
+	/**
+	 * @return echo footer
+	 */
 	public EchoReportFooter getReportFooter() {
 		return reportfooter;
 	}

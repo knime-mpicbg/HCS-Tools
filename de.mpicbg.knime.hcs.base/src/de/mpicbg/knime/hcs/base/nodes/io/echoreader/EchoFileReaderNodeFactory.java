@@ -8,7 +8,7 @@ import org.knime.core.node.NodeView;
  * <code>NodeFactory</code> for the "EchoFileReader" Node.
  * 
  *
- * @author 
+ * @author Magda Rucinska
  */
 public class EchoFileReaderNodeFactory 
         extends NodeFactory<EchoFileReaderNodeModel> {

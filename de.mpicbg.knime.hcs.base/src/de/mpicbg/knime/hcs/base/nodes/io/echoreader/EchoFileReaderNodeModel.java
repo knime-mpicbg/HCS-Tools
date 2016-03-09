@@ -37,7 +37,6 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
 public class EchoFileReaderNodeModel extends AbstractNodeModel {
 
 	// NODE SETTINGS KEYS + DEFAULTS
-
 	public static final String CFG_FILE_URL = "fileUrl";
 	public static final String CFG_splitSourceCol = "split.source.column";
 	public static final int IDsourceColumn = 2;
@@ -56,22 +55,30 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 		addModelSetting(EchoFileReaderNodeModel.CFG_splitSourceCol, createSplitSourceCol());
 	}
 
+	/**
+	 * @return SettingsModel for Location
+	 */
 	private SettingsModel createFileURL() {
 		return new SettingsModelString(CFG_FILE_URL, null);
 	}
 
+	/**
+	 * @return SettingsModel if source column should be split
+	 */
 	private SettingsModel createSplitSourceCol() {
 		return new SettingsModelBoolean(CFG_splitSourceCol, false);
 	}
 
+	/**
+	 * @return SettingsModel if destination column should be split
+	 */
 	private SettingsModel createSplitDestinationCol() {
 		return new SettingsModelBoolean(CFG_splitDestinationCol, false);
 	}
 
-	public static SettingsModelString createFileChooser() {
-		return new SettingsModelString("input.files", "");
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
@@ -140,7 +147,7 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 			cells[12] = new StringCell(r.getXferStatus());
 			/**
 			 Addition of columns to the table, depends on the user selection
-			*/
+			 */
 
 			int index =12;
 			// number of columns depends on user settings - add 2 or 4 columns
@@ -195,8 +202,9 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 		// second table contains meta data (just one row)
 		return new BufferedDataTable[]{table, table1}; 
 	}
+
 	/**
-	 * CONFIGURE 
+	 * {@inheritDoc} 
 	 */
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
@@ -220,11 +228,10 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 
 		return new DataTableSpec[]{colAttributes,colAttributes1}; //create the table
 	}
-	
+
 	/**
-	 * Method to get data from xml file 
+	 * @return output table spec for echo data
 	 */
-	
 	private DataTableSpec getEchoColumnModel() {
 		//create a new table spec and add columns according to xml file
 		DataTableSpecCreator specCreator = new DataTableSpecCreator();
@@ -275,6 +282,10 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 
 		return specCreator.createSpec();
 	}
+
+	/**
+	 * @return output table spec for echo metadata
+	 */
 	private DataTableSpec getMetaDataColumnModel() {
 
 		DataTableSpecCreator specCreator = new DataTableSpecCreator();
@@ -303,9 +314,12 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 
 		return specCreator.createSpec();
 	}
-	
+
 	/**
 	 * Method to split Destination/Source column into two columns - regular expression split
+	 * @param wellPosition
+	 * @return vector with plateRow and plateColumn indices
+	 * @throws CanceledExecutionException
 	 */
 	private static int[] splitPosition(String wellPosition) throws CanceledExecutionException {
 
