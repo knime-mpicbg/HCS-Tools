@@ -86,6 +86,7 @@
                           
         <node category-path="/community/hcstools/io" factory-class="de.mpicbg.knime.hcs.base.nodes.helper.ExampleDataNodeFactory" id="de.mpicbg.tds.knime.helpers.exdata.ExampleDataNodeFactory"/>
 
+		<node category-path="/community/hcstools/io" factory-class="de.mpicbg.knime.hcs.base.nodes.io.echoreader.EchoFileReaderNodeFactory" id="de.mpicbg.knime.hcs.base.echofilereader.EchoFileReaderNodeFactory"/>
 
         <!--Data manipulators-->
         <node category-path="/community/hcstools/manipulation/column/split+combine" factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.BetterCellSplitterFactory" id="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterCellSplitterFactory"/>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./echo_icon.png" type="Visualizer" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>Echo 550 Report Reader</name>
+    
+    <shortDescription>
+        Reader to import records and metadata from Labcyte Echo 550 reports.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>
+        This node reads one report file (.xml) of the liquid handler Echo 550 from Labcyte.
+        Report records and metadata are extracted.
+        </intro>
+        
+       <option name="Selected file"> The XML document to read. It can be a local file on disk or an URL. </option>
+       <option name="Split Destination Well column in two rows">If checked, the destination well is split into plate row and plate column (original destination well column preserved)</option>
+       <option name="Split Source Well column in two rows">If checked, the source well is split into plate row and plate column (original source well column preserved)</option>
+    </fullDescription>
+    
+    <ports>
+        <outPort index="0" name="Echo Data">Table with report records
+        </outPort>
+        <outPort index="1" name="Metadata">Metadata information
+        </outPort>  
+    </ports>
+</knimeNode>
