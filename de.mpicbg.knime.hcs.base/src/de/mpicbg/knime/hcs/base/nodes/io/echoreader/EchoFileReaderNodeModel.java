@@ -39,8 +39,6 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 	// NODE SETTINGS KEYS + DEFAULTS
 	public static final String CFG_FILE_URL = "fileUrl";
 	public static final String CFG_splitSourceCol = "split.source.column";
-	public static final int IDsourceColumn = 2;
-	public static final int IDdestinationColumn = 5;
 	public static final String CFG_splitDestinationCol = "split.destination.column";
 
 	/**
@@ -90,6 +88,7 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 			xml_file = ((SettingsModelString) getModelSetting(CFG_FILE_URL))
 					.getStringValue();
 		}
+		
 		/**
 		 * SAX library implementation
 		 */
@@ -98,7 +97,6 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 		factory.setValidating(false);
 		SAXParser parser = factory.newSAXParser();
 		parser.parse(xml_file, handler);
-
 
 		/**
 		 * Creation of First Table with Echo information
@@ -165,7 +163,7 @@ public class EchoFileReaderNodeModel extends AbstractNodeModel {
 				cells[index +2] = new IntCell(parts[1]);
 			}
 
-			DataRow row = new DefaultRow("RowKey_"+counter, cells);
+			DataRow row = new DefaultRow("RowKey_" + counter, cells);
 			buf.addRowToTable(row);
 			counter++;
 		}
