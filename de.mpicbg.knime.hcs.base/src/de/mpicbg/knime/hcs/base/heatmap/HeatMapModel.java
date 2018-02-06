@@ -11,7 +11,7 @@ import de.mpicbg.knime.knutils.Utils;
 import de.mpicbg.knime.knutils.annotations.ViewInternals;
 import de.mpicbg.knime.hcs.core.model.*;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math.stat.Frequency;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;

@@ -1,6 +1,6 @@
 package de.mpicbg.knime.hcs.base.nodes.io.echoreader;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * the class acts as container for the content of a single echo file record

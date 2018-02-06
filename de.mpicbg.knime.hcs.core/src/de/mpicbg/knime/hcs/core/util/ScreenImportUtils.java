@@ -1,6 +1,6 @@
 package de.mpicbg.knime.hcs.core.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**

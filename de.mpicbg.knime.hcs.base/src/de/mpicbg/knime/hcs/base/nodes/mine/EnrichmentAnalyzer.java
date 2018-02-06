@@ -5,7 +5,7 @@ import de.mpicbg.knime.knutils.Attribute;
 import de.mpicbg.knime.knutils.InputTableAttribute;
 
 import org.apache.commons.collections.map.MultiKeyMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math.distribution.HypergeometricDistribution;
 import org.apache.commons.math.distribution.HypergeometricDistributionImpl;
 import org.knime.core.data.*;

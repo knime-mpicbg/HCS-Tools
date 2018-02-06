@@ -14,7 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  * cell containing a barcode pattern are colored in a way that the pattern gets readable
@@ -72,10 +72,10 @@ public class PatternRenderer implements ListCellRenderer<String> {
 				matcher = NamedPattern.GROUP_START_PATTERN.matcher(p);
 				matcher.find();
 				buildHTML.append("<font color=\"" + colorVector[colIdx] + "\">");
-				buildHTML.append(StringEscapeUtils.escapeHtml(matcher.group(1)));
+				buildHTML.append(StringEscapeUtils.escapeHtml4(matcher.group(1)));
 				buildHTML.append("</font>");
 				buildHTML.append("<font color=\"black\">");
-				buildHTML.append(StringEscapeUtils.escapeHtml(p.substring(matcher.end(1), p.length()-1)));
+				buildHTML.append(StringEscapeUtils.escapeHtml4(p.substring(matcher.end(1), p.length()-1)));
 				buildHTML.append("</font>");
 				buildHTML.append("<font color=\"" + colorVector[colIdx] + "\">)</font>");
 				
@@ -84,7 +84,7 @@ public class PatternRenderer implements ListCellRenderer<String> {
 				if(colIdx == colorVector.length) colIdx = 0;
 			} else {
 				buildHTML.append("<font color=\"black\">");
-				buildHTML.append(StringEscapeUtils.escapeHtml(p));
+				buildHTML.append(StringEscapeUtils.escapeHtml4(p));
 				buildHTML.append("</font>");
 			}	
 			//buildHTML.append("<br>");

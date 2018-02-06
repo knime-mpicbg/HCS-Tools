@@ -2,8 +2,8 @@ package de.mpicbg.knime.hcs.core.math;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import java.io.FileNotFoundException;

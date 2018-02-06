@@ -2,7 +2,7 @@ package de.mpicbg.knime.hcs.base.heatmap.dialog;
 
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
 import de.mpicbg.knime.hcs.core.model.PlateUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import javax.swing.*;
 import javax.swing.border.Border;

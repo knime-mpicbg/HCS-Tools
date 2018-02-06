@@ -1,13 +1,9 @@
 package de.mpicbg.knime.hcs.base.nodes.layout;
 
-import de.mpicbg.knime.knutils.AbstractNodeModel;
-import de.mpicbg.knime.knutils.Attribute;
-import de.mpicbg.knime.knutils.BufTableUtils;
-import de.mpicbg.knime.knutils.InputTableAttribute;
-import de.mpicbg.knime.knutils.TableUpdateCache;
-import de.mpicbg.knime.hcs.core.TdsUtils;
-import de.mpicbg.knime.knutils.*;
-import org.apache.commons.lang.StringUtils;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
@@ -20,8 +16,12 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import de.mpicbg.knime.hcs.core.TdsUtils;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.BufTableUtils;
+import de.mpicbg.knime.knutils.InputTableAttribute;
+import de.mpicbg.knime.knutils.TableUpdateCache;
 
 
 /**
