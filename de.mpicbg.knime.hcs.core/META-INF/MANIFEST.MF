@@ -20,7 +20,7 @@ Export-Package: de.mpicbg.knime.hcs.core,
 Bundle-ClassPath: hcscore.jar
 Bundle-Vendor: Max Planck Institute of Molecular Cell Biology and Genetics (MPI-CBG)
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: de.mpicbg.knime.hcs.core.HcsCoreBundleActivator
 Require-Bundle: org.eclipse.ui;bundle-version="[3.107.0,4.0.0)",
  org.apache.commons.math;bundle-version="2.1.0",
