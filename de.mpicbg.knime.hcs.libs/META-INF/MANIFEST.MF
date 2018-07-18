@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HCS-Libraries
 Bundle-SymbolicName: de.mpicbg.knime.hcs.libs
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 3.1.000.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.ui;bundle-version="3.108.0"
 Bundle-ClassPath: .,
