@@ -1,4 +1,20 @@
 ======================================================================================================
+2018-07-18
+VERSION		v3.1.2
+
+ISSUES
+
+* externalize libraries to avoid conflicts
+
+FEATURES
+
+* PlateHeatmapViewer: add red-black-green color map
+
+NEW NODE
+
+* Echo 550 Report Reader
+
+======================================================================================================
 2016-02-12
 VERSION		v3.1.0
 
