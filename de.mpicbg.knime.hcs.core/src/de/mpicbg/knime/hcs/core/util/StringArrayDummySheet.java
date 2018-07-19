@@ -440,4 +440,67 @@ public class StringArrayDummySheet implements Sheet {
     public Iterator<Row> iterator() {
         return null;
     }
+
+
+		@Override
+		public void setRightToLeft(boolean value) {
+		}
+
+
+		@Override
+		public boolean isRightToLeft() {
+			return false;
+		}
+
+
+		@Override
+		public void setForceFormulaRecalculation(boolean value) {
+		}
+
+
+		@Override
+		public boolean getForceFormulaRecalculation() {
+			return false;
+		}
+
+
+		@Override
+		public void protectSheet(String password) {
+		}
+
+
+		@Override
+		public AutoFilter setAutoFilter(CellRangeAddress range) {
+			return null;
+		}
+
+
+		@Override
+		public SheetConditionalFormatting getSheetConditionalFormatting() {
+			return null;
+		}
+
+
+		@Override
+		public CellRangeAddress getRepeatingRows() {
+			return null;
+		}
+
+
+		@Override
+		public CellRangeAddress getRepeatingColumns() {
+			return null;
+		}
+
+
+		@Override
+		public void setRepeatingRows(CellRangeAddress rowRangeRef) {
+			
+		}
+
+
+		@Override
+		public void setRepeatingColumns(CellRangeAddress columnRangeRef) {
+			
+		}
 }

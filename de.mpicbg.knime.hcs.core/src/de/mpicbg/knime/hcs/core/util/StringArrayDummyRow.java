@@ -1,6 +1,7 @@
 package de.mpicbg.knime.hcs.core.util;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -120,4 +121,21 @@ public class StringArrayDummyRow implements Row {
     public Iterator<Cell> iterator() {
         return null;
     }
+
+
+		@Override
+		public boolean isFormatted() {
+			return false;
+		}
+
+
+		@Override
+		public CellStyle getRowStyle() {
+			return null;
+		}
+
+
+		@Override
+		public void setRowStyle(CellStyle style) {
+		}
 }
