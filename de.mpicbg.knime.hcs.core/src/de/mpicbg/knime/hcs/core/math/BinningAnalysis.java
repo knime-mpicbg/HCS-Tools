@@ -2,10 +2,8 @@ package de.mpicbg.knime.hcs.core.math;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
-import de.mpicbg.knime.hcs.core.math.Interval.Mode;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretizeBin;
 

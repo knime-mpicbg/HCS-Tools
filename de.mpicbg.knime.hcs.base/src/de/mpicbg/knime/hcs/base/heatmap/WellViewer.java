@@ -1,29 +1,46 @@
 package de.mpicbg.knime.hcs.base.heatmap;
 
-import de.mpicbg.knime.hcs.base.heatmap.renderer.HeatWell;
-import de.mpicbg.knime.hcs.base.nodes.viz.HeatMapViewerNodeModel;
-import de.mpicbg.knime.knutils.Attribute;
-import de.mpicbg.knime.hcs.core.model.PlateUtils;
-import de.mpicbg.knime.hcs.core.model.Well;
-import org.apache.commons.lang.time.StopWatch;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.knime.core.data.*;
-import org.knime.core.data.container.DataContainer;
-import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.StringCell;
-import org.knime.core.data.image.ImageValue;
-import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.NodeModel;
-import org.knime.core.node.tableview.TableView;
-
-import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.BorderFactory;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.table.AbstractTableModel;
+
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTable;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.RowKey;
+import org.knime.core.data.container.DataContainer;
+import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.StringCell;
+import org.knime.core.data.image.ImageValue;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.tableview.TableView;
+
+import de.mpicbg.knime.hcs.base.heatmap.renderer.HeatWell;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.Well;
 
 /**
  * Creates a view with the well details as tooltip or as window.

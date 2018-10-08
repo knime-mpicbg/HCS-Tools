@@ -63,6 +63,12 @@ public abstract class LinearGradientTools {
                 new Color[] {new Color(0,255,0),
                              new Color(0, 0, 0),
                              new Color(255, 0, 0)}));
+        aMap.put("RBG", new LinearGradientPaint(new Point2D.Double(0,0),
+                new Point2D.Double(100, 0),
+                new float[] {0f,0.5f,1f},
+                new Color[] {new Color(255, 0, 0),
+                             new Color(0, 0, 0),
+                             new Color(0, 255, 0)}));
         aMap.put("Jet", new LinearGradientPaint(new Point2D.Double(0,0),
                 new Point2D.Double(100, 0),
                 new float[] {0f,0.333f,0.666f,1f},
@@ -94,6 +100,7 @@ public abstract class LinearGradientTools {
         aMap.put("GB", Color.RED);
         aMap.put("HSV", Color.WHITE);
         aMap.put("GBR", Color.WHITE);
+        aMap.put("RBG", Color.WHITE);
         aMap.put("Jet", Color.WHITE);
         aMap.put("Dark", Color.CYAN);
         aMap.put("RWB", Color.YELLOW);

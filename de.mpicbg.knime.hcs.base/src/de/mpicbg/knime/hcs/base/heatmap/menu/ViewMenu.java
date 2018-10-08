@@ -1,5 +1,24 @@
 package de.mpicbg.knime.hcs.base.heatmap.menu;
 
+import java.awt.Color;
+import java.awt.LinearGradientPaint;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.util.HashMap;
+
+import javax.swing.ButtonGroup;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.KeyStroke;
+
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapModel;
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapModelChangeListener;
 import de.mpicbg.knime.hcs.base.heatmap.HeatMapViewer;
@@ -9,14 +28,6 @@ import de.mpicbg.knime.hcs.base.heatmap.color.LinearGradientTools;
 import de.mpicbg.knime.hcs.base.heatmap.color.MinMaxStrategy;
 import de.mpicbg.knime.hcs.base.heatmap.color.QuantileStrategy;
 import de.mpicbg.knime.hcs.base.heatmap.dialog.ColorGradientDialog;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.util.HashMap;
 
 /**
  * Menu for the view manipulation.
@@ -192,30 +203,35 @@ public class ViewMenu extends JMenu implements HeatMapModelChangeListener {
      * @return color map sub-menu
      */
     private JMenu createColorMapMenu() {
-        JMenu lut = new JMenu("Colormap");
-        colorMapGroup = new ButtonGroup();
-        colorMap = new HashMap<String,JRadioButtonMenuItem>();
-        String[] names = {"GB", "GBR", "RWB", "HSV", "Jet", "Dark", "Custom"};
+    	JMenu lut = new JMenu("Colormap");
+    	colorMapGroup = new ButtonGroup();
+    	colorMap = new HashMap<String,JRadioButtonMenuItem>();
 
-        for (int i = 0; i < names.length; i++) {
-            Icon icon = createImageIcon("icons/" + names[i].toLowerCase() + ".png", names[i] + "color map");
-            JRadioButtonMenuItem item = new JRadioButtonMenuItem(names[i],icon);
-            colorMap.put(names[i], item);
-            colorMapGroup.add(item);
-            lut.add(item);
-            item.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent) {
-                    toggleColorMapAction(actionEvent);
-                }
-            });
+    	// which color maps are available
+    	int nMaps = LinearGradientTools.colorMap.size();
+    	String[] names = new String[nMaps];
+    	names = LinearGradientTools.colorMap.keySet().toArray(names);
 
-            // Set the active item.
-            if ((heatMapModel != null) && heatMapModel.getColorGradient().getGradientName().equals(names[i]))
-                item.setSelected(true);
-        }
+    	// icon-pngs are located de.mpicbg.knime.hcs.base.heatmap.menu.icons
+    	for (int i = 0; i < names.length; i++) {
+    		Icon icon = createImageIcon("icons/" + names[i].toLowerCase() + ".png", names[i] + "color map");
+    		JRadioButtonMenuItem item = new JRadioButtonMenuItem(names[i],icon);
+    		colorMap.put(names[i], item);
+    		colorMapGroup.add(item);
+    		lut.add(item);
+    		item.addActionListener(new ActionListener() {
+    			@Override
+    			public void actionPerformed(ActionEvent actionEvent) {
+    				toggleColorMapAction(actionEvent);
+    			}
+    		});
 
-        return lut;
+    		// Set the active item.
+    		if ((heatMapModel != null) && heatMapModel.getColorGradient().getGradientName().equals(names[i]))
+    			item.setSelected(true);
+    	}
+
+    	return lut;
     }
 
 

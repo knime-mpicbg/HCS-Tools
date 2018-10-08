@@ -8,7 +8,7 @@ import java.awt.event.KeyEvent;
 import java.util.*;
 
 import de.mpicbg.knime.hcs.core.model.PlateUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Create a Legend window for the heat map overlay colors.

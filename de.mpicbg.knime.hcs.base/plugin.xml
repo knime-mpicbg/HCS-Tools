@@ -53,8 +53,9 @@
         <!--screen mining-->
         <node category-path="/community/hcstools/screenmining" factory-class="de.mpicbg.knime.hcs.base.nodes.mine.EnrichmentAnalyzerFactory" id="de.mpicbg.tds.knime.hcstools.screenmining.EnrichmentAnalyzerFactory"/>
 
-        <node category-path="/community/hcstools/screenmining" factory-class="de.mpicbg.knime.hcs.base.nodes.dose.DoseResponseFactory" id="de.mpicbg.tds.knime.hcstools.screenmining.doseresponse.DoseResponseFactory"/>
-
+        <node category-path="/community/hcstools/screenmining"
+              factory-class="de.mpicbg.knime.hcs.base.nodes.mine.dosereponse2.DoseResponseFactory2"
+              id="de.mpicbg.tds.knime.hcstools.screenmining.doseresponse.DoseResponseFactory2"/>
 
         <!--utilities-->
         <node category-path="/community/hcstools/util" factory-class="de.mpicbg.knime.hcs.base.nodes.layout.ConvertPlateRowsFactory" id="de.mpicbg.tds.knime.hcstools.utils.ConvertPlateRowsFactory"/>
@@ -85,6 +86,7 @@
                           
         <node category-path="/community/hcstools/io" factory-class="de.mpicbg.knime.hcs.base.nodes.helper.ExampleDataNodeFactory" id="de.mpicbg.tds.knime.helpers.exdata.ExampleDataNodeFactory"/>
 
+		<node category-path="/community/hcstools/io" factory-class="de.mpicbg.knime.hcs.base.nodes.io.echoreader.EchoFileReaderNodeFactory" id="de.mpicbg.knime.hcs.base.echofilereader.EchoFileReaderNodeFactory"/>
 
         <!--Data manipulators-->
         <node category-path="/community/hcstools/manipulation/column/split+combine" factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.BetterCellSplitterFactory" id="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterCellSplitterFactory"/>
@@ -153,9 +155,9 @@
         </splashExtension>
     </extension>
     <extension point="org.knime.base.AggregationOperator">
-       <AggregationOperator AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.HCSMeanOperator" deprecated="false" id="de.mpicbg.knime.hcs.base.aggregation.PreciseMean" name="Precise Mean">
+       <AggregationOperator AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.HCSMeanOperator" deprecated="false">
        </AggregationOperator>
-       <AggregationOperator AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.HCSMadOperator" deprecated="false" id="de.mpicbg.knime.hcs.base.aggregation.Mad" name="Median absolute deviation">
+       <AggregationOperator AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.HCSMadOperator" deprecated="false">
        </AggregationOperator>
     </extension>
 

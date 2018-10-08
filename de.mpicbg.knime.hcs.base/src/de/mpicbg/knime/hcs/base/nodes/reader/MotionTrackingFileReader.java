@@ -10,7 +10,7 @@ import de.mpicbg.knime.hcs.core.barcodes.BarcodeParser;
 import de.mpicbg.knime.hcs.core.barcodes.BarcodeParserFactory;
 import de.mpicbg.knime.hcs.core.barcodes.namedregexp.NamedPattern;
 import de.mpicbg.knime.hcs.core.TdsUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;

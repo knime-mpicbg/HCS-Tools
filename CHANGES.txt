@@ -1,4 +1,46 @@
 ======================================================================================================
+2018-07-18
+VERSION		v3.1.2
+
+ISSUES
+
+* externalize libraries to avoid conflicts
+
+FEATURES
+
+* PlateHeatmapViewer: add red-black-green color map
+
+NEW NODE
+
+* Echo 550 Report Reader
+
+======================================================================================================
+2016-02-12
+VERSION		v3.1.0
+
+ISSUES
+
+* Dose Response - image port #89
+* Dose Response - further parameters in output table #90
+* Join Layout bug on identical layout names #23
+* Create Well Position #83 
+* fixes issue #70: MAD-Aggregation throws error for some columns fixed cast to DoubleValue
+
+NEW NODES
+
+* Dose Response (new version)
+	image out port added
+	more model parameters in output table
+	choice to show SEM instead of SD
+	concentration '0' removed from plot (but used for model fitting)
+* Create Well Position
+* Number Formatter
+* Expand Barcode (new version)
+	allows to choose the pattern applied
+	allows to choose where to add the new columns
+
+
+======================================================================================================
 2015-05-28
 VERSION		v2.0.3
 

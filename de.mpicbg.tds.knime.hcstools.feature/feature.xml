@@ -2,7 +2,7 @@
 <feature
       id="de.mpicbg.tds.knime.hcstools.feature"
       label="KNIME HCS Tools"
-      version="3.0.000.qualifier"
+      version="3.1.200.qualifier"
       provider-name="Max Planck Institute of Molecular Cell Biology and Genetics (MPI-CBG)">
 
    <description url="https://github.com/knime-mpicbg/HCS-Tools/wiki">
@@ -15,7 +15,7 @@
    </copyright>
 
    <license url="http://opensource.org/licenses/BSD-3-Clause">
-   3-clause BSD
+      3-clause BSD
    
       Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
@@ -32,14 +32,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&
          id="de.mpicbg.knime.hcs.base"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="de.mpicbg.knime.hcs.core"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
+
+   <plugin
+         id="de.mpicbg.knime.hcs.libs"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
 </feature>
