@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.dmg.pmml.TransformationDictionaryDocument.TransformationDictionary;
 //import org.dmg.pmml.TransformationDictionaryDocument.TransformationDictionary;
 import org.knime.base.node.preproc.autobinner.pmml.DisretizeConfiguration;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretize;
@@ -19,6 +20,7 @@ import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval.Closure;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLPreprocDiscretize;
 import org.knime.base.node.preproc.pmml.binner.BinnerColumnFactory.Bin;
 import org.knime.base.node.preproc.pmml.binner.NumericBin;
+import org.knime.base.node.preproc.pmml.binner.PMMLBinningTranslator;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -38,17 +40,15 @@ import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelNumber;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.pmml.PMMLPortObject;
-import org.knime.core.node.port.pmml.preproc.PMMLPreprocPortObjectSpec;
+import org.knime.core.node.port.pmml.PMMLPortObjectSpecCreator;
+import org.knime.core.node.port.pmml.preproc.DerivedFieldMapper;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
-import org.knime.core.node.util.filter.column.DataTypeColumnFilter;
 
 import de.mpicbg.knime.hcs.core.math.BinningAnalysis;
 import de.mpicbg.knime.hcs.core.math.Interval;
@@ -58,7 +58,7 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
  * This is the model implementation of BinningCalculate.
  * 
  *
- * @author 
+ * @author Tim Nicolaisen, Antje Janosch
  */
 
 public class BinningCalculateNodeModel extends AbstractNodeModel {
@@ -244,7 +244,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				continue;
 			}
 
-			DataRow currentRow = new DefaultRow(new RowKey(Integer.toString(rowCount)), cells);
+			DataRow currentRow = new DefaultRow(RowKey.createRowKey((long)n), cells);
 			StatisticDataContainer.addRowToTable(currentRow);
 
 			// set progress
@@ -259,7 +259,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		PMMLPreprocDiscretize pmmlDiscretize = createDisretizeOp(m_binMap, selectedCols);
 		//m_pmmlOutSpec = new PMMLDiscretizePreprocPortObjectSpec(pmmlDiscretize);
 		//
-
+		
 
 		PMMLPortObject pmmlPortObject = translate(pmmlDiscretize, inSpec);
 		//PMMLPortObject outPMMLPort = createPMMLModel(pmmlPortObject, inSpec, inData.getDataTableSpec());
@@ -332,16 +332,8 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			PMMLBins.add(new PMMLDiscretizeBin(bin.getLabel(), PMMLIntervals));
 		}
 
-
-
 		return PMMLBins;
 	}
-
-
-
-
-
-
 
 	@SuppressWarnings("unused")
 	private PMMLPreprocDiscretize createDisretizeOp(
@@ -383,7 +375,6 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			} else { // nicht replaced -> anhängen
 				columnToAppend.put(originalColumnName, replacedColumnName);
 			}
-
 
 			NumericBin[] numericBin = new NumericBin[bins.size()];
 			int counter = 0;
@@ -431,21 +422,14 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			columnToBins.put(originalColumnName, numericBin);
 		}
 
-		//ColumnRearranger createColReg = createColReg(dataTableSpec, columnToBins, columnToAppended);
-
-		/*PMMLPortObjectSpecCreator pmmlSpecCreator = new PMMLPortObjectSpecCreator(dataTableSpec);
-		PMMLPortObject pmmlPortObject = new PMMLPortObject(pmmlSpecCreator.createSpec());
-		PMMLPortObject pmmlPortObject = new PMMLPortObject(pmmlSpecCreator.createSpec(), null, dataTableSpec);
-		PMMLBinningTranslator trans =
-				new PMMLBinningTranslator(columnToBins, columnToAppend, new DerivedFieldMapper(pmmlPortObject));
-		TransformationDictionary exportToTransDict = trans.exportToTransDict();
-		pmmlPortObject.addGlobalTransformations(exportToTransDict);
-
-
-
-		return pmmlPortObject;*/
-		return null;
-
+		// why should I create a new spec ???
+        PMMLPortObjectSpecCreator pmmlSpecCreator = new PMMLPortObjectSpecCreator(dataTableSpec);
+        PMMLPortObject pmmlPortObject = new PMMLPortObject(pmmlSpecCreator.createSpec(), null, dataTableSpec);
+        PMMLBinningTranslator trans =
+            new PMMLBinningTranslator(columnToBins, columnToAppend, new DerivedFieldMapper(pmmlPortObject));
+        TransformationDictionary exportToTransDict = trans.exportToTransDict();
+        pmmlPortObject.addGlobalTransformations(exportToTransDict);
+        return pmmlPortObject;
 	}
 
 	/**
@@ -486,23 +470,6 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 		// TODO: generated method stub
 		return new DataTableSpec[]{null};
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		// TODO: generated method stub
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		// TODO: generated method stub
 	}
 
 	@Override

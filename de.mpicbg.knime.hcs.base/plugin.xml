@@ -160,5 +160,15 @@
        <AggregationOperator AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.HCSMadOperator" deprecated="false">
        </AggregationOperator>
     </extension>
+    <extension
+          point="org.knime.core.DataValueRenderer">
+       <dataValue
+             valueClass="org.knime.core.data.IntervalValue">
+          <renderer
+                rendererFactoryClass="de.mpicbg.knime.hcs.base.IntervalValueRenderer"
+                suggestAsDefault="false">
+          </renderer>
+       </dataValue>
+    </extension>
 
 </plugin>
