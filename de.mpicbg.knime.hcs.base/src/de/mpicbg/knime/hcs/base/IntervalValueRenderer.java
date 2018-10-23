@@ -1,31 +1,78 @@
 package de.mpicbg.knime.hcs.base;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.IntervalValue;
 import org.knime.core.data.renderer.DataValueRenderer;
 import org.knime.core.data.renderer.DataValueRendererFactory;
+import org.knime.core.data.renderer.DefaultDataValueRenderer;
 
-public class IntervalValueRenderer implements DataValueRendererFactory {
-
-	public IntervalValueRenderer() {
-		// TODO Auto-generated constructor stub
+@SuppressWarnings("serial")
+public class IntervalValueRenderer extends DefaultDataValueRenderer {
+	
+	private NumberFormat m_format = NumberFormat.getNumberInstance(Locale.US);
+	
+	public IntervalValueRenderer(String description) {
+		super(description);
+        if (description == null) {
+            throw new IllegalArgumentException("Description must not be null.");
+        }
 	}
+	
+	/**
+    /** Sets the interval values to a human readable format
+     * @param value The value to be rendered.
+     * @see javax.swing.table.DefaultTableCellRenderer#setValue(Object)
+     */
+    @Override
+    protected void setValue(final Object value) {
+    	Object newValue;
+        if (value instanceof IntervalValue) {
+        	
+            IntervalValue cell = (IntervalValue)value;
+            double leftBound = cell.getLeftBound();
+            double rightBound = cell.getRightBound();
+            boolean inclLeft = cell.leftBoundIncluded();
+            boolean inclRight = cell.rightBoundIncluded();
+            
+           String left = m_format != null ? m_format.format(leftBound) : Double.toString(leftBound);
+           String right = m_format != null ? m_format.format(rightBound) : Double.toString(rightBound);
+           
+           String leftIncl = inclLeft ? "[ " : "( ";
+           String rightIncl = inclRight ? " ]" : " )";
+           
+           newValue = (leftIncl + left + " ; " + right + rightIncl);
+           
+        } else {
+            // missing data cells will also end up here
+            newValue = value;
+        }
+        super.setValue(newValue);
+    }
 
-	@Override
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	/**
+	 * Factory for a {@link IntervalValueRenderer} that shows a human readable format
+	 */
+	public static final class IntervalValueRendererFactory implements DataValueRendererFactory {
 
-	@Override
-	public String getId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		private static final String DESCRIPTION = "my Interval";
 
-	@Override
-	public DataValueRenderer createRenderer(DataColumnSpec colSpec) {
-		// TODO Auto-generated method stub
-		return null;
+		@Override
+		public String getDescription() {
+			return DESCRIPTION;
+		}
+
+		@Override
+		public DataValueRenderer createRenderer(DataColumnSpec colSpec) {
+			return new IntervalValueRenderer(DESCRIPTION);
+		}
+
+		@Override
+		public String getId() {
+			return this.getClass().getName();
+		}
 	}
 
 }

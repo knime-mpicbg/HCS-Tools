@@ -165,8 +165,8 @@
        <dataValue
              valueClass="org.knime.core.data.IntervalValue">
           <renderer
-                rendererFactoryClass="de.mpicbg.knime.hcs.base.IntervalValueRenderer"
-                suggestAsDefault="false">
+                rendererFactoryClass="de.mpicbg.knime.hcs.base.IntervalValueRenderer$IntervalValueRendererFactory"
+                suggestAsDefault="true">
           </renderer>
        </dataValue>
     </extension>
