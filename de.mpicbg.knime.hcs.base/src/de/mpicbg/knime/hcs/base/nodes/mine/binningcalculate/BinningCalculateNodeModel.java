@@ -3,6 +3,7 @@ package de.mpicbg.knime.hcs.base.nodes.mine.binningcalculate;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.dmg.pmml.TransformationDictionaryDocument.TransformationDictionary;
-//import org.dmg.pmml.TransformationDictionaryDocument.TransformationDictionary;
 import org.knime.base.node.preproc.autobinner.pmml.DisretizeConfiguration;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretize;
 import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretizeBin;
@@ -30,6 +30,7 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.IntervalCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
@@ -39,7 +40,6 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelNumber;
@@ -146,35 +146,30 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		FilterResult filterResult = ((SettingsModelColumnFilter2)this.getModelSetting(CFG_COLUMN)).applyTo(inSpec);
 		List<String> selectedCols = Arrays.asList(filterResult.getIncludes());
 
-		List<Double> doubleList;
-
-		int i = 1;
+		// number of parameters tp process
 		int n = selectedCols.size();
+		
 		double progress = 0.0;
 		int countMissing;
 
-		BufferedDataContainer StatisticDataContainer = exec.createDataContainer(createStatisticOutSpec(inData.getSpec()));
-		int rowCount = 0;
+		// will be filled with interval information and statistics
+		BufferedDataContainer statisticDataContainer = exec.createDataContainer(createStatisticOutSpec(inData.getSpec(), nBins));
 
-		/**
-		 * 
-		 *			Iterate for each parameter through the table and creating bins
-		 * 
-		 */
+		// collects the values to be binned
 		HashMap<Object, List<Double>> dataMap = new HashMap<Object, List<Double>>();
+		int newRowIdx = 0;
 
-
-		// gets the selected Columns in the dialog on by one
+		// Iterate for each parameter through the table and creating bins
 		for (String col : selectedCols) {
 
 			// One PMMLDiscretizeBin contains one bin for a single column - therefore we need a List of all bins
-			List<PMMLDiscretizeBin>  pmml_DicretizeBins =  new ArrayList<PMMLDiscretizeBin>();
+			//List<PMMLDiscretizeBin>  pmml_DicretizeBins =  new ArrayList<PMMLDiscretizeBin>();
 
 			//delivers the index of the column to get the cell 
 			int colIdx = inSpec.findColumnIndex(col);
-			String aggString = inSpec.getColumnSpec(colIdx).getName();
+			//String aggString = inSpec.getColumnSpec(colIdx).getName();
 
-			// I DONT KNOW
+			// number of missing values for this parameter
 			countMissing = 0;
 
 			// parameter / aggregation string / values
@@ -193,7 +188,6 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 				allData.add(value);
 				
-				rowCount++;
 				// check whether execution was canceled
 				exec.checkCanceled();
 			}
@@ -201,14 +195,13 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			// warning if the reference label does not contain any data (domain available though no data in the table
 			// don't calculate the binning for this parameter
 			if (allData.isEmpty()) {
-				setWarningMessage("there is no reference data available for " + col);
+				setWarningMessage("there is no reference data available for \"" + col + "\"");
 				continue;
 			}
 
 			// warning if missing values were filtered from the column
 			if (countMissing > 0) {
 				this.logger.info(col + ": " + countMissing + " values were skipped because of missing values");
-				//setWarningMessage( col + ": " + countMissing + " rows were skipped because of missing values");
 			}
 			
 			dataMap.put("ungrouped", allData);
@@ -216,44 +209,40 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			// do the binning analysis on the collected data
 			BinningAnalysis binAnalysis = new BinningAnalysis(dataMap, nBins, col);
 			LinkedList<Interval> bins = binAnalysis.getBins();
-			List<PMMLDiscretizeBin> DiscretizeBins = DiscretizeBins(bins);
+			List<PMMLDiscretizeBin> DiscretizeBins = discretizeBins(bins);
 			m_binMap.put(col, DiscretizeBins);
+			
+			if(bins.size() < nBins) {
+				setWarningMessage("\"" + col + "\": Less than " + nBins + " bins created. Input data lacks variability");
+			}
+			
 			// fill binning data into the new table
-
 			List<DataCell> cells = new ArrayList<DataCell>();
 
-			if(bins.size() > 0) {
-				cells.add(new StringCell(col));
-				cells.add(new StringCell(Integer.toString(bins.size())));
-
-				for(i= 0; i < (bins.size()); i++)
-				{
+			// parameter name
+			cells.add(new StringCell(col));
+			// number of bins created
+			cells.add(new IntCell(bins.size()));
+			// bounds (interval cell) for each bin; missing cell if not available
+			for(int i = 0; i < nBins; i++)
+			{
+				if(i < bins.size()) {
 					cells.add(new IntervalCell(bins.get(i).getLowerBound(),bins.get(i).getUpperBound(), bins.get(i).checkModeLowerBound(), bins.get(i).checkModeUpperBound()));
+				} else {
+					cells.add(DataType.getMissingCell());
 				}
-
-				if((bins.size()) < nBins)
-				{
-					for(i= 0; i < (nBins - (bins.size())); i++){
-						cells.add(DataType.getMissingCell());
-					}
-				}
-
-			}
-			else {
-				//TODO: decide what
-				continue;
 			}
 
-			DataRow currentRow = new DefaultRow(RowKey.createRowKey((long)n), cells);
-			StatisticDataContainer.addRowToTable(currentRow);
+			DataRow currentRow = new DefaultRow(RowKey.createRowKey((long)newRowIdx), cells);
+			statisticDataContainer.addRowToTable(currentRow);
+			newRowIdx++;
 
 			// set progress
 			progress = progress + 1.0 / n;
-			i++;
-			exec.setProgress(progress, "Binning done for parameter " + col + " (" + i + "/" + n + ")");
+			exec.setProgress(progress, "Binning done for parameter " + col + " (" + (newRowIdx + 1) + "/" + n + ")");
 		}
 
-		StatisticDataContainer.close();
+		statisticDataContainer.close();
 
 		// not in use
 		PMMLPreprocDiscretize pmmlDiscretize = createDisretizeOp(m_binMap, selectedCols);
@@ -263,7 +252,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 		PMMLPortObject pmmlPortObject = translate(pmmlDiscretize, inSpec);
 		//PMMLPortObject outPMMLPort = createPMMLModel(pmmlPortObject, inSpec, inData.getDataTableSpec());
-		return new PortObject[]{StatisticDataContainer.getTable(), pmmlPortObject};
+		return new PortObject[]{statisticDataContainer.getTable(), pmmlPortObject};
 	}
 
 
@@ -276,31 +265,34 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	 * @param inSpec
 	 * @return new specs
 	 */
-	private DataTableSpec createStatisticOutSpec(DataTableSpec inSpec) {
+	private DataTableSpec createStatisticOutSpec(DataTableSpec inSpec, int nBins) {
 
-		int nBins = ((SettingsModelIntegerBounded) getModelSetting(CFG_BIN)).getIntValue();
 		DataColumnSpec[] columnArray = new DataColumnSpec[2 + nBins];
-
 		DataColumnSpecCreator colCreator;
 
-		colCreator = new DataColumnSpecCreator("parameter", StringCell.TYPE);
+		colCreator = new DataColumnSpecCreator("Parameter", StringCell.TYPE);
 		columnArray[0] = colCreator.createSpec();
 
-		colCreator = new DataColumnSpecCreator("bin_total", StringCell.TYPE);
+		colCreator = new DataColumnSpecCreator("Number of bins", IntCell.TYPE);
 		columnArray[1] = colCreator.createSpec();
 
 		for(int i = 0; i < nBins; i++){
-			colCreator = new DataColumnSpecCreator("bin_" + (i + 1), IntervalCell.TYPE);
+			double b = ((double)i + 1)* 1 / nBins;
+			NumberFormat defaultFormat = NumberFormat.getPercentInstance();
+			defaultFormat.setMinimumFractionDigits(0);
+			String currentBin = defaultFormat.format(b);
+			
+			colCreator = new DataColumnSpecCreator(currentBin, IntervalCell.TYPE);
 			columnArray[2 + i] = colCreator.createSpec();
 		}
 
 
-		return new DataTableSpec("Binning Specs", columnArray);  //To change body of created methods use File | Settings | File Templates.
+		return new DataTableSpec("Binning Summary", columnArray);  //To change body of created methods use File | Settings | File Templates.
 	}
 
 
 
-	private List<PMMLDiscretizeBin> DiscretizeBins(LinkedList<Interval> bins) 
+	private List<PMMLDiscretizeBin> discretizeBins(LinkedList<Interval> bins) 
 	{
 
 		// List of all discretize bins with information of label and interval
