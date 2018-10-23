@@ -9,19 +9,11 @@
     <fullDescription>
         <intro>Insert long description here...</intro>
         
-        
-        <option name="Aggregate object data by">object data of each subgroup will be applied to the bins (e.g. well)
-        </option>
         <option name="Column selection">the data of the selected columns will be used for the binning analysis (e.g.
             different parameters)
         </option>
         <option name="Number of bins">the reference population is divided into the given number of bins</option>
-        <option name="Column with reference label">the chosen column contains the label to describe the reference
-            population.
-            If all data should be used as reference population, the option can be set to "None"
-        </option>
-        <option name="Subset by">if a reference population should be used, the chosen label defines this subpopulation
-        </option>
+        
         <!-- possibly more options that can also be grouped by tabs -->
         <!--
         <tab name="Standard Options">
@@ -37,13 +29,9 @@
     <ports>
         <inPort index="0" name="Input Data">Description of first input port...</inPort>
         <!-- possibly more input ports here-->
-        <outPort index="0" name="Output Data">Description of first output port...</outPort>
+        <outPort index="0" name="Binning Statistics">Description of first output port...</outPort>
         <!-- possibly more output ports here-->
          <outPort index="1" name="PMML Model">Description of first output port...</outPort>
         <!-- possibly more output ports here-->
     </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
 </knimeNode>

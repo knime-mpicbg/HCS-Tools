@@ -154,7 +154,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 		// will be filled with interval information and statistics
 		BufferedDataContainer statisticDataContainer = exec.createDataContainer(createStatisticOutSpec(inData.getSpec(), nBins));
-
+		
 		// collects the values to be binned
 		HashMap<Object, List<Double>> dataMap = new HashMap<Object, List<Double>>();
 		int newRowIdx = 0;
@@ -215,27 +215,34 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			if(bins.size() < nBins) {
 				setWarningMessage("\"" + col + "\": Less than " + nBins + " bins created. Input data lacks variability");
 			}
-			
-			// fill binning data into the new table
-			List<DataCell> cells = new ArrayList<DataCell>();
 
-			// parameter name
-			cells.add(new StringCell(col));
-			// number of bins created
-			cells.add(new IntCell(bins.size()));
-			// bounds (interval cell) for each bin; missing cell if not available
 			for(int i = 0; i < nBins; i++)
 			{
+				// fill binning data into the new table
+				List<DataCell> statisticCells = new ArrayList<DataCell>();
+				
+				// parameter name
+				statisticCells.add(new StringCell(col));
+				// number of bins created
+				statisticCells.add(new IntCell(bins.size()));
+				
+				double b = ((double)i + 1)* 1 / nBins;
+				NumberFormat defaultFormat = NumberFormat.getPercentInstance();
+				defaultFormat.setMinimumFractionDigits(0);
+				String currentBin = defaultFormat.format(b);
+				statisticCells.add(new StringCell(currentBin));
+				
+				// bounds (interval cell) for each bin; missing cell if not available
 				if(i < bins.size()) {
-					cells.add(new IntervalCell(bins.get(i).getLowerBound(),bins.get(i).getUpperBound(), bins.get(i).checkModeLowerBound(), bins.get(i).checkModeUpperBound()));
+					statisticCells.add(new IntervalCell(bins.get(i).getLowerBound(),bins.get(i).getUpperBound(), bins.get(i).checkModeLowerBound(), bins.get(i).checkModeUpperBound()));
 				} else {
-					cells.add(DataType.getMissingCell());
+					statisticCells.add(DataType.getMissingCell());
 				}
+				
+				DataRow currentRow = new DefaultRow(RowKey.createRowKey((long)newRowIdx), statisticCells);
+				statisticDataContainer.addRowToTable(currentRow);
+				newRowIdx++;
 			}
-
-			DataRow currentRow = new DefaultRow(RowKey.createRowKey((long)newRowIdx), cells);
-			statisticDataContainer.addRowToTable(currentRow);
-			newRowIdx++;
 
 			// set progress
 			progress = progress + 1.0 / n;
@@ -256,9 +263,6 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	}
 
 
-
-
-
 	/**
 	 * generates the table specs for the ouput table
 	 *
@@ -267,16 +271,23 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	 */
 	private DataTableSpec createStatisticOutSpec(DataTableSpec inSpec, int nBins) {
 
-		DataColumnSpec[] columnArray = new DataColumnSpec[2 + nBins];
+		DataColumnSpec[] columnArray = new DataColumnSpec[4];
 		DataColumnSpecCreator colCreator;
 
 		colCreator = new DataColumnSpecCreator("Parameter", StringCell.TYPE);
 		columnArray[0] = colCreator.createSpec();
 
-		colCreator = new DataColumnSpecCreator("Number of bins", IntCell.TYPE);
+		colCreator = new DataColumnSpecCreator("Number of bins created", IntCell.TYPE);
 		columnArray[1] = colCreator.createSpec();
+		
+		colCreator = new DataColumnSpecCreator("Interval", StringCell.TYPE);
+		columnArray[2] = colCreator.createSpec();
+		
+		colCreator = new DataColumnSpecCreator("Bounds", IntervalCell.TYPE);
+		columnArray[3] = colCreator.createSpec();
+		
 
-		for(int i = 0; i < nBins; i++){
+		/*for(int i = 0; i < nBins; i++){
 			double b = ((double)i + 1)* 1 / nBins;
 			NumberFormat defaultFormat = NumberFormat.getPercentInstance();
 			defaultFormat.setMinimumFractionDigits(0);
@@ -284,7 +295,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			
 			colCreator = new DataColumnSpecCreator(currentBin, IntervalCell.TYPE);
 			columnArray[2 + i] = colCreator.createSpec();
-		}
+		}*/
 
 
 		return new DataTableSpec("Binning Summary", columnArray);  //To change body of created methods use File | Settings | File Templates.
