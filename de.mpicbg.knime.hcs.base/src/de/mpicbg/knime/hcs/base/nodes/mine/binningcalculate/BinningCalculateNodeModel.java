@@ -44,6 +44,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelNumber;
 import org.knime.core.node.port.PortObject;
+import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.pmml.PMMLPortObject;
 import org.knime.core.node.port.pmml.PMMLPortObjectSpecCreator;
@@ -62,6 +63,7 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
  */
 
 public class BinningCalculateNodeModel extends AbstractNodeModel {
+
 
 	// Configuration for Bins
 	public static final String CFG_BIN = "nBins";
@@ -131,7 +133,11 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
         return new SettingsModelColumnFilter2(CFG_COLUMN, DoubleValue.class);
     }
 
-			
+	@Override
+	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
+		// TODO Auto-generated method stub
+		return super.configure(inSpecs);
+	}		
 
 	@Override
 	protected PortObject[] execute(final PortObject[] inPorts,
@@ -148,9 +154,11 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 		// number of parameters tp process
 		int n = selectedCols.size();
-		
+		// number of rows in data table
+		long nrows = inData.size();
+		// current progress
 		double progress = 0.0;
-		int countMissing;
+		
 
 		// will be filled with interval information and statistics
 		BufferedDataContainer statisticDataContainer = exec.createDataContainer(createStatisticOutSpec(inData.getSpec(), nBins));
@@ -160,6 +168,8 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		int newRowIdx = 0;
 
 		// Iterate for each parameter through the table and creating bins
+		// current column
+		int currentCol = 1;
 		for (String col : selectedCols) {
 
 			// One PMMLDiscretizeBin contains one bin for a single column - therefore we need a List of all bins
@@ -169,12 +179,17 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			int colIdx = inSpec.findColumnIndex(col);
 			//String aggString = inSpec.getColumnSpec(colIdx).getName();
 
-			// number of missing values for this parameter
-			countMissing = 0;
+			// number of missing values
+			int countMissing = 0;
 
 			// parameter / aggregation string / values
 			List<Double> allData = new ArrayList<Double>();
+			
+			exec.setMessage("Binning for parameter " + col + " (" + currentCol + "/" + n + ")");
+			ExecutionMonitor execParam = exec.createSubProgress(1.0/n);
 
+			// current row
+			int currentRowIdx = 1;
 			for (DataRow row : inData) {
 
 				DataCell valueCell = row.getCell(colIdx);
@@ -190,7 +205,13 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				
 				// check whether execution was canceled
 				exec.checkCanceled();
+				// set progress
+				progress = ((double)currentRowIdx/nrows);
+				execParam.setProgress(progress, "Reading row: " + currentRowIdx + "/" + nrows + ")");
+				currentRowIdx++;
 			}
+			
+			execParam.setMessage("Creating bins");
 
 			// warning if the reference label does not contain any data (domain available though no data in the table
 			// don't calculate the binning for this parameter
@@ -216,6 +237,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				setWarningMessage("\"" + col + "\": Less than " + nBins + " bins created. Input data lacks variability");
 			}
 
+			// create statistics table content
 			for(int i = 0; i < nBins; i++)
 			{
 				// fill binning data into the new table
@@ -243,10 +265,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				statisticDataContainer.addRowToTable(currentRow);
 				newRowIdx++;
 			}
-
-			// set progress
-			progress = progress + 1.0 / n;
-			exec.setProgress(progress, "Binning done for parameter " + col + " (" + (newRowIdx + 1) + "/" + n + ")");
+			currentCol++;
 		}
 
 		statisticDataContainer.close();
