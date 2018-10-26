@@ -40,6 +40,7 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.defaultnodesettings.SettingsModelNumber;
@@ -122,7 +123,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	 * 
 	 * @return settings model
 	 */
-	public static SettingsModelNumber createBinSelectionModel() {
+	public static SettingsModelIntegerBounded createBinSelectionModel() {
 
 		return new SettingsModelIntegerBounded(CFG_BIN, CFG_BIN_DFT, CFG_BIN_MIN, CFG_BIN_MAX);
 	}
@@ -131,13 +132,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	@SuppressWarnings("unchecked")
 	public static SettingsModelColumnFilter2 createColumnFilterModel() {
         return new SettingsModelColumnFilter2(CFG_COLUMN, DoubleValue.class);
-    }
-
-	@Override
-	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
-		// TODO Auto-generated method stub
-		return super.configure(inSpecs);
-	}		
+    }		
 
 	@Override
 	protected PortObject[] execute(final PortObject[] inPorts,
@@ -279,6 +274,41 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		PMMLPortObject pmmlPortObject = translate(pmmlDiscretize, inSpec);
 		//PMMLPortObject outPMMLPort = createPMMLModel(pmmlPortObject, inSpec, inData.getDataTableSpec());
 		return new PortObject[]{statisticDataContainer.getTable(), pmmlPortObject};
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
+			throws InvalidSettingsException {
+		DataTableSpec inSpec = (DataTableSpec) inSpecs[0];
+
+		// check if numeric columns are available at all
+		if (!inSpec.containsCompatibleType(DoubleValue.class))
+            throw new InvalidSettingsException("input table requires at least one numeric column (Double or Integer)");   
+		
+		// number of bins value controlled by SettingsModel
+		int nBins = ((SettingsModelIntegerBounded) getModelSetting(CFG_BIN)).getIntValue();
+		
+		// check number of selected columns
+		FilterResult filterResult = ((SettingsModelColumnFilter2)this.getModelSetting(CFG_COLUMN)).applyTo(inSpec);
+		List<String> selectedCols = Arrays.asList(filterResult.getIncludes());
+		if(selectedCols.isEmpty()) {
+			this.setWarningMessage("No column has been selected for processing");
+		} else {
+			// check if column selection settings are still fully applicable to input table
+			String[] inclColumns = filterResult.getRemovedFromIncludes();
+			if(inclColumns.length > 0 ) {
+				String missingInclColumns = String.join(", ", inclColumns);
+				this.setWarningMessage("The following included columns are not available anymore: " + missingInclColumns);
+			}
+			// do not give message for missing excluded columns as its not important
+		}
+		
+		PMMLPortObjectSpecCreator pmmlSpecCreator = new PMMLPortObjectSpecCreator(inSpec);
+
+		return new PortObjectSpec[]{(PortObjectSpec)createStatisticOutSpec(inSpec, nBins), pmmlSpecCreator.createSpec()};
 	}
 
 
@@ -481,18 +511,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		// TODO: generated method stub
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
-			throws InvalidSettingsException {
 
-
-
-		// TODO: generated method stub
-		return new DataTableSpec[]{null};
-	}
 
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
