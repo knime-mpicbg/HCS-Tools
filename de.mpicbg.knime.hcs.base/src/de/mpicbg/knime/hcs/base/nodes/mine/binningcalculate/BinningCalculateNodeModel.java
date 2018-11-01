@@ -2,11 +2,14 @@ package de.mpicbg.knime.hcs.base.nodes.mine.binningcalculate;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +42,11 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NotConfigurableException;
+import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
-import org.knime.core.node.defaultnodesettings.SettingsModelNumber;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
@@ -52,7 +55,10 @@ import org.knime.core.node.port.pmml.PMMLPortObjectSpecCreator;
 import org.knime.core.node.port.pmml.preproc.DerivedFieldMapper;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
 
+import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObject;
+import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObjectSpec;
 import de.mpicbg.knime.hcs.core.math.BinningAnalysis;
+import de.mpicbg.knime.hcs.core.math.BinningAnalysisModel;
 import de.mpicbg.knime.hcs.core.math.Interval;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
@@ -74,6 +80,8 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	
 	// Configuration for selected Columns to bin
 	public static final String CFG_COLUMN = "selectedCols";
+	
+	
 	
 	//private PMMLPreprocPortObjectSpec m_pmmlOutSpec;
 
@@ -104,7 +112,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	 */
 	protected BinningCalculateNodeModel() 
 	{
-		super(new PortType[]{BufferedDataTable.TYPE}, new PortType[]{BufferedDataTable.TYPE, PMMLPortObject.TYPE}, true);
+		super(new PortType[]{BufferedDataTable.TYPE}, new PortType[]{BufferedDataTable.TYPE, BinningPortObject.TYPE}, true);
 
 		initializeSettings();
 	}
@@ -154,12 +162,16 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		// current progress
 		double progress = 0.0;
 		
+		
+		
 
 		// will be filled with interval information and statistics
 		BufferedDataContainer statisticDataContainer = exec.createDataContainer(createStatisticOutSpec(inData.getSpec(), nBins));
 		
-		// collects the values to be binned
-		HashMap<Object, List<Double>> dataMap = new HashMap<Object, List<Double>>();
+		// collect intervals for port creation
+		//HashMap<String, BinningAnalysis> binningMap = new LinkedHashMap<String, BinningAnalysis>();
+		HashMap<String, LinkedList<Interval>> binningMap = new LinkedHashMap<String, LinkedList<Interval>>();
+		
 		int newRowIdx = 0;
 
 		// Iterate for each parameter through the table and creating bins
@@ -220,6 +232,8 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				this.logger.info(col + ": " + countMissing + " values were skipped because of missing values");
 			}
 			
+			// collects the values to be binned
+			HashMap<Object, List<Double>> dataMap = new HashMap<Object, List<Double>>();
 			dataMap.put("ungrouped", allData);
 
 			// do the binning analysis on the collected data
@@ -227,6 +241,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			LinkedList<Interval> bins = binAnalysis.getBins();
 			List<PMMLDiscretizeBin> DiscretizeBins = discretizeBins(bins);
 			m_binMap.put(col, DiscretizeBins);
+			binningMap.put(col, bins);
 			
 			if(bins.size() < nBins) {
 				setWarningMessage("\"" + col + "\": Less than " + nBins + " bins created. Input data lacks variability");
@@ -273,9 +288,55 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 		PMMLPortObject pmmlPortObject = translate(pmmlDiscretize, inSpec);
 		//PMMLPortObject outPMMLPort = createPMMLModel(pmmlPortObject, inSpec, inData.getDataTableSpec());
-		return new PortObject[]{statisticDataContainer.getTable(), pmmlPortObject};
+		//return new PortObject[]{statisticDataContainer.getTable(), pmmlPortObject};
+		
+		//BinningPortObject bpo = createBinningPortObject(selectedCols, nBins, binningMap);
+		BinningAnalysisModel model = new BinningAnalysisModel(selectedCols, nBins, binningMap);
+		BinningPortObject bpo = new BinningPortObject(model);
+
+		return new PortObject[] {statisticDataContainer.getTable(), bpo};
 	}
 	
+	/**
+	 * stores node setting to a temporary file and create a binning port object
+	 * 
+	 * @param selectedCols	list of selected column names 
+	 * @param nBins			number of bins
+	 * @param binningMap 	map containing interval values for each parameter and bin
+	 * @return BinningPortObject
+	 * @throws IOException
+	 */
+	/*private BinningPortObject createBinningPortObject(List<String> selectedCols, int nBins, HashMap<String,BinningAnalysis> binningMap) throws IOException {
+		
+		File binningSettingsFile = null;
+		binningSettingsFile = File.createTempFile("binningSettings", ".xml");
+		
+		// populate node settings
+		NodeSettings settings = new NodeSettings(BinningPortObject.PORT_MAIN_KEY);
+		settings.addStringArray(BinningPortObject.PORT_COLUMNS_KEY, selectedCols.toArray(new String[selectedCols.size()]));
+		settings.addInt(BinningPortObject.PORT_BINS_KEY, nBins);
+		
+		// for each parameter
+		for(Map.Entry<String, BinningAnalysis> entry : binningMap.entrySet()) {
+			String col = entry.getKey();
+			BinningAnalysis ba = entry.getValue();
+			
+			ConfigBase cfg = settings.addConfigBase(col);
+			// for each interval
+			for(Interval iv : ba.getBins()) {
+				ConfigBase cfg_bin = cfg.addConfigBase(iv.getLabel());
+				boolean[] incl = {iv.checkModeLowerBound(),iv.checkModeUpperBound()};
+				double[] bounds = {iv.getLowerBound(),iv.getUpperBound()};
+				cfg_bin.addBooleanArray(BinningPortObject.PORT_INCL_KEY, incl);
+				cfg_bin.addDoubleArray(BinningPortObject.PORT_BOUNDS_KEY, bounds);
+			}
+		}
+		
+		settings.saveToXML(new FileOutputStream(binningSettingsFile));
+		
+		return new BinningPortObject(nBins, binningMap);
+	}*/
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -307,8 +368,10 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		}
 		
 		PMMLPortObjectSpecCreator pmmlSpecCreator = new PMMLPortObjectSpecCreator(inSpec);
+		BinningPortObjectSpec bpSpec = new BinningPortObjectSpec(selectedCols.toArray(new String[selectedCols.size()]));
 
-		return new PortObjectSpec[]{(PortObjectSpec)createStatisticOutSpec(inSpec, nBins), pmmlSpecCreator.createSpec()};
+		//return new PortObjectSpec[]{(PortObjectSpec)createStatisticOutSpec(inSpec, nBins), pmmlSpecCreator.createSpec()};
+		return new PortObjectSpec[]{(PortObjectSpec)createStatisticOutSpec(inSpec, nBins), bpSpec};
 	}
 
 

@@ -50,6 +50,18 @@ public class Interval {
         this.mode = mode;
     }
 
+    /**
+     * helper method to get the mode from boolean values for right and left
+     * @param inclLeft
+     * @param inclRight
+     * @return Mode
+     */
+    public static Mode getMode(boolean inclLeft, boolean inclRight) {
+    	if(inclLeft && inclRight) return Mode.INCL_BOTH;
+    	if(inclLeft && !inclRight) return Mode.INCL_LEFT;
+    	if(!inclLeft && inclRight) return Mode.INCL_RIGHT;
+    	return Mode.INCL_NONE;
+    }
 
     /**
      * @param x        value to test
