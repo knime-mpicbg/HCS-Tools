@@ -2,8 +2,6 @@ package de.mpicbg.knime.hcs.base.nodes.mine.binningcalculate;
 
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -12,18 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import org.dmg.pmml.TransformationDictionaryDocument.TransformationDictionary;
-import org.knime.base.node.preproc.autobinner.pmml.DisretizeConfiguration;
-import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretize;
-import org.knime.base.node.preproc.autobinner.pmml.PMMLDiscretizeBin;
-import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval;
-import org.knime.base.node.preproc.autobinner.pmml.PMMLInterval.Closure;
-import org.knime.base.node.preproc.autobinner.pmml.PMMLPreprocDiscretize;
-import org.knime.base.node.preproc.pmml.binner.BinnerColumnFactory.Bin;
-import org.knime.base.node.preproc.pmml.binner.NumericBin;
-import org.knime.base.node.preproc.pmml.binner.PMMLBinningTranslator;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -42,17 +29,12 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeSettings;
 import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
-import org.knime.core.node.port.pmml.PMMLPortObject;
-import org.knime.core.node.port.pmml.PMMLPortObjectSpecCreator;
-import org.knime.core.node.port.pmml.preproc.DerivedFieldMapper;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
 
 import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObject;
@@ -68,7 +50,6 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
  *
  * @author Tim Nicolaisen, Antje Janosch
  */
-
 public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 
@@ -80,31 +61,6 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	
 	// Configuration for selected Columns to bin
 	public static final String CFG_COLUMN = "selectedCols";
-	
-	
-	
-	//private PMMLPreprocPortObjectSpec m_pmmlOutSpec;
-
-	// provides the row id for the output table
-	//private int rowCount;
-
-	/** Keeps index of the input port which is 0. *//*
-	static final int DATA_INPORT = 0;
-
-	*//** Keeps index of the optional model port which is 1. *//*
-	static final int MODEL_INPORT = 1;
-
-	*//** Keeps index of the output port which is 0. *//*
-	static final int OUTPORT = 0;*/
-
-	private final Map<String, Bin[]> m_columnToBins =
-			new HashMap<String, Bin[]>();
-			
-	private Map<String, List<PMMLDiscretizeBin>>  m_binMap =
-			new HashMap<String, List<PMMLDiscretizeBin>>();	
-		
-	private final Map<String, String> m_columnToAppended =
-			new HashMap<String, String>();
 	
 	
 	/**
@@ -129,14 +85,17 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	/**
 	 * settings model for number of bins
 	 * 
-	 * @return settings model
+	 * @return {@link SettingsModelIntegerBounded}
 	 */
 	public static SettingsModelIntegerBounded createBinSelectionModel() {
 
 		return new SettingsModelIntegerBounded(CFG_BIN, CFG_BIN_DFT, CFG_BIN_MIN, CFG_BIN_MAX);
 	}
 
-
+	/**
+	 * settings model for selected columns
+	 * @return {@link SettingsModelColumnFilter2}
+	 */
 	@SuppressWarnings("unchecked")
 	public static SettingsModelColumnFilter2 createColumnFilterModel() {
         return new SettingsModelColumnFilter2(CFG_COLUMN, DoubleValue.class);
@@ -161,15 +120,11 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		long nrows = inData.size();
 		// current progress
 		double progress = 0.0;
-		
-		
-		
 
 		// will be filled with interval information and statistics
 		BufferedDataContainer statisticDataContainer = exec.createDataContainer(createStatisticOutSpec(inData.getSpec(), nBins));
 		
 		// collect intervals for port creation
-		//HashMap<String, BinningAnalysis> binningMap = new LinkedHashMap<String, BinningAnalysis>();
 		HashMap<String, LinkedList<Interval>> binningMap = new LinkedHashMap<String, LinkedList<Interval>>();
 		
 		int newRowIdx = 0;
@@ -179,12 +134,8 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		int currentCol = 1;
 		for (String col : selectedCols) {
 
-			// One PMMLDiscretizeBin contains one bin for a single column - therefore we need a List of all bins
-			//List<PMMLDiscretizeBin>  pmml_DicretizeBins =  new ArrayList<PMMLDiscretizeBin>();
-
 			//delivers the index of the column to get the cell 
 			int colIdx = inSpec.findColumnIndex(col);
-			//String aggString = inSpec.getColumnSpec(colIdx).getName();
 
 			// number of missing values
 			int countMissing = 0;
@@ -239,8 +190,6 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			// do the binning analysis on the collected data
 			BinningAnalysis binAnalysis = new BinningAnalysis(dataMap, nBins, col);
 			LinkedList<Interval> bins = binAnalysis.getBins();
-			List<PMMLDiscretizeBin> DiscretizeBins = discretizeBins(bins);
-			m_binMap.put(col, DiscretizeBins);
 			binningMap.put(col, bins);
 			
 			if(bins.size() < nBins) {
@@ -280,62 +229,13 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 		statisticDataContainer.close();
 
-		// not in use
-		PMMLPreprocDiscretize pmmlDiscretize = createDisretizeOp(m_binMap, selectedCols);
-		//m_pmmlOutSpec = new PMMLDiscretizePreprocPortObjectSpec(pmmlDiscretize);
-		//
-		
-
-		PMMLPortObject pmmlPortObject = translate(pmmlDiscretize, inSpec);
-		//PMMLPortObject outPMMLPort = createPMMLModel(pmmlPortObject, inSpec, inData.getDataTableSpec());
-		//return new PortObject[]{statisticDataContainer.getTable(), pmmlPortObject};
-		
-		//BinningPortObject bpo = createBinningPortObject(selectedCols, nBins, binningMap);
 		BinningAnalysisModel model = new BinningAnalysisModel(selectedCols, nBins, binningMap);
 		BinningPortObject bpo = new BinningPortObject(model);
 
 		return new PortObject[] {statisticDataContainer.getTable(), bpo};
 	}
 	
-	/**
-	 * stores node setting to a temporary file and create a binning port object
-	 * 
-	 * @param selectedCols	list of selected column names 
-	 * @param nBins			number of bins
-	 * @param binningMap 	map containing interval values for each parameter and bin
-	 * @return BinningPortObject
-	 * @throws IOException
-	 */
-	/*private BinningPortObject createBinningPortObject(List<String> selectedCols, int nBins, HashMap<String,BinningAnalysis> binningMap) throws IOException {
-		
-		File binningSettingsFile = null;
-		binningSettingsFile = File.createTempFile("binningSettings", ".xml");
-		
-		// populate node settings
-		NodeSettings settings = new NodeSettings(BinningPortObject.PORT_MAIN_KEY);
-		settings.addStringArray(BinningPortObject.PORT_COLUMNS_KEY, selectedCols.toArray(new String[selectedCols.size()]));
-		settings.addInt(BinningPortObject.PORT_BINS_KEY, nBins);
-		
-		// for each parameter
-		for(Map.Entry<String, BinningAnalysis> entry : binningMap.entrySet()) {
-			String col = entry.getKey();
-			BinningAnalysis ba = entry.getValue();
-			
-			ConfigBase cfg = settings.addConfigBase(col);
-			// for each interval
-			for(Interval iv : ba.getBins()) {
-				ConfigBase cfg_bin = cfg.addConfigBase(iv.getLabel());
-				boolean[] incl = {iv.checkModeLowerBound(),iv.checkModeUpperBound()};
-				double[] bounds = {iv.getLowerBound(),iv.getUpperBound()};
-				cfg_bin.addBooleanArray(BinningPortObject.PORT_INCL_KEY, incl);
-				cfg_bin.addDoubleArray(BinningPortObject.PORT_BOUNDS_KEY, bounds);
-			}
-		}
-		
-		settings.saveToXML(new FileOutputStream(binningSettingsFile));
-		
-		return new BinningPortObject(nBins, binningMap);
-	}*/
+
 
 	/**
 	 * {@inheritDoc}
@@ -367,10 +267,8 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			// do not give message for missing excluded columns as its not important
 		}
 		
-		PMMLPortObjectSpecCreator pmmlSpecCreator = new PMMLPortObjectSpecCreator(inSpec);
 		BinningPortObjectSpec bpSpec = new BinningPortObjectSpec(selectedCols.toArray(new String[selectedCols.size()]));
 
-		//return new PortObjectSpec[]{(PortObjectSpec)createStatisticOutSpec(inSpec, nBins), pmmlSpecCreator.createSpec()};
 		return new PortObjectSpec[]{(PortObjectSpec)createStatisticOutSpec(inSpec, nBins), bpSpec};
 	}
 
@@ -379,7 +277,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 	 * generates the table specs for the ouput table
 	 *
 	 * @param inSpec
-	 * @return new specs
+	 * @return new {@link DataTableSpec}
 	 */
 	private DataTableSpec createStatisticOutSpec(DataTableSpec inSpec, int nBins) {
 
@@ -398,173 +296,8 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		colCreator = new DataColumnSpecCreator("Bounds", IntervalCell.TYPE);
 		columnArray[3] = colCreator.createSpec();
 		
-
-		/*for(int i = 0; i < nBins; i++){
-			double b = ((double)i + 1)* 1 / nBins;
-			NumberFormat defaultFormat = NumberFormat.getPercentInstance();
-			defaultFormat.setMinimumFractionDigits(0);
-			String currentBin = defaultFormat.format(b);
-			
-			colCreator = new DataColumnSpecCreator(currentBin, IntervalCell.TYPE);
-			columnArray[2 + i] = colCreator.createSpec();
-		}*/
-
-
-		return new DataTableSpec("Binning Summary", columnArray);  //To change body of created methods use File | Settings | File Templates.
+		return new DataTableSpec("Binning Summary", columnArray);
 	}
-
-
-
-	private List<PMMLDiscretizeBin> discretizeBins(LinkedList<Interval> bins) 
-	{
-
-		// List of all discretize bins with information of label and interval
-		List<PMMLDiscretizeBin> PMMLBins = new ArrayList<PMMLDiscretizeBin>();
-
-		// counter for finding last bin
-		int count = 0;    
-
-		// Iterates through all bins
-		for(Interval bin : bins	)
-		{
-			// List of PMML intervals
-			List<PMMLInterval> PMMLIntervals = new ArrayList<PMMLInterval>();
-
-			double lbound = bin.getLowerBound();
-			double ubound = bin.getUpperBound();
-
-			// finding the last bin and closing it - else using always closedOpen
-			if(count == bins.size() - 1)
-			{
-				PMMLIntervals.add(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedClosed));
-			}
-			else
-			{
-				PMMLIntervals.add(new org.knime.base.node.preproc.autobinner.pmml.PMMLInterval(lbound, ubound,Closure.closedOpen));
-				count++;
-			}
-
-			PMMLBins.add(new PMMLDiscretizeBin(bin.getLabel(), PMMLIntervals));
-		}
-
-		return PMMLBins;
-	}
-
-	@SuppressWarnings("unused")
-	private PMMLPreprocDiscretize createDisretizeOp(
-			final Map<String, List<PMMLDiscretizeBin>> binMap, List<String> selectedCols) {
-
-		List<String> names = new ArrayList<String>();
-		Map<String, PMMLDiscretize> discretize =
-				new HashMap<String, PMMLDiscretize>();
-		for (String target : selectedCols) {
-
-			names.add(target);
-			discretize.put(target, new PMMLDiscretize(target,
-					binMap.get(target)));
-		}
-
-		DisretizeConfiguration config = new DisretizeConfiguration(names,
-				discretize);
-
-		PMMLPreprocDiscretize op = new PMMLPreprocDiscretize(config);
-		return op;
-	}
-
-
-	public static PMMLPortObject translate(final PMMLPreprocDiscretize pmmlDiscretize,
-			final DataTableSpec dataTableSpec) {
-
-		final Map<String, Bin[]> columnToBins = new HashMap<>();
-		final Map<String, String> columnToAppend = new HashMap<>();
-
-		List<String> replacedColumnNames = pmmlDiscretize.getConfiguration().getNames();
-
-		for (String replacedColumnName : replacedColumnNames) {
-			PMMLDiscretize discretize = pmmlDiscretize.getConfiguration().getDiscretize(replacedColumnName);
-			List<PMMLDiscretizeBin> bins = discretize.getBins();
-			String originalColumnName = discretize.getField();
-
-			if (replacedColumnName.equals(originalColumnName)) { // wenn replaced, dann nicht anhängen
-				columnToAppend.put(originalColumnName, null);
-			} else { // nicht replaced -> anhängen
-				columnToAppend.put(originalColumnName, replacedColumnName);
-			}
-
-			NumericBin[] numericBin = new NumericBin[bins.size()];
-			int counter = 0;
-			for (PMMLDiscretizeBin bin : bins) {
-				String binName = bin.getBinValue();
-				List<PMMLInterval> intervals = bin.getIntervals();
-				boolean leftOpen = false;
-				boolean rightOpen = false;
-				double leftMargin = 0;
-				double rightMargin = 0;
-				//always returns only one interval
-				for (PMMLInterval interval : intervals) {
-					Closure closure = interval.getClosure();
-					switch (closure) {
-					case openClosed:
-						leftOpen = true;
-						rightOpen = false;
-						break;
-					case openOpen:
-						leftOpen = true;
-						rightOpen = true;
-						break;
-					case closedOpen:
-						leftOpen = false;
-						rightOpen = true;
-						break;
-					case closedClosed:
-						leftOpen = false;
-						rightOpen = false;
-						break;
-					default:
-						leftOpen = true;
-						rightOpen = false;
-						break;
-					}
-					leftMargin = interval.getLeftMargin();
-					rightMargin = interval.getRightMargin();
-				}
-
-				numericBin[counter] = new NumericBin(binName, leftOpen, leftMargin, rightOpen, rightMargin);
-				counter++;
-
-			}
-
-			columnToBins.put(originalColumnName, numericBin);
-		}
-
-		// why should I create a new spec ???
-        PMMLPortObjectSpecCreator pmmlSpecCreator = new PMMLPortObjectSpecCreator(dataTableSpec);
-        PMMLPortObject pmmlPortObject = new PMMLPortObject(pmmlSpecCreator.createSpec(), null, dataTableSpec);
-        PMMLBinningTranslator trans =
-            new PMMLBinningTranslator(columnToBins, columnToAppend, new DerivedFieldMapper(pmmlPortObject));
-        TransformationDictionary exportToTransDict = trans.exportToTransDict();
-        pmmlPortObject.addGlobalTransformations(exportToTransDict);
-        return pmmlPortObject;
-	}
-
-	/**
-	 * Creates the pmml port object.
-	 * @param the in-port pmml object. Can be <code>null</code> (optional in-port)
-	 */
-/*	private PMMLPortObject createPMMLModel(final PMMLPortObject outPMMLPort, final DataTableSpec inSpec, final DataTableSpec outSpec) {
-		PMMLBinningTranslator trans =
-				new PMMLBinningTranslator(m_columnToBins, m_columnToAppended, new DerivedFieldMapper(outPMMLPort));
-		PMMLPortObjectSpecCreator pmmlSpecCreator = new PMMLPortObjectSpecCreator(outSpec);
-		PMMLPortObject outputPMMLPort = new PMMLPortObject(pmmlSpecCreator.createSpec(), null, inSpec);
-		outputPMMLPort.addGlobalTransformations(trans.exportToTransDict());
-		return outputPMMLPort;
-	}*/
-
-
-	/*public static PMMLPortObject translate(final PMMLPreprocDiscretize pmmlDiscretize,
-				        final DataTableSpec dataTableSpec) {
-
-			 }*/
 
 	/**
 	 * {@inheritDoc}
@@ -574,8 +307,9 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		// TODO: generated method stub
 	}
 
-
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
