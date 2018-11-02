@@ -3,6 +3,7 @@ package de.mpicbg.knime.hcs.base.node.port.binning;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipEntry;
 
@@ -21,11 +22,13 @@ public class BinningPortObjectSerializer extends PortObjectSerializer<BinningPor
 	public void savePortObject(BinningPortObject portObject, PortObjectZipOutputStream out, ExecutionMonitor exec)
 			throws IOException, CanceledExecutionException {
 		out.putNextEntry(new ZipEntry(ZIP_ENTRY_PORT));
-		//Files.copy(portObject.getFile().toPath(), out);
-		Files.copy(portObject.writeModelToTmpFile(), out);
+		Path tmpFile = portObject.writeModelToTmpFile();
+		Files.copy(tmpFile, out);
 		out.flush();
 		out.closeEntry();
 		out.close();
+		tmpFile.toFile().delete();
+		
 	}
 
 	@Override
@@ -40,7 +43,9 @@ public class BinningPortObjectSerializer extends PortObjectSerializer<BinningPor
 		Files.copy(in, binningSettingsFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		
 		in.close();
-		return new BinningPortObject(binningSettingsFile);
+		BinningPortObject bpo = new BinningPortObject(binningSettingsFile);
+		binningSettingsFile.delete();
+		return bpo;
 	}
 
 

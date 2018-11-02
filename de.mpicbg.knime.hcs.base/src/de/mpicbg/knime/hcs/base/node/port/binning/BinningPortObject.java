@@ -27,8 +27,14 @@ import org.knime.core.node.workflow.ModelContentOutPortView;
 import de.mpicbg.knime.hcs.core.math.BinningAnalysisModel;
 import de.mpicbg.knime.hcs.core.math.Interval;
 
+/**
+ * Port-Object for Binning Analysis model
+ * @author Antje Janosch
+ *
+ */
 public class BinningPortObject implements PortObject {
 	
+	// keys to create @see ModelContent
 	public static final String PORT_MAIN_KEY = "binning.calculate";
 	public static final String PORT_COLUMNS_KEY = "selected.columns";
 	public static final String PORT_BINS_KEY = "bin.size";
@@ -36,14 +42,23 @@ public class BinningPortObject implements PortObject {
 	public static final String PORT_INCL_KEY = "iv.include";
 	public static final String PORT_BOUNDS_KEY = "iv.bounds";
 	
+	// important for port registration
 	public static final PortType TYPE = PortTypeRegistry.getInstance().getPortType(BinningPortObject.class);
 	
+	// binning analysis model
 	private BinningAnalysisModel m_model;
 
+	/*
+	 * constructor
+	 */
 	public BinningPortObject(BinningAnalysisModel binningModel) {
 		this.m_model = binningModel;
 	}
 
+	/*
+	 * constructor
+	 * model set from model file
+	 */
 	public BinningPortObject(File binningSettingsFile) {
 		
 		BinningAnalysisModel model = new BinningAnalysisModel();
@@ -100,6 +115,9 @@ public class BinningPortObject implements PortObject {
         return new JComponent[] {new ModelContentOutPortView(model)};
 	}
 	
+	/*
+	 * converts binning analysis model to @see ModelContent
+	 */
 	private ModelContent createModelContentFromBinningModel() {
 		
 		assert m_model != null;
@@ -129,6 +147,9 @@ public class BinningPortObject implements PortObject {
 		return settings;
 	}
 
+	/*
+	 * save model to temporary file
+	 */
 	public Path writeModelToTmpFile() throws IOException {
 		
 		File binningSettingsFile = null;
