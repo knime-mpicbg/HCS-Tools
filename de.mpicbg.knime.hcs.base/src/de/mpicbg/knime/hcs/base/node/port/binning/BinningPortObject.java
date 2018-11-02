@@ -15,13 +15,14 @@ import java.util.Map.Entry;
 import javax.swing.JComponent;
 
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeSettings;
-import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.ModelContent;
+import org.knime.core.node.ModelContentRO;
 import org.knime.core.node.config.base.ConfigBase;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.PortTypeRegistry;
+import org.knime.core.node.workflow.ModelContentOutPortView;
 
 import de.mpicbg.knime.hcs.core.math.BinningAnalysisModel;
 import de.mpicbg.knime.hcs.core.math.Interval;
@@ -37,16 +38,8 @@ public class BinningPortObject implements PortObject {
 	
 	public static final PortType TYPE = PortTypeRegistry.getInstance().getPortType(BinningPortObject.class);
 	
-	//private final File m_binningSettingsFile;
-	//private final String[] m_selectedColumns;
-	
-	private final BinningAnalysisModel m_model;
+	private BinningAnalysisModel m_model;
 
-/*	public BinningPortObject(File binningSettingsFile, String[] selectedColumns) {
-		this.m_binningSettingsFile = binningSettingsFile;
-		this.m_selectedColumns = selectedColumns;
-	}*/
-	
 	public BinningPortObject(BinningAnalysisModel binningModel) {
 		this.m_model = binningModel;
 	}
@@ -57,8 +50,7 @@ public class BinningPortObject implements PortObject {
 		
 		try {
 			FileInputStream fis = new FileInputStream(binningSettingsFile);
-		    //ObjectInputStream ois = new ObjectInputStream(fis);
-			NodeSettingsRO settings = NodeSettings.loadFromXML(fis);
+			ModelContentRO settings = ModelContent.loadFromXML(fis);
 			List<String> selectedColumns = Arrays.asList(settings.getStringArray(PORT_COLUMNS_KEY));
 			int nBins = settings.getInt(PORT_BINS_KEY);
 			
@@ -104,28 +96,25 @@ public class BinningPortObject implements PortObject {
 
 	@Override
 	public JComponent[] getViews() {
-		// TODO Auto-generated method stub
-		return null;
+		ModelContent model = createModelContentFromBinningModel();
+        return new JComponent[] {new ModelContentOutPortView(model)};
 	}
-
-	public Path writeModelToTmpFile() throws IOException {
+	
+	private ModelContent createModelContentFromBinningModel() {
 		
 		assert m_model != null;
 		List<String> selectedCols = m_model.getColumns();
 		
-		File binningSettingsFile = null;
-		binningSettingsFile = File.createTempFile("binningSettings", ".xml");
-		
 		// populate node settings
-		NodeSettings settings = new NodeSettings(BinningPortObject.PORT_MAIN_KEY);
+		ModelContent settings = new ModelContent(BinningPortObject.PORT_MAIN_KEY);
 		settings.addStringArray(BinningPortObject.PORT_COLUMNS_KEY, selectedCols.toArray(new String[selectedCols.size()]));
 		settings.addInt(BinningPortObject.PORT_BINS_KEY, m_model.getNBins());
-		
+
 		// for each parameter
 		for(Entry<String, LinkedList<Interval>> entry : m_model.getModel().entrySet()) {
 			String col = entry.getKey();
 			LinkedList<Interval> ivList = entry.getValue();
-			
+
 			ConfigBase cfg = settings.addConfigBase(col);
 			// for each interval
 			for(Interval iv : ivList) {
@@ -137,7 +126,17 @@ public class BinningPortObject implements PortObject {
 			}
 		}
 		
-		settings.saveToXML(new FileOutputStream(binningSettingsFile));
+		return settings;
+	}
+
+	public Path writeModelToTmpFile() throws IOException {
+		
+		File binningSettingsFile = null;
+		binningSettingsFile = File.createTempFile("binningSettings", ".xml");
+		
+		ModelContent model = createModelContentFromBinningModel();
+		
+		model.saveToXML(new FileOutputStream(binningSettingsFile));
 		
 		return binningSettingsFile.toPath();
 	}
