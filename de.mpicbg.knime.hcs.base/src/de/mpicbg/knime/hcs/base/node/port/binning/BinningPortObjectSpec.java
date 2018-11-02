@@ -11,6 +11,11 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortObjectSpecZipInputStream;
 import org.knime.core.node.port.PortObjectSpecZipOutputStream;
 
+/**
+ * PortObjectSpec for @link {@link BinningPortObject}
+ * @author Antje Janosch
+ *
+ */
 public class BinningPortObjectSpec implements PortObjectSpec {
 	
 	/* 
@@ -21,8 +26,12 @@ public class BinningPortObjectSpec implements PortObjectSpec {
 	 * column names need to be passed to check for availability later
 	 */
 	
+	// columns selected for binning
 	private final String[] m_columnNames;
 
+	/*
+	 * constructor
+	 */
 	public BinningPortObjectSpec(final String[] columnNames) {
 		m_columnNames = columnNames;
 	}
@@ -40,6 +49,11 @@ public class BinningPortObjectSpec implements PortObjectSpec {
        return m_columnNames;
    }
    
+   /**
+    * Serializer class for {@link BinningPortObjectSpec}
+    * @author Antje Janosch
+    *
+    */
    public static final class Serializer extends PortObjectSpecSerializer<BinningPortObjectSpec> {
        @Override
        public BinningPortObjectSpec loadPortObjectSpec(

@@ -14,6 +14,11 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortObjectZipInputStream;
 import org.knime.core.node.port.PortObjectZipOutputStream;
 
+/**
+ * Serializer for {@link BinningPortObject}
+ * @author Antje Janosch
+ *
+ */
 public class BinningPortObjectSerializer extends PortObjectSerializer<BinningPortObject> {
 
 	private static final String ZIP_ENTRY_PORT = "BinningPort.xml";
@@ -41,7 +46,6 @@ public class BinningPortObjectSerializer extends PortObjectSerializer<BinningPor
 		
 		File binningSettingsFile = File.createTempFile("binningSettings", ".xml");
 		Files.copy(in, binningSettingsFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-		
 		in.close();
 		BinningPortObject bpo = new BinningPortObject(binningSettingsFile);
 		binningSettingsFile.delete();
