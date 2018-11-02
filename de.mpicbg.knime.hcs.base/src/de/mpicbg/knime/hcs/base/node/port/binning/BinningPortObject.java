@@ -71,25 +71,29 @@ public class BinningPortObject implements PortObject {
 			
 			HashMap<String, LinkedList<Interval>> binningMap = new LinkedHashMap<String, LinkedList<Interval>>();
 			
-			for(String col : selectedColumns) {
-				ConfigBase cfg = settings.getConfigBase(col);
-				List<Interval> ivList = new LinkedList<Interval>();
-				for(String k : cfg.keySet()) {
-					ConfigBase cfgIv = cfg.getConfigBase(k);
-					boolean[] incl = cfgIv.getBooleanArray(PORT_INCL_KEY);
-					double[] bounds = cfgIv.getDoubleArray(PORT_BOUNDS_KEY);
-					Interval iv = new Interval(bounds[0], bounds[1], k, Interval.getMode(incl[0], incl[1]));
-					ivList.add(iv);
+			try {
+				for(String col : selectedColumns) {
+
+					ConfigBase cfg = settings.getConfigBase(col);
+					List<Interval> ivList = new LinkedList<Interval>();
+					for(String k : cfg.keySet()) {
+						ConfigBase cfgIv = cfg.getConfigBase(k);
+						boolean[] incl = cfgIv.getBooleanArray(PORT_INCL_KEY);
+						double[] bounds = cfgIv.getDoubleArray(PORT_BOUNDS_KEY);
+						Interval iv = new Interval(bounds[0], bounds[1], k, Interval.getMode(incl[0], incl[1]));
+						ivList.add(iv);
+					}
+
+					binningMap.put(col, (LinkedList<Interval>) ivList);
 				}
-				binningMap.put(col, (LinkedList<Interval>) ivList);
-			}
+			// in case of empty input table => binning map stays empty in the model
+			} catch (InvalidSettingsException e) {}
 			
 			model = new BinningAnalysisModel(selectedColumns, nBins, binningMap);
 					
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InvalidSettingsException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

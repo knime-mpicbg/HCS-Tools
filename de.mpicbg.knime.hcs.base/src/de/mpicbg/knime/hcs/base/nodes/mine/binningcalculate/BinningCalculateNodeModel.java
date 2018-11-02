@@ -3,13 +3,13 @@ package de.mpicbg.knime.hcs.base.nodes.mine.binningcalculate;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -153,14 +153,13 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				DataCell valueCell = row.getCell(colIdx);
 				Double value = null;
 				// int cell represents numeric cell (can deliver int and double, double cell can be cast to int cell)
-				if (!valueCell.isMissing()) value = ((DoubleValue) valueCell).getDoubleValue();
-			
-				if (valueCell.isMissing()) {
+				if (!valueCell.isMissing()) {
+					value = ((DoubleValue) valueCell).getDoubleValue();
+					allData.add(value);
+				} else {
 					countMissing++;
 				}
 
-				allData.add(value);
-				
 				// check whether execution was canceled
 				exec.checkCanceled();
 				// set progress
@@ -190,15 +189,33 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			// do the binning analysis on the collected data
 			BinningAnalysis binAnalysis = new BinningAnalysis(dataMap, nBins, col);
 			LinkedList<Interval> bins = binAnalysis.getBins();
-			binningMap.put(col, bins);
+			if(!bins.isEmpty()) {
+				binningMap.put(col, bins);
+			}
 			
 			if(bins.size() < nBins) {
 				setWarningMessage("\"" + col + "\": Less than " + nBins + " bins created. Input data lacks variability");
 			}
+			
+			// create a hashmap to allow missing bins for certain percentile
+			Map<String, Interval> intervalMap = new HashMap<String, Interval>();
+			String[] percentiles = binAnalysis.getPercentileLabels();
+			for(String label : percentiles)
+			{
+				Interval foundIv = null;
+				for(int i = 0; i < bins.size(); i++) {
+					Interval iv = bins.get(i);
+					if(iv.getLabel().equals(label))
+						foundIv = iv;
+				}
+				intervalMap.put(label, foundIv);
+			}
 
 			// create statistics table content
-			for(int i = 0; i < nBins; i++)
+			//for(int i = 0; i < nBins; i++)
+			for(String label : percentiles)
 			{
+				Interval currentIv = intervalMap.get(label);
 				// fill binning data into the new table
 				List<DataCell> statisticCells = new ArrayList<DataCell>();
 				
@@ -206,16 +223,12 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				statisticCells.add(new StringCell(col));
 				// number of bins created
 				statisticCells.add(new IntCell(bins.size()));
-				
-				double b = ((double)i + 1)* 1 / nBins;
-				NumberFormat defaultFormat = NumberFormat.getPercentInstance();
-				defaultFormat.setMinimumFractionDigits(0);
-				String currentBin = defaultFormat.format(b);
-				statisticCells.add(new StringCell(currentBin));
+				// interval label
+				statisticCells.add(new StringCell(label));
 				
 				// bounds (interval cell) for each bin; missing cell if not available
-				if(i < bins.size()) {
-					statisticCells.add(new IntervalCell(bins.get(i).getLowerBound(),bins.get(i).getUpperBound(), bins.get(i).checkModeLowerBound(), bins.get(i).checkModeUpperBound()));
+				if(currentIv != null) {
+					statisticCells.add(new IntervalCell(currentIv.getLowerBound(),currentIv.getUpperBound(), currentIv.checkModeLowerBound(), currentIv.checkModeUpperBound()));
 				} else {
 					statisticCells.add(DataType.getMissingCell());
 				}
