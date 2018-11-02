@@ -3,16 +3,20 @@
     <name>Binning Calculate</name>
     
     <shortDescription>
-        
+    	This node allows to group continuous data in intervals based on equal frequency - called bins.
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>
+        	This node allows to group continuous data in intervals based on equal frequency - called bins.
+        	The binning model (selected columns + bin intervals) can be applied to additional data using the
+        	'Binning Apply' node which delivers counts per column and bin.
+        </intro>
         
         <option name="Column selection">the data of the selected columns will be used for the binning analysis (e.g.
             different parameters)
         </option>
-        <option name="Number of bins">the reference population is divided into the given number of bins</option>
+        <option name="Number of bins">number of bins created with equal frequency</option>
         
         <!-- possibly more options that can also be grouped by tabs -->
         <!--
@@ -27,11 +31,8 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Input Data">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Binning Statistics">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
-         <outPort index="1" name="PMML Model">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <inPort index="0" name="Input Data">Data to calculate the binning model from</inPort>
+        <outPort index="0" name="Binning Statistics">Provides model information like selected columns and their bins with bounds</outPort>
+        <outPort index="1" name="Binning Model">Binning model</outPort>
     </ports>    
 </knimeNode>
