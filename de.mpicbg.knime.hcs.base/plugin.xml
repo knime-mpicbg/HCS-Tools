@@ -168,6 +168,10 @@
                 rendererFactoryClass="de.mpicbg.knime.hcs.base.IntervalValueRenderer$IntervalValueRendererFactory"
                 suggestAsDefault="true">
           </renderer>
+          <renderer
+                rendererFactoryClass="de.mpicbg.knime.hcs.base.IntervalValueScientificRenderer$IntervalValueScientificRendererFactory"
+                suggestAsDefault="false">
+          </renderer>
        </dataValue>
     </extension>
     <extension
