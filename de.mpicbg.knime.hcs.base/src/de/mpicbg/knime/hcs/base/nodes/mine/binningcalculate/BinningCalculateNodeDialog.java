@@ -31,10 +31,13 @@ public class BinningCalculateNodeDialog extends AbstractConfigDialog {
     }
     
     @Override
-    protected void createControls() {     
+    protected void createControls() {    
+    	
+    	this.createNewGroup("Column selection");
         // numerical column selection component
         addDialogComponent(new DialogComponentColumnFilter2(
                 BinningCalculateNodeModel.createColumnFilterModel(), 0));
+        this.closeCurrentGroup();
 
         // numeric field to configure number of bins
         DialogComponentNumberEdit nEdit = new DialogComponentNumberEdit(BinningCalculateNodeModel.createBinSelectionModel(), "Number of Bins");
