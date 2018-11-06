@@ -99,6 +99,7 @@ public class BinningAnalysis {
 		}
 
 		// Each bin is defined like an Interval with upper and lower bound
+		double maxValue = NumberUtils.max(data);
 		double lowerBreak = NumberUtils.min(data);
 		double upperBreak;
 
@@ -116,15 +117,13 @@ public class BinningAnalysis {
 
 			// only keep bin, if the bounds differ
 			if (upperBreak > lowerBreak) {
-				if(i == (percentiles.length - 1)){
+				if(upperBreak == maxValue){
 					bins.add(new Interval(lowerBreak, upperBreak, percentiles[i] + "%", Mode.INCL_BOTH));
 				}
 				else {
 					bins.add(new Interval(lowerBreak, upperBreak, percentiles[i] + "%", Mode.INCL_LEFT));
 				}
 			}
-
-
 
 			lowerBreak = upperBreak;
 		}
