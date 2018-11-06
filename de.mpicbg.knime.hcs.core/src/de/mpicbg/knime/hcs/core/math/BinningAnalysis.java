@@ -156,7 +156,9 @@ public class BinningAnalysis {
 
 	/**
 	 * percentile implementation
-	 * http://www.itl.nist.gov/div898/handbook/prc/section2/prc252.htm
+	 * https://www.itl.nist.gov/div898/handbook/prc/section2/prc262.htm
+	 * Engineering Statistics Handbook (NIST / SEMATECH)
+	 * Chapter: 7.2.6.2. Percentiles
 	 *
 	 * @param p percentile to calculate, 0 <= p <= 100
 	 * @return
