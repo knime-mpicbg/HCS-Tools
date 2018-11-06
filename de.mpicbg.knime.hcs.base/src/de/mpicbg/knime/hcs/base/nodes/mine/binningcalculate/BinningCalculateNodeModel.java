@@ -137,7 +137,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 			//delivers the index of the column to get the cell 
 			int colIdx = inSpec.findColumnIndex(col);
 
-			// number of missing values
+			// number of missing values, NaN and +/- Infinity
 			int countMissing = 0;
 
 			// parameter / aggregation string / values
@@ -155,7 +155,9 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 				// int cell represents numeric cell (can deliver int and double, double cell can be cast to int cell)
 				if (!valueCell.isMissing()) {
 					value = ((DoubleValue) valueCell).getDoubleValue();
-					allData.add(value);
+					if(Double.isFinite(value))
+						allData.add(value);
+					else countMissing++;
 				} else {
 					countMissing++;
 				}
@@ -179,7 +181,7 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 
 			// warning if missing values were filtered from the column
 			if (countMissing > 0) {
-				this.logger.info(col + ": " + countMissing + " values were skipped because of missing values");
+				setWarningMessage(col + ": " + countMissing + " values were skipped because of missing values / NaNs or +/- Infinity");
 			}
 			
 			// collects the values to be binned
