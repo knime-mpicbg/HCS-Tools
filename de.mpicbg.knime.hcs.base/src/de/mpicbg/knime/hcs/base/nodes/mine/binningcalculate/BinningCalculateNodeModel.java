@@ -1,8 +1,6 @@
 package de.mpicbg.knime.hcs.base.nodes.mine.binningcalculate;
 
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,11 +23,9 @@ import org.knime.core.data.def.IntervalCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
-import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
 import org.knime.core.node.port.PortObject;
@@ -313,48 +309,5 @@ public class BinningCalculateNodeModel extends AbstractNodeModel {
 		
 		return new DataTableSpec("Binning Summary", columnArray);
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void reset() {
-		// TODO: generated method stub
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		// check that at least one numeric column has been selected
-		if (settings.containsKey(CFG_COLUMN)) {
-			String[] selectedColumns = settings.getNodeSettings(CFG_COLUMN).getStringArray("included_names");
-			if (selectedColumns.length < 1)
-				throw new InvalidSettingsException("at least one numeric column has to be selected");
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void loadInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-	CanceledExecutionException {
-		// TODO: generated method stub
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void saveInternals(final File internDir,
-			final ExecutionMonitor exec) throws IOException,
-	CanceledExecutionException {
-		// no internals to save
-	}
-
 
 }
