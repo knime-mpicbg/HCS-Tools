@@ -166,4 +166,11 @@ public class BinningPortObject implements PortObject {
 		return binningSettingsFile.toPath();
 	}
 
+	/**
+	 * @return {@link BinningAnalysisModel}
+	 */
+	public BinningAnalysisModel getBinningModel() {
+		return m_model;
+	}
+
 }
