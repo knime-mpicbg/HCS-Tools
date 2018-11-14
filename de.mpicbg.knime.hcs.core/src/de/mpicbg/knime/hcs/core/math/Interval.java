@@ -97,14 +97,14 @@ public class Interval {
     }
     
     public boolean isBelowLowerBound(double x) {
-    	boolean checkLowerBound = false;
-    	int compareLowerBound = Double.compare(lowerBound, x);
+    	boolean isBelowLowerBound = false;
+    	int compareLowerBound = Double.compare(x, lowerBound);
     	
-        if (compareLowerBound < 0) checkLowerBound = true;
-        else if (compareLowerBound == 0 && (this.mode == Mode.INCL_LEFT || this.mode == Mode.INCL_BOTH))
-            checkLowerBound = true;
+        if (compareLowerBound < 0) isBelowLowerBound = true;
+        else if (compareLowerBound == 0 && this.mode == Mode.INCL_RIGHT)
+            isBelowLowerBound = true;
         
-        return checkLowerBound;
+        return isBelowLowerBound;
     }
 
     public double getLowerBound() {
