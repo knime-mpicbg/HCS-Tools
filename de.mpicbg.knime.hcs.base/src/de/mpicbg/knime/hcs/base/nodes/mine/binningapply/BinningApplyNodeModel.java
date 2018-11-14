@@ -294,6 +294,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         			if(label == null && first) {
         				if(iv.isBelowLowerBound(value))
         					label = this.KEY_LOWER;
+        				first = false;
         			}
         		}
         		// if no interval found => values is higher than maximum
@@ -317,30 +318,26 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	
         	if(newGroup) {
         		
-        		List<DefaultRow> addRows = createRows();
-        		
-        		
-        		
-        		dc.addRowToTable();
+        		List<DefaultRow> addRows = createRows(groupCounter, previousGroup, countData, rowCounter);     		
+        		for(DefaultRow r : addRows) {
+        			dc.addRowToTable(r);
+        			rowCounter ++;
+        		}
         		
         		groupCounter++;
         		newGroup = false;
         		previousGroup.clear();
         		previousGroup.putAll(currentGroup);
+        		countData = createCountMap(columnsToProcess, binMap);
         	}
         }
         
-        // write rows of the last group to table
-        final RowKey rowKey = RowKey.createRowKey((long)groupCounter);
-		//final DataCell[] rowVals = new DataCell[nColumns + 4];
-		
-		List<DataCell> list = new ArrayList<DataCell>(previousGroup.values());
-		list.add(new StringCell("param"));
-		list.add(new StringCell("iv"));
-		list.add(new IntCell(1000));
-		list.add(new DoubleCell(30.5));
-		
-		dc.addRowToTable(new DefaultRow(rowKey, list));
+        // last row
+        List<DefaultRow> addRows = createRows(groupCounter, previousGroup, countData, rowCounter);     		
+		for(DefaultRow r : addRows) {
+			dc.addRowToTable(r);
+			rowCounter ++;
+		}
 		
 		
         
@@ -349,27 +346,72 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		return dc.getTable();
 	}
     
-    private LinkedList<DefaultRow> createRows() {
+    private LinkedList<DefaultRow> createRows(int groupCounter, Map<String, DataCell> previousGroup, Map<String, Map<String, MutableInteger>> countData, long rowCounter) {
     	
-    	List<DefaultRow> addRows = new LinkedList<DefaultRow>();
+    	LinkedList<DefaultRow> addRows = new LinkedList<DefaultRow>();
     	
-    	final RowKey rowKey = RowKey.createRowKey((long)groupCounter);
-		//final DataCell[] rowVals = new DataCell[nColumns + 4];
-		
-		List<DataCell> list = new ArrayList<DataCell>(previousGroup.values());
-		list.add(new StringCell("param"));
-		list.add(new StringCell("iv"));
-		list.add(new IntCell(1000));
-		list.add(new DoubleCell(30.5));
-		
-		addRows.add(new DefaultRow(rowKey, list))
+    	for(String col : countData.keySet()) {
+    		Map<String, MutableInteger> countMap = countData.get(col);
+    		int nBins = countMap.size() - 2;
+    		
+    		// get sum to calculate the percentage
+    		long sum = 0;
+    		for(String ivLabel : countMap.keySet()) {
+    			sum = sum + countMap.get(ivLabel).longValue();
+    		}
+    		
+    		/**
+    		 * for 5 bins
+    		 * LOWER:	keep counts
+    		 * 20% bin: write row with counts + kept (set keep back to 0)
+    		 * 40% bin: write row with counts
+    		 * 60% bin: write row with counts
+    		 * 80% bin:	write row with counts
+    		 * 100% bin: get HIGHER and add to counts; write row
+    		 * HIGHER:	don't do anything
+    		 */
+    		int i = 0;
+    		long keep = 0;
+    		for(String ivLabel : countMap.keySet()) {
+    			
+    			long counts = countMap.get(ivLabel).longValue();
+    			boolean setRow = false;
+    			
+    			if(i == 0) {
+    				keep = counts;
+    			}
+    			if(i > 0 && i < nBins) {
+    				counts = counts + keep;
+    	    		setRow = true;
+    			}
+    			if(i == nBins) {
+    				counts = counts + countMap.get(this.KEY_HIGHER).longValue();
+    				setRow = true;
+    			}
+    			
+    			if(setRow) {
+    				final RowKey rowKey = RowKey.createRowKey((long)rowCounter);
+    	    		
+    	    		List<DataCell> list = new ArrayList<DataCell>(previousGroup.values());
+    	    		list.add(new StringCell(col));
+    	    		list.add(new StringCell(ivLabel));
+    	    		list.add(new IntCell((int)counts));
+    	    		list.add(new DoubleCell((double)counts / (double)sum * 100.0));
+    	
+    	    		addRows.add(new DefaultRow(rowKey, list));
+    	    		rowCounter ++;
+    	    		keep = 0;
+    			}
+    			i++;
+    		}
+    	}
 		
 		return addRows;
 	}
 
 	private Map<String, Map<String, MutableInteger>> createCountMap(List<String> columnsToProcess, Map<String, LinkedList<Interval>> binMap) {
     	
-    	Map<String, Map<String, MutableInteger>> countData = new HashMap<String, Map<String, MutableInteger>>();
+    	Map<String, Map<String, MutableInteger>> countData = new LinkedHashMap<String, Map<String, MutableInteger>>();
         // init map with zeros
         for(String col : columnsToProcess) {
         	
