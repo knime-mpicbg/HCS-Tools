@@ -10,7 +10,8 @@
         <intro>
         	This node allows to group continuous data in intervals based on equal frequency - called bins.
         	The binning model (selected columns + bin intervals) can be applied to additional data using the
-        	'Binning Apply' node which delivers counts per column and bin.
+        	'Binning Apply' node which delivers counts per column and bin.<br/>
+        	Percentiles are estimated by using method R6 (<a href="https://www.jstor.org/stable/2684934">DOI: 10.2307/2684934</a>)
         </intro>
         
         <option name="Column selection">the data of the selected columns will be used for the binning analysis (e.g.
