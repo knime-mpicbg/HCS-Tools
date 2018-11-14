@@ -1,7 +1,7 @@
 package de.mpicbg.knime.hcs.base.utils;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math.stat.descriptive.UnivariateStatistic;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.UnivariateStatistic;
 
 
 /**
@@ -108,29 +108,6 @@ public class MadStatistic implements UnivariateStatistic {
     public void checkMadFactor() throws IllegalMadFactorException {
         if (m_madFactor <= 0)
             throw new IllegalMadFactorException("MAD scaling factor has to be greater than 0 (see preference settings)");
-    }
-
-
-    public static void main(String[] args) {
-        double values[] = {0.63365672, 0.73697871, 0.59948635, 0.99698017, 0.18938888,
-                0.78711912, 0.84631022, 0.92974322, 0.22606262, 0.05171261};
-
-        ExtDescriptiveStats stats = new ExtDescriptiveStats();
-
-        // test if the change of the scaling factor works
-        // stats.setMadImpl(new MadStatistic(1.0));
-
-        for (int i = 0; i < values.length; i++)
-            stats.addValue(values[i]);
-
-        double mad = 0;
-        try {
-            mad = stats.getMad();
-        } catch (IllegalMadFactorException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
-        System.out.println("Mad: " + mad);
     }
 
 

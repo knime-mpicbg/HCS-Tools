@@ -1,13 +1,13 @@
 package de.mpicbg.knime.hcs.core.view;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.hcs.core.model.Plate;
 import de.mpicbg.knime.hcs.core.model.Well;
-
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-
-import java.util.Collection;
-import java.util.List;
 
 
 /**

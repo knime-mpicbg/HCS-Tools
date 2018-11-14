@@ -1,14 +1,19 @@
 package de.mpicbg.knime.hcs.base.nodes.mine;
 
-import de.mpicbg.knime.knutils.AbstractNodeModel;
-import de.mpicbg.knime.knutils.Attribute;
-import de.mpicbg.knime.knutils.InputTableAttribute;
+import static de.mpicbg.knime.knutils.BufTableUtils.updateProgress;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math.distribution.HypergeometricDistribution;
-import org.apache.commons.math.distribution.HypergeometricDistributionImpl;
-import org.knime.core.data.*;
+import org.apache.commons.math3.distribution.HypergeometricDistribution;
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
@@ -19,10 +24,9 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static de.mpicbg.knime.knutils.BufTableUtils.updateProgress;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.InputTableAttribute;
 
 
 /**
@@ -116,7 +120,7 @@ public class EnrichmentAnalyzer extends AbstractNodeModel {
                 int numGenesInGroup = (int) groupFrequencies.getCount(group);
 
                 if (!hypGemoDistCache.containsKey(ontologyTerm, group)) {
-                    hypGemoDistCache.put(ontologyTerm, group, new HypergeometricDistributionImpl(populationSize, numAnnotatedGenes, numGenesInGroup));
+                    hypGemoDistCache.put(ontologyTerm, group, new HypergeometricDistribution(populationSize, numAnnotatedGenes, numGenesInGroup));
                 }
 
                 int numAnnoatedGenesInGroup = 0;

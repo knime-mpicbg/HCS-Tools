@@ -1,14 +1,27 @@
 package de.mpicbg.knime.hcs.base.nodes.qc;
 
 
-import de.mpicbg.knime.hcs.base.HCSSettingsFactory;
-import de.mpicbg.knime.knutils.*;
-import org.apache.commons.math.linear.ArrayRealVector;
-import org.apache.commons.math.linear.RealVector;
-import org.apache.commons.math.stat.correlation.PearsonsCorrelation;
-import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.knime.core.data.*;
+import static de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel.createPropReadoutSelection;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -20,9 +33,12 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import java.util.*;
-
-import static de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel.createPropReadoutSelection;
+import de.mpicbg.knime.hcs.base.HCSSettingsFactory;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.BufTableUtils;
+import de.mpicbg.knime.knutils.InputTableAttribute;
+import de.mpicbg.knime.knutils.TableUpdateCache;
 
 
 /**
@@ -196,9 +212,9 @@ public class Correlation extends AbstractNodeModel {
 
         double corr = 0;
         if (method.equals("Pearson")) {
-            corr = new PearsonsCorrelation().correlation(v1.getData(), v2.getData());
+            corr = new PearsonsCorrelation().correlation(v1.toArray(), v2.toArray());
         } else if (method.equals("Spearman")) {
-            corr = new SpearmansCorrelation().correlation(v1.getData(), v2.getData());
+            corr = new SpearmansCorrelation().correlation(v1.toArray(), v2.toArray());
         }
 
         return corr;

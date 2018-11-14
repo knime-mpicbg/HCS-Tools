@@ -1,14 +1,37 @@
 package de.mpicbg.knime.hcs.base.nodes.qc;
 
 
-import de.mpicbg.knime.hcs.base.HCSSettingsFactory;
-import de.mpicbg.knime.knutils.*;
-import org.apache.commons.math.linear.*;
-import org.apache.commons.math.random.RandomData;
-import org.apache.commons.math.random.RandomDataImpl;
-import org.apache.commons.math.stat.StatUtils;
-import org.apache.commons.math.stat.correlation.Covariance;
-import org.knime.core.data.*;
+import static de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel.NEGATIVE_CONTROL_DESC;
+import static de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel.POSITIVE_CONTROL_DESC;
+import static de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel.createPropReadoutSelection;
+import static de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel.createTreatmentAttributeSelector;
+import static de.mpicbg.knime.hcs.base.utils.Table2Matrix.extractMatrix;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.DecompositionSolver;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
+import org.apache.commons.math3.random.RandomData;
+import org.apache.commons.math3.random.RandomDataImpl;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.correlation.Covariance;
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.DoubleValue;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -21,10 +44,13 @@ import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 
-import java.util.*;
-
-import static de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel.*;
-import static de.mpicbg.knime.hcs.base.utils.Table2Matrix.extractMatrix;
+import de.mpicbg.knime.hcs.base.HCSSettingsFactory;
+import de.mpicbg.knime.knutils.AbstractNodeModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.knutils.BufTableUtils;
+import de.mpicbg.knime.knutils.InputTableAttribute;
+import de.mpicbg.knime.knutils.TableUpdateCache;
 
 
 /**
@@ -152,8 +178,8 @@ public class MultivariateZPrimes extends AbstractNodeModel {
                     RealMatrix cov = posCov.getCovarianceMatrix();
                     cov.add(negCov.getCovarianceMatrix());
 
-                    try {
-                        DecompositionSolver solver = new SingularValueDecompositionImpl(cov).getSolver();
+                    //try {
+                        DecompositionSolver solver = new SingularValueDecomposition(cov).getSolver();
                         //                    boolean flag = solver.isNonSingular();
                         RealMatrix inv = solver.getInverse();
                         RealVector weights = inv.preMultiply(meanVect);
@@ -172,10 +198,10 @@ public class MultivariateZPrimes extends AbstractNodeModel {
                         double negCtrlSD = Math.sqrt(StatUtils.variance(negProj));
                         zPrime = 1 - 3 * ((posCtrlSD + negCtrlSD) / Math.abs(posCtrlMean - negCtrlMean));
 
-                    } catch (InvalidMatrixException e) {
+                    //} catch (InvalidMatrixException e) {
 
                         zPrime = Double.NaN;
-                    }
+                    //}
                 }
             }
 
@@ -270,7 +296,7 @@ public class MultivariateZPrimes extends AbstractNodeModel {
         for (int r = 0; r < mat.getRowDimension(); ++r) {
             RealVector vec = mat.getRowVector(r);
             RealVector prod = vec.ebeMultiply(weig);
-            proj[r] = StatUtils.sum(prod.getData());
+            proj[r] = StatUtils.sum(prod.toArray());
         }
         return proj;
     }
@@ -280,7 +306,7 @@ public class MultivariateZPrimes extends AbstractNodeModel {
         double[] meanVect = new double[mat.getColumnDimension()];
         for (int c = 0; c < mat.getColumnDimension(); ++c) {
             RealVector vect = mat.getColumnVector(c);
-            meanVect[c] = StatUtils.mean(vect.getData());
+            meanVect[c] = StatUtils.mean(vect.toArray());
         }
         return new ArrayRealVector(meanVect);
     }
