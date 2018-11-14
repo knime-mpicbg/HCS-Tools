@@ -86,6 +86,26 @@ public class Interval {
 
         return checkLowerBound && checkUpperBound;
     }
+    
+    /**
+     * 
+     * @param x		value to test
+     * @return		true, if x falls withing the interval, false otherwise
+     */
+    public boolean contains(double x) {
+    	return contains(x, this.mode);
+    }
+    
+    public boolean isBelowLowerBound(double x) {
+    	boolean checkLowerBound = false;
+    	int compareLowerBound = Double.compare(lowerBound, x);
+    	
+        if (compareLowerBound < 0) checkLowerBound = true;
+        else if (compareLowerBound == 0 && (this.mode == Mode.INCL_LEFT || this.mode == Mode.INCL_BOTH))
+            checkLowerBound = true;
+        
+        return checkLowerBound;
+    }
 
     public double getLowerBound() {
         return lowerBound;
