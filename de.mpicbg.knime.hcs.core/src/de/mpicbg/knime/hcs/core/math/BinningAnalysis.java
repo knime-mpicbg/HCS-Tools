@@ -1,19 +1,25 @@
 package de.mpicbg.knime.hcs.core.math;
 
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
-import de.mpicbg.knime.hcs.core.math.Interval.Mode;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
+
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVWriter;
+import de.mpicbg.knime.hcs.core.math.Interval.Mode;
 
 /**
  * Binning analysis for double arrays follows this concept:
@@ -150,29 +156,38 @@ public class BinningAnalysis {
 		}		
 		return percentiles;
 	}
-
-
-
+	
 	/**
-	 * percentile implementation
-	 * https://www.itl.nist.gov/div898/handbook/prc/section2/prc262.htm
-	 * Engineering Statistics Handbook (NIST / SEMATECH)
-	 * Chapter: 7.2.6.2. Percentiles
-	 *
-	 * @param p percentile to calculate, 0 <= p <= 100
-	 * @return
+	 * method = R6 in
+	 * Hyndman, R.J. and Fan, Y. (November 1996). 
+	 * "Sample Quantiles in Statistical Packages", 
+	 * The American Statistician 50 (4): pp. 361–365. 
+	 * 
+	 * @param p		percentile to calculate, 0 < p <= 10
+	 * @param data
+	 * @return percentile
 	 */
 	private double evalPercentile(double p, double[] data) {
-		int n = data.length;
-		double kd = p * (n + 1) / 100;
+		// implementation until 2018-11
+		/**int n = data.length;
+		//double kd = p * (n + 1) / 100;	// percentile position (starting from 1)
+		double kd = (p / 100 * (n + 1)) - 1;	// percentile position (starting from 0)
 		double k = Math.floor(kd);
-		double d = kd - k;
+		double d = kd - k;				// difference
+		
+		double getFromMath = StatUtils.percentile(data, p);
 
 		if (Double.compare(k, 0) == 0) return data[0];
 		if (Double.compare(k, n) >= 0) return data[n - 1];
 
 		int ik = (int) k;
-		return data[ik] + d * (data[ik + 1] - data[ik]);
+		return data[ik] + d * (data[ik + 1] - data[ik]);*/
+		
+		assert p > 0 && p <= 100;
+		
+		DescriptiveStatistics stats = new DescriptiveStatistics(data);
+		stats.setPercentileImpl(new Percentile().withEstimationType(Percentile.EstimationType.R_6));
+		return stats.getPercentile(p);
 	}
 
 	/**
