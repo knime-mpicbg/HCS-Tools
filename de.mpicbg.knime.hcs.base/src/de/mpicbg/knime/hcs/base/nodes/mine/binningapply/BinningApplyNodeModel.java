@@ -1,18 +1,13 @@
 package de.mpicbg.knime.hcs.base.nodes.mine.binningapply;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.knime.base.data.aggregation.ColumnAggregator;
 import org.knime.base.node.preproc.groupby.GroupByTable;
-import org.knime.base.node.preproc.groupby.GroupKey;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -30,7 +25,6 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeLogger.LEVEL;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
@@ -39,7 +33,6 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
 import org.knime.core.util.MutableInteger;
-import org.knime.core.util.Pair;
 
 import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObject;
 import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObjectSpec;
@@ -62,6 +55,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	
 	public static final String CFG_INCOMPLETE = "ignore.incomplete";
 	public static final boolean CFG_INCOMPLETE_DFT = true;
+	
+	public final String KEY_LOWER = "lower values";
+	public final String KEY_HIGHER = "higher values";
 
 	/**
 	 * constructor
@@ -200,7 +196,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		
 		BufferedDataTable countTable = createBinningCountsTable(exec, inData, 
 				createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns)),
-				columnsToProcess, groupingColumns);
+				columnsToProcess, groupingColumns, binMap);
 		
 		/*BufferedDataContainer buf = exec.createDataContainer(createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns)));
 		
@@ -217,7 +213,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	}
 	
     private BufferedDataTable createBinningCountsTable(ExecutionContext exec, BufferedDataTable inData,
-			DataTableSpec countDataTableSpec, List<String> columnsToProcess, String[] groupingColumns) throws CanceledExecutionException {
+			DataTableSpec countDataTableSpec, List<String> columnsToProcess, String[] groupingColumns, Map<String, LinkedList<Interval>> binMap) throws CanceledExecutionException {
     	
     	final DataTableSpec inSpec = inData.getDataTableSpec();  	
     	final BufferedDataTable sortedTable;
@@ -250,24 +246,63 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         exec.setMessage("Creating groups");
         //final DataCell[] previousGroup = new DataCell[nColumns];
         //final DataCell[] currentGroup = new DataCell[nColumns];
-        Map<String, DataCell> previousGroup = new HashMap<String, DataCell>();
+        Map<String, DataCell> previousGroup = new LinkedHashMap<String, DataCell>();
         Map<String, DataCell> currentGroup = new LinkedHashMap<String, DataCell>();
-        Map<String, Integer> colIdx = new HashMap<String, Integer>();
+        
+        Map<String, Integer> colIdx = new LinkedHashMap<String, Integer>();
         for(String col : columnsToGroup) {
         	colIdx.put(col, new Integer(inSpec.findColumnIndex(col)));
         }
+        Map<String, Integer> processColIdx = new LinkedHashMap<String, Integer>();
+        for(String col : columnsToProcess) {
+        	processColIdx.put(col, new Integer(inSpec.findColumnIndex(col)));
+        }
+        
         int groupCounter = 0;
         boolean firstRow = true;
         final double numOfRows = sortedTable.size();
         long rowCounter = 0;
-        boolean newGroup = true;
+        boolean newGroup = false;
+        
+        // count data goes into this map (per column, per interval, new map per group)
+        Map<String, Map<String, MutableInteger>> countData = createCountMap(columnsToProcess, binMap);
+        
            
         for (final DataRow row : sortedTable) {
         	// fill previous values if this is the first row
         	if(firstRow) {
         		for(String col : columnsToGroup)
         			previousGroup.put(col, row.getCell(colIdx.get(col)));
+        		firstRow = false;
         	}
+        	
+    		//count data
+        	for(String col : columnsToProcess) {
+        		
+        		double value = ((DoubleCell)row.getCell(processColIdx.get(col))).getDoubleValue();
+        		
+        		LinkedList<Interval> ivList = binMap.get(col);
+        		String label = null;	// will get the key where to increase the count
+        		boolean first = true;
+        		for(Interval iv : ivList) {
+        			
+        			// keep label of interval if value belongs to it
+        			if(iv.contains(value))
+        				label = iv.getLabel();
+        			// if the first interval is tested and the value did not belong to it,
+        			// check whether it is lower
+        			if(label == null && first) {
+        				if(iv.isBelowLowerBound(value))
+        					label = this.KEY_LOWER;
+        			}
+        		}
+        		// if no interval found => values is higher than maximum
+        		if(label == null)
+        			label = this.KEY_HIGHER;
+
+        		countData.get(col).get(label).inc();
+        	}
+        	
         	
         	for(String col : columnsToGroup) {
         		DataCell currentCell = row.getCell(colIdx.get(col));
@@ -279,18 +314,14 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		}
         		currentGroup.put(col, currentCell);
         	}
+        	
         	if(newGroup) {
         		
-        		final RowKey rowKey = RowKey.createRowKey((long)groupCounter);
-        		//final DataCell[] rowVals = new DataCell[nColumns + 4];
+        		List<DefaultRow> addRows = createRows();
         		
-        		List<DataCell> list = new ArrayList<DataCell>(currentGroup.values());
-        		list.add(new StringCell("param"));
-        		list.add(new StringCell("iv"));
-        		list.add(new IntCell(1000));
-        		list.add(new DoubleCell(30.5));
         		
-        		dc.addRowToTable(new DefaultRow(rowKey, list));
+        		
+        		dc.addRowToTable();
         		
         		groupCounter++;
         		newGroup = false;
@@ -299,10 +330,64 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	}
         }
         
+        // write rows of the last group to table
+        final RowKey rowKey = RowKey.createRowKey((long)groupCounter);
+		//final DataCell[] rowVals = new DataCell[nColumns + 4];
+		
+		List<DataCell> list = new ArrayList<DataCell>(previousGroup.values());
+		list.add(new StringCell("param"));
+		list.add(new StringCell("iv"));
+		list.add(new IntCell(1000));
+		list.add(new DoubleCell(30.5));
+		
+		dc.addRowToTable(new DefaultRow(rowKey, list));
+		
+		
+        
         dc.close();
         
 		return dc.getTable();
 	}
+    
+    private LinkedList<DefaultRow> createRows() {
+    	
+    	List<DefaultRow> addRows = new LinkedList<DefaultRow>();
+    	
+    	final RowKey rowKey = RowKey.createRowKey((long)groupCounter);
+		//final DataCell[] rowVals = new DataCell[nColumns + 4];
+		
+		List<DataCell> list = new ArrayList<DataCell>(previousGroup.values());
+		list.add(new StringCell("param"));
+		list.add(new StringCell("iv"));
+		list.add(new IntCell(1000));
+		list.add(new DoubleCell(30.5));
+		
+		addRows.add(new DefaultRow(rowKey, list))
+		
+		return addRows;
+	}
+
+	private Map<String, Map<String, MutableInteger>> createCountMap(List<String> columnsToProcess, Map<String, LinkedList<Interval>> binMap) {
+    	
+    	Map<String, Map<String, MutableInteger>> countData = new HashMap<String, Map<String, MutableInteger>>();
+        // init map with zeros
+        for(String col : columnsToProcess) {
+        	
+        	Map<String, MutableInteger> countMap = new LinkedHashMap<String, MutableInteger>();
+        	LinkedList<Interval> ivList = binMap.get(col);
+        	// first add a key for values lower than minimum value
+        	countMap.put(KEY_LOWER, new MutableInteger(0));
+        	for(Interval iv : ivList) {
+        		countMap.put(iv.getLabel(), new MutableInteger(0));
+        	}
+        	// last add a key for values higher than maximum value
+        	countMap.put(KEY_HIGHER, new MutableInteger(0));
+        	
+        	countData.put(col, countMap);
+        }
+        
+        return countData;
+    }
 
 /*	protected BufferedDataTable createGroupByTable(final ExecutionContext exec,
             final BufferedDataTable table, final DataTableSpec resultSpec,
