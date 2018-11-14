@@ -1,17 +1,36 @@
 package de.mpicbg.knime.hcs.base.nodes.mine.binningapply;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.knime.base.data.aggregation.ColumnAggregator;
+import org.knime.base.node.preproc.groupby.GroupByTable;
+import org.knime.base.node.preproc.groupby.GroupKey;
+import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
+import org.knime.core.data.DataValueComparator;
+import org.knime.core.data.RowKey;
+import org.knime.core.data.def.DefaultRow;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeLogger.LEVEL;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
@@ -19,6 +38,8 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
+import org.knime.core.util.MutableInteger;
+import org.knime.core.util.Pair;
 
 import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObject;
 import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObjectSpec;
@@ -127,6 +148,16 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		for(DataColumnSpec dcs : groupingSpecs)
 			dtsc.addColumns(dcs);
 		
+		DataColumnSpecCreator colCreator;
+		colCreator = new DataColumnSpecCreator("Parameter", StringCell.TYPE);
+		dtsc.addColumns(colCreator.createSpec());
+		colCreator = new DataColumnSpecCreator("Interval", StringCell.TYPE);
+		dtsc.addColumns(colCreator.createSpec());
+		colCreator = new DataColumnSpecCreator("Counts", IntCell.TYPE);
+		dtsc.addColumns(colCreator.createSpec());
+		colCreator = new DataColumnSpecCreator("Percentage", DoubleCell.TYPE);
+		dtsc.addColumns(colCreator.createSpec());
+		
 		return dtsc.createSpec();
 	}
 
@@ -167,12 +198,238 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 			} 
 		}
 		
-		BufferedDataContainer buf = exec.createDataContainer(createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns)));
-		buf.close();
+		BufferedDataTable countTable = createBinningCountsTable(exec, inData, 
+				createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns)),
+				columnsToProcess, groupingColumns);
+		
+		/*BufferedDataContainer buf = exec.createDataContainer(createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns)));
+		
+		for(String currentColumn : columnsToProcess) {
+			LinkedList<Interval> ivList = (LinkedList<Interval>) binMap.get(currentColumn);
+			
+			
+		}
+		
+		buf.close();*/
 		
 		// TODO Auto-generated method stub
-		return new BufferedDataTable[] {buf.getTable()};
+		return new BufferedDataTable[] {countTable};
 	}
 	
-	
+    private BufferedDataTable createBinningCountsTable(ExecutionContext exec, BufferedDataTable inData,
+			DataTableSpec countDataTableSpec, List<String> columnsToProcess, String[] groupingColumns) throws CanceledExecutionException {
+    	
+    	final DataTableSpec inSpec = inData.getDataTableSpec();  	
+    	final BufferedDataTable sortedTable;
+        final ExecutionContext groupExec;
+        Map<String, DataValueComparator> comparators = new HashMap<String, DataValueComparator>();
+        
+        List<String> columnsToGroup = new LinkedList<String>();
+        for(String col : groupingColumns)
+        	columnsToGroup.add(col);
+        
+        final int nColumns = columnsToGroup.size();
+        
+        if (nColumns < 1) {
+            sortedTable = inData;
+            groupExec = exec;
+        } else {
+            final ExecutionContext sortExec =
+                exec.createSubExecutionContext(0.6);
+            exec.setMessage("Sorting input table...");
+            sortedTable = GroupByTable.sortTable(sortExec, inData, columnsToGroup);
+            sortExec.setProgress(1.0);
+            groupExec = exec.createSubExecutionContext(0.4);
+            for(String col : columnsToGroup) {
+            	final DataColumnSpec colSpec = inSpec.getColumnSpec(col);
+            	comparators.put(col, colSpec.getType().getComparator());
+            }        
+        }
+        
+        final BufferedDataContainer dc = exec.createDataContainer(countDataTableSpec);
+        exec.setMessage("Creating groups");
+        //final DataCell[] previousGroup = new DataCell[nColumns];
+        //final DataCell[] currentGroup = new DataCell[nColumns];
+        Map<String, DataCell> previousGroup = new HashMap<String, DataCell>();
+        Map<String, DataCell> currentGroup = new LinkedHashMap<String, DataCell>();
+        Map<String, Integer> colIdx = new HashMap<String, Integer>();
+        for(String col : columnsToGroup) {
+        	colIdx.put(col, new Integer(inSpec.findColumnIndex(col)));
+        }
+        int groupCounter = 0;
+        boolean firstRow = true;
+        final double numOfRows = sortedTable.size();
+        long rowCounter = 0;
+        boolean newGroup = true;
+           
+        for (final DataRow row : sortedTable) {
+        	// fill previous values if this is the first row
+        	if(firstRow) {
+        		for(String col : columnsToGroup)
+        			previousGroup.put(col, row.getCell(colIdx.get(col)));
+        	}
+        	
+        	for(String col : columnsToGroup) {
+        		DataCell currentCell = row.getCell(colIdx.get(col));
+        		DataCell previousCell = previousGroup.get(col);
+        		
+        		// if cells are not the same a new group starts
+        		if(comparators.get(col).compare(currentCell, previousCell) != 0) {
+        			newGroup = true;
+        		}
+        		currentGroup.put(col, currentCell);
+        	}
+        	if(newGroup) {
+        		
+        		final RowKey rowKey = RowKey.createRowKey((long)groupCounter);
+        		//final DataCell[] rowVals = new DataCell[nColumns + 4];
+        		
+        		List<DataCell> list = new ArrayList<DataCell>(currentGroup.values());
+        		list.add(new StringCell("param"));
+        		list.add(new StringCell("iv"));
+        		list.add(new IntCell(1000));
+        		list.add(new DoubleCell(30.5));
+        		
+        		dc.addRowToTable(new DefaultRow(rowKey, list));
+        		
+        		groupCounter++;
+        		newGroup = false;
+        		previousGroup.clear();
+        		previousGroup.putAll(currentGroup);
+        	}
+        }
+        
+        dc.close();
+        
+		return dc.getTable();
+	}
+
+/*	protected BufferedDataTable createGroupByTable(final ExecutionContext exec,
+            final BufferedDataTable table, final DataTableSpec resultSpec,
+            final int[] groupColIdx) throws CanceledExecutionException {
+        //LOGGER.debug("Entering createGroupByTable(exec, table) "
+        //        + "of class BigGroupByTable.");
+        final DataTableSpec origSpec = table.getDataTableSpec();
+        
+        //sort the data table in order to process the input table chunk wise
+        final BufferedDataTable sortedTable;
+        final ExecutionContext groupExec;
+        final DataValueComparator[] comparators;
+        if (groupColIdx.length < 1) {
+            sortedTable = table;
+            groupExec = exec;
+            comparators = new DataValueComparator[0];
+        } else {
+            final ExecutionContext sortExec =
+                exec.createSubExecutionContext(0.6);
+            exec.setMessage("Sorting input table...");
+            sortedTable = sortTable(sortExec, table, getGroupCols());
+            sortExec.setProgress(1.0);
+            groupExec = exec.createSubExecutionContext(0.4);
+            comparators = new DataValueComparator[groupColIdx.length];
+            for (int i = 0, length = groupColIdx.length; i < length; i++) {
+                final DataColumnSpec colSpec =
+                    origSpec.getColumnSpec(groupColIdx[i]);
+                comparators[i] = colSpec.getType().getComparator();
+            }
+        }
+        final BufferedDataContainer dc = exec.createDataContainer(resultSpec);
+        exec.setMessage("Creating groups");
+        final DataCell[] previousGroup = new DataCell[groupColIdx.length];
+        final DataCell[] currentGroup = new DataCell[groupColIdx.length];
+        final MutableInteger groupCounter = new MutableInteger(0);
+        boolean firstRow = true;
+        final double numOfRows = sortedTable.size();
+        long rowCounter = 0;
+        //In the rare case that the DataCell comparator return 0 for two
+        //data cells that are not equal we have to maintain a map with all
+        //rows with equal cells in the group columns per chunk.
+        //This variable stores for each chunk these members. A chunk consists
+        //of rows which return 0 for the pairwise group value comparison.
+        //Usually only equal data cells return 0 when compared with each other
+        //but in rare occasions also data cells that are NOT equal return 0 when
+        //compared to each other
+        //(such as cells that contain chemical structures).
+        //In this rare case this map will contain for each group of data cells
+        //that are pairwise equal in the chunk a separate entry.
+        final Map<GroupKey, Pair<ColumnAggregator[], Set<RowKey>>> chunkMembers = new LinkedHashMap<>(3);
+        boolean logUnusualCells = true;
+        String groupLabel = "";
+        initMissingValuesMap();  // cannot put init to the constructor, as the super() constructor directly calls the current function
+        for (final DataRow row : sortedTable) {
+            //fetch the current group column values
+            for (int i = 0, length = groupColIdx.length; i < length; i++) {
+                currentGroup[i] = row.getCell(groupColIdx[i]);
+            }
+            if (firstRow) {
+                groupLabel = createGroupLabelForProgress(currentGroup);
+                System.arraycopy(currentGroup, 0, previousGroup, 0,
+                        currentGroup.length);
+                firstRow = false;
+            }
+            //check if we are still in the same data chunk which contains
+            //rows that return 0 for all pairwise comparisons of their
+            //group column data cells
+            if (!sameChunk(comparators, previousGroup, currentGroup)) {
+                groupLabel = createGroupLabelForProgress(currentGroup);
+                createTableRows(dc, chunkMembers, groupCounter);
+                //set the current group as previous group
+                System.arraycopy(currentGroup, 0, previousGroup, 0,
+                        currentGroup.length);
+                if (logUnusualCells && chunkMembers.size() > 1) {
+                    //log unusual number of chunk members with the classes that
+                    //cause the problem
+                    if (LOGGER.isEnabledFor(LEVEL.INFO)) {
+                        final StringBuilder buf = new StringBuilder();
+                        buf.append("Data chunk with ");
+                        buf.append(chunkMembers.size());
+                        buf.append(" members occured in groupby node. "
+                                + "Involved classes are: ");
+                        final GroupKey key =
+                            chunkMembers.keySet().iterator().next();
+                        for (final DataCell cell : key.getGroupVals()) {
+                            buf.append(cell.getClass().getCanonicalName());
+                            buf.append(", ");
+                        }
+                        LOGGER.info(buf.toString());
+                    }
+                    logUnusualCells = false;
+                }
+                //reset the chunk members map
+                chunkMembers.clear();
+            }
+            //process the row as one of the members of the current chunk
+            Pair<ColumnAggregator[], Set<RowKey>> member =
+                chunkMembers.get(new GroupKey(currentGroup));
+            if (member == null) {
+                Set<RowKey> rowKeys;
+                if (isEnableHilite()) {
+                    rowKeys = new HashSet<>();
+                } else {
+                    rowKeys = Collections.emptySet();
+                }
+                member = new Pair<>(cloneColumnAggregators(), rowKeys);
+                final DataCell[] groupKeys = new DataCell[currentGroup.length];
+                System.arraycopy(currentGroup, 0, groupKeys, 0,
+                        currentGroup.length);
+                chunkMembers.put(new GroupKey(groupKeys), member);
+            }
+            //compute the current row values
+            for (final ColumnAggregator colAggr : member.getFirst()) {
+                final int colIdx = origSpec.findColumnIndex(
+                        colAggr.getOriginalColName());
+                colAggr.getOperator(getGlobalSettings()).compute(row, colIdx);
+            }
+            if (isEnableHilite()) {
+                member.getSecond().add(row.getKey());
+            }
+            groupExec.checkCanceled();
+            groupExec.setProgress(++rowCounter/numOfRows, groupLabel);
+        }
+        //create the final row for the last chunk after processing the last
+        //table row
+        createTableRows(dc, chunkMembers, groupCounter);
+        dc.close();
+        return dc.getTable();
+    }*/
 }
