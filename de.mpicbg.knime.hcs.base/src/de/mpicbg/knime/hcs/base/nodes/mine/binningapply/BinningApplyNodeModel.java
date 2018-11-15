@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.knime.base.node.preproc.groupby.GroupByTable;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -272,6 +273,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         final double numOfRows = sortedTable.size();
         long rowCounter = 0;
         long extremeRowCounter = 0;
+        Map<String, MutableInteger> countMissing = createMissingCountMap(columnsToProcess);
         boolean newGroup = false;
         
         // count data goes into this map (per column, per interval, new map per group)
@@ -288,6 +290,11 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	
     		//count data
         	for(String col : columnsToProcess) {
+        		
+        		if(row.getCell(processColIdx.get(col)).isMissing()) {
+        			((MutableInteger)countMissing.get(col)).inc();
+        			continue;
+        		}
         		
         		double value = ((DoubleCell)row.getCell(processColIdx.get(col))).getDoubleValue();
         		
@@ -362,10 +369,37 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         dc.close();
         extremeDc.close();
         
+        showWarningForMissing(countMissing);
+        
 		return new BufferedDataTable[]{dc.getTable(),extremeDc.getTable()};
 	}
     
-    private LinkedList<LinkedList<DefaultRow>> createRows(int groupCounter, Map<String, DataCell> previousGroup, Map<String, Map<String, MutableInteger>> countData, long rowCounter, long extremeRowCounter) {
+    private void showWarningForMissing(Map<String, MutableInteger> countMissing) {
+    	
+    	int n = countMissing.size();
+    	String[] message = new String[n];
+    	int i = 0;
+    	for(String col : countMissing.keySet()) {
+    		message[i] = col + " (" + countMissing.get(col).longValue() + ")";
+    		i++;
+    	}
+    	
+    	String warningMessage = "Ignored missing values for: " + String.join(", ", message);
+    	
+		this.setWarningMessage(warningMessage);
+	}
+
+	private Map<String, MutableInteger> createMissingCountMap(List<String> columnsToProcess) {
+    	Map<String, MutableInteger> map = new LinkedHashMap<String,MutableInteger>();
+    	
+    	for(String col : columnsToProcess) {
+    		map.put(col, new MutableInteger(0));
+    	}
+    	
+		return map;
+	}
+
+	private LinkedList<LinkedList<DefaultRow>> createRows(int groupCounter, Map<String, DataCell> previousGroup, Map<String, Map<String, MutableInteger>> countData, long rowCounter, long extremeRowCounter) {
     	
     	LinkedList<DefaultRow> addRows = new LinkedList<DefaultRow>();
     	LinkedList<DefaultRow> addExtremeRows = new LinkedList<DefaultRow>();
@@ -471,133 +505,4 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         
         return countData;
     }
-
-/*	protected BufferedDataTable createGroupByTable(final ExecutionContext exec,
-            final BufferedDataTable table, final DataTableSpec resultSpec,
-            final int[] groupColIdx) throws CanceledExecutionException {
-        //LOGGER.debug("Entering createGroupByTable(exec, table) "
-        //        + "of class BigGroupByTable.");
-        final DataTableSpec origSpec = table.getDataTableSpec();
-        
-        //sort the data table in order to process the input table chunk wise
-        final BufferedDataTable sortedTable;
-        final ExecutionContext groupExec;
-        final DataValueComparator[] comparators;
-        if (groupColIdx.length < 1) {
-            sortedTable = table;
-            groupExec = exec;
-            comparators = new DataValueComparator[0];
-        } else {
-            final ExecutionContext sortExec =
-                exec.createSubExecutionContext(0.6);
-            exec.setMessage("Sorting input table...");
-            sortedTable = sortTable(sortExec, table, getGroupCols());
-            sortExec.setProgress(1.0);
-            groupExec = exec.createSubExecutionContext(0.4);
-            comparators = new DataValueComparator[groupColIdx.length];
-            for (int i = 0, length = groupColIdx.length; i < length; i++) {
-                final DataColumnSpec colSpec =
-                    origSpec.getColumnSpec(groupColIdx[i]);
-                comparators[i] = colSpec.getType().getComparator();
-            }
-        }
-        final BufferedDataContainer dc = exec.createDataContainer(resultSpec);
-        exec.setMessage("Creating groups");
-        final DataCell[] previousGroup = new DataCell[groupColIdx.length];
-        final DataCell[] currentGroup = new DataCell[groupColIdx.length];
-        final MutableInteger groupCounter = new MutableInteger(0);
-        boolean firstRow = true;
-        final double numOfRows = sortedTable.size();
-        long rowCounter = 0;
-        //In the rare case that the DataCell comparator return 0 for two
-        //data cells that are not equal we have to maintain a map with all
-        //rows with equal cells in the group columns per chunk.
-        //This variable stores for each chunk these members. A chunk consists
-        //of rows which return 0 for the pairwise group value comparison.
-        //Usually only equal data cells return 0 when compared with each other
-        //but in rare occasions also data cells that are NOT equal return 0 when
-        //compared to each other
-        //(such as cells that contain chemical structures).
-        //In this rare case this map will contain for each group of data cells
-        //that are pairwise equal in the chunk a separate entry.
-        final Map<GroupKey, Pair<ColumnAggregator[], Set<RowKey>>> chunkMembers = new LinkedHashMap<>(3);
-        boolean logUnusualCells = true;
-        String groupLabel = "";
-        initMissingValuesMap();  // cannot put init to the constructor, as the super() constructor directly calls the current function
-        for (final DataRow row : sortedTable) {
-            //fetch the current group column values
-            for (int i = 0, length = groupColIdx.length; i < length; i++) {
-                currentGroup[i] = row.getCell(groupColIdx[i]);
-            }
-            if (firstRow) {
-                groupLabel = createGroupLabelForProgress(currentGroup);
-                System.arraycopy(currentGroup, 0, previousGroup, 0,
-                        currentGroup.length);
-                firstRow = false;
-            }
-            //check if we are still in the same data chunk which contains
-            //rows that return 0 for all pairwise comparisons of their
-            //group column data cells
-            if (!sameChunk(comparators, previousGroup, currentGroup)) {
-                groupLabel = createGroupLabelForProgress(currentGroup);
-                createTableRows(dc, chunkMembers, groupCounter);
-                //set the current group as previous group
-                System.arraycopy(currentGroup, 0, previousGroup, 0,
-                        currentGroup.length);
-                if (logUnusualCells && chunkMembers.size() > 1) {
-                    //log unusual number of chunk members with the classes that
-                    //cause the problem
-                    if (LOGGER.isEnabledFor(LEVEL.INFO)) {
-                        final StringBuilder buf = new StringBuilder();
-                        buf.append("Data chunk with ");
-                        buf.append(chunkMembers.size());
-                        buf.append(" members occured in groupby node. "
-                                + "Involved classes are: ");
-                        final GroupKey key =
-                            chunkMembers.keySet().iterator().next();
-                        for (final DataCell cell : key.getGroupVals()) {
-                            buf.append(cell.getClass().getCanonicalName());
-                            buf.append(", ");
-                        }
-                        LOGGER.info(buf.toString());
-                    }
-                    logUnusualCells = false;
-                }
-                //reset the chunk members map
-                chunkMembers.clear();
-            }
-            //process the row as one of the members of the current chunk
-            Pair<ColumnAggregator[], Set<RowKey>> member =
-                chunkMembers.get(new GroupKey(currentGroup));
-            if (member == null) {
-                Set<RowKey> rowKeys;
-                if (isEnableHilite()) {
-                    rowKeys = new HashSet<>();
-                } else {
-                    rowKeys = Collections.emptySet();
-                }
-                member = new Pair<>(cloneColumnAggregators(), rowKeys);
-                final DataCell[] groupKeys = new DataCell[currentGroup.length];
-                System.arraycopy(currentGroup, 0, groupKeys, 0,
-                        currentGroup.length);
-                chunkMembers.put(new GroupKey(groupKeys), member);
-            }
-            //compute the current row values
-            for (final ColumnAggregator colAggr : member.getFirst()) {
-                final int colIdx = origSpec.findColumnIndex(
-                        colAggr.getOriginalColName());
-                colAggr.getOperator(getGlobalSettings()).compute(row, colIdx);
-            }
-            if (isEnableHilite()) {
-                member.getSecond().add(row.getKey());
-            }
-            groupExec.checkCanceled();
-            groupExec.setProgress(++rowCounter/numOfRows, groupLabel);
-        }
-        //create the final row for the last chunk after processing the last
-        //table row
-        createTableRows(dc, chunkMembers, groupCounter);
-        dc.close();
-        return dc.getTable();
-    }*/
 }
