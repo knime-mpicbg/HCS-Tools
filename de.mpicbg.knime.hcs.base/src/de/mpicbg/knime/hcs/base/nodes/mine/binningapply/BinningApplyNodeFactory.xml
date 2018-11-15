@@ -29,8 +29,11 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Input Data">Data to calculate the binning model from</inPort>
+        <inPort index="0" name="Input Data">Data to apply the binning model to</inPort>
         <inPort index="1" name="Binning Model">Binning model</inPort>
-        <outPort index="0" name="Binning Statistics">Provides model information like selected columns and their bins with bounds</outPort>  
+        <outPort index="0" name="Counts">
+        	Row counts per group, parameter and interval <br/>(including outlier count within the lowest/highest interval)
+        </outPort>  
+        <outPort index="1" name="Outlier counts">Row counts per group, parameter and interval of datapoints below lowest or above highest interval</outPort>
     </ports>    
 </knimeNode>
