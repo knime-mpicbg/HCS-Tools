@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.knime.base.node.preproc.groupby.GroupByTable;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -240,11 +239,11 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
             groupExec = exec;
         } else {
             final ExecutionContext sortExec =
-                exec.createSubExecutionContext(0.6);
+                exec.createSubExecutionContext(0.5);
             exec.setMessage("Sorting input table...");
             sortedTable = GroupByTable.sortTable(sortExec, inData, columnsToGroup);
             sortExec.setProgress(1.0);
-            groupExec = exec.createSubExecutionContext(0.4);
+            groupExec = exec.createSubExecutionContext(0.5);
             for(String col : columnsToGroup) {
             	final DataColumnSpec colSpec = inSpec.getColumnSpec(col);
             	comparators.put(col, colSpec.getType().getComparator());
@@ -279,6 +278,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         // count data goes into this map (per column, per interval, new map per group)
         Map<String, Map<String, MutableInteger>> countData = createCountMap(columnsToProcess, binMap);
         
+        String groupLabel = null;
            
         for (final DataRow row : sortedTable) {
         	// fill previous values if this is the first row
@@ -286,6 +286,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		for(String col : columnsToGroup)
         			previousGroup.put(col, row.getCell(colIdx.get(col)));
         		firstRow = false;
+        		groupLabel = createGroupLabelForProgress(previousGroup);
         	}
         	
     		//count data
@@ -350,8 +351,12 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		newGroup = false;
         		previousGroup.clear();
         		previousGroup.putAll(currentGroup);
+        		groupLabel = createGroupLabelForProgress(previousGroup);
         		countData = createCountMap(columnsToProcess, binMap);
         	}
+        	
+        	groupExec.checkCanceled();
+            groupExec.setProgress(++rowCounter/numOfRows, groupLabel);
         }
         
         // last row
@@ -374,19 +379,46 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		return new BufferedDataTable[]{dc.getTable(),extremeDc.getTable()};
 	}
     
+    /** Get a string describing the current group. Used in progress message. (copied from {@link org.knime.base.node.preproc.groupby.BigGroupByTable}
+     * @param previousGroup The current group
+     * @return That string. */
+    private String createGroupLabelForProgress(final Map<String, DataCell> previousGroup) {
+        final StringBuilder b = new StringBuilder("(");
+        int i = 0;
+        for (String col : previousGroup.keySet()) {
+            b.append(i > 0 ? "; " : "");
+            if (i > 3) {
+                b.append("...");
+            } else {
+                b.append('\"');
+                String s = previousGroup.get(col).toString();
+                if (s.length() > 31) {
+                    s = s.substring(0, 30).concat("...");
+                }
+                s = s.replace('\n', '_');
+                b.append(s).append('\"');
+            }
+        }
+        b.append(')');
+        return b.toString();
+    }
+    
     private void showWarningForMissing(Map<String, MutableInteger> countMissing) {
     	
+    	boolean showWarning = false;
     	int n = countMissing.size();
     	String[] message = new String[n];
     	int i = 0;
     	for(String col : countMissing.keySet()) {
-    		message[i] = col + " (" + countMissing.get(col).longValue() + ")";
+    		long nMissing = countMissing.get(col).longValue();
+    		if(nMissing > 0) showWarning = true;
+    		message[i] = col + " (" + nMissing + ")";
     		i++;
     	}
     	
     	String warningMessage = "Ignored missing values for: " + String.join(", ", message);
     	
-		this.setWarningMessage(warningMessage);
+		if(showWarning) this.setWarningMessage(warningMessage);
 	}
 
 	private Map<String, MutableInteger> createMissingCountMap(List<String> columnsToProcess) {
