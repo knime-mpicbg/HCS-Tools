@@ -64,7 +64,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	 */
 	protected BinningApplyNodeModel() 
 	{
-		super(new PortType[]{BufferedDataTable.TYPE, BinningPortObject.TYPE}, new PortType[]{BufferedDataTable.TYPE}, true);
+		super(new PortType[]{BufferedDataTable.TYPE, BinningPortObject.TYPE}, new PortType[]{BufferedDataTable.TYPE, BufferedDataTable.TYPE}, true);
 
 		initializeSettings();
 	}
@@ -120,7 +120,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		
 		List<DataColumnSpec> groupingSpecs = getGroupColumnSpecs(inSpec, groupingColumns);
 		
-		return new DataTableSpec[]{createCountDataTableSpec(groupingSpecs)};
+		DataTableSpec[] countDataTableSpecs = createCountDataTableSpec(groupingSpecs);
+		
+		return new DataTableSpec[]{countDataTableSpecs[0], countDataTableSpecs[1]};
 	}
 
 	private List<DataColumnSpec> getGroupColumnSpecs(DataTableSpec inSpec, String[] groupingColumns) {
@@ -137,7 +139,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	 * 
 	 * @return {@link DataTableSpec}
 	 */
-	private DataTableSpec createCountDataTableSpec(List<DataColumnSpec> groupingSpecs) {
+	private DataTableSpec[] createCountDataTableSpec(List<DataColumnSpec> groupingSpecs) {
 		DataTableSpecCreator dtsc = new DataTableSpecCreator();
 		
 		// add column specs of grouping columns
@@ -154,7 +156,24 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		colCreator = new DataColumnSpecCreator("Percentage", DoubleCell.TYPE);
 		dtsc.addColumns(colCreator.createSpec());
 		
-		return dtsc.createSpec();
+		/*DataTableSpecCreator extremeCountsSpec = new DataTableSpecCreator();
+		
+		// add column specs of grouping columns
+		for(DataColumnSpec dcs : groupingSpecs)
+			extremeCountsSpec.addColumns(dcs);
+		
+		colCreator = new DataColumnSpecCreator("Parameter", StringCell.TYPE);
+		dtsc.addColumns(colCreator.createSpec());
+		colCreator = new DataColumnSpecCreator("Interval", StringCell.TYPE);
+		dtsc.addColumns(colCreator.createSpec());
+		colCreator = new DataColumnSpecCreator("Counts", IntCell.TYPE);
+		dtsc.addColumns(colCreator.createSpec());
+		colCreator = new DataColumnSpecCreator("Percentage", DoubleCell.TYPE);
+		dtsc.addColumns(colCreator.createSpec());*/
+		
+		//TODO: might be enough to return one spec if it is the same for both tables...
+		
+		return new DataTableSpec[] {dtsc.createSpec(), dtsc.createSpec()};
 	}
 
 	@Override
@@ -194,26 +213,15 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 			} 
 		}
 		
-		BufferedDataTable countTable = createBinningCountsTable(exec, inData, 
+		BufferedDataTable[] countTables = createBinningCountsTables(exec, inData, 
 				createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns)),
 				columnsToProcess, groupingColumns, binMap);
 		
-		/*BufferedDataContainer buf = exec.createDataContainer(createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns)));
-		
-		for(String currentColumn : columnsToProcess) {
-			LinkedList<Interval> ivList = (LinkedList<Interval>) binMap.get(currentColumn);
-			
-			
-		}
-		
-		buf.close();*/
-		
-		// TODO Auto-generated method stub
-		return new BufferedDataTable[] {countTable};
+		return new BufferedDataTable[] {countTables[0], countTables[1]};
 	}
 	
-    private BufferedDataTable createBinningCountsTable(ExecutionContext exec, BufferedDataTable inData,
-			DataTableSpec countDataTableSpec, List<String> columnsToProcess, String[] groupingColumns, Map<String, LinkedList<Interval>> binMap) throws CanceledExecutionException {
+    private BufferedDataTable[] createBinningCountsTables(ExecutionContext exec, BufferedDataTable inData,
+			DataTableSpec[] countDataTableSpec, List<String> columnsToProcess, String[] groupingColumns, Map<String, LinkedList<Interval>> binMap) throws CanceledExecutionException {
     	
     	final DataTableSpec inSpec = inData.getDataTableSpec();  	
     	final BufferedDataTable sortedTable;
@@ -242,7 +250,8 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
             }        
         }
         
-        final BufferedDataContainer dc = exec.createDataContainer(countDataTableSpec);
+        final BufferedDataContainer dc = exec.createDataContainer(countDataTableSpec[0]);
+        final BufferedDataContainer extremeDc = exec.createDataContainer(countDataTableSpec[1]);
         exec.setMessage("Creating groups");
         //final DataCell[] previousGroup = new DataCell[nColumns];
         //final DataCell[] currentGroup = new DataCell[nColumns];
@@ -262,6 +271,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         boolean firstRow = true;
         final double numOfRows = sortedTable.size();
         long rowCounter = 0;
+        long extremeRowCounter = 0;
         boolean newGroup = false;
         
         // count data goes into this map (per column, per interval, new map per group)
@@ -318,10 +328,15 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	
         	if(newGroup) {
         		
-        		List<DefaultRow> addRows = createRows(groupCounter, previousGroup, countData, rowCounter);     		
-        		for(DefaultRow r : addRows) {
+        		List<LinkedList<DefaultRow>> rows = createRows(groupCounter, previousGroup, countData, rowCounter, extremeRowCounter);  
+        		
+        		for(DefaultRow r : rows.get(0)) {
         			dc.addRowToTable(r);
         			rowCounter ++;
+        		}
+        		for(DefaultRow r : rows.get(1)) {
+        			extremeDc.addRowToTable(r);
+        			extremeRowCounter ++;
         		}
         		
         		groupCounter++;
@@ -333,22 +348,27 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         }
         
         // last row
-        List<DefaultRow> addRows = createRows(groupCounter, previousGroup, countData, rowCounter);     		
-		for(DefaultRow r : addRows) {
+        List<LinkedList<DefaultRow>> rows = createRows(groupCounter, previousGroup, countData, rowCounter, extremeRowCounter);  
+		
+		for(DefaultRow r : rows.get(0)) {
 			dc.addRowToTable(r);
 			rowCounter ++;
 		}
-		
-		
+		for(DefaultRow r : rows.get(1)) {
+			extremeDc.addRowToTable(r);
+			extremeRowCounter ++;
+		}
         
         dc.close();
+        extremeDc.close();
         
-		return dc.getTable();
+		return new BufferedDataTable[]{dc.getTable(),extremeDc.getTable()};
 	}
     
-    private LinkedList<DefaultRow> createRows(int groupCounter, Map<String, DataCell> previousGroup, Map<String, Map<String, MutableInteger>> countData, long rowCounter) {
+    private LinkedList<LinkedList<DefaultRow>> createRows(int groupCounter, Map<String, DataCell> previousGroup, Map<String, Map<String, MutableInteger>> countData, long rowCounter, long extremeRowCounter) {
     	
     	LinkedList<DefaultRow> addRows = new LinkedList<DefaultRow>();
+    	LinkedList<DefaultRow> addExtremeRows = new LinkedList<DefaultRow>();
     	
     	for(String col : countData.keySet()) {
     		Map<String, MutableInteger> countMap = countData.get(col);
@@ -376,9 +396,11 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
     			
     			long counts = countMap.get(ivLabel).longValue();
     			boolean setRow = false;
+    			boolean setExtremeRow = false;
     			
     			if(i == 0) {
     				keep = counts;
+    				setExtremeRow = true;
     			}
     			if(i > 0 && i < nBins) {
     				counts = counts + keep;
@@ -387,6 +409,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
     			if(i == nBins) {
     				counts = counts + countMap.get(this.KEY_HIGHER).longValue();
     				setRow = true;
+    			}
+    			if(i == nBins + 1) {
+    				setExtremeRow = true;
     			}
     			
     			if(setRow) {
@@ -402,11 +427,27 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
     	    		rowCounter ++;
     	    		keep = 0;
     			}
+    			if(setExtremeRow) {
+    				final RowKey rowKey = RowKey.createRowKey((long)extremeRowCounter);
+    	    		
+    	    		List<DataCell> list = new ArrayList<DataCell>(previousGroup.values());
+    	    		list.add(new StringCell(col));
+    	    		list.add(new StringCell(ivLabel));
+    	    		list.add(new IntCell((int)counts));
+    	    		list.add(new DoubleCell((double)counts / (double)sum * 100.0));
+    	
+    	    		addExtremeRows.add(new DefaultRow(rowKey, list));
+    	    		extremeRowCounter ++;
+    			}
     			i++;
     		}
     	}
-		
-		return addRows;
+    	
+    	LinkedList<LinkedList<DefaultRow>> rows = new LinkedList<LinkedList<DefaultRow>>();
+    	rows.add(addRows);
+    	rows.add(addExtremeRows);
+    	
+		return rows;
 	}
 
 	private Map<String, Map<String, MutableInteger>> createCountMap(List<String> columnsToProcess, Map<String, LinkedList<Interval>> binMap) {
