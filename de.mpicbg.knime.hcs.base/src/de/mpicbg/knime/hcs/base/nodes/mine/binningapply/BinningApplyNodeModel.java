@@ -2,10 +2,13 @@ package de.mpicbg.knime.hcs.base.nodes.mine.binningapply;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import org.knime.base.node.preproc.groupby.GroupByTable;
 import org.knime.core.data.DataCell;
@@ -276,7 +279,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         boolean newGroup = false;
         
         // count data goes into this map (per column, per interval, new map per group)
-        Map<String, Map<String, MutableInteger>> countData = createCountMap(columnsToProcess, binMap);
+        Map<String, Map<String, MutableInteger>> countData = null;
+        
+        Map<RowKey, Map<String, DataCell>> rowMap = new HashMap<RowKey, Map<String, DataCell>>();
         
         String groupLabel = null;
            
@@ -289,10 +294,14 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		groupLabel = createGroupLabelForProgress(previousGroup);
         	}
         	
+        	RowKey key = row.getKey();
+        	Map<String, DataCell> dataMap = new HashMap<String, DataCell>();
+        	
     		//count data
         	for(String col : columnsToProcess) {
-        		
-        		if(row.getCell(processColIdx.get(col)).isMissing()) {
+           		
+        		dataMap.put(col, row.getCell(processColIdx.get(col)));     		
+        		/*if(row.getCell(processColIdx.get(col)).isMissing()) {
         			((MutableInteger)countMissing.get(col)).inc();
         			continue;
         		}
@@ -319,8 +328,10 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		if(label == null)
         			label = this.KEY_HIGHER;
 
-        		countData.get(col).get(label).inc();
+        		countData.get(col).get(label).inc();*/
         	}
+        	
+        	rowMap.put(key, dataMap);
         	
         	
         	for(String col : columnsToGroup) {
@@ -335,6 +346,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	}
         	
         	if(newGroup) {
+        		
+        		rowMap = selectSubset(rowMap);
+        		countData = calculateCounts(columnsToProcess, binMap, rowMap, countMissing, groupExec);
         		
         		List<LinkedList<DefaultRow>> rows = createRows(groupCounter, previousGroup, countData, rowCounter, extremeRowCounter);  
         		
@@ -352,7 +366,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		previousGroup.clear();
         		previousGroup.putAll(currentGroup);
         		groupLabel = createGroupLabelForProgress(previousGroup);
-        		countData = createCountMap(columnsToProcess, binMap);
+        		rowMap = new HashMap<RowKey, Map<String, DataCell>>();
         	}
         	
         	groupExec.checkCanceled();
@@ -360,6 +374,8 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         }
         
         // last row
+        rowMap = selectSubset(rowMap);
+		countData = calculateCounts(columnsToProcess, binMap, rowMap, countMissing, groupExec);
         List<LinkedList<DefaultRow>> rows = createRows(groupCounter, previousGroup, countData, rowCounter, extremeRowCounter);  
 		
 		for(DefaultRow r : rows.get(0)) {
@@ -370,6 +386,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 			extremeDc.addRowToTable(r);
 			extremeRowCounter ++;
 		}
+		// last row end
         
         dc.close();
         extremeDc.close();
@@ -379,7 +396,93 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		return new BufferedDataTable[]{dc.getTable(),extremeDc.getTable()};
 	}
     
-    /** Get a string describing the current group. Used in progress message. (copied from {@link org.knime.base.node.preproc.groupby.BigGroupByTable}
+    private Map<String, Map<String, MutableInteger>> calculateCounts(
+    		List<String> columnsToProcess, 
+    		Map<String, LinkedList<Interval>> binMap, 
+    		Map<RowKey, Map<String, DataCell>> rowMap, 
+    		Map<String, MutableInteger> countMissing, 
+    		ExecutionContext groupExec) 
+    				throws CanceledExecutionException {
+    	
+    	Map<String, Map<String, MutableInteger>> countData = createCountMap(columnsToProcess, binMap);
+		for(RowKey r : rowMap.keySet()) {
+			Map<String, DataCell> rowValues = rowMap.get(r);
+			for(String col : columnsToProcess) {
+
+				DataCell cell = rowValues.get(col);
+				    		
+				if(cell.isMissing()) {
+					((MutableInteger)countMissing.get(col)).inc();
+					continue;
+				}
+
+				double value = ((DoubleCell)cell).getDoubleValue();
+
+				LinkedList<Interval> ivList = binMap.get(col);
+				String label = null;	// will get the key where to increase the count
+				boolean first = true;
+				for(Interval iv : ivList) {
+
+					// keep label of interval if value belongs to it
+					if(iv.contains(value))
+						label = iv.getLabel();
+					// if the first interval is tested and the value did not belong to it,
+					// check whether it is lower
+					if(label == null && first) {
+						if(iv.isBelowLowerBound(value))
+							label = this.KEY_LOWER;
+						first = false;
+					}
+				}
+				// if no interval found => values is higher than maximum
+				if(label == null)
+					label = this.KEY_HIGHER;
+
+				countData.get(col).get(label).inc();
+			}
+			groupExec.checkCanceled();
+		}
+		return countData;
+	}
+
+	private Map<RowKey, Map<String, DataCell>> selectSubset(Map<RowKey, Map<String, DataCell>> rowMap) {
+    	/*
+		 * Randomly select rows (if requested)
+		 */
+		Random generator = new Random();
+		
+		int nRequired = 700;
+		int rowCount = rowMap.size();
+		boolean toFew = (rowCount - nRequired > 0) ? false : true;
+		
+		if(!toFew) {
+			//int nRows = (rowCount - nRequired > 0) ? nRequired : rowCount;
+
+			//TODO: check what happens if rouwCount is big AND required is nearly as big...
+			// how long does it take to get all rowkeys
+			Set<Integer> idxSet = new HashSet<Integer>();
+			while(nRequired > 0) {
+				Integer r = new Integer(generator.nextInt(rowCount));
+				boolean added = idxSet.add(r);
+				if(added) {
+					nRequired--;
+				}
+			}
+
+			Object[] keys = rowMap.keySet().toArray();
+			Set<RowKey> keepRows = new HashSet<RowKey>();
+			for(Integer i : idxSet) {
+				keepRows.add((RowKey)keys[i.intValue()]);
+			}
+
+			// filter for random selected rows
+			rowMap.keySet().retainAll(keepRows);
+		}
+		
+		return rowMap;
+	}
+
+	/** Get a string describing the current group. Used in progress message. (copied from {@link org.knime.base.node.preproc.groupby.BigGroupByTable}
      * @param previousGroup The current group
      * @return That string. */
     private String createGroupLabelForProgress(final Map<String, DataCell> previousGroup) {
