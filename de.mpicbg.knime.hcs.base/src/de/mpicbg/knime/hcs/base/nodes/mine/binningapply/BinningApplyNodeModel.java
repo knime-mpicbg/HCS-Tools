@@ -355,7 +355,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	
         	if(newGroup) {
         		
-        		rowMap = selectSubset(rowMap);
+        		if(sampling.getUseSampling()) {
+        			rowMap = selectSubset(rowMap, sampling);
+        		}
         		countData = calculateCounts(columnsToProcess, binMap, rowMap, countMissing, groupExec);
         		
         		List<LinkedList<DefaultRow>> rows = createRows(groupCounter, previousGroup, countData, rowCounter, extremeRowCounter);  
@@ -382,7 +384,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         }
         
         // last row
-        rowMap = selectSubset(rowMap);
+        if(sampling.getUseSampling()) {
+        	rowMap = selectSubset(rowMap, sampling);
+        }
 		countData = calculateCounts(columnsToProcess, binMap, rowMap, countMissing, groupExec);
         List<LinkedList<DefaultRow>> rows = createRows(groupCounter, previousGroup, countData, rowCounter, extremeRowCounter);  
 		
@@ -453,13 +457,12 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		return countData;
 	}
 
-	private Map<RowKey, Map<String, DataCell>> selectSubset(Map<RowKey, Map<String, DataCell>> rowMap) {
+	private Map<RowKey, Map<String, DataCell>> selectSubset(Map<RowKey, Map<String, DataCell>> rowMap, SamplingSettings sampling) {
     	/*
 		 * Randomly select rows (if requested)
 		 */
-		Random generator = new Random();
 		
-		int nRequired = 700;
+		int nRequired = sampling.getSampleSize();
 		int rowCount = rowMap.size();
 		boolean toFew = (rowCount - nRequired > 0) ? false : true;
 		
@@ -470,7 +473,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 			// how long does it take to get all rowkeys
 			Set<Integer> idxSet = new HashSet<Integer>();
 			while(nRequired > 0) {
-				Integer r = new Integer(generator.nextInt(rowCount));
+				Integer r = new Integer(sampling.getNextRandomValue(rowCount));
 				boolean added = idxSet.add(r);
 				if(added) {
 					nRequired--;
@@ -654,12 +657,18 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		private boolean m_useSeed = CFG_SEED_DFT;
 		private int m_sampleSize = CFG_SAMPLE_SIZE_DFT;
 		private long m_seedValue = CFG_SEED_VALUE_DFT;
+		private final Random m_random;
 		
 		public SamplingSettings(boolean useSampling, int sampleSize, boolean useSeed, long seedValue) {
 			this.m_sampleSize = sampleSize;
 			this.m_seedValue = seedValue;
 			this.m_useSampling = useSampling;
 			this.m_useSeed = useSeed;
+			if(useSeed) {
+				this.m_random = new Random(seedValue);
+			} else {
+				this.m_random = new Random();
+			}
 		}
 		
 		public boolean getUseSampling() {
@@ -676,6 +685,10 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		
 		public long getSeedValue() {
 			return m_seedValue;
+		}
+		
+		public int getNextRandomValue(int bound) {
+			return m_random.nextInt(bound);
 		}
 	}
 }
