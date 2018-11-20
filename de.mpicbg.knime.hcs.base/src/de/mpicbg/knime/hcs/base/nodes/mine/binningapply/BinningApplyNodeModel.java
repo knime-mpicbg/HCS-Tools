@@ -31,6 +31,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
+import org.knime.core.node.defaultnodesettings.SettingsModelIntegerBounded;
+import org.knime.core.node.defaultnodesettings.SettingsModelLong;
 import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
@@ -59,6 +61,21 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	public static final String CFG_INCOMPLETE = "ignore.incomplete";
 	public static final boolean CFG_INCOMPLETE_DFT = true;
 	
+	
+	
+	public static final String CFG_SAMPLING = "use.sampling";
+	public static final boolean CFG_SAMPLING_DFT = false;
+	
+	public static final String CFG_SEED = "use.random.seed";
+	public static final boolean CFG_SEED_DFT = false;
+	
+	public static final String CFG_SAMPLE_SIZE = "sample.size";
+	public static final int CFG_SAMPLE_SIZE_DFT = 100;
+	
+	public static final String CFG_SEED_VALUE = "random.seed";
+	public static final long CFG_SEED_VALUE_DFT = System.currentTimeMillis();
+	
+	
 	public final String KEY_LOWER = "lower values";
 	public final String KEY_HIGHER = "higher values";
 
@@ -75,7 +92,12 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	private void initializeSettings() {
 		this.addModelSetting(CFG_GROUPS, (SettingsModel) createGroupFilterModel());
 		this.addModelSetting(CFG_MISSING, (SettingsModel) createIgnoreMissingSettingsModel()); 
-		this.addModelSetting(CFG_INCOMPLETE, (SettingsModel) createIgnoreIncompleteSettingsModel()); 
+		this.addModelSetting(CFG_INCOMPLETE, (SettingsModel) createIgnoreIncompleteSettingsModel());
+		
+		this.addModelSetting(CFG_SAMPLING, (SettingsModel) createUseSamplingSettingsModel());
+		this.addModelSetting(CFG_SEED, (SettingsModel) createUseSeedSettingsModel());
+		this.addModelSetting(CFG_SAMPLE_SIZE, (SettingsModel) createSampleSizeSettingsModel());
+		this.addModelSetting(CFG_SEED_VALUE, (SettingsModel) createSeedValueSettingsModel());
 	}
 
 	public static SettingsModelBoolean createIgnoreMissingSettingsModel() {
@@ -85,10 +107,33 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	public static SettingsModelBoolean createIgnoreIncompleteSettingsModel() {
 		return new SettingsModelBoolean(CFG_INCOMPLETE, CFG_INCOMPLETE_DFT);
 	}
-
+	
 	public static SettingsModelColumnFilter2 createGroupFilterModel() {
 		return new SettingsModelColumnFilter2(CFG_GROUPS);
 	}
+	
+	public static SettingsModelBoolean createUseSamplingSettingsModel() {
+		return new SettingsModelBoolean(CFG_SAMPLING, CFG_SAMPLING_DFT);
+	}
+
+	public static SettingsModelBoolean createUseSeedSettingsModel() {
+		SettingsModelBoolean sm = new SettingsModelBoolean(CFG_SEED, CFG_SEED_DFT);
+		//sm.setEnabled(false);
+		return sm;
+	}
+	
+	public static SettingsModelIntegerBounded createSampleSizeSettingsModel() {
+		SettingsModelIntegerBounded sm = new SettingsModelIntegerBounded(CFG_SAMPLE_SIZE, CFG_SAMPLE_SIZE_DFT, 0, Integer.MAX_VALUE);
+		//sm.setEnabled(false);
+		return sm;
+	}
+	
+	public static SettingsModelLong createSeedValueSettingsModel() {
+		SettingsModelLong sm = new SettingsModelLong(CFG_SEED_VALUE, CFG_SEED_VALUE_DFT);
+		//sm.setEnabled(false);
+		return sm;
+	}
+
 
 	@Override
 	protected DataTableSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
@@ -159,23 +204,6 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		colCreator = new DataColumnSpecCreator("Percentage", DoubleCell.TYPE);
 		dtsc.addColumns(colCreator.createSpec());
 		
-		/*DataTableSpecCreator extremeCountsSpec = new DataTableSpecCreator();
-		
-		// add column specs of grouping columns
-		for(DataColumnSpec dcs : groupingSpecs)
-			extremeCountsSpec.addColumns(dcs);
-		
-		colCreator = new DataColumnSpecCreator("Parameter", StringCell.TYPE);
-		dtsc.addColumns(colCreator.createSpec());
-		colCreator = new DataColumnSpecCreator("Interval", StringCell.TYPE);
-		dtsc.addColumns(colCreator.createSpec());
-		colCreator = new DataColumnSpecCreator("Counts", IntCell.TYPE);
-		dtsc.addColumns(colCreator.createSpec());
-		colCreator = new DataColumnSpecCreator("Percentage", DoubleCell.TYPE);
-		dtsc.addColumns(colCreator.createSpec());*/
-		
-		//TODO: might be enough to return one spec if it is the same for both tables...
-		
 		return new DataTableSpec[] {dtsc.createSpec(), dtsc.createSpec()};
 	}
 
@@ -188,9 +216,16 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		
 		// retrieve node settings
 		//boolean ignoreMissing = ((SettingsModelBoolean) this.getModelSetting(CFG_MISSING)).getBooleanValue();
-		boolean ignoreIncomplete = ((SettingsModelBoolean) this.getModelSetting(CFG_INCOMPLETE)).getBooleanValue();
+		boolean dismissIncomplete = ((SettingsModelBoolean) this.getModelSetting(CFG_INCOMPLETE)).getBooleanValue();
 		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_GROUPS)).applyTo(inSpec);
 		String[] groupingColumns = filter.getIncludes();
+		
+		boolean useSampling = ((SettingsModelBoolean) this.getModelSetting(CFG_SAMPLING)).getBooleanValue();
+		boolean useSeed = ((SettingsModelBoolean) this.getModelSetting(CFG_SEED)).getBooleanValue();
+		int sampleSize = ((SettingsModelIntegerBounded) this.getModelSetting(CFG_SAMPLE_SIZE)).getIntValue();
+		long seedValue = ((SettingsModelLong) this.getModelSetting(CFG_SEED_VALUE)).getLongValue();
+		
+		SamplingSettings sampling = new SamplingSettings(useSampling, sampleSize, useSeed, seedValue);
 		
 		// load model
 		BinningAnalysisModel model = inModel.getBinningModel();
@@ -208,7 +243,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 			if(inSpec.containsName(col)) {
 				if(binMap.containsKey(col)) {
 					LinkedList<Interval> ivList = (LinkedList<Interval>) binMap.get(col);
-					if(ivList.size() < nBins && ignoreIncomplete)
+					if(ivList.size() < nBins && dismissIncomplete)
 						columnsToProcess.add(col);
 					if(ivList.size() == nBins)
 						columnsToProcess.add(col);
@@ -218,13 +253,13 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		
 		BufferedDataTable[] countTables = createBinningCountsTables(exec, inData, 
 				createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns)),
-				columnsToProcess, groupingColumns, binMap);
+				columnsToProcess, groupingColumns, binMap, sampling);
 		
 		return new BufferedDataTable[] {countTables[0], countTables[1]};
 	}
 	
     private BufferedDataTable[] createBinningCountsTables(ExecutionContext exec, BufferedDataTable inData,
-			DataTableSpec[] countDataTableSpec, List<String> columnsToProcess, String[] groupingColumns, Map<String, LinkedList<Interval>> binMap) throws CanceledExecutionException {
+			DataTableSpec[] countDataTableSpec, List<String> columnsToProcess, String[] groupingColumns, Map<String, LinkedList<Interval>> binMap, SamplingSettings sampling) throws CanceledExecutionException {
     	
     	final DataTableSpec inSpec = inData.getDataTableSpec();  	
     	final BufferedDataTable sortedTable;
@@ -301,34 +336,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	for(String col : columnsToProcess) {
            		
         		dataMap.put(col, row.getCell(processColIdx.get(col)));     		
-        		/*if(row.getCell(processColIdx.get(col)).isMissing()) {
-        			((MutableInteger)countMissing.get(col)).inc();
-        			continue;
-        		}
-        		
-        		double value = ((DoubleCell)row.getCell(processColIdx.get(col))).getDoubleValue();
-        		
-        		LinkedList<Interval> ivList = binMap.get(col);
-        		String label = null;	// will get the key where to increase the count
-        		boolean first = true;
-        		for(Interval iv : ivList) {
-        			
-        			// keep label of interval if value belongs to it
-        			if(iv.contains(value))
-        				label = iv.getLabel();
-        			// if the first interval is tested and the value did not belong to it,
-        			// check whether it is lower
-        			if(label == null && first) {
-        				if(iv.isBelowLowerBound(value))
-        					label = this.KEY_LOWER;
-        				first = false;
-        			}
-        		}
-        		// if no interval found => values is higher than maximum
-        		if(label == null)
-        			label = this.KEY_HIGHER;
 
-        		countData.get(col).get(label).inc();*/
         	}
         	
         	rowMap.put(key, dataMap);
@@ -640,4 +648,34 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         
         return countData;
     }
+	
+	public class SamplingSettings {
+		private boolean m_useSampling = CFG_SAMPLING_DFT;
+		private boolean m_useSeed = CFG_SEED_DFT;
+		private int m_sampleSize = CFG_SAMPLE_SIZE_DFT;
+		private long m_seedValue = CFG_SEED_VALUE_DFT;
+		
+		public SamplingSettings(boolean useSampling, int sampleSize, boolean useSeed, long seedValue) {
+			this.m_sampleSize = sampleSize;
+			this.m_seedValue = seedValue;
+			this.m_useSampling = useSampling;
+			this.m_useSeed = useSeed;
+		}
+		
+		public boolean getUseSampling() {
+			return m_useSampling;
+		}
+		
+		public boolean getUseSeed() {
+			return m_useSeed;
+		}
+		
+		public int getSampleSize() {
+			return m_sampleSize;
+		}
+		
+		public long getSeedValue() {
+			return m_seedValue;
+		}
+	}
 }

@@ -28,7 +28,8 @@ public class BinningApplyNodeFactory extends NodeFactory<BinningApplyNodeModel> 
 
 	@Override
 	protected NodeDialogPane createNodeDialogPane() {
-		return new BinningApplyNodeDialog();
+		//return new BinningApplyNodeDialog();
+		return new BinningApplyNodeDialog2();
 	}
 
 }
