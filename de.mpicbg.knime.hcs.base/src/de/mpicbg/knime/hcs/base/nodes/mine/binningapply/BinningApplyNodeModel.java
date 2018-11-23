@@ -199,28 +199,44 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		
 		assert modelColumns.length > 0;
 		
-		// collect columns which are not available in input spec
-		List<String> missingColumns = new ArrayList<String>();
-		for(String col : modelColumns) {
-			if(!inSpec.containsName(col))
-				missingColumns.add(col);
-		}		
-		if(!missingColumns.isEmpty()) {
-			if(ignoreMissing)
-				setWarningMessage("Input table is missing the following columns for processing (will be ignored): " + String.join(",", missingColumns));
-			else 
-				throw new InvalidSettingsException("Input table is missing the following columns for processing: " + String.join(",", missingColumns));
-		}
+		checkColumnsForAvailability(inSpec, ignoreMissing, modelColumns);
 		
 		// get grouping columns and deliver specs to output table spec
 		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_GROUPS)).applyTo(inSpec);
 		String[] groupingColumns = filter.getIncludes();
+		
+		checkColumnsForAvailability(inSpec, true, filter.getRemovedFromIncludes());
 		
 		List<DataColumnSpec> groupingSpecs = getGroupColumnSpecs(inSpec, groupingColumns);
 		
 		DataTableSpec[] countDataTableSpecs = createCountDataTableSpec(groupingSpecs);
 		
 		return new DataTableSpec[]{countDataTableSpecs[0], countDataTableSpecs[1]};
+	}
+
+	/**
+	 * checks if columns of given list are available; throws warning or error if columns are missing
+	 * 
+	 * @param inSpec		table specs
+	 * @param onlyWarn		true = no error, just a warning
+	 * @param columns		list of columns to test for
+	 * 
+	 * @throws InvalidSettingsException
+	 */
+	private void checkColumnsForAvailability(DataTableSpec inSpec, boolean onlyWarn, String[] columns)
+			throws InvalidSettingsException {
+		// collect columns which are not available in input spec
+		List<String> missingColumns = new ArrayList<String>();
+		for(String col : columns) {
+			if(!inSpec.containsName(col))
+				missingColumns.add(col);
+		}		
+		if(!missingColumns.isEmpty()) {
+			if(onlyWarn)
+				setWarningMessage("Input table is missing the following columns for processing (will be ignored): " + String.join(",", missingColumns));
+			else 
+				throw new InvalidSettingsException("Input table is missing the following columns for processing: " + String.join(",", missingColumns));
+		}
 	}
 
 	/**
@@ -417,7 +433,6 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         // <name of column to group on + its data cell>
         Set<Map<String, DataCell>> groupSet = new HashSet<Map<String, DataCell>>();
         
-        int groupCounter = 0;		// count groups
         boolean firstRow = true;
         final double numOfRows = sortedTable.size();
         long rowCounter = 0;		// row counter for count data
@@ -491,7 +506,6 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         			extremeRowCounter ++;
         		}
         		
-        		groupCounter++;	
         		newGroup = false;
         		previousGroup.clear();
         		previousGroup.putAll(currentGroup);
