@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.knime.base.node.preproc.groupby.GroupByTable;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -18,6 +19,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
 import org.knime.core.data.DataValueComparator;
+import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
@@ -53,6 +55,10 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
  */
 public class BinningApplyNodeModel extends AbstractNodeModel {
 	
+	/**
+	 * Node configuration keys and default values
+	 */
+	
 	public static final String CFG_GROUPS = "group.by";
 	
 	public static final String CFG_MISSING = "ignore.missing";
@@ -60,6 +66,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	
 	public static final String CFG_INCOMPLETE = "ignore.incomplete";
 	public static final boolean CFG_INCOMPLETE_DFT = true;
+	
+	public static final String CFG_SORTED = "already.sorted";
+	public static final boolean CFG_SORTED_DFT = false;
 	
 	
 	
@@ -75,9 +84,10 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	public static final String CFG_SEED_VALUE = "random.seed";
 	public static final long CFG_SEED_VALUE_DFT = System.currentTimeMillis();
 	
+	// labels for values below or above outer intervals
 	
-	public final String KEY_LOWER = "lower values";
-	public final String KEY_HIGHER = "higher values";
+	public static final String KEY_LOWER = "lower values";
+	public static final String KEY_HIGHER = "higher values";
 
 	/**
 	 * constructor
@@ -89,10 +99,14 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		initializeSettings();
 	}
 
+	/**
+	 * add model settings
+	 */
 	private void initializeSettings() {
 		this.addModelSetting(CFG_GROUPS, (SettingsModel) createGroupFilterModel());
 		this.addModelSetting(CFG_MISSING, (SettingsModel) createIgnoreMissingSettingsModel()); 
 		this.addModelSetting(CFG_INCOMPLETE, (SettingsModel) createIgnoreIncompleteSettingsModel());
+		this.addModelSetting(CFG_SORTED, (SettingsModel) createSortedSettingsModel());
 		
 		this.addModelSetting(CFG_SAMPLING, (SettingsModel) createUseSamplingSettingsModel());
 		this.addModelSetting(CFG_SEED, (SettingsModel) createUseSeedSettingsModel());
@@ -100,41 +114,77 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		this.addModelSetting(CFG_SEED_VALUE, (SettingsModel) createSeedValueSettingsModel());
 	}
 
+	/**
+	 * incoming data already sorted?
+	 * @return {@link SettingsModelBoolean}
+	 */
+	private SettingsModel createSortedSettingsModel() {
+		return new SettingsModelBoolean(CFG_SORTED, CFG_SORTED_DFT);
+	}
+
+	/**
+	 * if model contains column but missing in incoming table - ignore?
+	 * @return {@link SettingsModelBoolean}
+	 */
 	public static SettingsModelBoolean createIgnoreMissingSettingsModel() {
 		return new SettingsModelBoolean(CFG_MISSING, CFG_MISSING_DFT);
 	}
 	
+	/**
+	 * if model for a column is incomplete (less bins) - dismiss?
+	 * @return {@link SettingsModelBoolean}
+	 */
 	public static SettingsModelBoolean createIgnoreIncompleteSettingsModel() {
 		return new SettingsModelBoolean(CFG_INCOMPLETE, CFG_INCOMPLETE_DFT);
 	}
 	
+	/**
+	 * column filter for grouping incoming data
+	 * @return {@link SettingsModelColumnFilter2}
+	 */
 	public static SettingsModelColumnFilter2 createGroupFilterModel() {
 		return new SettingsModelColumnFilter2(CFG_GROUPS);
 	}
 	
+	/**
+	 * use random samples instead all datapoints per group?
+	 * @return {@link SettingsModelBoolean}
+	 */
 	public static SettingsModelBoolean createUseSamplingSettingsModel() {
 		return new SettingsModelBoolean(CFG_SAMPLING, CFG_SAMPLING_DFT);
 	}
 
+	/**
+	 * use fixed seed value for random sampling?
+	 * @return {@link SettingsModelBoolean}
+	 */
 	public static SettingsModelBoolean createUseSeedSettingsModel() {
 		SettingsModelBoolean sm = new SettingsModelBoolean(CFG_SEED, CFG_SEED_DFT);
-		//sm.setEnabled(false);
 		return sm;
 	}
 	
+	/**
+	 * sample size for random sampling
+	 * @return {@link SettingsModelIntegerBounded}
+	 */
 	public static SettingsModelIntegerBounded createSampleSizeSettingsModel() {
 		SettingsModelIntegerBounded sm = new SettingsModelIntegerBounded(CFG_SAMPLE_SIZE, CFG_SAMPLE_SIZE_DFT, 0, Integer.MAX_VALUE);
-		//sm.setEnabled(false);
 		return sm;
 	}
 	
+	/**
+	 * seed value for random sampling
+	 * @return {@link SettingsModelLong}
+	 */
 	public static SettingsModelLong createSeedValueSettingsModel() {
 		SettingsModelLong sm = new SettingsModelLong(CFG_SEED_VALUE, CFG_SEED_VALUE_DFT);
-		//sm.setEnabled(false);
 		return sm;
 	}
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected DataTableSpec[] configure(PortObjectSpec[] inSpecs) throws InvalidSettingsException {
 		
@@ -173,6 +223,12 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		return new DataTableSpec[]{countDataTableSpecs[0], countDataTableSpecs[1]};
 	}
 
+	/**
+	 * create list of data column specs based on grouping columns
+	 * @param inSpec
+	 * @param groupingColumns
+	 * @return linked list of {@link DataColumnSpec}
+	 */
 	private List<DataColumnSpec> getGroupColumnSpecs(DataTableSpec inSpec, String[] groupingColumns) {
 		List<DataColumnSpec> groupingSpecs = new LinkedList<DataColumnSpec>();
 		for(String col : groupingColumns) {
@@ -207,6 +263,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		return new DataTableSpec[] {dtsc.createSpec(), dtsc.createSpec()};
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected BufferedDataTable[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		
@@ -219,6 +278,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		boolean dismissIncomplete = ((SettingsModelBoolean) this.getModelSetting(CFG_INCOMPLETE)).getBooleanValue();
 		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_GROUPS)).applyTo(inSpec);
 		String[] groupingColumns = filter.getIncludes();
+		boolean alreadySorted = ((SettingsModelBoolean) this.getModelSetting(CFG_SORTED)).getBooleanValue();
 		
 		boolean useSampling = ((SettingsModelBoolean) this.getModelSetting(CFG_SAMPLING)).getBooleanValue();
 		boolean useSeed = ((SettingsModelBoolean) this.getModelSetting(CFG_SEED)).getBooleanValue();
@@ -239,40 +299,73 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		// - otherwise allow only complete models
 		// => list with columns which can and should be binned
 		List<String> columnsToProcess = new LinkedList<String>();
+		List<String> incomplete = new LinkedList<String>();
 		for(String col : model.getColumns()) {			
 			if(inSpec.containsName(col)) {
 				if(binMap.containsKey(col)) {
 					LinkedList<Interval> ivList = (LinkedList<Interval>) binMap.get(col);
 					if(ivList.size() < nBins && dismissIncomplete)
-						columnsToProcess.add(col);
-					if(ivList.size() == nBins)
+						incomplete.add(col);
+					else
 						columnsToProcess.add(col);
 				}
 			} 
 		}
 		
+		if(!incomplete.isEmpty()) 
+			this.setWarningMessage("Incomplete models: The following columns will not be processed: " + String.join(", ", incomplete));
+		
+		if(columnsToProcess.isEmpty())
+			this.setWarningMessage("No columns suitable for processing.");
+		
 		BufferedDataTable[] countTables = createBinningCountsTables(exec, inData, 
 				createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns)),
-				columnsToProcess, groupingColumns, binMap, sampling);
+				columnsToProcess, groupingColumns, binMap, sampling, alreadySorted);
 		
 		return new BufferedDataTable[] {countTables[0], countTables[1]};
 	}
 	
-    private BufferedDataTable[] createBinningCountsTables(ExecutionContext exec, BufferedDataTable inData,
-			DataTableSpec[] countDataTableSpec, List<String> columnsToProcess, String[] groupingColumns, Map<String, LinkedList<Interval>> binMap, SamplingSettings sampling) throws CanceledExecutionException {
+	/**
+	 * 1) sorting the table based on grouping columns
+	 * 2) iterate through table collecting values per group
+	 * 3) for each group create count data based on bins
+	 * 
+	 * @param exec					ExecutionContext
+	 * @param inData				incoming data
+	 * @param countDataTableSpec	table specs for out-tables
+	 * @param columnsToProcess		list of columns to bin
+	 * @param groupingColumns		list of columns to group on
+	 * @param binMap				map of binning models
+	 * @param sampling				settings for sampling
+	 * @param alreadySorted			input data already sorted?
+	 * 
+	 * @return						result tables (count data and count data for extreme values)
+	 * @throws CanceledExecutionException
+	 */
+    private BufferedDataTable[] createBinningCountsTables(
+    		ExecutionContext exec, 
+    		BufferedDataTable inData,
+			DataTableSpec[] countDataTableSpec, 
+			List<String> columnsToProcess, 
+			String[] groupingColumns, 
+			Map<String, LinkedList<Interval>> binMap, 
+			SamplingSettings sampling, 
+			boolean alreadySorted) throws CanceledExecutionException {
     	
     	final DataTableSpec inSpec = inData.getDataTableSpec();  	
     	final BufferedDataTable sortedTable;
         final ExecutionContext groupExec;
         Map<String, DataValueComparator> comparators = new HashMap<String, DataValueComparator>();
         
+        // put grouping columns from array into list
         List<String> columnsToGroup = new LinkedList<String>();
         for(String col : groupingColumns)
         	columnsToGroup.add(col);
         
         final int nColumns = columnsToGroup.size();
         
-        if (nColumns < 1) {
+        // sort incoming table based on grouping columns
+        if (alreadySorted || nColumns < 1) {
             sortedTable = inData;
             groupExec = exec;
         } else {
@@ -281,46 +374,62 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
             exec.setMessage("Sorting input table...");
             sortedTable = GroupByTable.sortTable(sortExec, inData, columnsToGroup);
             sortExec.setProgress(1.0);
-            groupExec = exec.createSubExecutionContext(0.5);
-            for(String col : columnsToGroup) {
-            	final DataColumnSpec colSpec = inSpec.getColumnSpec(col);
-            	comparators.put(col, colSpec.getType().getComparator());
-            }        
+            groupExec = exec.createSubExecutionContext(0.5);                   
+        }
+
+        
+        // for each grouping column, register comparator
+        for(String col : columnsToGroup) {
+        	final DataColumnSpec colSpec = inSpec.getColumnSpec(col);
+        	comparators.put(col, colSpec.getType().getComparator());
         }
         
+        // output table containers
         final BufferedDataContainer dc = exec.createDataContainer(countDataTableSpec[0]);
         final BufferedDataContainer extremeDc = exec.createDataContainer(countDataTableSpec[1]);
-        exec.setMessage("Creating groups");
-        //final DataCell[] previousGroup = new DataCell[nColumns];
-        //final DataCell[] currentGroup = new DataCell[nColumns];
+             
+        // maps for current group and previous group
         Map<String, DataCell> previousGroup = new LinkedHashMap<String, DataCell>();
         Map<String, DataCell> currentGroup = new LinkedHashMap<String, DataCell>();
         
+        // map with column indices for grouping columns
         Map<String, Integer> colIdx = new LinkedHashMap<String, Integer>();
         for(String col : columnsToGroup) {
         	colIdx.put(col, new Integer(inSpec.findColumnIndex(col)));
         }
+        // map with column indices for processing columns
         Map<String, Integer> processColIdx = new LinkedHashMap<String, Integer>();
         for(String col : columnsToProcess) {
         	processColIdx.put(col, new Integer(inSpec.findColumnIndex(col)));
         }
         
-        int groupCounter = 0;
-        boolean firstRow = true;
-        final double numOfRows = sortedTable.size();
-        long rowCounter = 0;
-        long extremeRowCounter = 0;
+        // for each column to process count missing data
         Map<String, MutableInteger> countMissing = createMissingCountMap(columnsToProcess);
-        boolean newGroup = false;
         
         // count data goes into this map (per column, per interval, new map per group)
         Map<String, Map<String, MutableInteger>> countData = null;
         
+        // collects row data for each column to process until new group has bee detected
+        // row key => <name of column to process + its data cell>
         Map<RowKey, Map<String, DataCell>> rowMap = new HashMap<RowKey, Map<String, DataCell>>();
         
-        String groupLabel = null;
+        // set of detected groups (uniqueness check!)
+        // <name of column to group on + its data cell>
+        Set<Map<String, DataCell>> groupSet = new HashSet<Map<String, DataCell>>();
+        
+        int groupCounter = 0;		// count groups
+        boolean firstRow = true;
+        final double numOfRows = sortedTable.size();
+        long rowCounter = 0;		// row counter for count data
+        long extremeRowCounter = 0;	// row counter for extreme count data      
+        boolean newGroup = false;	// new group detected?
+        String groupLabel = null;	// label of the current group
+              
+        exec.setMessage("Creating groups");
            
+        // iterate over sorted table
         for (final DataRow row : sortedTable) {
+        	
         	// fill previous values if this is the first row
         	if(firstRow) {
         		for(String col : columnsToGroup)
@@ -329,19 +438,19 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		groupLabel = createGroupLabelForProgress(previousGroup);
         	}
         	
+        	// collect data cells of columns to process if not missing
         	RowKey key = row.getKey();
         	Map<String, DataCell> dataMap = new HashMap<String, DataCell>();
-        	
-    		//count data
-        	for(String col : columnsToProcess) {
-           		
-        		dataMap.put(col, row.getCell(processColIdx.get(col)));     		
-
+        	for(String col : columnsToProcess) {        		
+        		//dataMap.put(col, row.getCell(processColIdx.get(col)));     
+        		DataCell cell = row.getCell(processColIdx.get(col));
+        		if(cell.isMissing())
+        			countMissing.get(col).inc();
+        		else
+        			dataMap.put(col, row.getCell(processColIdx.get(col)));
         	}
-        	
-        	rowMap.put(key, dataMap);
-        	
-        	
+
+        	// compare previous group with current group
         	for(String col : columnsToGroup) {
         		DataCell currentCell = row.getCell(colIdx.get(col));
         		DataCell previousCell = previousGroup.get(col);
@@ -353,15 +462,26 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		currentGroup.put(col, currentCell);
         	}
         	
+        	// if new group has been detected
         	if(newGroup) {
         		
+        		// check if new group did not yet appear (for pre-sorted data)
+        		if(alreadySorted && !groupSet.add(currentGroup)) {
+        			throw new DuplicateGroupException("Input table was not sorted by grouping columns");
+        		}
+        		
+        		// reduce data of that group if sampling is wanted
         		if(sampling.getUseSampling()) {
         			rowMap = selectSubset(rowMap, sampling);
         		}
+        		
+        		// create count data
         		countData = calculateCounts(columnsToProcess, binMap, rowMap, countMissing, groupExec);
         		
+        		// create new rows for count data and extreme count data
         		List<LinkedList<DefaultRow>> rows = createRows(groupCounter, previousGroup, countData, rowCounter, extremeRowCounter);  
         		
+        		// add the new rows to their table
         		for(DefaultRow r : rows.get(0)) {
         			dc.addRowToTable(r);
         			rowCounter ++;
@@ -371,7 +491,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         			extremeRowCounter ++;
         		}
         		
-        		groupCounter++;
+        		groupCounter++;	
         		newGroup = false;
         		previousGroup.clear();
         		previousGroup.putAll(currentGroup);
@@ -379,11 +499,18 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		rowMap = new HashMap<RowKey, Map<String, DataCell>>();
         	}
         	
+        	// collect row data (important: not before group check as data of a new group 
+        	// should go to the new collection of row data
+        	rowMap.put(key, dataMap);
+        	
         	groupExec.checkCanceled();
-            groupExec.setProgress(++rowCounter/numOfRows, groupLabel);
+            groupExec.setProgress(++rowCounter/numOfRows, groupLabel);	// TODO: does that make sense?
         }
         
-        // last row
+        // process last group (needs to be the same steps like for new group in the loop!)
+		if(alreadySorted && !groupSet.add(currentGroup)) {
+			throw new DuplicateGroupException("Input table was not sorted by grouping columns");
+		}
         if(sampling.getUseSampling()) {
         	rowMap = selectSubset(rowMap, sampling);
         }
@@ -398,16 +525,29 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 			extremeDc.addRowToTable(r);
 			extremeRowCounter ++;
 		}
-		// last row end
+		// process last group end
         
+		
         dc.close();
         extremeDc.close();
-        
+       
         showWarningForMissing(countMissing);
         
 		return new BufferedDataTable[]{dc.getTable(),extremeDc.getTable()};
 	}
     
+    /**
+     * applies the binning models to the data of a single group
+     * 
+     * @param columnsToProcess	list of columns to apply the binning models to
+     * @param binMap			binning models
+     * @param rowMap			group data
+     * @param countMissing		count missing values for each processing column
+     * @param groupExec			execution context
+     * 
+     * @return count data and count data for extreme values
+     * @throws CanceledExecutionException
+     */
     private Map<String, Map<String, MutableInteger>> calculateCounts(
     		List<String> columnsToProcess, 
     		Map<String, LinkedList<Interval>> binMap, 
@@ -428,7 +568,11 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 					continue;
 				}
 
-				double value = ((DoubleCell)cell).getDoubleValue();
+				
+				// TODO: problem last value of new group is part of row values in current group
+				
+				
+				double value = ((DoubleValue)cell).getDoubleValue();
 
 				LinkedList<Interval> ivList = binMap.get(col);
 				String label = null;	// will get the key where to increase the count
@@ -442,13 +586,13 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 					// check whether it is lower
 					if(label == null && first) {
 						if(iv.isBelowLowerBound(value))
-							label = this.KEY_LOWER;
+							label = KEY_LOWER;
 						first = false;
 					}
 				}
 				// if no interval found => values is higher than maximum
 				if(label == null)
-					label = this.KEY_HIGHER;
+					label = KEY_HIGHER;
 
 				countData.get(col).get(label).inc();
 			}
@@ -689,6 +833,14 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		
 		public int getNextRandomValue(int bound) {
 			return m_random.nextInt(bound);
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public class DuplicateGroupException extends RuntimeException {
+		
+		public DuplicateGroupException(final String message) {
+			super(message);
 		}
 	}
 }

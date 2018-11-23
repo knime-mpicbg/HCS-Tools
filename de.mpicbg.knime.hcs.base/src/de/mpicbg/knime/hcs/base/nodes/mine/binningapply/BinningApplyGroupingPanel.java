@@ -22,6 +22,7 @@ public class BinningApplyGroupingPanel extends JPanel {
 	DataColumnSpecFilterPanel comp_columnFilterPanel;
 	JCheckBox comp_ignoreMissing = new JCheckBox("Ignore missing columns");
 	JCheckBox comp_dismissIncomplete = new JCheckBox("Dismiss incomplete binning models");
+	JCheckBox comp_alreadySorted = new JCheckBox("Input is already sorted by group column(s)");
 	
 	public BinningApplyGroupingPanel() {
 		super(new BorderLayout());
@@ -35,12 +36,15 @@ public class BinningApplyGroupingPanel extends JPanel {
 		subPanel.add(comp_dismissIncomplete);
 		comp_ignoreMissing.setAlignmentX(Component.LEFT_ALIGNMENT);
 		subPanel.add(comp_ignoreMissing);
+		comp_alreadySorted.setAlignmentX(Component.LEFT_ALIGNMENT);
+		subPanel.add(comp_alreadySorted);
 		add(subPanel, BorderLayout.SOUTH);
 	}
 
 	public void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec dataTableSpec) throws InvalidSettingsException {
 		boolean sm_ignoreMissing = settings.getBoolean(BinningApplyNodeModel.CFG_MISSING);
 		boolean sm_dismissIncomplete = settings.getBoolean(BinningApplyNodeModel.CFG_INCOMPLETE);
+		boolean sm_alreadySorted = settings.getBoolean(BinningApplyNodeModel.CFG_SORTED);
 		
 		SettingsModelColumnFilter2 sm_columnFilter = new SettingsModelColumnFilter2(BinningApplyNodeModel.CFG_GROUPS);
 		sm_columnFilter.loadSettingsFrom(settings);
@@ -50,14 +54,17 @@ public class BinningApplyGroupingPanel extends JPanel {
 		comp_ignoreMissing.setSelected(sm_ignoreMissing);
 		comp_dismissIncomplete.setSelected(sm_dismissIncomplete);
 		comp_columnFilterPanel.loadConfiguration(filterSpec, dataTableSpec);
+		comp_alreadySorted.setSelected(sm_alreadySorted);
 	}
 
 	public void saveSettingsTo(NodeSettingsWO settings) {
 		boolean ignoreMissing = comp_ignoreMissing.isSelected();
 		boolean dismissIncomplete = comp_dismissIncomplete.isSelected();
+		boolean alreadySorted = comp_alreadySorted.isSelected();
 		
 		settings.addBoolean(BinningApplyNodeModel.CFG_INCOMPLETE, dismissIncomplete);
 		settings.addBoolean(BinningApplyNodeModel.CFG_MISSING, ignoreMissing);
+		settings.addBoolean(BinningApplyNodeModel.CFG_SORTED, alreadySorted);
 		
 		NameFilterConfiguration nfc = new NameFilterConfiguration(BinningApplyNodeModel.CFG_GROUPS);
 		comp_columnFilterPanel.saveConfiguration(nfc);
