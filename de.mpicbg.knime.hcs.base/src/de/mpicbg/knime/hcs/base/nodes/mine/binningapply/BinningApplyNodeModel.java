@@ -476,10 +476,10 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		}
         		
         		// create count data
-        		countData = calculateCounts(columnsToProcess, binMap, rowMap, countMissing, groupExec);
+        		countData = calculateCounts(columnsToProcess, binMap, rowMap, groupExec);
         		
         		// create new rows for count data and extreme count data
-        		List<LinkedList<DefaultRow>> rows = createRows(groupCounter, previousGroup, countData, rowCounter, extremeRowCounter);  
+        		List<LinkedList<DefaultRow>> rows = createRows(previousGroup, countData, rowCounter, extremeRowCounter);  
         		
         		// add the new rows to their table
         		for(DefaultRow r : rows.get(0)) {
@@ -514,8 +514,8 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         if(sampling.getUseSampling()) {
         	rowMap = selectSubset(rowMap, sampling);
         }
-		countData = calculateCounts(columnsToProcess, binMap, rowMap, countMissing, groupExec);
-        List<LinkedList<DefaultRow>> rows = createRows(groupCounter, previousGroup, countData, rowCounter, extremeRowCounter);  
+		countData = calculateCounts(columnsToProcess, binMap, rowMap, groupExec);
+        List<LinkedList<DefaultRow>> rows = createRows(previousGroup, countData, rowCounter, extremeRowCounter);  
 		
 		for(DefaultRow r : rows.get(0)) {
 			dc.addRowToTable(r);
@@ -542,38 +542,49 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
      * @param columnsToProcess	list of columns to apply the binning models to
      * @param binMap			binning models
      * @param rowMap			group data
-     * @param countMissing		count missing values for each processing column
      * @param groupExec			execution context
      * 
      * @return count data and count data for extreme values
+     * 
+     * count data structure:
+     * 		column name =>
+     * 				'lower values' => count
+     * 				interval label 1 => count
+     * 				...
+     * 				interval label n => count
+     * 				'higher values' => count
+     * 
      * @throws CanceledExecutionException
      */
     private Map<String, Map<String, MutableInteger>> calculateCounts(
     		List<String> columnsToProcess, 
     		Map<String, LinkedList<Interval>> binMap, 
-    		Map<RowKey, Map<String, DataCell>> rowMap, 
-    		Map<String, MutableInteger> countMissing, 
+    		Map<RowKey, Map<String, DataCell>> rowMap,  
     		ExecutionContext groupExec) 
     				throws CanceledExecutionException {
     	
     	Map<String, Map<String, MutableInteger>> countData = createCountMap(columnsToProcess, binMap);
+    	
+    	// iterate over all rows of this group
 		for(RowKey r : rowMap.keySet()) {
 			Map<String, DataCell> rowValues = rowMap.get(r);
+			
+			// iterate over all columns to process
 			for(String col : columnsToProcess) {
 
 				DataCell cell = rowValues.get(col);
+				
+				if(cell == null)	// in case of missing values
+					continue;
 				    		
 				if(cell.isMissing()) {
-					((MutableInteger)countMissing.get(col)).inc();
+					this.logger.error("implementation problem: missing values should be filtered out before.");
 					continue;
 				}
-
-				
-				// TODO: problem last value of new group is part of row values in current group
-				
-				
+			
 				double value = ((DoubleValue)cell).getDoubleValue();
 
+				// get model and check which interval the value belongs to
 				LinkedList<Interval> ivList = binMap.get(col);
 				String label = null;	// will get the key where to increase the count
 				boolean first = true;
@@ -601,8 +612,18 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		return countData;
 	}
 
-	private Map<RowKey, Map<String, DataCell>> selectSubset(Map<RowKey, Map<String, DataCell>> rowMap, SamplingSettings sampling) {
-    	/*
+    /**
+     * random row sampling of the rows of one group
+     * @param rowMap		collected row data
+     * @param sampling		sampling settings
+     * 
+     * @return subset of row data
+     */
+	private Map<RowKey, Map<String, DataCell>> selectSubset(
+			Map<RowKey, Map<String, DataCell>> rowMap, 
+			SamplingSettings sampling) {
+    	
+		/*
 		 * Randomly select rows (if requested)
 		 */
 		
@@ -611,10 +632,11 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		boolean toFew = (rowCount - nRequired > 0) ? false : true;
 		
 		if(!toFew) {
-			//int nRows = (rowCount - nRequired > 0) ? nRequired : rowCount;
 
 			//TODO: check what happens if rouwCount is big AND required is nearly as big...
 			// how long does it take to get all rowkeys
+			
+			// create index set based on random selection
 			Set<Integer> idxSet = new HashSet<Integer>();
 			while(nRequired > 0) {
 				Integer r = new Integer(sampling.getNextRandomValue(rowCount));
@@ -624,6 +646,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 				}
 			}
 
+			// get set of row-keys from index set
 			Object[] keys = rowMap.keySet().toArray();
 			Set<RowKey> keepRows = new HashSet<RowKey>();
 			for(Integer i : idxSet) {
@@ -637,9 +660,13 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		return rowMap;
 	}
 
-	/** Get a string describing the current group. Used in progress message. (copied from {@link org.knime.base.node.preproc.groupby.BigGroupByTable}
-     * @param previousGroup The current group
-     * @return That string. */
+	/** Get a string describing the current group. Used in progress message. 
+	 * (copied from {@link org.knime.base.node.preproc.groupby.BigGroupByTable}
+	 * 
+     * @param previousGroup 	The current group
+     * 
+     * @return group string 
+     * */
     private String createGroupLabelForProgress(final Map<String, DataCell> previousGroup) {
         final StringBuilder b = new StringBuilder("(");
         int i = 0;
@@ -661,6 +688,10 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         return b.toString();
     }
     
+    /**
+     * create warning message for missing values in processing columns
+     * @param countMissing
+     */
     private void showWarningForMissing(Map<String, MutableInteger> countMissing) {
     	
     	boolean showWarning = false;
@@ -679,6 +710,11 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		if(showWarning) this.setWarningMessage(warningMessage);
 	}
 
+    /**
+     * create an empty map to count missing values for each processing column
+     * @param columnsToProcess
+     * @return	empty map with mutable integers set to 0
+     */
 	private Map<String, MutableInteger> createMissingCountMap(List<String> columnsToProcess) {
     	Map<String, MutableInteger> map = new LinkedHashMap<String,MutableInteger>();
     	
@@ -689,12 +725,28 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		return map;
 	}
 
-	private LinkedList<LinkedList<DefaultRow>> createRows(int groupCounter, Map<String, DataCell> previousGroup, Map<String, Map<String, MutableInteger>> countData, long rowCounter, long extremeRowCounter) {
+	/**
+	 * creates rows for the output tables based on count data
+	 * 	
+	 * @param previousGroup			group data
+	 * @param countData				count data
+	 * @param rowCounter			row counter for count data table
+	 * @param extremeRowCounter		row counter for extreme count data table
+	 * 
+	 * @return list of new rows for each output table
+	 */
+	private LinkedList<LinkedList<DefaultRow>> createRows( 
+			Map<String, DataCell> previousGroup, 
+			Map<String, Map<String, MutableInteger>> countData, 
+			long rowCounter, 
+			long extremeRowCounter) {
     	
     	LinkedList<DefaultRow> addRows = new LinkedList<DefaultRow>();
     	LinkedList<DefaultRow> addExtremeRows = new LinkedList<DefaultRow>();
     	
+    	//for each processing column
     	for(String col : countData.keySet()) {
+    		
     		Map<String, MutableInteger> countMap = countData.get(col);
     		int nBins = countMap.size() - 2;
     		
@@ -716,6 +768,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
     		 */
     		int i = 0;
     		long keep = 0;
+    		// iterate over intervals and create rows
     		for(String ivLabel : countMap.keySet()) {
     			
     			long counts = countMap.get(ivLabel).longValue();
@@ -731,7 +784,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
     	    		setRow = true;
     			}
     			if(i == nBins) {
-    				counts = counts + countMap.get(this.KEY_HIGHER).longValue();
+    				counts = counts + countMap.get(KEY_HIGHER).longValue();
     				setRow = true;
     			}
     			if(i == nBins + 1) {
@@ -774,7 +827,17 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		return rows;
 	}
 
-	private Map<String, Map<String, MutableInteger>> createCountMap(List<String> columnsToProcess, Map<String, LinkedList<Interval>> binMap) {
+	/**
+	 * create empty map for count data
+	 * 
+	 * @param columnsToProcess	columns for processing
+	 * @param binMap			binning models
+	 * 
+	 * @return empty map for count data (inits mutable integer with 0)
+	 */
+	private Map<String, Map<String, MutableInteger>> createCountMap(
+			List<String> columnsToProcess, 
+			Map<String, LinkedList<Interval>> binMap) {
     	
     	Map<String, Map<String, MutableInteger>> countData = new LinkedHashMap<String, Map<String, MutableInteger>>();
         // init map with zeros
@@ -796,13 +859,29 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         return countData;
     }
 	
+	/**
+	 * class to store sampling settings and retrieve random values
+	 * 
+	 * @author Antje Janosch
+	 *
+	 */
 	public class SamplingSettings {
-		private boolean m_useSampling = CFG_SAMPLING_DFT;
-		private boolean m_useSeed = CFG_SEED_DFT;
-		private int m_sampleSize = CFG_SAMPLE_SIZE_DFT;
-		private long m_seedValue = CFG_SEED_VALUE_DFT;
-		private final Random m_random;
+		// settings set to their defaults
+		private boolean m_useSampling = CFG_SAMPLING_DFT;	// use sampling? (not necessary...)
+		private boolean m_useSeed = CFG_SEED_DFT;			// use seed value?
+		private int m_sampleSize = CFG_SAMPLE_SIZE_DFT;		// sample size
+		private long m_seedValue = CFG_SEED_VALUE_DFT;		// seed value
 		
+		private final Random m_random;	// random number generator
+		
+		/**
+		 * constructor, creates random number generator based on seed value (if wanted)
+		 * 
+		 * @param useSampling
+		 * @param sampleSize
+		 * @param useSeed
+		 * @param seedValue
+		 */
 		public SamplingSettings(boolean useSampling, int sampleSize, boolean useSeed, long seedValue) {
 			this.m_sampleSize = sampleSize;
 			this.m_seedValue = seedValue;
@@ -831,11 +910,22 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 			return m_seedValue;
 		}
 		
+		/**
+		 * retrieve next random integer values
+		 * @param bound		maximum int value
+		 * @return random integer value
+		 */
 		public int getNextRandomValue(int bound) {
 			return m_random.nextInt(bound);
 		}
 	}
 	
+	/**
+	 * Exception thrown if group appears multiple times
+	 * 
+	 * @author Antje Janosch
+	 *
+	 */
 	@SuppressWarnings("serial")
 	public class DuplicateGroupException extends RuntimeException {
 		
