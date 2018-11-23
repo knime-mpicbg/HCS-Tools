@@ -436,7 +436,8 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         boolean firstRow = true;
         final double numOfRows = sortedTable.size();
         long rowCounter = 0;		// row counter for count data
-        long extremeRowCounter = 0;	// row counter for extreme count data      
+        long extremeRowCounter = 0;	// row counter for extreme count data    
+        long currentRowIdx = 0;
         boolean newGroup = false;	// new group detected?
         String groupLabel = null;	// label of the current group
               
@@ -518,7 +519,8 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	rowMap.put(key, dataMap);
         	
         	groupExec.checkCanceled();
-            groupExec.setProgress(++rowCounter/numOfRows, groupLabel);	// TODO: does that make sense?
+        	currentRowIdx ++;
+            groupExec.setProgress(currentRowIdx/numOfRows, groupLabel);	// TODO: does that make sense?
         }
         
         // process last group (needs to be the same steps like for new group in the loop!)
