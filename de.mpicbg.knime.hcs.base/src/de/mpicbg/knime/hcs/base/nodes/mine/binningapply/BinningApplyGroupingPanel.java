@@ -11,6 +11,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.util.filter.NameFilterConfiguration;
 import org.knime.core.node.util.filter.column.DataColumnSpecFilterConfiguration;
@@ -41,7 +42,12 @@ public class BinningApplyGroupingPanel extends JPanel {
 		add(subPanel, BorderLayout.SOUTH);
 	}
 
-	public void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec dataTableSpec) throws InvalidSettingsException {
+	public void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec dataTableSpec) throws InvalidSettingsException, NotConfigurableException {
+		
+        if (dataTableSpec.getNumColumns() == 0) {
+            throw new NotConfigurableException("No input data.");
+        }
+		
 		boolean sm_ignoreMissing = settings.getBoolean(BinningApplyNodeModel.CFG_MISSING);
 		boolean sm_dismissIncomplete = settings.getBoolean(BinningApplyNodeModel.CFG_INCOMPLETE);
 		boolean sm_alreadySorted = settings.getBoolean(BinningApplyNodeModel.CFG_SORTED);
