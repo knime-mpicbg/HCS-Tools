@@ -341,9 +341,17 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		DataTableSpec[] countDataTableSpec = createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns));
 		
 		// if there is nothing to process, return empty tables
-		if(columnsToProcess.isEmpty() || inData.size() == 0) {
+		boolean nothingToProcess = false;
+		if(columnsToProcess.isEmpty()) {
 			this.setWarningMessage("No columns suitable for processing.");
-			
+			nothingToProcess = true;
+		}
+		if(inData.size() == 0) {
+			this.setWarningMessage("No data for processing.");
+			nothingToProcess = true;
+		}
+		
+		if(nothingToProcess) {
 			final BufferedDataContainer dc = exec.createDataContainer(countDataTableSpec[0]);
 	        final BufferedDataContainer extremeDc = exec.createDataContainer(countDataTableSpec[1]);
 	        dc.close();
