@@ -22,7 +22,7 @@ public class BinningApplyGroupingPanel extends JPanel {
 	
 	DataColumnSpecFilterPanel comp_columnFilterPanel;
 	JCheckBox comp_ignoreMissing = new JCheckBox("Ignore missing columns");
-	JCheckBox comp_dismissIncomplete = new JCheckBox("Dismiss incomplete binning models");
+	JCheckBox comp_excludeIncomplete = new JCheckBox("Exclude incomplete binning models");
 	JCheckBox comp_alreadySorted = new JCheckBox("Input is already sorted by group column(s)");
 	
 	public BinningApplyGroupingPanel() {
@@ -33,8 +33,8 @@ public class BinningApplyGroupingPanel extends JPanel {
 		
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
-		comp_dismissIncomplete.setAlignmentX(Component.LEFT_ALIGNMENT);
-		subPanel.add(comp_dismissIncomplete);
+		comp_excludeIncomplete.setAlignmentX(Component.LEFT_ALIGNMENT);
+		subPanel.add(comp_excludeIncomplete);
 		comp_ignoreMissing.setAlignmentX(Component.LEFT_ALIGNMENT);
 		subPanel.add(comp_ignoreMissing);
 		comp_alreadySorted.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -49,7 +49,7 @@ public class BinningApplyGroupingPanel extends JPanel {
         }
 		
 		boolean sm_ignoreMissing = settings.getBoolean(BinningApplyNodeModel.CFG_MISSING);
-		boolean sm_dismissIncomplete = settings.getBoolean(BinningApplyNodeModel.CFG_INCOMPLETE);
+		boolean sm_excludeIncomplete = settings.getBoolean(BinningApplyNodeModel.CFG_INCOMPLETE);
 		boolean sm_alreadySorted = settings.getBoolean(BinningApplyNodeModel.CFG_SORTED);
 		
 		SettingsModelColumnFilter2 sm_columnFilter = new SettingsModelColumnFilter2(BinningApplyNodeModel.CFG_GROUPS);
@@ -58,17 +58,17 @@ public class BinningApplyGroupingPanel extends JPanel {
 		filterSpec.loadConfigurationInDialog(settings, dataTableSpec);
 		
 		comp_ignoreMissing.setSelected(sm_ignoreMissing);
-		comp_dismissIncomplete.setSelected(sm_dismissIncomplete);
+		comp_excludeIncomplete.setSelected(sm_excludeIncomplete);
 		comp_columnFilterPanel.loadConfiguration(filterSpec, dataTableSpec);
 		comp_alreadySorted.setSelected(sm_alreadySorted);
 	}
 
 	public void saveSettingsTo(NodeSettingsWO settings) {
 		boolean ignoreMissing = comp_ignoreMissing.isSelected();
-		boolean dismissIncomplete = comp_dismissIncomplete.isSelected();
+		boolean excludeIncomplete = comp_excludeIncomplete.isSelected();
 		boolean alreadySorted = comp_alreadySorted.isSelected();
 		
-		settings.addBoolean(BinningApplyNodeModel.CFG_INCOMPLETE, dismissIncomplete);
+		settings.addBoolean(BinningApplyNodeModel.CFG_INCOMPLETE, excludeIncomplete);
 		settings.addBoolean(BinningApplyNodeModel.CFG_MISSING, ignoreMissing);
 		settings.addBoolean(BinningApplyNodeModel.CFG_SORTED, alreadySorted);
 		

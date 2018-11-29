@@ -132,7 +132,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	}
 	
 	/**
-	 * if model for a column is incomplete (less bins) - dismiss?
+	 * if model for a column is incomplete (less bins) - exclude?
 	 * @return {@link SettingsModelBoolean}
 	 */
 	public static SettingsModelBoolean createIgnoreIncompleteSettingsModel() {
@@ -194,19 +194,20 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		
 		boolean ignoreMissing = ((SettingsModelBoolean) this.getModelSetting(CFG_MISSING)).getBooleanValue();
 				
-		assert modelSpec != null;
+		if(modelSpec == null)
+			throw new InvalidSettingsException("Corrupt input model. Please check the output of preceding nodes.");
 		
 		String[] modelColumns = modelSpec.getColumnNames();
 		
 		assert modelColumns.length > 0;
 		
-		checkColumnsForAvailability(inSpec, ignoreMissing, modelColumns);
+		checkColumnsForAvailability(inSpec, modelColumns, ignoreMissing, true);
 		
 		// get grouping columns and deliver specs to output table spec
 		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_GROUPS)).applyTo(inSpec);
 		String[] groupingColumns = filter.getIncludes();
 		
-		checkColumnsForAvailability(inSpec, true, filter.getRemovedFromIncludes());
+		checkColumnsForAvailability(inSpec, filter.getRemovedFromIncludes(), true, false);
 		
 		List<DataColumnSpec> groupingSpecs = getGroupColumnSpecs(inSpec, groupingColumns);
 		
@@ -224,14 +225,20 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	 * 
 	 * @throws InvalidSettingsException
 	 */
-	private void checkColumnsForAvailability(DataTableSpec inSpec, boolean onlyWarn, String[] columns)
+	private void checkColumnsForAvailability(DataTableSpec inSpec, String[] columns, boolean onlyWarn, boolean atLeastOneRequired)
 			throws InvalidSettingsException {
 		// collect columns which are not available in input spec
 		List<String> missingColumns = new ArrayList<String>();
 		for(String col : columns) {
 			if(!inSpec.containsName(col))
 				missingColumns.add(col);
-		}		
+		}	
+
+		if(atLeastOneRequired) {
+			if(missingColumns.size() == columns.length)
+				throw new InvalidSettingsException("Input table does not contain any of the required columns: " + String.join(",", missingColumns));
+		}
+		
 		if(!missingColumns.isEmpty()) {
 			if(onlyWarn)
 				setWarningMessage("Input table is missing the following columns for processing (will be ignored): " + String.join(",", missingColumns));
@@ -290,9 +297,10 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		DataTableSpec inSpec = inData.getDataTableSpec();
 		BinningPortObject inModel = (BinningPortObject) inObjects[1];
 		
+		assert inModel != null;
+		
 		// retrieve node settings
-		//boolean ignoreMissing = ((SettingsModelBoolean) this.getModelSetting(CFG_MISSING)).getBooleanValue();
-		boolean dismissIncomplete = ((SettingsModelBoolean) this.getModelSetting(CFG_INCOMPLETE)).getBooleanValue();
+		boolean excludeIncomplete = ((SettingsModelBoolean) this.getModelSetting(CFG_INCOMPLETE)).getBooleanValue();
 		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_GROUPS)).applyTo(inSpec);
 		String[] groupingColumns = filter.getIncludes();
 		boolean alreadySorted = ((SettingsModelBoolean) this.getModelSetting(CFG_SORTED)).getBooleanValue();
@@ -321,7 +329,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 			if(inSpec.containsName(col)) {
 				if(binMap.containsKey(col)) {
 					LinkedList<Interval> ivList = (LinkedList<Interval>) binMap.get(col);
-					if(ivList.size() < nBins && dismissIncomplete)
+					if(ivList.size() < nBins && excludeIncomplete)
 						incomplete.add(col);
 					else
 						columnsToProcess.add(col);
@@ -332,11 +340,21 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		if(!incomplete.isEmpty()) 
 			this.setWarningMessage("Incomplete models: The following columns will not be processed: " + String.join(", ", incomplete));
 		
-		if(columnsToProcess.isEmpty())
+		DataTableSpec[] countDataTableSpec = createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns));
+		
+		// if there is nothing to process, return empty tables
+		if(columnsToProcess.isEmpty() || inData.size() == 0) {
 			this.setWarningMessage("No columns suitable for processing.");
+			
+			final BufferedDataContainer dc = exec.createDataContainer(countDataTableSpec[0]);
+	        final BufferedDataContainer extremeDc = exec.createDataContainer(countDataTableSpec[1]);
+	        dc.close();
+	        extremeDc.close();
+	        return new BufferedDataTable[]{dc.getTable(),extremeDc.getTable()};
+		}
 		
 		BufferedDataTable[] countTables = createBinningCountsTables(exec, inData, 
-				createCountDataTableSpec(getGroupColumnSpecs(inSpec, groupingColumns)),
+				countDataTableSpec,
 				columnsToProcess, groupingColumns, binMap, sampling, alreadySorted);
 		
 		return new BufferedDataTable[] {countTables[0], countTables[1]};
@@ -524,27 +542,27 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
             groupExec.setProgress(currentRowIdx/numOfRows, groupLabel);	// TODO: does that make sense?
         }
         
+        
         // process last group (needs to be the same steps like for new group in the loop!)
-		if(alreadySorted && !groupSet.add(currentGroup)) {
-			throw new DuplicateGroupException("Input table was not sorted by grouping columns");
-		}
+        if(alreadySorted && !groupSet.add(currentGroup)) {
+        	throw new DuplicateGroupException("Input table was not sorted by grouping columns");
+        }
         if(sampling.getUseSampling()) {
         	rowMap = selectSubset(rowMap, sampling);
         }
-		countData = calculateCounts(columnsToProcess, binMap, rowMap, groupExec);
+        countData = calculateCounts(columnsToProcess, binMap, rowMap, groupExec);
         List<LinkedList<DefaultRow>> rows = createRows(previousGroup, countData, rowCounter, extremeRowCounter);  
-		
-		for(DefaultRow r : rows.get(0)) {
-			dc.addRowToTable(r);
-			rowCounter ++;
-		}
-		for(DefaultRow r : rows.get(1)) {
-			extremeDc.addRowToTable(r);
-			extremeRowCounter ++;
-		}
-		// process last group end
-        
-		
+
+        for(DefaultRow r : rows.get(0)) {
+        	dc.addRowToTable(r);
+        	rowCounter ++;
+        }
+        for(DefaultRow r : rows.get(1)) {
+        	extremeDc.addRowToTable(r);
+        	extremeRowCounter ++;
+        }
+        // process last group end
+        		
         dc.close();
         extremeDc.close();
        
