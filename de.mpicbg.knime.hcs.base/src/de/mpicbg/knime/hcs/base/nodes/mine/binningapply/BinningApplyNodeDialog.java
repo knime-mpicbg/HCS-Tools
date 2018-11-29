@@ -21,8 +21,8 @@ public class BinningApplyNodeDialog extends NodeDialogPane {
         m_samplingPanel = new BinningApplySamplingPanel();
         m_groupingPanel = new BinningApplyGroupingPanel();
         
-        super.addTab("Grouping", m_groupingPanel);
-        super.addTab("Sampling Method", m_samplingPanel);
+        super.addTab("General Settings", m_groupingPanel);
+        super.addTab("Sampling Options", m_samplingPanel);
     }
 
     /**
