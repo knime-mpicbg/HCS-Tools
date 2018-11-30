@@ -507,7 +507,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	if(newGroup) {
         		
         		// check if new group did not yet appear (for pre-sorted data)
-        		if(alreadySorted && !groupSet.add(currentGroup)) {
+        		if(alreadySorted && !groupSet.add(previousGroup)) {
         			throw new DuplicateGroupException("Input table was not sorted by grouping columns");
         		}
         		
@@ -533,8 +533,10 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         		}
         		
         		newGroup = false;
-        		previousGroup.clear();
+        		//previousGroup.clear();
+        		previousGroup = new LinkedHashMap<String, DataCell>();
         		previousGroup.putAll(currentGroup);
+        		currentGroup = new LinkedHashMap<String, DataCell>();
         		groupLabel = createGroupLabelForProgress(previousGroup);
         		rowMap = new HashMap<RowKey, Map<String, DataCell>>();
         	}
