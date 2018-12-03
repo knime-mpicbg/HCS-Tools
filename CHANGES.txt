@@ -6,6 +6,11 @@ ISSUES
 
 * Nodes using R (e.g. Dose Response Node) will use Rserve library 1.8-6 to avoid communication problems with R 3.5+
 
+NEW NODE
+
+* Binning Calculate
+* Binning Apply
+
 ======================================================================================================
 2018-07-18
 VERSION		v3.1.2
