@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HCS-Tools for KNIME
 Bundle-SymbolicName: de.mpicbg.knime.hcs.base;singleton:=true
-Bundle-Version: 3.2.000.qualifier
+Bundle-Version: 3.2.100.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: hcstools.jar
 Bundle-Activator: de.mpicbg.knime.hcs.base.HCSToolsBundleActivator
@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.ui;bundle-version="[3.107.0,4.0.0)",
  de.mpicbg.knime.scripting.core;bundle-version="3.2.0",
  de.mpicbg.knime.scripting.r;bundle-version="[3.2.0,4.0.0)",
  de.mpicbg.knime.hcs.libs;bundle-version="3.1.0",
- de.mpicbg.knime.hcs.core;bundle-version="[3.1.1,4.0.0)",
+ de.mpicbg.knime.hcs.core;bundle-version="[3.1.2,4.0.0)",
  org.apache.poi;bundle-version="3.9.0",
  org.apache.poi.ooxml;bundle-version="3.9.0",
  nu.xom;bundle-version="1.2.10",
