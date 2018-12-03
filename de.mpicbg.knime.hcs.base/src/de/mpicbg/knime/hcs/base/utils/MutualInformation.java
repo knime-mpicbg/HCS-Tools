@@ -22,9 +22,9 @@
 package de.mpicbg.knime.hcs.base.utils;
 
 
-import org.apache.commons.math.random.RandomData;
-import org.apache.commons.math.random.RandomDataImpl;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.random.RandomData;
+import org.apache.commons.math3.random.RandomDataImpl;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 
 /**

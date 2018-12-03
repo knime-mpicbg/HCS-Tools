@@ -22,13 +22,13 @@
 package de.mpicbg.knime.hcs.base.utils;
 
 
-import de.mpicbg.knime.knutils.Attribute;
+import java.util.List;
 
-import org.apache.commons.math.linear.Array2DRowRealMatrix;
-import org.apache.commons.math.linear.RealMatrix;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.knime.core.data.DataRow;
 
-import java.util.List;
+import de.mpicbg.knime.knutils.Attribute;
 
 /**
  * Author: Felix Meyenhofer

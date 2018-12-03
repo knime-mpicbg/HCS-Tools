@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./BinningApplyNode.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>Binning Apply</name>
+    
+    <shortDescription>
+    	This node applies a binning model.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>
+        	<p>
+        	The incoming data is grouped based on the node settings for grouping. 
+        	Within each group and for each column of the incoming binning model, data points are counted for each bin. 
+        	Further, data points with values below the lowest bin get counted as well as data points with values above the
+        	highest bin. Missing values will no be counted.<br/>
+        	The first output table contains these counts and the corresponding percentage within the group.
+        	The counts of the lowest interval will include (!) the counts below; and the counts of the highest interval
+        	will include the counts above. So the sum reflects the number of data points of the group and percentages
+        	sum up to 100%.<br/>
+        	The second output table only contains counts of data points with values below the lowest or above the highest interval.
+        	The percentage is based on the data point count.
+        	
+			</p>
+        </intro>
+        
+        <tab name="General settings">
+        <option name="Group columns">
+       		Included columns will be used to group the data.
+        </option>
+        <option name="Exclude incomplete binning models">
+        <p>
+        	Models with less than n bins will be excluded. Number of expected bins is part of the binning model.<br/>
+        	default: checked
+        </p>
+        </option>
+        <option name="Ignore missing columns">
+        <p>
+        	If checked only a warning will be shown if incoming data table does miss columns which are contained in the binning model.
+        	If unchecked, the node will not be executable if any column is missing.<br/>
+        	default: checked
+        	</p>
+        </option>
+        <option name="Input is already sorted by group column(s)">
+        	<p>
+        	If checked, the data will not be sorted during execution (faster). The node will fail if the pre-sorting is not correct.<br/>
+        	default: unchecked
+        	</p>
+        </option>
+        </tab>
+        <tab name="Sampling options">
+        <option name="Enable sampling">
+       		<p>
+       		If checked, each group will be reduced (randomly) to a fixed number of rows, which can be set.
+       		If the group does contain less rows, all will be used.<br/>
+       		default: 100
+       		</p>
+        </option>
+        <option name="Use random seed">
+       		<p>
+       		If checked, the random selection of rows for the sampling will be based on a fixed seed to make it reproducible.
+       		</p>
+        </option>
+        </tab>
+
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Input Data">Data to apply the binning model to</inPort>
+        <inPort index="1" name="Binning Model">Binning model</inPort>
+        <outPort index="0" name="Counts">
+        	Row counts per group, parameter and interval <br/>(including outlier count within the lowest/highest interval)
+        </outPort>  
+        <outPort index="1" name="Outlier counts">Row counts per group, parameter and interval of datapoints below lowest or above highest interval</outPort>
+    </ports>    
+</knimeNode>

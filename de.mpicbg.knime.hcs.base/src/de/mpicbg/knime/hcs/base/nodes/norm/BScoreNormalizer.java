@@ -1,17 +1,11 @@
 package de.mpicbg.knime.hcs.base.nodes.norm;
 
-import de.mpicbg.knime.hcs.base.nodes.viz.ScreenExplorer;
-import de.mpicbg.knime.hcs.base.utils.AttributeStatistics;
-import de.mpicbg.knime.hcs.base.utils.HCSAttributeUtils;
-import de.mpicbg.knime.knutils.Attribute;
-import de.mpicbg.knime.knutils.AttributeUtils;
-import de.mpicbg.knime.knutils.BufTableUtils;
-import de.mpicbg.knime.knutils.InputTableAttribute;
-import de.mpicbg.knime.knutils.TableUpdateCache;
-import de.mpicbg.knime.hcs.core.TdsUtils;
-import de.mpicbg.knime.hcs.core.model.Plate;
-import de.mpicbg.knime.knutils.*;
-import org.apache.commons.math.linear.RealMatrix;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.math3.linear.RealMatrix;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataType;
 import org.knime.core.data.container.ColumnRearranger;
@@ -19,10 +13,16 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import de.mpicbg.knime.hcs.base.nodes.viz.ScreenExplorer;
+import de.mpicbg.knime.hcs.base.utils.AttributeStatistics;
+import de.mpicbg.knime.hcs.base.utils.HCSAttributeUtils;
+import de.mpicbg.knime.hcs.core.TdsUtils;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.knutils.BufTableUtils;
+import de.mpicbg.knime.knutils.InputTableAttribute;
+import de.mpicbg.knime.knutils.TableUpdateCache;
 
 
 /**

@@ -1,18 +1,27 @@
 package de.mpicbg.knime.hcs.base.heatmap;
 
-import de.mpicbg.knime.hcs.base.heatmap.color.ColorScheme;
-import de.mpicbg.knime.hcs.base.heatmap.color.LinearColorGradient;
-import de.mpicbg.knime.hcs.base.heatmap.color.LinearGradientTools;
-import de.mpicbg.knime.hcs.base.heatmap.color.MinMaxStrategy;
-import de.mpicbg.knime.hcs.base.heatmap.color.QuantileStrategy;
-import de.mpicbg.knime.hcs.base.heatmap.color.RescaleStrategy;
-import de.mpicbg.knime.knutils.Attribute;
-import de.mpicbg.knime.knutils.Utils;
-import de.mpicbg.knime.knutils.annotations.ViewInternals;
-import de.mpicbg.knime.hcs.core.model.*;
+import java.awt.Color;
+import java.awt.LinearGradientPaint;
+import java.awt.geom.Point2D;
+import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math.stat.Frequency;
+import org.apache.commons.math3.stat.Frequency;
 import org.knime.core.data.RowKey;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.BufferedDataTableHolder;
@@ -24,13 +33,20 @@ import org.knime.core.node.property.hilite.HiLiteHandler;
 import org.knime.core.node.property.hilite.HiLiteListener;
 import org.knime.core.node.property.hilite.KeyEvent;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.lang.reflect.Field;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.List;
+import de.mpicbg.knime.hcs.base.heatmap.color.ColorScheme;
+import de.mpicbg.knime.hcs.base.heatmap.color.LinearColorGradient;
+import de.mpicbg.knime.hcs.base.heatmap.color.LinearGradientTools;
+import de.mpicbg.knime.hcs.base.heatmap.color.MinMaxStrategy;
+import de.mpicbg.knime.hcs.base.heatmap.color.QuantileStrategy;
+import de.mpicbg.knime.hcs.base.heatmap.color.RescaleStrategy;
+import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.PlateAttribute;
+import de.mpicbg.knime.hcs.core.model.PlateComparator;
+import de.mpicbg.knime.hcs.core.model.PlateUtils;
+import de.mpicbg.knime.hcs.core.model.Well;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.Utils;
+import de.mpicbg.knime.knutils.annotations.ViewInternals;
 
 /**
  * Class to transport and synchronize information between the objects of the UI
