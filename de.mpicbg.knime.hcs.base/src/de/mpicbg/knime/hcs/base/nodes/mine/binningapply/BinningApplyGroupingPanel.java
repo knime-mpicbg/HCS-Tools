@@ -52,8 +52,8 @@ public class BinningApplyGroupingPanel extends JPanel {
 		boolean sm_excludeIncomplete = settings.getBoolean(BinningApplyNodeModel.CFG_INCOMPLETE);
 		boolean sm_alreadySorted = settings.getBoolean(BinningApplyNodeModel.CFG_SORTED);
 		
-		SettingsModelColumnFilter2 sm_columnFilter = new SettingsModelColumnFilter2(BinningApplyNodeModel.CFG_GROUPS);
-		sm_columnFilter.loadSettingsFrom(settings);
+		//SettingsModelColumnFilter2 sm_columnFilter = new SettingsModelColumnFilter2(BinningApplyNodeModel.CFG_GROUPS);
+		//sm_columnFilter.loadSettingsFrom(settings);
 		DataColumnSpecFilterConfiguration filterSpec = new DataColumnSpecFilterConfiguration(BinningApplyNodeModel.CFG_GROUPS);
 		filterSpec.loadConfigurationInDialog(settings, dataTableSpec);
 		
