@@ -119,6 +119,11 @@
       factory-class="de.mpicbg.knime.hcs.base.nodes.mine.binningapply.BinningApplyNodeFactory"
       id="de.mpicbg.knime.hcs.base.nodes.mine.binningapply.BinningApplyNodeFactory">
 </node>
+<node
+      category-path="/community/hcstools/qc"
+      deprecated="false"
+      factory-class="de.mpicbg.knime.hcs.base.nodes.qc.cv.CVCalculatorNodeFactory">
+</node>
 </extension>
 
     <extension point="org.knime.workbench.repository.categories">
