@@ -7,7 +7,6 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
-import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortType;
 
@@ -72,8 +71,8 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		return new SettingsModelColumnFilter2(CFG_PARAMETERS, DoubleValue.class);
 	}
 	
-	public SettingsModelFilterString createModelSettingSubsetSelection() {
-		return new SettingsModelFilterString(CFG_SUBSET_SEL);
+	public SettingsModelValueFilter createModelSettingSubsetSelection() {
+		return new SettingsModelValueFilter(CFG_SUBSET_SEL, null);
 	}
 	
 	public SettingsModelBoolean createModelSettingUseSuffix() {

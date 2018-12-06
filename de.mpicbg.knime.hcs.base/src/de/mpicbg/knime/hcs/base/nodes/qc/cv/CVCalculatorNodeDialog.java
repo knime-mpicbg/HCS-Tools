@@ -36,11 +36,11 @@ import org.knime.core.node.util.filter.column.DataColumnSpecFilterPanel;
 import org.knime.core.node.util.filter.column.DataTypeColumnFilter;
 import org.knime.core.node.util.filter.nominal.NominalValueFilterConfiguration;
 
-import de.mpicbg.knime.hcs.base.nodes.mine.binningapply.BinningApplyNodeModel;
-
 public class CVCalculatorNodeDialog extends NodeDialogPane {
 	
 	private final SubsetValueFilterPanel comp_valueFilter;
+	private SettingsModelValueFilter sm_subsetSelection;
+	
 	private final JPanel comp_subsetPanel;
 	private final JPanel comp_mainPanel;
 	
@@ -49,6 +49,8 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 	
 	private final JComboBox<String> comp_subsetColumn;
 	private DefaultComboBoxModel<String> m_subsetColumnModel;
+	
+	
 	
 	private final DataColumnSpecFilterPanel comp_columnFilterPanel;
 	
@@ -130,7 +132,7 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 		
 		// create subset panel for additional tab
 		comp_subsetPanel = new JPanel(new BorderLayout());
-		comp_valueFilter = new SubsetValueFilterPanel();				
+		comp_valueFilter = new SubsetValueFilterPanel();	
 		comp_subsetPanel.add(comp_valueFilter, BorderLayout.CENTER);
 		
 		// add mainPanel and subsetPanel to tabs
@@ -169,11 +171,13 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 		settings.addBoolean(CVCalculatorNodeModel.CFG_USE_SUFFIX, comp_useSuffix.isSelected());
 		settings.addString(CVCalculatorNodeModel.CFG_SUFFIX, comp_suffix.getText());
 		settings.addString(CVCalculatorNodeModel.CFG_GROUP, (String)m_groupColumnModel.getSelectedItem());
-		settings.addString(CVCalculatorNodeModel.CFG_SUBSET_COL, (String)m_subsetColumnModel.getSelectedItem());
+		String selectedColumn = (String)m_subsetColumnModel.getSelectedItem();
+		settings.addString(CVCalculatorNodeModel.CFG_SUBSET_COL, selectedColumn);
 		
 		NominalValueFilterConfiguration nfc = new NominalValueFilterConfiguration(CVCalculatorNodeModel.CFG_SUBSET_SEL);
 		comp_valueFilter.saveConfiguration(nfc);
-		nfc.saveConfiguration(settings);		
+		sm_subsetSelection.updateSettings(nfc, selectedColumn);
+		sm_subsetSelection.saveSettingsTo(settings);
 
 		DataColumnSpecFilterConfiguration filterSpec = new DataColumnSpecFilterConfiguration(CVCalculatorNodeModel.CFG_PARAMETERS, new DataTypeColumnFilter(DoubleValue.class), NameFilterConfiguration.FILTER_BY_NAMEPATTERN);
 		comp_columnFilterPanel.saveConfiguration(filterSpec);
@@ -219,10 +223,9 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
         }
 				
 		// update subset filter panel
-		NominalValueFilterConfiguration nfc = new NominalValueFilterConfiguration(CVCalculatorNodeModel.CFG_SUBSET_SEL);	
-		Set<DataCell> domain = m_colAttributes.get(selectedColumn);
-		nfc.loadConfigurationInDialog(settings, domain);
-		comp_valueFilter.loadConfiguration(nfc, domain);
+		sm_subsetSelection = new SettingsModelValueFilter(CVCalculatorNodeModel.CFG_SUBSET_SEL, selectedColumn);
+		sm_subsetSelection.loadSettingsForDialog(settings, specs);
+		comp_valueFilter.loadConfiguration(sm_subsetSelection.getFilterConfig(), sm_subsetSelection.getDomainValues());
 		
 		// update column filter panel
 		DataColumnSpecFilterConfiguration filterSpec = new DataColumnSpecFilterConfiguration(CVCalculatorNodeModel.CFG_PARAMETERS, new DataTypeColumnFilter(DoubleValue.class), NameFilterConfiguration.FILTER_BY_NAMEPATTERN);
@@ -237,7 +240,5 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 		comp_useSuffix.setSelected(useSuffix);
 		comp_suffix.setText(suffix);
 	}
-	
-	
 
 }
