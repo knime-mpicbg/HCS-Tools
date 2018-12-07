@@ -1,18 +1,24 @@
 package de.mpicbg.knime.hcs.base.nodes.qc.cv;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
+import org.knime.base.node.preproc.groupby.GroupByTable;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
+import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
+import org.knime.core.data.DataValueComparator;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.StringCell;
+import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
@@ -21,9 +27,9 @@ import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
-import org.knime.core.node.util.filter.nominal.NominalValueFilterConfiguration;
-import org.knime.core.node.util.filter.nominal.NominalValueFilterConfiguration.NominalValueFilterResult;
+import org.knime.core.util.MutableInteger;
 
+import de.mpicbg.knime.hcs.base.nodes.mine.binningapply.BinningApplyNodeModel;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
 /**
@@ -163,7 +169,6 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		String suffix = ((SettingsModelString) this.getModelSetting(CFG_SUFFIX)).getStringValue();
 		suffix = changeSuffix ? suffix : CFG_SUFFIX_DFT;
 			
-		
 		DataTableSpec outSpec = createOutputSpecs(inSpec, groupColumn, subsetColumn, parameterColumns, suffix);
 
 		return new DataTableSpec[]{outSpec};
@@ -197,8 +202,127 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 
 	@Override
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
-		// TODO Auto-generated method stub
-		return super.execute(inData, exec);
+		
+		BufferedDataTable inTable = inData[0];
+		DataTableSpec inSpec = inTable.getDataTableSpec();
+		
+		// get node settings
+		
+		String groupColumn = ((SettingsModelString)this.getModelSetting(CFG_GROUP)).getStringValue();
+		String subsetColumn = ((SettingsModelString)this.getModelSetting(CFG_SUBSET_COL)).getStringValue();
+		
+		// get grouping columns and deliver specs to output table spec
+		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_PARAMETERS)).applyTo(inTable.getDataTableSpec());
+		String[] parameterColumns = filter.getIncludes();
+		List<String> paramColumnList = new LinkedList<String>(Arrays.asList(parameterColumns));
+		
+		boolean useRobustStats = ((SettingsModelBoolean) this.getModelSetting(CFG_USE_ROBUST)).getBooleanValue();
+		
+		boolean changeSuffix = ((SettingsModelBoolean) this.getModelSetting(CFG_CHANGE_SUFFIX)).getBooleanValue();
+		String suffix = ((SettingsModelString) this.getModelSetting(CFG_SUFFIX)).getStringValue();
+		
+		// sort input table
+		List<String> columnsToGroup = new LinkedList<String>();
+		
+		
+        exec.createSubExecutionContext(0.5);
+        exec.setMessage("Sorting input table...");
+        
+        final BufferedDataTable sortedTable;
+        final ExecutionContext sortExec = exec.createSubExecutionContext(0.5);
+        sortedTable = GroupByTable.sortTable(sortExec, inTable, columnsToGroup);
+        sortExec.setProgress(1.0);
+        
+        final ExecutionContext groupExec;
+        groupExec = exec.createSubExecutionContext(0.5);
+        
+        // output table container
+        DataTableSpec outSpec = createOutputSpecs(inTable.getDataTableSpec(), groupColumn, subsetColumn, parameterColumns, suffix);
+        final BufferedDataContainer dc = exec.createDataContainer(outSpec);
+
+        // maps for current group and previous group
+        Map<String, DataCell> previousGroup = new LinkedHashMap<String, DataCell>();
+        Map<String, DataCell> currentGroup = new LinkedHashMap<String, DataCell>();
+
+        // map with column indices for grouping columns
+        Map<String, Integer> colIdx = new LinkedHashMap<String, Integer>();
+        for(String col : columnsToGroup) {
+        	colIdx.put(col, new Integer(inSpec.findColumnIndex(col)));
+        }
+        
+        // map with column indices for processing columns
+        Map<String, Integer> processColIdx = new LinkedHashMap<String, Integer>();
+        for(String col : parameterColumns) {
+        	processColIdx.put(col, new Integer(inSpec.findColumnIndex(col)));
+        }
+        
+        // for each grouping column, register comparator
+        Map<String, DataValueComparator> comparators = new HashMap<String, DataValueComparator>();
+        for(String col : columnsToGroup) {
+        	final DataColumnSpec colSpec = inSpec.getColumnSpec(col);
+        	comparators.put(col, colSpec.getType().getComparator());
+        }
+        
+        // for each column to process count missing data
+        Map<String, MutableInteger> countMissing = BinningApplyNodeModel.createMissingCountMap(paramColumnList);
+
+        boolean firstRow = true;
+        boolean newGroup = false;
+        String groupLabel = null;	// label of the current group
+        long currentRowIdx = 0;
+        final double numOfRows = sortedTable.size();
+
+        for(DataRow row : sortedTable) {
+        	// fill previous values if this is the first row
+        	if(firstRow) {
+        		for(String col : columnsToGroup)
+        			previousGroup.put(col, row.getCell(colIdx.get(col)));
+        		firstRow = false;
+        		groupLabel = BinningApplyNodeModel.createGroupLabelForProgress(previousGroup);
+        	}
+        	
+        	// collect data cells of columns to process if not missing
+        	RowKey key = row.getKey();
+        	Map<String, DataCell> dataMap = new HashMap<String, DataCell>();
+        	for(String col : parameterColumns) {        		
+        		//dataMap.put(col, row.getCell(processColIdx.get(col)));     
+        		DataCell cell = row.getCell(processColIdx.get(col));
+        		if(cell.isMissing())
+        			countMissing.get(col).inc();
+        		else
+        			dataMap.put(col, row.getCell(processColIdx.get(col)));
+        	}
+
+        	// compare previous group with current group
+        	for(String col : columnsToGroup) {
+        		DataCell currentCell = row.getCell(colIdx.get(col));
+        		DataCell previousCell = previousGroup.get(col);
+        		
+        		// if cells are not the same a new group starts
+        		if(comparators.get(col).compare(currentCell, previousCell) != 0) {
+        			newGroup = true;
+        		}
+        		currentGroup.put(col, currentCell);
+        	}
+        	
+        	// if new group has been detected
+        	if(newGroup) {
+        		// do something
+        		
+        		newGroup = false;
+        		previousGroup = new LinkedHashMap<String, DataCell>();
+        		previousGroup.putAll(currentGroup);
+        		currentGroup = new LinkedHashMap<String, DataCell>();
+        		groupLabel = BinningApplyNodeModel.createGroupLabelForProgress(previousGroup);
+        	}
+        	
+        	groupExec.checkCanceled();
+        	currentRowIdx ++;
+            groupExec.setProgress(currentRowIdx/numOfRows, groupLabel);
+        }
+
+		return new BufferedDataTable[]{dc.getTable()};
+		
 	}
 	
 	

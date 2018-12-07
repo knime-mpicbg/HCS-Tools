@@ -25,6 +25,9 @@ import org.knime.core.node.util.filter.nominal.NominalValueFilterConfiguration;
  */
 public class SettingsModelValueFilter extends SettingsModel {
 	
+	private static final String CFG_COLUMN = "selected.column";
+	private static final String CFG_COLUMN_DFT = "";
+	
 	private NominalValueFilterConfiguration m_nfc;
 	private String m_selectedColumn;
 	private Map<String, Set<DataCell>> m_domainValues;
@@ -70,14 +73,14 @@ public class SettingsModelValueFilter extends SettingsModel {
 		
 		Set<DataCell> domain = m_domainValues.get(m_selectedColumn);
 		m_nfc.loadConfigurationInDialog(settings, domain);
+		m_selectedColumn = settings.getString(CFG_COLUMN, CFG_COLUMN_DFT);
 
 	}
 
 	@Override
 	protected void saveSettingsForDialog(NodeSettingsWO settings) throws InvalidSettingsException {
-
 		m_nfc.saveConfiguration(settings);
-
+		settings.addString(CFG_COLUMN, m_selectedColumn);
 	}
 
 	@Override
@@ -88,11 +91,13 @@ public class SettingsModelValueFilter extends SettingsModel {
 	@Override
 	protected void loadSettingsForModel(NodeSettingsRO settings) throws InvalidSettingsException {
 		m_nfc.loadConfigurationInModel(settings);
+		m_selectedColumn = settings.getString(CFG_COLUMN);
 	}
 
 	@Override
 	protected void saveSettingsForModel(NodeSettingsWO settings) {
 		m_nfc.saveConfiguration(settings);
+		settings.addString(CFG_COLUMN, m_selectedColumn);
 	}
 
 	@Override

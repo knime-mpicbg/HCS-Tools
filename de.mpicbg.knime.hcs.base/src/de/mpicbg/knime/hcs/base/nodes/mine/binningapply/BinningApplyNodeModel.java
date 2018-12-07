@@ -547,7 +547,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	
         	groupExec.checkCanceled();
         	currentRowIdx ++;
-            groupExec.setProgress(currentRowIdx/numOfRows, groupLabel);	// TODO: does that make sense?
+            groupExec.setProgress(currentRowIdx/numOfRows, groupLabel);
         }
         
         
@@ -710,7 +710,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
      * 
      * @return group string 
      * */
-    private String createGroupLabelForProgress(final Map<String, DataCell> previousGroup) {
+    public static String createGroupLabelForProgress(final Map<String, DataCell> previousGroup) {
         final StringBuilder b = new StringBuilder("(");
         int i = 0;
         for (String col : previousGroup.keySet()) {
@@ -758,7 +758,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
      * @param columnsToProcess
      * @return	empty map with mutable integers set to 0
      */
-	private Map<String, MutableInteger> createMissingCountMap(List<String> columnsToProcess) {
+	public static Map<String, MutableInteger> createMissingCountMap(List<String> columnsToProcess) {
     	Map<String, MutableInteger> map = new LinkedHashMap<String,MutableInteger>();
     	
     	for(String col : columnsToProcess) {
