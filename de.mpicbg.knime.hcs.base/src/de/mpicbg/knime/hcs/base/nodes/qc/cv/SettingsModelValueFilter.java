@@ -117,5 +117,9 @@ public class SettingsModelValueFilter extends SettingsModel {
 		else
 			throw new InvalidSettingsException("Keys for 'value filter configuration' differ");
 	}
+	
+	public String getSelectedColumn() {
+		return m_selectedColumn;
+	}
 
 }

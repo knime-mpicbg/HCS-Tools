@@ -223,7 +223,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	 * 
 	 * @throws InvalidSettingsException
 	 */
-	private void checkColumnsForAvailability(DataTableSpec inSpec, String[] columns, boolean onlyWarn, boolean atLeastOneRequired)
+/*	private void checkColumnsForAvailability(DataTableSpec inSpec, String[] columns, boolean onlyWarn, boolean atLeastOneRequired)
 			throws InvalidSettingsException {
 		// collect columns which are not available in input spec
 		List<String> missingColumns = new ArrayList<String>();
@@ -243,7 +243,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 			else 
 				throw new InvalidSettingsException("Input table is missing the following columns for processing: " + String.join(",", missingColumns));
 		}
-	}
+	}*/
 
 	/**
 	 * create list of data column specs based on grouping columns

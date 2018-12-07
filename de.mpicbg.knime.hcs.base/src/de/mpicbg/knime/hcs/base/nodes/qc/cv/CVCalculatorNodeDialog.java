@@ -165,6 +165,7 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		settings.addBoolean(CVCalculatorNodeModel.CFG_USE_ROBUST, comp_useRobustStats.isSelected());
@@ -173,7 +174,7 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 		settings.addString(CVCalculatorNodeModel.CFG_GROUP, (String)m_groupColumnModel.getSelectedItem());
 		String selectedColumn = (String)m_subsetColumnModel.getSelectedItem();
 		settings.addString(CVCalculatorNodeModel.CFG_SUBSET_COL, selectedColumn);
-		
+
 		NominalValueFilterConfiguration nfc = new NominalValueFilterConfiguration(CVCalculatorNodeModel.CFG_SUBSET_SEL);
 		comp_valueFilter.saveConfiguration(nfc);
 		sm_subsetSelection.updateSettings(nfc, selectedColumn);
