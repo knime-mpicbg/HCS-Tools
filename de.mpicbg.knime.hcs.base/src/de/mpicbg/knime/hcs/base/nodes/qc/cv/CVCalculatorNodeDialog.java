@@ -55,7 +55,7 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 	private final DataColumnSpecFilterPanel comp_columnFilterPanel;
 	
 	private final JCheckBox comp_useRobustStats;
-	private final JCheckBox comp_useSuffix;
+	private final JCheckBox comp_changeSuffix;
 	private final JTextField comp_suffix;
 	
 	private final Map<String, Set<DataCell>> m_colAttributes;
@@ -110,8 +110,8 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 		JPanel southPanel = new JPanel();
 		southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.X_AXIS));
 		comp_useRobustStats = new JCheckBox("Use robust statistics (median / mad)");
-		comp_useSuffix = new JCheckBox("column suffix");
-		comp_useSuffix.addItemListener(new ItemListener() {
+		comp_changeSuffix = new JCheckBox("Column suffix");
+		comp_changeSuffix.addItemListener(new ItemListener() {
 			
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -125,7 +125,7 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 		comp_suffix.setEnabled(false);
 		
 		southPanel.add(comp_useRobustStats);
-		southPanel.add(comp_useSuffix);
+		southPanel.add(comp_changeSuffix);
 		southPanel.add(comp_suffix);
 		
 		comp_mainPanel.add(southPanel, BorderLayout.SOUTH);
@@ -169,7 +169,7 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		settings.addBoolean(CVCalculatorNodeModel.CFG_USE_ROBUST, comp_useRobustStats.isSelected());
-		settings.addBoolean(CVCalculatorNodeModel.CFG_USE_SUFFIX, comp_useSuffix.isSelected());
+		settings.addBoolean(CVCalculatorNodeModel.CFG_CHANGE_SUFFIX, comp_changeSuffix.isSelected());
 		settings.addString(CVCalculatorNodeModel.CFG_SUFFIX, comp_suffix.getText());
 		settings.addString(CVCalculatorNodeModel.CFG_GROUP, (String)m_groupColumnModel.getSelectedItem());
 		String selectedColumn = (String)m_subsetColumnModel.getSelectedItem();
@@ -234,11 +234,11 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 		comp_columnFilterPanel.loadConfiguration(filterSpec, specs[0]);
 		
 		boolean useRobust = settings.getBoolean(CVCalculatorNodeModel.CFG_USE_ROBUST, CVCalculatorNodeModel.CFG_USE_ROBUST_DFT);
-		boolean useSuffix = settings.getBoolean(CVCalculatorNodeModel.CFG_USE_SUFFIX, CVCalculatorNodeModel.CFG_USE_SUFFIX_DFT);
+		boolean changeSuffix = settings.getBoolean(CVCalculatorNodeModel.CFG_CHANGE_SUFFIX, CVCalculatorNodeModel.CFG_CHANGE_SUFFIX_DFT);
 		String suffix = settings.getString(CVCalculatorNodeModel.CFG_SUFFIX, CVCalculatorNodeModel.CFG_SUFFIX_DFT);
 		
 		comp_useRobustStats.setSelected(useRobust);
-		comp_useSuffix.setSelected(useSuffix);
+		comp_changeSuffix.setSelected(changeSuffix);
 		comp_suffix.setText(suffix);
 	}
 

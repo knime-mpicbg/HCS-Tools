@@ -1,12 +1,18 @@
 package de.mpicbg.knime.hcs.base.nodes.qc.cv;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
+import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataTableSpecCreator;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
@@ -41,8 +47,8 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 	public static final String CFG_USE_ROBUST = "use.robust.statistics";
 	public static final boolean CFG_USE_ROBUST_DFT = false;
 	
-	public static final String CFG_USE_SUFFIX = "use.suffix";
-	public static final boolean CFG_USE_SUFFIX_DFT = false;
+	public static final String CFG_CHANGE_SUFFIX = "change.suffix";
+	public static final boolean CFG_CHANGE_SUFFIX_DFT = false;
 	
 	public static final String CFG_SUFFIX = "suffix";
 	public static final String CFG_SUFFIX_DFT = ".cv";
@@ -62,7 +68,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		this.addModelSetting(CFG_PARAMETERS, createModelSettingParameterSelection());
 		this.addModelSetting(CFG_SUBSET_SEL, createModelSettingSubsetSelection());
 		this.addModelSetting(CFG_USE_ROBUST, createModelSettingUseRobustStatistics());
-		this.addModelSetting(CFG_USE_SUFFIX, createModelSettingUseSuffix());
+		this.addModelSetting(CFG_CHANGE_SUFFIX, createModelSettingChangeSuffix());
 		this.addModelSetting(CFG_SUFFIX, createModelSettingSuffix());
 	}
 
@@ -83,8 +89,8 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		return new SettingsModelValueFilter(CFG_SUBSET_SEL, null);
 	}
 	
-	public SettingsModelBoolean createModelSettingUseSuffix() {
-		return new SettingsModelBoolean(CFG_USE_SUFFIX, CFG_USE_SUFFIX_DFT);
+	public SettingsModelBoolean createModelSettingChangeSuffix() {
+		return new SettingsModelBoolean(CFG_CHANGE_SUFFIX, CFG_CHANGE_SUFFIX_DFT);
 	}
 	
 	public SettingsModelBoolean createModelSettingUseRobustStatistics() {
@@ -108,8 +114,15 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 			throw new InvalidSettingsException("Group column and subset column should differ. Please reconfigure the node.");
 		
 		// if group column not <none>, check if column is available
-		if(!groupColumn.equals(CFG_SUBSET_COL_DFT) && !inSpec.containsName(groupColumn))
-			throw new InvalidSettingsException("Incoming data table does miss the grouping column \"" + groupColumn + "\"");
+		if(!groupColumn.equals(CFG_SUBSET_COL_DFT)) {
+			if(!inSpec.containsName(groupColumn))
+				throw new InvalidSettingsException("Incoming data table does miss the grouping column \"" + groupColumn + "\"");
+		} else {
+			// check that incoming table doe not contain a column named <none>
+			if(inSpec.containsName(groupColumn))
+				throw new InvalidSettingsException("Incoming data table should not contain a column named \"" + CFG_GROUP_DFT + "\" as it a node settings default to not group a t all.");
+		}
+			
 		
 		// if subset column not <none>
 		if(!subsetColumn.equals(CFG_SUBSET_COL_DFT)) {
@@ -145,12 +158,42 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		
 		checkColumnsForAvailability(inSpec, parameterColumns, true, false);
 		
-		//DataTableSpec outSpec = createOutputSpecs();
+		
+		boolean changeSuffix = ((SettingsModelBoolean) this.getModelSetting(CFG_CHANGE_SUFFIX)).getBooleanValue();
+		String suffix = ((SettingsModelString) this.getModelSetting(CFG_SUFFIX)).getStringValue();
+		suffix = changeSuffix ? suffix : CFG_SUFFIX_DFT;
+			
+		
+		DataTableSpec outSpec = createOutputSpecs(inSpec, groupColumn, subsetColumn, parameterColumns, suffix);
 
-		return new DataTableSpec[]{null};
+		return new DataTableSpec[]{outSpec};
 	}
 	
 
+
+	private DataTableSpec createOutputSpecs(DataTableSpec inSpec, String groupColumn, String subsetColumn, String[] parameterColumns,
+			String suffix) {
+		
+		DataTableSpecCreator dtsc = new DataTableSpecCreator();
+		
+		if(!groupColumn.equals(CFG_GROUP_DFT)) {
+			DataColumnSpec cSpec = inSpec.getColumnSpec(groupColumn);
+			dtsc.addColumns(cSpec);
+		}
+		if(!subsetColumn.equals(CFG_SUBSET_COL_DFT)) {
+			DataColumnSpec cSpec = inSpec.getColumnSpec(subsetColumn);
+			dtsc.addColumns(cSpec);
+		}
+		
+		for(String parameter : parameterColumns) {
+			DataColumnSpecCreator colCreator;
+			String newColumnName = parameter + suffix;
+			colCreator = new DataColumnSpecCreator(newColumnName,DoubleCell.TYPE);
+			dtsc.addColumns(colCreator.createSpec());
+		}
+		
+		return dtsc.createSpec();
+	}
 
 	@Override
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
