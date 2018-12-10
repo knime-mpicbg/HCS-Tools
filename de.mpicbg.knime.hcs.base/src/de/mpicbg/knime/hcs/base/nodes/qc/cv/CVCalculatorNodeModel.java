@@ -1,11 +1,13 @@
 package de.mpicbg.knime.hcs.base.nodes.qc.cv;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.knime.base.node.preproc.groupby.GroupByTable;
 import org.knime.core.data.DataCell;
@@ -17,8 +19,10 @@ import org.knime.core.data.DataTableSpecCreator;
 import org.knime.core.data.DataValueComparator;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
@@ -28,6 +32,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelColumnFilter2;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
+import org.knime.core.node.util.filter.nominal.NominalValueFilterConfiguration;
+import org.knime.core.node.util.filter.nominal.NominalValueFilterConfiguration.NominalValueFilterResult;
 import org.knime.core.util.MutableInteger;
 
 import de.mpicbg.knime.hcs.base.nodes.mine.binningapply.BinningApplyNodeModel;
@@ -144,6 +150,11 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 				throw new InvalidSettingsException("Incoming data table does miss the subset column \"" + smvf.getSelectedColumn() + "\"");
 			}
 			else {
+				// check for expected data type and the presence of domain values
+				DataColumnSpec spec = inSpec.getColumnSpec(subsetColumn);
+				if(!(spec.getType().isCompatible(StringValue.class) && spec.getDomain().hasValues()))
+					throw new InvalidSettingsException("Subset column \"" + subsetColumn + "\" is either not of type String or does not contain domain values.");
+				
 				/*Set<DataCell> domain = inSpec.getColumnSpec(subsetColumn).getDomain().getValues();
 				NominalValueFilterConfiguration ncfg = smvf.getFilterConfig();
 				NominalValueFilterResult filterResult = ncfg.applyTo(domain);
@@ -207,27 +218,43 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		BufferedDataTable inTable = inData[0];
 		DataTableSpec inSpec = inTable.getDataTableSpec();
 		
-		// get node settings
+		CVNodeSettings settings = new CVNodeSettings();
 		
+		// get node settings		
 		String groupColumn = ((SettingsModelString)this.getModelSetting(CFG_GROUP)).getStringValue();
 		String subsetColumn = ((SettingsModelString)this.getModelSetting(CFG_SUBSET_COL)).getStringValue();
+		
+		settings.setGroupColumn(groupColumn);
+		settings.setSubsetColumn(subsetColumn);
 		
 		// get grouping columns and deliver specs to output table spec
 		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_PARAMETERS)).applyTo(inTable.getDataTableSpec());
 		String[] parameterColumns = filter.getIncludes();
 		List<String> paramColumnList = new LinkedList<String>(Arrays.asList(parameterColumns));
 		
-		boolean useRobustStats = ((SettingsModelBoolean) this.getModelSetting(CFG_USE_ROBUST)).getBooleanValue();
+		settings.setParameterColumns(parameterColumns);
 		
+		boolean useRobustStats = ((SettingsModelBoolean) this.getModelSetting(CFG_USE_ROBUST)).getBooleanValue();		
 		boolean changeSuffix = ((SettingsModelBoolean) this.getModelSetting(CFG_CHANGE_SUFFIX)).getBooleanValue();
 		String suffix = ((SettingsModelString) this.getModelSetting(CFG_SUFFIX)).getStringValue();
 		
-		// sort input table
-		List<String> columnsToGroup = new LinkedList<String>();
+		settings.setRobustStatisticsFlag(useRobustStats);
+		settings.setSuffixFlag(changeSuffix);
+		settings.setSuffix(suffix);
+		
+		SettingsModelValueFilter smvf = ((SettingsModelValueFilter) this.getModelSetting(CFG_SUBSET_SEL));
+		String[] subsetSelection = getIncludedSubsets(smvf, inSpec);
+		
+		settings.setSubsetSelection(subsetSelection);
+		
+		// sort input table		
+		HashMap<String, String> groupMap = new LinkedHashMap<String, String>();
 		if(!groupColumn.equals(CFG_GROUP_DFT))
-			columnsToGroup.add(groupColumn);
+			groupMap.put(CFG_GROUP, groupColumn);
 		if(!subsetColumn.equals(CFG_SUBSET_COL_DFT))
-			columnsToGroup.add(subsetColumn);
+			groupMap.put(CFG_SUBSET_COL, subsetColumn);
+		
+		List<String> columnsToGroup = new ArrayList<String>(groupMap.values());
 		
         exec.createSubExecutionContext(0.5);
         exec.setMessage("Sorting input table...");
@@ -313,7 +340,11 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         	// if new group has been detected
         	if(newGroup) {
         		// do something
-        		DefaultRow outRow = createRow(previousGroup, rowCounter);  
+        		if(subsetIsIncluded(previousGroup, groupMap, settings)) {
+        			DefaultRow outRow = createRow(previousGroup, settings, rowCounter);  
+        			dc.addRowToTable(outRow);
+        			rowCounter++;
+        		}
         		
         		newGroup = false;
         		previousGroup = new LinkedHashMap<String, DataCell>();
@@ -326,15 +357,58 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         	currentRowIdx ++;
             groupExec.setProgress(currentRowIdx/numOfRows, groupLabel);
         }
+        
+        // process last group
+        // do something
+		if(subsetIsIncluded(previousGroup, groupMap, settings)) {
+			DefaultRow outRow = createRow(previousGroup, settings, rowCounter);  
+		}
+        
+        dc.close();
 
 		return new BufferedDataTable[]{dc.getTable()};
 		
 	}
 
-	private DefaultRow createRow(Map<String, DataCell> previousGroup, long rowCounter) {
+	private String[] getIncludedSubsets(SettingsModelValueFilter smvf, DataTableSpec inSpec) {
 		
+		String subsetColumn = smvf.getSelectedColumn();
 		
-		return null;
+		if(subsetColumn.equals(CFG_SUBSET_COL_DFT))
+			return new String[] {};
+		
+		Set<DataCell> domainValues = inSpec.getColumnSpec(subsetColumn).getDomain().getValues();
+		
+		NominalValueFilterConfiguration filterConfig = smvf.getFilterConfig();
+		NominalValueFilterResult filterResult = filterConfig.applyTo(domainValues);
+		return filterResult.getIncludes();
+	}
+
+	private boolean subsetIsIncluded(Map<String, DataCell> previousGroup, HashMap<String, String> groupMap,
+			CVNodeSettings settings) {
+		
+		// if subset column is set to <none> all groups (defined by grouping column) will be included
+		if(!groupMap.containsKey(CFG_SUBSET_COL))
+			return true;
+		
+		String subsetValue = ((StringCell)previousGroup.get(groupMap.get(CFG_SUBSET_COL))).getStringValue();
+		
+		return settings.doesSubsetContain(subsetValue);
+	}
+
+	private DefaultRow createRow(Map<String, DataCell> previousGroup, CVNodeSettings settings, long rowCounter) {
+		
+		List<String> parameterColumn = settings.getParameterColumns();
+		
+		final RowKey rowKey = RowKey.createRowKey((long)rowCounter);
+		
+		List<DataCell> list = new ArrayList<DataCell>(previousGroup.values());
+		
+		for(String parameter : parameterColumn) {
+			list.add(new DoubleCell(1.0));
+		}
+		
+		return new DefaultRow(rowKey, list);
 	}
 	
 	
