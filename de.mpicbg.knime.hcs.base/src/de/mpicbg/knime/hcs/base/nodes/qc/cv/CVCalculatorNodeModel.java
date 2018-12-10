@@ -17,6 +17,7 @@ import org.knime.core.data.DataTableSpecCreator;
 import org.knime.core.data.DataValueComparator;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -223,7 +224,10 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		
 		// sort input table
 		List<String> columnsToGroup = new LinkedList<String>();
-		
+		if(!groupColumn.equals(CFG_GROUP_DFT))
+			columnsToGroup.add(groupColumn);
+		if(!subsetColumn.equals(CFG_SUBSET_COL_DFT))
+			columnsToGroup.add(subsetColumn);
 		
         exec.createSubExecutionContext(0.5);
         exec.setMessage("Sorting input table...");
@@ -270,6 +274,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         boolean newGroup = false;
         String groupLabel = null;	// label of the current group
         long currentRowIdx = 0;
+        long rowCounter = 0;
         final double numOfRows = sortedTable.size();
 
         for(DataRow row : sortedTable) {
@@ -308,6 +313,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         	// if new group has been detected
         	if(newGroup) {
         		// do something
+        		DefaultRow outRow = createRow(previousGroup, rowCounter);  
         		
         		newGroup = false;
         		previousGroup = new LinkedHashMap<String, DataCell>();
@@ -323,6 +329,12 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 
 		return new BufferedDataTable[]{dc.getTable()};
 		
+	}
+
+	private DefaultRow createRow(Map<String, DataCell> previousGroup, long rowCounter) {
+		
+		
+		return null;
 	}
 	
 	
