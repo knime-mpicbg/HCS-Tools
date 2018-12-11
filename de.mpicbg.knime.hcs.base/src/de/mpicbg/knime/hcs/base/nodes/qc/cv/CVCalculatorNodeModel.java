@@ -141,8 +141,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		String[] parameterColumns = filter.getIncludes();
 		
 		checkColumnsForAvailability(inSpec, parameterColumns, DoubleValue.class, true, false);
-		
-		
+				
 		boolean changeSuffix = ((SettingsModelBoolean) this.getModelSetting(CFG_CHANGE_SUFFIX)).getBooleanValue();
 		String suffix = ((SettingsModelString) this.getModelSetting(CFG_SUFFIX)).getStringValue();
 		suffix = changeSuffix ? suffix : CFG_SUFFIX_DFT;
@@ -266,9 +265,12 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 			settings.setSuffix(CFG_SUFFIX_DFT);
 		
 		SettingsModelValueFilter smvf = ((SettingsModelValueFilter) this.getModelSetting(CFG_SUBSET_SEL));
-		String[] subsetSelection = getIncludedSubsets(smvf, inSpec);
-		
-		settings.setSubsetSelection(subsetSelection);
+		if(!smvf.getSelectedColumn().equals(CFG_SUBSET_COL_DFT)) {
+			String[] subsetSelection = getIncludedSubsets(smvf, inSpec);
+			settings.setSubsetSelection(subsetSelection);
+			NominalValueFilterConfiguration filterConfig = smvf.getFilterConfig();
+			settings.setIncludeMissingFlag(filterConfig.isIncludeMissing());
+		}
 		
 		// sort input table		
 		HashMap<String, String> groupMap = new LinkedHashMap<String, String>();
@@ -368,6 +370,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         	if(newGroup) {
         		// do something
         		if(subsetIsIncluded(previousGroup, groupMap, settings)) {
+        			     			
         			DefaultRow outRow = createRow(previousGroup, rowMap, settings, rowCounter);  
         			dc.addRowToTable(outRow);
         			rowCounter++;
@@ -392,17 +395,21 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         
         // process last group
         // do something
-		if(subsetIsIncluded(previousGroup, groupMap, settings)) {
-			DefaultRow outRow = createRow(previousGroup, rowMap, settings, rowCounter);  
+        if(subsetIsIncluded(previousGroup, groupMap, settings)) {
+ 			DefaultRow outRow = createRow(previousGroup, rowMap, settings, rowCounter);  
 			dc.addRowToTable(outRow);
 		}
         
         dc.close();
+        
+        String warningMessage = BinningApplyNodeModel.createWarningForMissing(countMissing);
+        if(!warningMessage.isEmpty())
+        	this.setWarningMessage(warningMessage);
 
 		return new BufferedDataTable[]{dc.getTable()};
 		
 	}
-
+	
 	private String[] getIncludedSubsets(SettingsModelValueFilter smvf, DataTableSpec inSpec) {
 		
 		String subsetColumn = smvf.getSelectedColumn();
@@ -413,6 +420,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		Set<DataCell> domainValues = inSpec.getColumnSpec(subsetColumn).getDomain().getValues();
 		
 		NominalValueFilterConfiguration filterConfig = smvf.getFilterConfig();
+		
 		NominalValueFilterResult filterResult = filterConfig.applyTo(domainValues);
 		return filterResult.getIncludes();
 	}
@@ -424,8 +432,11 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		if(!groupMap.containsKey(CFG_SUBSET_COL))
 			return true;
 		
-		String subsetValue = ((StringCell)previousGroup.get(groupMap.get(CFG_SUBSET_COL))).getStringValue();
-		
+		DataCell cell = previousGroup.get(groupMap.get(CFG_SUBSET_COL));
+		if(cell.isMissing())
+			return settings.getIncludeMissingFlag();
+
+		String subsetValue = ((StringCell)previousGroup.get(groupMap.get(CFG_SUBSET_COL))).getStringValue();	
 		return settings.doesSubsetContain(subsetValue);
 	}
 
@@ -443,27 +454,35 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 			for(String param : parameterColumn) {
 				if(!dataMap.containsKey(param))
 					dataMap.put(param, new ExtDescriptiveStats());
-				DataCell cell = rowMap.get(key).get(param);
-				dataMap.get(param).addValue(((DoubleValue)cell).getDoubleValue());
+				if(rowMap.get(key).containsKey(param)) {
+					DataCell cell = rowMap.get(key).get(param);
+					if(!cell.isMissing())
+						dataMap.get(param).addValue(((DoubleValue)cell).getDoubleValue());
+				}
 			}
 		}
-			
+		
 		for(String param : parameterColumn) {
 			
 			ExtDescriptiveStats stats = dataMap.get(param);
 			
 			try {
-				double location = settings.getRobustStatisticsFlag() ? stats.getMedian() :stats.getMean();
-				double dispersion = settings.getRobustStatisticsFlag() ? stats.getMad() : stats.getStandardDeviation();
-				
-				double cv = 100 * (dispersion / location);
-				list.add(new DoubleCell(cv));
+				if(stats.getN() == 0) {
+					list.add(DataType.getMissingCell());
+				}
+				else {
+					double location = settings.getRobustStatisticsFlag() ? stats.getMedian() :stats.getMean();
+					double dispersion = settings.getRobustStatisticsFlag() ? stats.getMad() : stats.getStandardDeviation();
+
+					double cv = 100 * (dispersion / location);
+					list.add(new DoubleCell(cv));
+				}
 				
 			} catch (IllegalMadFactorException e) {
 				list.add(DataType.getMissingCell());
 			}
 		}
-		
+				
 		return new DefaultRow(rowKey, list);
 	}
 	

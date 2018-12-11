@@ -15,6 +15,7 @@ public class CVNodeSettings {
 	
 	private List<String> m_parameterColumns;
 	private List<String> m_subsetSelection;
+	private boolean m_includeMissing = false;
 	
 	public CVNodeSettings() {
 		m_parameterColumns = new LinkedList<String>();
@@ -51,6 +52,10 @@ public class CVNodeSettings {
 			m_subsetSelection.add(sub);
 	}
 	
+	public void setIncludeMissingFlag(boolean inclMissing) {
+		m_includeMissing = inclMissing;
+	}
+	
 	public String getGroupColumn() {
 		return m_groupColumn;
 	}
@@ -79,5 +84,7 @@ public class CVNodeSettings {
 		return m_subsetSelection.contains(subsetValue);
 	}
 
-
+	public boolean getIncludeMissingFlag() {
+		return m_includeMissing;
+	}
 }

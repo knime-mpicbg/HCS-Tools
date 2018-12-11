@@ -1,5 +1,6 @@
 package de.mpicbg.knime.hcs.base.nodes.mine.binningapply;
 
+import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +42,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
 import org.knime.core.util.MutableInteger;
 
+import antlr.StringUtils;
 import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObject;
 import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObjectSpec;
 import de.mpicbg.knime.hcs.core.math.BinningAnalysisModel;
@@ -575,7 +577,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         dc.close();
         extremeDc.close();
        
-        showWarningForMissing(countMissing);
+        String warningMessage = createWarningForMissing(countMissing);
+        if(!warningMessage.isEmpty())
+        	this.setWarningMessage(warningMessage);
         
 		return new BufferedDataTable[]{dc.getTable(),extremeDc.getTable()};
 	}
@@ -732,26 +736,29 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         return b.toString();
     }
     
+    
     /**
-     * create warning message for missing values in processing columns
-     * @param countMissing
+     * create warning message string for missing values in processing columns
+     * @param countMissing		map of missing value counts for each column
+     * @return	warningMessage if any missing value, empty String otherwise
      */
-    private void showWarningForMissing(Map<String, MutableInteger> countMissing) {
+    public static String createWarningForMissing(Map<String, MutableInteger> countMissing) {
     	
     	boolean showWarning = false;
-    	int n = countMissing.size();
-    	String[] message = new String[n];
-    	int i = 0;
+    	List<String> message = new LinkedList<String>();
     	for(String col : countMissing.keySet()) {
     		long nMissing = countMissing.get(col).longValue();
-    		if(nMissing > 0) showWarning = true;
-    		message[i] = col + " (" + nMissing + ")";
-    		i++;
+    		if(nMissing > 0) {
+    			showWarning = true;
+    			message.add(col + " (" + nMissing + ")");
+    		}		
     	}
     	
     	String warningMessage = "Ignored missing values for: " + String.join(", ", message);
     	
-		if(showWarning) this.setWarningMessage(warningMessage);
+		if(showWarning) 
+			return warningMessage;
+		return new String();
 	}
 
     /**
