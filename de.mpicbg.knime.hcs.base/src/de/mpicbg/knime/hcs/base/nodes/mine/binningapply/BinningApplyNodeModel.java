@@ -17,6 +17,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
+import org.knime.core.data.DataValue;
 import org.knime.core.data.DataValueComparator;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
@@ -199,13 +200,13 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		
 		assert modelColumns.length > 0;
 		
-		checkColumnsForAvailability(inSpec, modelColumns, ignoreMissing, true);
+		checkColumnsForAvailability(inSpec, modelColumns, DoubleValue.class, ignoreMissing, true);
 		
 		// get grouping columns and deliver specs to output table spec
 		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_GROUPS)).applyTo(inSpec);
 		String[] groupingColumns = filter.getIncludes();
 		
-		checkColumnsForAvailability(inSpec, filter.getRemovedFromIncludes(), true, false);
+		checkColumnsForAvailability(inSpec, filter.getRemovedFromIncludes(), DataValue.class, true, false);
 		
 		List<DataColumnSpec> groupingSpecs = getGroupColumnSpecs(inSpec, groupingColumns);
 		

@@ -16,6 +16,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
+import org.knime.core.data.DataType;
 import org.knime.core.data.DataValueComparator;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
@@ -37,6 +38,8 @@ import org.knime.core.node.util.filter.nominal.NominalValueFilterConfiguration.N
 import org.knime.core.util.MutableInteger;
 
 import de.mpicbg.knime.hcs.base.nodes.mine.binningapply.BinningApplyNodeModel;
+import de.mpicbg.knime.hcs.base.utils.ExtDescriptiveStats;
+import de.mpicbg.knime.hcs.base.utils.MadStatistic.IllegalMadFactorException;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
 /**
@@ -125,18 +128,32 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		// group column should not be the same like subset column
 		if(groupColumn.equals(subsetColumn) && !groupColumn.equals(CFG_GROUP_DFT))
 			throw new InvalidSettingsException("Group column and subset column should differ. Please reconfigure the node.");
-		
-		// if group column not <none>, check if column is available
-		if(!groupColumn.equals(CFG_SUBSET_COL_DFT)) {
-			if(!inSpec.containsName(groupColumn))
-				throw new InvalidSettingsException("Incoming data table does miss the grouping column \"" + groupColumn + "\"");
-		} else {
-			// check that incoming table doe not contain a column named <none>
-			if(inSpec.containsName(groupColumn))
-				throw new InvalidSettingsException("Incoming data table should not contain a column named \"" + CFG_GROUP_DFT + "\" as it a node settings default to not group a t all.");
-		}
 			
+		checkGroupColumnSettingAgainstInSpec(inSpec, groupColumn);
+				
+		checkSubsetColumnSettingAgainstInSpec(inSpec, subsetColumn);
 		
+		// suffix can be empty string
+		// booleans do not matter
+		
+		// get grouping columns and deliver specs to output table spec
+		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_PARAMETERS)).applyTo(inSpec);
+		String[] parameterColumns = filter.getIncludes();
+		
+		checkColumnsForAvailability(inSpec, parameterColumns, DoubleValue.class, true, false);
+		
+		
+		boolean changeSuffix = ((SettingsModelBoolean) this.getModelSetting(CFG_CHANGE_SUFFIX)).getBooleanValue();
+		String suffix = ((SettingsModelString) this.getModelSetting(CFG_SUFFIX)).getStringValue();
+		suffix = changeSuffix ? suffix : CFG_SUFFIX_DFT;
+			
+		DataTableSpec outSpec = createOutputSpecs(inSpec, groupColumn, subsetColumn, parameterColumns, suffix);
+
+		return new DataTableSpec[]{outSpec};
+	}
+
+	private void checkSubsetColumnSettingAgainstInSpec(DataTableSpec inSpec, String subsetColumn)
+			throws InvalidSettingsException {
 		// if subset column not <none>
 		if(!subsetColumn.equals(CFG_SUBSET_COL_DFT)) {
 			SettingsModelValueFilter smvf = ((SettingsModelValueFilter)this.getModelSetting(CFG_SUBSET_SEL));
@@ -155,35 +172,38 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 				if(!(spec.getType().isCompatible(StringValue.class) && spec.getDomain().hasValues()))
 					throw new InvalidSettingsException("Subset column \"" + subsetColumn + "\" is either not of type String or does not contain domain values.");
 				
-				/*Set<DataCell> domain = inSpec.getColumnSpec(subsetColumn).getDomain().getValues();
+				Set<DataCell> domain = inSpec.getColumnSpec(subsetColumn).getDomain().getValues();
 				NominalValueFilterConfiguration ncfg = smvf.getFilterConfig();
 				NominalValueFilterResult filterResult = ncfg.applyTo(domain);
 				
 				String[] incl = filterResult.getIncludes();
+				String[] formerIncl = filterResult.getRemovedFromIncludes();
 				
 				// check if at least one subset value has been included 
 				if(incl.length == 0)
-					throw new InvalidSettingsException("Subset selection does not include any possible values. Please reconfigure the node.");*/
+					this.setWarningMessage("All subsets are excluded. Node will produce an empty table");
+				if(formerIncl.length > 0) {
+					String subsets = String.join(", ",formerIncl);
+					this.setWarningMessage("The following subsets are not present anymore in the incoming data table: " + subsets);
+				}
 			}			
 		}
-		
-		// suffix can be empty string
-		// booleans do not matter
-		
-		// get grouping columns and deliver specs to output table spec
-		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_PARAMETERS)).applyTo(inSpec);
-		String[] parameterColumns = filter.getIncludes();
-		
-		checkColumnsForAvailability(inSpec, parameterColumns, true, false);
-		
-		
-		boolean changeSuffix = ((SettingsModelBoolean) this.getModelSetting(CFG_CHANGE_SUFFIX)).getBooleanValue();
-		String suffix = ((SettingsModelString) this.getModelSetting(CFG_SUFFIX)).getStringValue();
-		suffix = changeSuffix ? suffix : CFG_SUFFIX_DFT;
-			
-		DataTableSpec outSpec = createOutputSpecs(inSpec, groupColumn, subsetColumn, parameterColumns, suffix);
+	}
 
-		return new DataTableSpec[]{outSpec};
+	private void checkGroupColumnSettingAgainstInSpec(DataTableSpec inSpec, String groupColumn)
+			throws InvalidSettingsException {
+		// if group column not <none>, check if column is available
+		if(!groupColumn.equals(CFG_SUBSET_COL_DFT)) {
+			if(!inSpec.containsName(groupColumn))
+				throw new InvalidSettingsException("Incoming data table does miss the grouping column \"" + groupColumn + "\"");
+			else
+				if(!inSpec.getColumnSpec(groupColumn).getType().isCompatible(StringValue.class))
+					throw new InvalidSettingsException("The data type of the group column \"" + groupColumn + "\" is not string.");
+		} else {
+			// check that incoming table doe not contain a column named <none>
+			if(inSpec.containsName(groupColumn))
+				throw new InvalidSettingsException("Incoming data table should not contain a column named \"" + CFG_GROUP_DFT + "\" as it a node settings default to not group a t all.");
+		}
 	}
 	
 
@@ -240,7 +260,10 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		
 		settings.setRobustStatisticsFlag(useRobustStats);
 		settings.setSuffixFlag(changeSuffix);
-		settings.setSuffix(suffix);
+		if(changeSuffix)
+			settings.setSuffix(suffix);
+		else
+			settings.setSuffix(CFG_SUFFIX_DFT);
 		
 		SettingsModelValueFilter smvf = ((SettingsModelValueFilter) this.getModelSetting(CFG_SUBSET_SEL));
 		String[] subsetSelection = getIncludedSubsets(smvf, inSpec);
@@ -297,6 +320,10 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         // for each column to process count missing data
         Map<String, MutableInteger> countMissing = BinningApplyNodeModel.createMissingCountMap(paramColumnList);
 
+        // collects row data for each column to process until new group has bee detected
+        // row key => <name of column to process + its data cell>
+        Map<RowKey, Map<String, DataCell>> rowMap = new HashMap<RowKey, Map<String, DataCell>>();
+        
         boolean firstRow = true;
         boolean newGroup = false;
         String groupLabel = null;	// label of the current group
@@ -341,7 +368,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         	if(newGroup) {
         		// do something
         		if(subsetIsIncluded(previousGroup, groupMap, settings)) {
-        			DefaultRow outRow = createRow(previousGroup, settings, rowCounter);  
+        			DefaultRow outRow = createRow(previousGroup, rowMap, settings, rowCounter);  
         			dc.addRowToTable(outRow);
         			rowCounter++;
         		}
@@ -351,7 +378,12 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         		previousGroup.putAll(currentGroup);
         		currentGroup = new LinkedHashMap<String, DataCell>();
         		groupLabel = BinningApplyNodeModel.createGroupLabelForProgress(previousGroup);
+        		rowMap = new HashMap<RowKey, Map<String, DataCell>>();
         	}
+        	
+        	// collect row data (important: not before group check as data of a new group 
+        	// should go to the new collection of row data
+        	rowMap.put(key, dataMap);
         	
         	groupExec.checkCanceled();
         	currentRowIdx ++;
@@ -361,7 +393,8 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         // process last group
         // do something
 		if(subsetIsIncluded(previousGroup, groupMap, settings)) {
-			DefaultRow outRow = createRow(previousGroup, settings, rowCounter);  
+			DefaultRow outRow = createRow(previousGroup, rowMap, settings, rowCounter);  
+			dc.addRowToTable(outRow);
 		}
         
         dc.close();
@@ -396,7 +429,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		return settings.doesSubsetContain(subsetValue);
 	}
 
-	private DefaultRow createRow(Map<String, DataCell> previousGroup, CVNodeSettings settings, long rowCounter) {
+	private DefaultRow createRow(Map<String, DataCell> previousGroup, Map<RowKey, Map<String, DataCell>> rowMap, CVNodeSettings settings, long rowCounter) {
 		
 		List<String> parameterColumn = settings.getParameterColumns();
 		
@@ -404,8 +437,31 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		
 		List<DataCell> list = new ArrayList<DataCell>(previousGroup.values());
 		
-		for(String parameter : parameterColumn) {
-			list.add(new DoubleCell(1.0));
+		HashMap<String, ExtDescriptiveStats> dataMap = new HashMap<String, ExtDescriptiveStats>();
+		
+		for(RowKey key : rowMap.keySet()) {
+			for(String param : parameterColumn) {
+				if(!dataMap.containsKey(param))
+					dataMap.put(param, new ExtDescriptiveStats());
+				DataCell cell = rowMap.get(key).get(param);
+				dataMap.get(param).addValue(((DoubleValue)cell).getDoubleValue());
+			}
+		}
+			
+		for(String param : parameterColumn) {
+			
+			ExtDescriptiveStats stats = dataMap.get(param);
+			
+			try {
+				double location = settings.getRobustStatisticsFlag() ? stats.getMedian() :stats.getMean();
+				double dispersion = settings.getRobustStatisticsFlag() ? stats.getMad() : stats.getStandardDeviation();
+				
+				double cv = 100 * (dispersion / location);
+				list.add(new DoubleCell(cv));
+				
+			} catch (IllegalMadFactorException e) {
+				list.add(DataType.getMissingCell());
+			}
 		}
 		
 		return new DefaultRow(rowKey, list);
