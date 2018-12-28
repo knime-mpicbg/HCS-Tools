@@ -332,6 +332,8 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         long currentRowIdx = 0;
         long rowCounter = 0;
         final double numOfRows = sortedTable.size();
+        
+        exec.setMessage("Calculate CVs for");
 
         for(DataRow row : sortedTable) {
         	// fill previous values if this is the first row
@@ -457,7 +459,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 				if(rowMap.get(key).containsKey(param)) {
 					DataCell cell = rowMap.get(key).get(param);
 					if(!cell.isMissing())
-						dataMap.get(param).addValue(((DoubleValue)cell).getDoubleValue());
+						dataMap.get(param).addValue(((DoubleCell)cell).getDoubleValue());
 				}
 			}
 		}
