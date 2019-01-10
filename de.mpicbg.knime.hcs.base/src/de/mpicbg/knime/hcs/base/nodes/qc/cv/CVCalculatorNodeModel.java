@@ -408,7 +408,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         final double numOfRows = sortedTable.size();
         
         exec.setMessage("Calculate CVs for");
-
+        
         for(DataRow row : sortedTable) {
         	// fill previous values if this is the first row
         	if(firstRow) {
@@ -469,11 +469,12 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         }
         
         // process last group
-        // do something
-        if(subsetIsIncluded(previousGroup, groupMap, settings) && !rowMap.isEmpty()) {
- 			DefaultRow outRow = createRow(previousGroup, rowMap, settings, rowCounter);  
-			dc.addRowToTable(outRow);
-		}
+        if(!rowMap.isEmpty()) {
+	        if(subsetIsIncluded(previousGroup, groupMap, settings)) {
+	 			DefaultRow outRow = createRow(previousGroup, rowMap, settings, rowCounter);  
+				dc.addRowToTable(outRow);
+			}
+        }
         
         dc.close();
         
