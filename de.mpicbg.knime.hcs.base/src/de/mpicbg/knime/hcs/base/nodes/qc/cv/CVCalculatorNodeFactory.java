@@ -4,6 +4,12 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
+/**
+ * Node Factory for CV-node
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class CVCalculatorNodeFactory extends NodeFactory<CVCalculatorNodeModel> {
 
 	@Override

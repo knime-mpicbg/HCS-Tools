@@ -14,6 +14,12 @@ import org.knime.core.node.util.filter.NameFilterConfiguration;
 import org.knime.core.node.util.filter.nominal.NominalValueFilterConfiguration;
 import org.knime.core.node.util.filter.nominal.NominalValueFilterPanel;
 
+/**
+ * panel with subset filter with sorted domain values (no other reason to extend the parent class)
+ * 
+ * @author Antje Janosch
+ *
+ */
 @SuppressWarnings("serial")
 public class SubsetValueFilterPanel extends NominalValueFilterPanel {
 	

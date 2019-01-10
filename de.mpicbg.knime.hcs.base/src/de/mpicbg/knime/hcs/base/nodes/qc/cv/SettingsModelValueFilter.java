@@ -14,7 +14,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObjectSpec;
-import org.knime.core.node.util.filter.NameFilterConfiguration;
 import org.knime.core.node.util.filter.nominal.NominalValueFilterConfiguration;
 
 /**
@@ -32,6 +31,11 @@ public class SettingsModelValueFilter extends SettingsModel {
 	private String m_selectedColumn;
 	private Map<String, Set<DataCell>> m_domainValues;
 	
+	/**
+	 * 
+	 * @param key				key for settings model
+	 * @param selectedColumn	column for subset selection
+	 */
 	public SettingsModelValueFilter(String key, String selectedColumn) {
 		m_nfc = new NominalValueFilterConfiguration(key);
 		m_selectedColumn = selectedColumn;
@@ -105,14 +109,26 @@ public class SettingsModelValueFilter extends SettingsModel {
 		return m_nfc.toString();
 	}
 
+	/**
+	 * @return domain values of subset column
+	 */
 	public Set<DataCell> getDomainValues() {
 		return m_domainValues.get(m_selectedColumn);
 	}
 
+	/**
+	 * @return filter configuration
+	 */
 	public NominalValueFilterConfiguration getFilterConfig() {
 		return m_nfc;
 	}
 
+	/**
+	 * 
+	 * @param nfc				new filter configuration		
+	 * @param selectedColumn	subset column name
+	 * @throws InvalidSettingsException		if key string of the new config differs from the old
+	 */
 	public void updateSettings(NominalValueFilterConfiguration nfc, String selectedColumn) 
 			throws InvalidSettingsException {
 		if(nfc.getConfigRootName().equals(m_nfc.getConfigRootName())) {
@@ -123,6 +139,9 @@ public class SettingsModelValueFilter extends SettingsModel {
 			throw new InvalidSettingsException("Keys for 'value filter configuration' differ");
 	}
 	
+	/**
+	 * @return subset column name
+	 */
 	public String getSelectedColumn() {
 		return m_selectedColumn;
 	}

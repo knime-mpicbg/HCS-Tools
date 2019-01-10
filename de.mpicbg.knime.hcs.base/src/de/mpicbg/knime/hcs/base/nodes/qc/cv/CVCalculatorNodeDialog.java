@@ -36,30 +36,52 @@ import org.knime.core.node.util.filter.column.DataColumnSpecFilterPanel;
 import org.knime.core.node.util.filter.column.DataTypeColumnFilter;
 import org.knime.core.node.util.filter.nominal.NominalValueFilterConfiguration;
 
+/**
+ * Node Dialog class for CV-node
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class CVCalculatorNodeDialog extends NodeDialogPane {
 	
+	/*
+	 * panel to filter for subsets and its settingsmodel
+	 */
 	private final SubsetValueFilterPanel comp_valueFilter;
 	private SettingsModelValueFilter sm_subsetSelection;
 	
+	// panel for "Subset Filter" tab
 	private final JPanel comp_subsetPanel;
+	// panel for "General Settings" tab
 	private final JPanel comp_mainPanel;
 	
+	/*
+	 * combobox to select the grouping column and its model
+	 */
 	private final JComboBox<String> comp_groupColumn;
 	private DefaultComboBoxModel<String> m_groupColumnModel;
 	
+	/*
+	 * combobox to select the subset column and its model
+	 */
 	private final JComboBox<String> comp_subsetColumn;
 	private DefaultComboBoxModel<String> m_subsetColumnModel;
 	
-	
-	
+	// panel to filter for parameter columns
 	private final DataColumnSpecFilterPanel comp_columnFilterPanel;
 	
+	// elements for enabling robust statistics or setting column suffix
 	private final JCheckBox comp_useRobustStats;
 	private final JCheckBox comp_changeSuffix;
 	private final JTextField comp_suffix;
 	
+	// storing domain values for each column (having domain values)
 	private final Map<String, Set<DataCell>> m_colAttributes;
 	
+	/**
+	 * constructor
+	 * inits GUI
+	 */
 	public CVCalculatorNodeDialog() {
 		super();
 		
@@ -140,7 +162,10 @@ public class CVCalculatorNodeDialog extends NodeDialogPane {
 		this.addTab("Subset Filter",comp_subsetPanel);
 	}
 	
-	
+	/**
+	 * subset filter panel gets populated with domain values of the selected column
+	 * @param selectedColumn
+	 */
 	private void updateValueFiler(String selectedColumn) {
 			
 		if(m_colAttributes.containsKey(selectedColumn)) {

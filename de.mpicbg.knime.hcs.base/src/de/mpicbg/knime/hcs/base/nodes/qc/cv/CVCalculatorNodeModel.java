@@ -50,6 +50,10 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
  */
 public class CVCalculatorNodeModel extends AbstractNodeModel {
 	
+	/**
+	 * Node settings and defaul values
+	 */
+	
 	public static final String CFG_GROUP = "group.by";
 	public static final String CFG_GROUP_DFT = "<none>";
 	
@@ -78,6 +82,9 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		initializeSettings();
 	}
 
+	/**
+	 * add model settings and defaults to node model
+	 */
 	private void initializeSettings() {
 		this.addModelSetting(CFG_GROUP, createModelSettingGroup());
 		this.addModelSetting(CFG_SUBSET_COL, createModelSettingSubset());
@@ -87,36 +94,73 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		this.addModelSetting(CFG_CHANGE_SUFFIX, createModelSettingChangeSuffix());
 		this.addModelSetting(CFG_SUFFIX, createModelSettingSuffix());
 	}
+	
+	/** 
+	 * ========================== Setting Models ============================
+	 */
 
+	/**
+	 * create model setting for group column
+	 * @return {@link SettingsModelString}
+	 */
 	public SettingsModelString createModelSettingGroup() {
 		return new SettingsModelString(CFG_GROUP, CFG_GROUP_DFT);
 	}
 	
+	/**
+	 * create model setting for subset column
+	 * @return {@link SettingsModelString}
+	 */
 	public SettingsModelString createModelSettingSubset() {
 		return new SettingsModelString(CFG_SUBSET_COL, CFG_SUBSET_COL_DFT);
 	}
 	
+	/**
+	 * create model setting for parameter selection
+	 * @return {@link SettingsModelColumnFilter2}
+	 */
 	@SuppressWarnings("unchecked")
 	public SettingsModelColumnFilter2 createModelSettingParameterSelection() {
 		return new SettingsModelColumnFilter2(CFG_PARAMETERS, DoubleValue.class);
 	}
 	
+	/**
+	 * create model setting for subset selection
+	 * @return {@link SettingsModelValueFilter}
+	 */
 	public SettingsModelValueFilter createModelSettingSubsetSelection() {
 		return new SettingsModelValueFilter(CFG_SUBSET_SEL, null);
 	}
 	
+	/**
+	 * create model setting for enabling suffix setting
+	 * @return {@link SettingsModelBoolean}
+	 */
 	public SettingsModelBoolean createModelSettingChangeSuffix() {
 		return new SettingsModelBoolean(CFG_CHANGE_SUFFIX, CFG_CHANGE_SUFFIX_DFT);
 	}
 	
+	/**
+	 * create model setting for enabling robust statistcs calculation
+	 * @return {@link SettingsModelBoolean}
+	 */
 	public SettingsModelBoolean createModelSettingUseRobustStatistics() {
 		return new SettingsModelBoolean(CFG_USE_ROBUST, CFG_USE_ROBUST_DFT);
 	}
 	
+	/**
+	 * create model setting for column suffix
+	 * @return {@link SettingsModelString}
+	 */
 	public SettingsModelString createModelSettingSuffix() {
 		return new SettingsModelString(CFG_SUFFIX, CFG_SUFFIX_DFT);
 	}
 
+	/** 
+	 * ========================== END Setting Models ============================
+	 */
+	
+	
 	@Override
 	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		
@@ -129,8 +173,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		if(groupColumn.equals(subsetColumn) && !groupColumn.equals(CFG_GROUP_DFT))
 			throw new InvalidSettingsException("Group column and subset column should differ. Please reconfigure the node.");
 			
-		checkGroupColumnSettingAgainstInSpec(inSpec, groupColumn);
-				
+		checkGroupColumnSettingAgainstInSpec(inSpec, groupColumn);			
 		checkSubsetColumnSettingAgainstInSpec(inSpec, subsetColumn);
 		
 		// suffix can be empty string
@@ -140,6 +183,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_PARAMETERS)).applyTo(inSpec);
 		String[] parameterColumns = filter.getIncludes();
 		
+		// at least one numeric column needs to be selected
 		if(parameterColumns.length == 0)
 			throw new InvalidSettingsException("No columns selected for calculation. Please reconfigure the node");
 		
@@ -154,6 +198,15 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		return new DataTableSpec[]{outSpec};
 	}
 
+	/**
+	 * different checks on selected subset column
+	 * can produce warning message or {@link InvalidSettingsException}
+	 * 
+	 * @param inSpec		current input table specs
+	 * @param subsetColumn	name of selected subset column
+	 * 
+	 * @throws InvalidSettingsException
+	 */
 	private void checkSubsetColumnSettingAgainstInSpec(DataTableSpec inSpec, String subsetColumn)
 			throws InvalidSettingsException {
 		// if subset column not <none>
@@ -192,6 +245,14 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		}
 	}
 
+	/**
+	 * different checks on selected group column
+	 * can produce {@link InvalidSettingsException}
+	 * 
+	 * @param inSpec
+	 * @param groupColumn
+	 * @throws InvalidSettingsException
+	 */
 	private void checkGroupColumnSettingAgainstInSpec(DataTableSpec inSpec, String groupColumn)
 			throws InvalidSettingsException {
 		// if group column not <none>, check if column is available
@@ -208,8 +269,17 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		}
 	}
 	
-
-
+	/**
+	 * creates table spec for output table
+	 * 
+	 * @param inSpec			table spec of input table
+	 * @param groupColumn		name of the group column
+	 * @param subsetColumn		name of the subset column
+	 * @param parameterColumns	list of parameter columns
+	 * @param suffix			suffix for parameter column names in output table
+	 * 
+	 * @return new {@link DataTableSpec}
+	 */
 	private DataTableSpec createOutputSpecs(DataTableSpec inSpec, String groupColumn, String subsetColumn, String[] parameterColumns,
 			String suffix) {
 		
@@ -374,7 +444,6 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         	
         	// if new group has been detected
         	if(newGroup) {
-        		// do something
         		if(subsetIsIncluded(previousGroup, groupMap, settings)) {
         			     			
         			DefaultRow outRow = createRow(previousGroup, rowMap, settings, rowCounter);  
@@ -416,6 +485,14 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		
 	}
 	
+	/**
+	 * returns filtered domain values (included)
+	 * 
+	 * @param smvf		settings model
+	 * @param inSpec	table spec of input table
+	 * 
+	 * @return list of included domain values
+	 */
 	private String[] getIncludedSubsets(SettingsModelValueFilter smvf, DataTableSpec inSpec) {
 		
 		String subsetColumn = smvf.getSelectedColumn();
@@ -431,31 +508,53 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		return filterResult.getIncludes();
 	}
 
-	private boolean subsetIsIncluded(Map<String, DataCell> previousGroup, HashMap<String, String> groupMap,
+	/**
+	 * checks whether the subset value of the group has been included for processing
+	 * 
+	 * @param group		map with values for group and subset for a single data group
+	 * @param groupMap	map with column names of group and subset setting
+	 * @param settings	node settings
+	 * 
+	 * @return	true, if subset value is included
+	 */
+	private boolean subsetIsIncluded(Map<String, DataCell> group, HashMap<String, String> groupMap,
 			CVNodeSettings settings) {
 		
 		// if subset column is set to <none> all groups (defined by grouping column) will be included
 		if(!groupMap.containsKey(CFG_SUBSET_COL))
 			return true;
 		
-		DataCell cell = previousGroup.get(groupMap.get(CFG_SUBSET_COL));
+		DataCell cell = group.get(groupMap.get(CFG_SUBSET_COL));
 		if(cell.isMissing())
 			return settings.getIncludeMissingFlag();
 
-		String subsetValue = ((StringCell)previousGroup.get(groupMap.get(CFG_SUBSET_COL))).getStringValue();	
+		String subsetValue = ((StringCell)group.get(groupMap.get(CFG_SUBSET_COL))).getStringValue();	
 		return settings.doesSubsetContain(subsetValue);
 	}
 
-	private DefaultRow createRow(Map<String, DataCell> previousGroup, Map<RowKey, Map<String, DataCell>> rowMap, CVNodeSettings settings, long rowCounter) {
+	/**
+	 * creates a single row for the output table containing group and subset values (if not <none>)
+	 * and CV for each selected parameter
+	 * 
+	 * @param group			current group (group + subset value)
+	 * @param rowMap		map with row key as key and data cells per parameter column as value
+	 * @param settings		node settings
+	 * @param rowCounter	number of output row
+	 * 
+	 * @return				{@link DefaultRow}
+	 */
+	private DefaultRow createRow(Map<String, DataCell> group, Map<RowKey, Map<String, DataCell>> rowMap, CVNodeSettings settings, long rowCounter) {
 		
 		List<String> parameterColumn = settings.getParameterColumns();
 		
 		final RowKey rowKey = RowKey.createRowKey((long)rowCounter);
 		
-		List<DataCell> list = new ArrayList<DataCell>(previousGroup.values());
+		// list for data cells of the new row
+		List<DataCell> list = new ArrayList<DataCell>(group.values());
 		
 		HashMap<String, ExtDescriptiveStats> dataMap = new HashMap<String, ExtDescriptiveStats>();
 		
+		// fill parameter values into stats objects
 		for(RowKey key : rowMap.keySet()) {
 			for(String param : parameterColumn) {
 				if(!dataMap.containsKey(param))
@@ -468,6 +567,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 			}
 		}
 		
+		// calculate CVs for each parameter and add new cells to list
 		for(String param : parameterColumn) {
 			
 			ExtDescriptiveStats stats = dataMap.get(param);
@@ -491,7 +591,5 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 				
 		return new DefaultRow(rowKey, list);
 	}
-	
-	
 
 }
