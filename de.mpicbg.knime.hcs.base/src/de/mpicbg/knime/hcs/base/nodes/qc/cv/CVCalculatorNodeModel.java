@@ -140,6 +140,9 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_PARAMETERS)).applyTo(inSpec);
 		String[] parameterColumns = filter.getIncludes();
 		
+		if(parameterColumns.length == 0)
+			throw new InvalidSettingsException("No columns selected for calculation. Please reconfigure the node");
+		
 		checkColumnsForAvailability(inSpec, parameterColumns, DoubleValue.class, true, false);
 				
 		boolean changeSuffix = ((SettingsModelBoolean) this.getModelSetting(CFG_CHANGE_SUFFIX)).getBooleanValue();
@@ -264,8 +267,9 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		else
 			settings.setSuffix(CFG_SUFFIX_DFT);
 		
-		SettingsModelValueFilter smvf = ((SettingsModelValueFilter) this.getModelSetting(CFG_SUBSET_SEL));
-		if(!smvf.getSelectedColumn().equals(CFG_SUBSET_COL_DFT)) {
+		if(!subsetColumn.equals(CFG_SUBSET_COL_DFT)) {
+			SettingsModelValueFilter smvf = ((SettingsModelValueFilter) this.getModelSetting(CFG_SUBSET_SEL));
+		
 			String[] subsetSelection = getIncludedSubsets(smvf, inSpec);
 			settings.setSubsetSelection(subsetSelection);
 			NominalValueFilterConfiguration filterConfig = smvf.getFilterConfig();
@@ -397,7 +401,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
         
         // process last group
         // do something
-        if(subsetIsIncluded(previousGroup, groupMap, settings)) {
+        if(subsetIsIncluded(previousGroup, groupMap, settings) && !rowMap.isEmpty()) {
  			DefaultRow outRow = createRow(previousGroup, rowMap, settings, rowCounter);  
 			dc.addRowToTable(outRow);
 		}
@@ -459,7 +463,7 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 				if(rowMap.get(key).containsKey(param)) {
 					DataCell cell = rowMap.get(key).get(param);
 					if(!cell.isMissing())
-						dataMap.get(param).addValue(((DoubleCell)cell).getDoubleValue());
+						dataMap.get(param).addValue(((DoubleValue)cell).getDoubleValue());
 				}
 			}
 		}
