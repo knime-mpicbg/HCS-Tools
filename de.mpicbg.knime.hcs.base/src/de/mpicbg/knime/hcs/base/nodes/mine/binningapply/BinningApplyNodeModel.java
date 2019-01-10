@@ -1,5 +1,6 @@
 package de.mpicbg.knime.hcs.base.nodes.mine.binningapply;
 
+import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataTableSpecCreator;
+import org.knime.core.data.DataValue;
 import org.knime.core.data.DataValueComparator;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.RowKey;
@@ -40,6 +42,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
 import org.knime.core.util.MutableInteger;
 
+import antlr.StringUtils;
 import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObject;
 import de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObjectSpec;
 import de.mpicbg.knime.hcs.core.math.BinningAnalysisModel;
@@ -199,13 +202,13 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 		
 		assert modelColumns.length > 0;
 		
-		checkColumnsForAvailability(inSpec, modelColumns, ignoreMissing, true);
+		checkColumnsForAvailability(inSpec, modelColumns, DoubleValue.class, ignoreMissing, true);
 		
 		// get grouping columns and deliver specs to output table spec
 		FilterResult filter = ((SettingsModelColumnFilter2) this.getModelSetting(CFG_GROUPS)).applyTo(inSpec);
 		String[] groupingColumns = filter.getIncludes();
 		
-		checkColumnsForAvailability(inSpec, filter.getRemovedFromIncludes(), true, false);
+		checkColumnsForAvailability(inSpec, filter.getRemovedFromIncludes(), DataValue.class, true, false);
 		
 		List<DataColumnSpec> groupingSpecs = getGroupColumnSpecs(inSpec, groupingColumns);
 		
@@ -223,7 +226,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 	 * 
 	 * @throws InvalidSettingsException
 	 */
-	private void checkColumnsForAvailability(DataTableSpec inSpec, String[] columns, boolean onlyWarn, boolean atLeastOneRequired)
+/*	private void checkColumnsForAvailability(DataTableSpec inSpec, String[] columns, boolean onlyWarn, boolean atLeastOneRequired)
 			throws InvalidSettingsException {
 		// collect columns which are not available in input spec
 		List<String> missingColumns = new ArrayList<String>();
@@ -243,7 +246,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
 			else 
 				throw new InvalidSettingsException("Input table is missing the following columns for processing: " + String.join(",", missingColumns));
 		}
-	}
+	}*/
 
 	/**
 	 * create list of data column specs based on grouping columns
@@ -547,7 +550,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         	
         	groupExec.checkCanceled();
         	currentRowIdx ++;
-            groupExec.setProgress(currentRowIdx/numOfRows, groupLabel);	// TODO: does that make sense?
+            groupExec.setProgress(currentRowIdx/numOfRows, groupLabel);
         }
         
         
@@ -574,7 +577,9 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         dc.close();
         extremeDc.close();
        
-        showWarningForMissing(countMissing);
+        String warningMessage = createWarningForMissing(countMissing);
+        if(!warningMessage.isEmpty())
+        	this.setWarningMessage(warningMessage);
         
 		return new BufferedDataTable[]{dc.getTable(),extremeDc.getTable()};
 	}
@@ -710,7 +715,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
      * 
      * @return group string 
      * */
-    private String createGroupLabelForProgress(final Map<String, DataCell> previousGroup) {
+    public static String createGroupLabelForProgress(final Map<String, DataCell> previousGroup) {
         final StringBuilder b = new StringBuilder("(");
         int i = 0;
         for (String col : previousGroup.keySet()) {
@@ -731,26 +736,29 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
         return b.toString();
     }
     
+    
     /**
-     * create warning message for missing values in processing columns
-     * @param countMissing
+     * create warning message string for missing values in processing columns
+     * @param countMissing		map of missing value counts for each column
+     * @return	warningMessage if any missing value, empty String otherwise
      */
-    private void showWarningForMissing(Map<String, MutableInteger> countMissing) {
+    public static String createWarningForMissing(Map<String, MutableInteger> countMissing) {
     	
     	boolean showWarning = false;
-    	int n = countMissing.size();
-    	String[] message = new String[n];
-    	int i = 0;
+    	List<String> message = new LinkedList<String>();
     	for(String col : countMissing.keySet()) {
     		long nMissing = countMissing.get(col).longValue();
-    		if(nMissing > 0) showWarning = true;
-    		message[i] = col + " (" + nMissing + ")";
-    		i++;
+    		if(nMissing > 0) {
+    			showWarning = true;
+    			message.add(col + " (" + nMissing + ")");
+    		}		
     	}
     	
     	String warningMessage = "Ignored missing values for: " + String.join(", ", message);
     	
-		if(showWarning) this.setWarningMessage(warningMessage);
+		if(showWarning) 
+			return warningMessage;
+		return new String();
 	}
 
     /**
@@ -758,7 +766,7 @@ public class BinningApplyNodeModel extends AbstractNodeModel {
      * @param columnsToProcess
      * @return	empty map with mutable integers set to 0
      */
-	private Map<String, MutableInteger> createMissingCountMap(List<String> columnsToProcess) {
+	public static Map<String, MutableInteger> createMissingCountMap(List<String> columnsToProcess) {
     	Map<String, MutableInteger> map = new LinkedHashMap<String,MutableInteger>();
     	
     	for(String col : columnsToProcess) {
