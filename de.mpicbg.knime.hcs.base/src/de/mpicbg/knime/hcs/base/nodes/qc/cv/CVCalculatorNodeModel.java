@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.knime.base.node.preproc.groupby.GroupByTable;
 import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
@@ -192,6 +193,18 @@ public class CVCalculatorNodeModel extends AbstractNodeModel {
 		boolean changeSuffix = ((SettingsModelBoolean) this.getModelSetting(CFG_CHANGE_SUFFIX)).getBooleanValue();
 		String suffix = ((SettingsModelString) this.getModelSetting(CFG_SUFFIX)).getStringValue();
 		suffix = changeSuffix ? suffix : CFG_SUFFIX_DFT;
+		
+		// check for value range of parameter columns
+		List<String> columnsWithNegatives = new LinkedList<>();
+		for(String param : parameterColumns) {
+			DataColumnDomain cDomain = inSpec.getColumnSpec(param).getDomain();
+			
+			if(cDomain.hasLowerBound())
+				if(((DoubleValue)cDomain.getLowerBound()).getDoubleValue() < 0) 
+					columnsWithNegatives.add(param);
+		}
+		if(!columnsWithNegatives.isEmpty())
+			this.setWarningMessage("The following parameters may contain negative values: " + String.join(", ", columnsWithNegatives) + "\nMake sure only to use ratio scaled parameters to get meaningful results.");
 			
 		DataTableSpec outSpec = createOutputSpecs(inSpec, groupColumn, subsetColumn, parameterColumns, suffix);
 
