@@ -3,6 +3,7 @@ package de.mpicbg.knime.hcs.base.nodes.manip.col.splitinterval;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.IntervalValue;
+import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
@@ -74,8 +75,13 @@ public class SplitIntervalNodeModel extends AbstractNodeModel {
 			checkColumnsForAvailability(inSpec, new String[]{selectedColumn}, IntervalValue.class, false, true);			
 		}
 		
-		return super.configure(inSpecs);
+		ColumnRearranger cRearrange = new ColumnRearranger(inSpec);
+		cRearrange.append(new SplitIntervalCellFactory());
+		
+		return new DataTableSpec[] {cRearrange.createSpec()};
 	}
+	
+	
 
 	@Override
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
