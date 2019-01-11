@@ -128,6 +128,11 @@
       deprecated="false"
       factory-class="de.mpicbg.knime.hcs.base.nodes.qc.cv.CVCalculatorNodeFactory">
 </node>
+<node
+      category-path="/community/hcstools/manipulation/column/"
+      deprecated="false"
+      factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.splitinterval.SplitIntervalNodeFactory">
+</node>
 </extension>
 
     <extension point="org.knime.workbench.repository.categories">
