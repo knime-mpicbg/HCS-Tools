@@ -10,8 +10,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortType;
-import org.knime.core.node.util.filter.NameFilterConfiguration.FilterResult;
-import org.knime.core.node.util.filter.column.DataTypeColumnFilter;
 
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
@@ -76,7 +74,7 @@ public class SplitIntervalNodeModel extends AbstractNodeModel {
 		}
 		
 		ColumnRearranger cRearrange = new ColumnRearranger(inSpec);
-		cRearrange.append(new SplitIntervalCellFactory());
+		cRearrange.append(new SplitIntervalCellFactory(selectedColumn, inSpec.findColumnIndex(selectedColumn)));
 		
 		return new DataTableSpec[] {cRearrange.createSpec()};
 	}
@@ -85,8 +83,15 @@ public class SplitIntervalNodeModel extends AbstractNodeModel {
 
 	@Override
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
-		// TODO Auto-generated method stub
-		return super.execute(inData, exec);
+		
+		String selectedColumn = ((SettingsModelString) this.getModelSetting(CFG_IV_COLUMN)).getStringValue();
+		
+		DataTableSpec inSpec = inData[0].getDataTableSpec();
+		
+		ColumnRearranger cRearrange = new ColumnRearranger(inSpec);
+		cRearrange.append(new SplitIntervalCellFactory(selectedColumn, inSpec.findColumnIndex(selectedColumn)));
+		BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], cRearrange, exec);
+		return new BufferedDataTable[]{out};
 	}
 	
 	
