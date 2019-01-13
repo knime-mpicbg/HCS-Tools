@@ -73,8 +73,10 @@ public class SplitIntervalNodeModel extends AbstractNodeModel {
 			checkColumnsForAvailability(inSpec, new String[]{selectedColumn}, IntervalValue.class, false, true);			
 		}
 		
+		boolean createModeColumn = ((SettingsModelBoolean) this.getModelSetting(CFG_INCL_MODE)).getBooleanValue();
+		
 		ColumnRearranger cRearrange = new ColumnRearranger(inSpec);
-		cRearrange.append(new SplitIntervalCellFactory(selectedColumn, inSpec.findColumnIndex(selectedColumn)));
+		cRearrange.append(new SplitIntervalCellFactory(selectedColumn, inSpec.findColumnIndex(selectedColumn), createModeColumn));
 		
 		return new DataTableSpec[] {cRearrange.createSpec()};
 	}
@@ -85,11 +87,12 @@ public class SplitIntervalNodeModel extends AbstractNodeModel {
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 		
 		String selectedColumn = ((SettingsModelString) this.getModelSetting(CFG_IV_COLUMN)).getStringValue();
+		boolean createModeColumn = ((SettingsModelBoolean) this.getModelSetting(CFG_INCL_MODE)).getBooleanValue();
 		
 		DataTableSpec inSpec = inData[0].getDataTableSpec();
 		
 		ColumnRearranger cRearrange = new ColumnRearranger(inSpec);
-		cRearrange.append(new SplitIntervalCellFactory(selectedColumn, inSpec.findColumnIndex(selectedColumn)));
+		cRearrange.append(new SplitIntervalCellFactory(selectedColumn, inSpec.findColumnIndex(selectedColumn), createModeColumn));
 		BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], cRearrange, exec);
 		return new BufferedDataTable[]{out};
 	}
