@@ -21,30 +21,52 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
  */
 public class SplitIntervalNodeModel extends AbstractNodeModel {
 	
+	// ================= NODE SETTINGS + DEFAULTS ======================
+	
 	public static String CFG_IV_COLUMN = "interval.column";
 	
 	public static String CFG_INCL_MODE = "include.mode";
 	public static boolean CFG_INCL_MODE_DFT = true;
 	
+	// =================================================================
+	
+	/**
+	 * constructor
+	 */
 	public SplitIntervalNodeModel() {
 		super(new PortType[]{BufferedDataTable.TYPE}, new PortType[]{BufferedDataTable.TYPE}, true);
 
 		initializeSettings();
 	}
 
+	/**
+	 * add model settings
+	 */
 	private void initializeSettings() {
 		this.addModelSetting(CFG_IV_COLUMN, createIntervalColumnnModel());
 		this.addModelSetting(CFG_INCL_MODE, createIncludeModeModel());
 	}
 
+
+	/**
+	 * create node model setting for flag if incl/excl columns shall be created
+	 * @return {@link SettingsModelBoolean}
+	 */
 	public static SettingsModelBoolean createIncludeModeModel() {
 		return new SettingsModelBoolean(CFG_INCL_MODE, CFG_INCL_MODE_DFT);
 	}
 
+	/**
+	 * create node model setting for selection of interval column
+	 * @return {@link SettingsModelString}
+	 */
 	public static SettingsModelString createIntervalColumnnModel() {
 		return new SettingsModelString(CFG_IV_COLUMN, null);
 	}
 
+	/**
+	 * {|{@inheritDoc}
+	 */
 	@Override
 	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		
@@ -85,9 +107,10 @@ public class SplitIntervalNodeModel extends AbstractNodeModel {
 		
 		return new DataTableSpec[] {cRearrange.createSpec()};
 	}
-	
-	
-
+		
+	/**
+	 * {|{@inheritDoc}
+	 */
 	@Override
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 		

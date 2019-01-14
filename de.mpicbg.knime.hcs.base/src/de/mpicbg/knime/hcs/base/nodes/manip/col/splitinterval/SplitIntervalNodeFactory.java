@@ -4,6 +4,12 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
+/**
+ * node factory for node Split Intervall
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class SplitIntervalNodeFactory extends NodeFactory<SplitIntervalNodeModel> {
 
 	@Override

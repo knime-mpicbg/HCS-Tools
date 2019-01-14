@@ -6,6 +6,12 @@ import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelectio
 
 import de.mpicbg.knime.knutils.AbstractConfigDialog;
 
+/**
+ * node dialogfor Split Interval
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class SplitIntervalNodeDialog extends AbstractConfigDialog {
 
 	@SuppressWarnings("unchecked")
