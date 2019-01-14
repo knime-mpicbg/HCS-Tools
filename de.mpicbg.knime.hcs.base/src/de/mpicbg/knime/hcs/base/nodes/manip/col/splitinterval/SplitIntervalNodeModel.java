@@ -59,16 +59,21 @@ public class SplitIntervalNodeModel extends AbstractNodeModel {
 				continue;
 			}
 		}
+		
 		// no Interval column found
 		if(columnAutoGuessed == null)
 			throw new InvalidSettingsException("Input table has no column of type interval");
 		
 		// get selected column from settings
-		String selectedColumn = ((SettingsModelString) this.getModelSetting(CFG_IV_COLUMN)).getStringValue();
+		SettingsModelString sm_selectedColumn = ((SettingsModelString) this.getModelSetting(CFG_IV_COLUMN));
+		String selectedColumn = sm_selectedColumn.getStringValue();
 		
 		// no column selected yet => autoguess
 		if(selectedColumn == null) {
-			
+			this.updateModelSetting(CFG_IV_COLUMN, new SettingsModelString(CFG_IV_COLUMN, columnAutoGuessed));
+			selectedColumn = columnAutoGuessed;
+			this.setWarningMessage("Auto-guessed settings, interval column \""
+                    + selectedColumn + "\"");
 		} else {
 			checkColumnsForAvailability(inSpec, new String[]{selectedColumn}, IntervalValue.class, false, true);			
 		}
