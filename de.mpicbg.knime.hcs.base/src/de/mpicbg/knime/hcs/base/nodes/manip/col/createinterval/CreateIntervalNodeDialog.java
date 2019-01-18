@@ -103,6 +103,8 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		comp_fixedModesSelection.add(comp_inclRight);
 		comp_fixedModesSelection.add(comp_inclNone);
 		
+		
+		
 		comp_useFixedModes.getModel().addItemListener(new ItemListener() {	
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -116,6 +118,34 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 				enablePanel(flexibleModesPanel, e.getStateChange() == ItemEvent.SELECTED);
 			}
 
+		});
+		comp_leftBoundColumn.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				m_settings.setLeftBoundColumn(comp_leftBoundColumn.getSelectedColumn());
+			}
+		});
+		comp_rightBoundColumn.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				m_settings.setRightBoundColumn(comp_rightBoundColumn.getSelectedColumn());
+			}
+		});
+		comp_leftModeColumn.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				m_settings.setLeftModeColumn(comp_leftModeColumn.getSelectedColumn());
+			}
+		});
+		comp_rightModeColumn.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				m_settings.setRightModeColumn(comp_rightModeColumn.getSelectedColumn());
+			}
 		});
 		
 		comp_fixedModesSelection.setSelected(comp_inclLeft.getModel(), true);
