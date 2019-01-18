@@ -1,6 +1,5 @@
 package de.mpicbg.knime.hcs.base.nodes.manip.col.createinterval;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,6 +38,7 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 	private final String CFG_FIXED_MODE = "fixed.mode";
 	private final Mode CFG_FIXED_MODE_DFT = Interval.Mode.INCL_LEFT;
 	private SettingsModelString m_fixedModeSM;
+	
 	
 	public CreateIntervalNodeSettings(String configName) {
 		m_configName = configName;
@@ -97,42 +97,59 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 	@Override
 	protected void loadSettingsForDialog(NodeSettingsRO settings, PortObjectSpec[] specs)
 			throws NotConfigurableException {
+		System.out.println("load setttings for dialog");
+		// try to load from settings, ignore if missing in 'settings'
 		try {
-			m_leftBoundSM.loadSettingsFrom(settings);
-			m_rightBoundSM.loadSettingsFrom(settings);
-			m_leftModeColumnSM.loadSettingsFrom(settings);
-			m_rightModeColumnSM.loadSettingsFrom(settings);
+			m_leftBoundSM.setStringValue(settings.getString(CFG_LEFTBOUND));
+			m_rightBoundSM.setStringValue(settings.getString(CFG_RIGHTBOUND));
+			m_leftModeColumnSM.setStringValue(settings.getString(CFG_LEFTMODE));
+			m_leftModeColumnSM.setIsActive(settings.getBoolean(CFG_LEFTMODE + "_BOOL"));
+			m_rightModeColumnSM.setStringValue(settings.getString(CFG_RIGHTMODE));
+			m_rightModeColumnSM.setIsActive(settings.getBoolean(CFG_RIGHTMODE + "_BOOL"));
+			m_useModeColumnsSM.setBooleanValue(settings.getBoolean(CFG_USE_MODECOLUMN));
+			m_fixedModeSM.setStringValue(settings.getString(CFG_FIXED_MODE));
 		} catch (InvalidSettingsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// do nothing
 		}
 		
 	}
 
 	@Override
 	protected void saveSettingsForDialog(NodeSettingsWO settings) throws InvalidSettingsException {
-		// TODO Auto-generated method stub
-		
+		System.out.println("save setttings for dialog");
 	}
 
 	@Override
 	protected void validateSettingsForModel(NodeSettingsRO settings) throws InvalidSettingsException {
-		// TODO Auto-generated method stub
-		
+		System.out.println("validate settings for model");
 	}
 
 	@Override
 	protected void loadSettingsForModel(NodeSettingsRO settings) throws InvalidSettingsException {
-		// TODO Auto-generated method stub
+		System.out.println("load setttings for model");
+		
+		m_leftBoundSM.setStringValue(settings.getString(CFG_LEFTBOUND));
+		m_rightBoundSM.setStringValue(settings.getString(CFG_RIGHTBOUND));
+		m_leftModeColumnSM.setStringValue(settings.getString(CFG_LEFTMODE, null));
+		m_rightModeColumnSM.setStringValue(settings.getString(CFG_RIGHTMODE, null));
+		m_fixedModeSM.setStringValue(settings.getString(CFG_FIXED_MODE, CFG_FIXED_MODE_DFT.toString()));
+		boolean useModeColumns = settings.getBoolean(CFG_USE_MODECOLUMN, CFG_USE_MODECOLUMN_DFT);
+		m_useModeColumnsSM.setBooleanValue(useModeColumns);
+		m_leftModeColumnSM.setIsActive(useModeColumns);
+		m_rightModeColumnSM.setIsActive(useModeColumns);
 		
 	}
 
 	@Override
 	protected void saveSettingsForModel(NodeSettingsWO settings) {
+		System.out.println("save setttings for mode");
+		
 		m_leftBoundSM.saveSettingsTo(settings);
 		m_rightBoundSM.saveSettingsTo(settings);
 		m_leftModeColumnSM.saveSettingsTo(settings);
 		m_rightModeColumnSM.saveSettingsTo(settings);
+		m_useModeColumnsSM.saveSettingsTo(settings);
+		m_fixedModeSM.saveSettingsTo(settings);
 	}
 
 	@Override
