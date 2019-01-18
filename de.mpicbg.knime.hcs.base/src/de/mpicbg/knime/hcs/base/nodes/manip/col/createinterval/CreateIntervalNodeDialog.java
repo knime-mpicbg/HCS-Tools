@@ -10,8 +10,6 @@ import java.awt.event.ItemListener;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -19,6 +17,7 @@ import javax.swing.JRadioButton;
 import org.knime.core.data.BooleanValue;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
 import org.knime.core.node.InvalidSettingsException;
@@ -35,35 +34,11 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 	
 	private CreateIntervalNodeSettings m_settings = null;
 	
-	/*
-	 * combobox to select the left bound column and its model
-	 */
-	//private final JComboBox<String> comp_leftBoundColumn;
-	//private DefaultComboBoxModel<String> m_leftBoundColumnModel;
-	
 	private final ColumnSelectionPanel comp_leftBoundColumn;
 	private final ColumnSelectionPanel comp_rightBoundColumn;
 	
 	private final ColumnSelectionPanel comp_leftModeColumn;
 	private final ColumnSelectionPanel comp_rightModeColumn;
-	
-	/*
-	 * combobox to select the right bound column and its model
-	 */
-	//private final JComboBox<String> comp_rightBoundColumn;
-	//private DefaultComboBoxModel<String> m_rightBoundColumnModel;
-	
-	/*
-	 * combobox to select the left bound column and its model
-	 */
-	//private final JComboBox<String> comp_leftModeColumn;
-	//private DefaultComboBoxModel<String> m_leftModeColumnModel;
-	
-	/*
-	 * combobox to select the right bound mode column and its model
-	 */
-	//private final JComboBox<String> comp_rightModeColumn;
-	//private DefaultComboBoxModel<String> m_rightModeColumnModel;
 	
 	private JRadioButton comp_useFixedModes;
 	private JRadioButton comp_useFlexibleModes;
@@ -201,8 +176,8 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
-		// TODO Auto-generated method stub
-		
+		// might besave settings for model?
+		m_settings.saveSettingsTo(settings);
 	}
 
 	@Override
@@ -217,37 +192,34 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 	}
 
 	private void updateComponents(DataTableSpec spec) throws NotConfigurableException {
-		// update left/right bound column combobox
-		//m_leftBoundColumnModel.removeAllElements();
-		
-		//m_rightBoundColumnModel.removeAllElements();
-		
+		// update left/right bound column combobox	
 		String leftBoundSelected = null;
 		String rightBoundSelected = null;
+		String leftModeColumnSelected = null;
+		String rightModeColumnSelected = null;
 		
 		for (DataColumnSpec colSpec : spec) {
-			if (colSpec.getType().isCompatible(DoubleValue.class)) {
-            	String columnName = colSpec.getName();
-            	//m_leftBoundColumnModel.addElement(columnName);
-            	//m_rightBoundColumnModel.addElement(columnName);
+			DataType dType = colSpec.getType();
+			String columnName = colSpec.getName();
+			if (dType.isCompatible(DoubleValue.class)) {          	
             	if(columnName.equals(m_settings.getLeftBoundColumn()))
             		leftBoundSelected = columnName;
-            		//m_leftBoundColumnModel.setSelectedItem(columnName);
             	if(columnName.equals(m_settings.getRightBoundColumn()))
             		rightBoundSelected = columnName;
-            		//m_rightBoundColumnModel.setSelectedItem(columnName);
+			}
+			if(dType.isCompatible(BooleanValue.class) || dType.isCompatible(IntValue.class)) {
+				if(columnName.equals(m_settings.getLeftModeColumn()))
+            		leftModeColumnSelected = columnName;
+            	if(columnName.equals(m_settings.getRightBoundColumn()))
+            		rightModeColumnSelected = columnName;
 			}
 		}
 		
 		comp_leftBoundColumn.update(spec, leftBoundSelected);
 		comp_rightBoundColumn.update(spec, rightBoundSelected);;
-		
-		// select first column if no column is set by model
-		//if(m_leftBoundColumnModel.getSelectedItem() == null)
-		//	m_leftBoundColumnModel.setSelectedItem(m_leftBoundColumnModel.getElementAt(0));
-		// select first column if no column is set by model
-		//if(m_rightBoundColumnModel.getSelectedItem() == null)
-		//	m_rightBoundColumnModel.setSelectedItem(m_rightBoundColumnModel.getElementAt(0));
+		comp_leftModeColumn.update(spec, leftModeColumnSelected);
+		comp_rightModeColumn.update(spec, rightModeColumnSelected);
+
 	}
 
 
