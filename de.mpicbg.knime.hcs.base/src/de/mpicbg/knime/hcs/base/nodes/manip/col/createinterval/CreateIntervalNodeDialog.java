@@ -26,6 +26,10 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.util.ColumnSelectionPanel;
+import org.knime.core.node.util.DataValueColumnFilter;
+import org.knime.core.node.util.ColumnFilterPanel.ValueClassFilter;
+
+import de.mpicbg.knime.hcs.core.math.Interval.Mode;
 
 public class CreateIntervalNodeDialog extends NodeDialogPane {
 	
@@ -71,11 +75,13 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		// init right bound column combobox
 		comp_rightBoundColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), DoubleValue.class);
 		
+		DataValueColumnFilter columnFilter = new DataValueColumnFilter(BooleanValue.class, IntValue.class);
+		
 		// init left mode column combobox
-		comp_leftModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), BooleanValue.class, IntValue.class);
+		comp_leftModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), columnFilter, true);
 
-		// init right bound column combobox
-		comp_rightModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), BooleanValue.class, IntValue.class);
+		// init right mode column combobox
+		comp_rightModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), columnFilter, true);
 		
 		JPanel northPanel = new JPanel();
 		northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
@@ -102,8 +108,6 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		comp_fixedModesSelection.add(comp_inclLeft);
 		comp_fixedModesSelection.add(comp_inclRight);
 		comp_fixedModesSelection.add(comp_inclNone);
-		
-		
 		
 		comp_useFixedModes.getModel().addItemListener(new ItemListener() {	
 			@Override
@@ -206,6 +210,25 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
+		
+		// sync GUI-settings to model
+		m_settings.setModeColumnsFlag(comp_useFlexibleModes.isSelected());
+		
+		if(comp_inclBoth.isSelected())
+			m_settings.setFixedMode(Mode.INCL_BOTH);
+		if(comp_inclLeft.isSelected())
+			m_settings.setFixedMode(Mode.INCL_LEFT);
+		if(comp_inclRight.isSelected())
+			m_settings.setFixedMode(Mode.INCL_RIGHT);
+		if(comp_inclNone.isSelected())
+			m_settings.setFixedMode(Mode.INCL_NONE);
+		
+		if(m_settings.useModeColumns()) {
+			if(m_settings.getLeftModeColumn() == null || m_settings.getRightModeColumn() == null)
+				throw new InvalidSettingsException("No mode columns selected.\nEnable fixed mode usage if no mode columns are available, otherwise select valid columns");
+		}
+		
+	
 		// might besave settings for model?
 		m_settings.saveSettingsTo(settings);
 	}
@@ -240,7 +263,7 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 			if(dType.isCompatible(BooleanValue.class) || dType.isCompatible(IntValue.class)) {
 				if(columnName.equals(m_settings.getLeftModeColumn()))
             		leftModeColumnSelected = columnName;
-            	if(columnName.equals(m_settings.getRightBoundColumn()))
+            	if(columnName.equals(m_settings.getRightModeColumn()))
             		rightModeColumnSelected = columnName;
 			}
 		}
@@ -251,6 +274,5 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		comp_rightModeColumn.update(spec, rightModeColumnSelected);
 
 	}
-
 
 }

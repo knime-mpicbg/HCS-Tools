@@ -76,7 +76,7 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 	}
 	
 	public void setRightModeColumn(String rightModeColumnName) {
-		m_leftModeColumnSM = rightModeColumnName;
+		m_rightModeColumnSM = rightModeColumnName;
 	}
 	
 	public void setFixedMode(String mode) 
@@ -85,6 +85,10 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 			throw new IllegalArgumentException("Fixed mode cannot be set to \""
 					+ mode + "\" which is not a value of {" + Mode.values() + "}");
 		m_fixedModeSM = mode;
+	}
+	
+	public void setFixedMode(Mode mode) {
+		m_fixedModeSM = mode.toString();
 	}
 
 	@Override
@@ -220,6 +224,15 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 	 */
 	public boolean useModeColumns() {
 		return m_useModeColumnsSM;
+	}
+	
+	/**
+	 * set flag whether mode columns are used
+	 * 
+	 * @param enabled	true, if mode columns are required
+	 */
+	public void setModeColumnsFlag(boolean enabled) {
+		m_useModeColumnsSM = enabled;
 	}
 	
 	/**
