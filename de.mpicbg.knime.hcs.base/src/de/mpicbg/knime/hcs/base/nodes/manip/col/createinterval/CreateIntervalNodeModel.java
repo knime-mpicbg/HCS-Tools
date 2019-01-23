@@ -44,7 +44,7 @@ public class CreateIntervalNodeModel extends AbstractNodeModel {
 		/* for autoguessing bounds, prefer double or int columns for the bounds */
 		for(DataColumnSpec cSpec : inSpec) {
 			DataType dType = cSpec.getType();
-			if(dType.equals(DoubleCell.TYPE) || dType.equals(IntCell.TYPE)) {
+			if(dType.equals(DoubleCell.TYPE)) {
 				if(autoLeftBound == null) autoLeftBound = cSpec.getName();
 				if(autoRightBound == null) autoRightBound = cSpec.getName();
 				continue;
