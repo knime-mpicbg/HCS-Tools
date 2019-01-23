@@ -21,7 +21,6 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DataValue;
 import org.knime.core.data.DoubleValue;
-import org.knime.core.data.IntValue;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
@@ -90,9 +89,10 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		// init right mode column combobox
 		comp_rightModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), columnFilter, true);
        		
-		JPanel northPanel = new JPanel();
-		northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
+		//JPanel northPanel = new JPanel();
+		//northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
 				
+		JPanel northPanel = new JPanel(new GridBagLayout());
 		JPanel southPanel = new JPanel(new GridBagLayout());
 		JPanel centerPanel = new JPanel(new GridBagLayout());
 			
@@ -165,13 +165,14 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		// components for south panel
 		
 		ButtonGroup bg = new ButtonGroup();
-        comp_replaceColumnRadio = new JRadioButton("Replace");
-        comp_appendColumnRadio = new JRadioButton("Append");
+        comp_replaceColumnRadio = new JRadioButton("Replace Column");
+        comp_appendColumnRadio = new JRadioButton("Append Column");
         bg.add(comp_replaceColumnRadio);
         bg.add(comp_appendColumnRadio);
         
         comp_replaceColumnPanel = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), DataValue.class);
-        comp_newColumnName = new JTextField(20);
+        comp_newColumnName = new JTextField();
+        comp_newColumnName.setPreferredSize(comp_replaceColumnPanel.getPreferredSize());
         comp_newColumnName.setText(CreateIntervalNodeSettings.CFG_OUT_COLUMN_NAME_DFT);
   
         // usage of lambda expressions
@@ -202,11 +203,36 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 
 		
 		/** LAYOUT COMPONENTS **/
+        
+        // north panel
+        GridBagConstraints c = new GridBagConstraints();
+        
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+
+        northPanel.add(new JLabel("Left Bound"), c);
+
+        c.gridx = 1;
+        c.weightx = 3;
+        northPanel.add(comp_leftBoundColumn, c);
+
+        c.gridx = 0;
+        c.gridy = 1;
+        c.weightx = 1;
+        northPanel.add(new JLabel("Right Bound"),c);
+
+        c.gridx = 1;
+        c.weightx = 3;
+        northPanel.add(comp_rightBoundColumn, c);
 		
-		northPanel.add(comp_leftBoundColumn);
-		northPanel.add(comp_rightBoundColumn);
+		//northPanel.add(comp_leftBoundColumn);
+		//northPanel.add(comp_rightBoundColumn);
 		
-		GridBagConstraints c = new GridBagConstraints();
+		// center panel
+		c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.gridx = 0;
 		c.gridy = 0;
@@ -250,17 +276,20 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		southPanel.add(comp_replaceColumnRadio, c);
 		
 		c.gridx = 1;
+		c.weightx = 3;
 		southPanel.add(comp_replaceColumnPanel, c);
 		
 		c.gridx = 0;
 		c.gridy = 1;
+		c.weightx = 1;
 		southPanel.add(comp_appendColumnRadio,c);
 		
 		c.gridx = 1;
+		c.weightx = 3;
 		southPanel.add(comp_newColumnName, c);
 		
-		comp_mainPanel.add(centerPanel, BorderLayout.CENTER);
 		comp_mainPanel.add(northPanel, BorderLayout.NORTH);
+		comp_mainPanel.add(centerPanel, BorderLayout.CENTER);	
 		comp_mainPanel.add(southPanel, BorderLayout.SOUTH);
 				
 		this.addTab("General Settings", comp_mainPanel);
