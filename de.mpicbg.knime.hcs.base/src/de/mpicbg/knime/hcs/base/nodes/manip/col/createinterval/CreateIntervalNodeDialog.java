@@ -349,7 +349,8 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		comp_rightModeColumn.update(spec, rightModeColumnSelected);
 		
 		boolean appendColumn = m_settings.createNewColumn();
-		String appendColumnName = appendColumn ? m_settings.getOutColumnName() : "";
+		String appendColumnName = appendColumn ? 
+				m_settings.getOutColumnName() : CreateIntervalNodeSettings.CFG_OUT_COLUMN_NAME_DFT;
 		comp_newColumnName.setText(appendColumnName);
 		String replaceColumnName = appendColumn ? null : m_settings.getOutColumnName();
 		comp_replaceColumnPanel.update(spec, replaceColumnName, false, true);
