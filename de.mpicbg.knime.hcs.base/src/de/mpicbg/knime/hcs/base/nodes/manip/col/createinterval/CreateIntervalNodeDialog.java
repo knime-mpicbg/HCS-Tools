@@ -13,11 +13,13 @@ import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
 import org.knime.core.data.BooleanValue;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
+import org.knime.core.data.DataValue;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
 import org.knime.core.node.InvalidSettingsException;
@@ -27,7 +29,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.util.ColumnSelectionPanel;
 import org.knime.core.node.util.DataValueColumnFilter;
-import org.knime.core.node.util.ColumnFilterPanel.ValueClassFilter;
 
 import de.mpicbg.knime.hcs.core.math.Interval.Mode;
 
@@ -44,8 +45,14 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 	private final ColumnSelectionPanel comp_leftModeColumn;
 	private final ColumnSelectionPanel comp_rightModeColumn;
 	
+	private final ColumnSelectionPanel comp_replaceColumnPanel;
+	private final JTextField comp_newColumnName;
+	
 	private JRadioButton comp_useFixedModes;
 	private JRadioButton comp_useFlexibleModes;
+	
+	private final JRadioButton comp_replaceColumnRadio;
+	private final JRadioButton comp_appendColumnRadio;
 	
 	private ButtonGroup comp_fixedModesSelection;
 	private JRadioButton comp_inclBoth = new JRadioButton("[a;b]");
@@ -82,10 +89,11 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 
 		// init right mode column combobox
 		comp_rightModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), columnFilter, true);
-		
+       		
 		JPanel northPanel = new JPanel();
 		northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
 				
+		JPanel southPanel = new JPanel(new GridBagLayout());
 		JPanel centerPanel = new JPanel(new GridBagLayout());
 			
 		comp_useFixedModes = new JRadioButton("set include/exclude flags manually");			
@@ -109,14 +117,14 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		comp_fixedModesSelection.add(comp_inclRight);
 		comp_fixedModesSelection.add(comp_inclNone);
 		
-		comp_useFixedModes.getModel().addItemListener(new ItemListener() {	
+		comp_useFixedModes.addItemListener(new ItemListener() {	
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 					enablePanel(fixedModesPanel, e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
 		
-		comp_useFlexibleModes.getModel().addItemListener(new ItemListener() {	
+		comp_useFlexibleModes.addItemListener(new ItemListener() {	
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				enablePanel(flexibleModesPanel, e.getStateChange() == ItemEvent.SELECTED);
@@ -153,6 +161,45 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		});
 		
 		comp_fixedModesSelection.setSelected(comp_inclLeft.getModel(), true);
+		
+		// components for south panel
+		
+		ButtonGroup bg = new ButtonGroup();
+        comp_replaceColumnRadio = new JRadioButton("Replace");
+        comp_appendColumnRadio = new JRadioButton("Append");
+        bg.add(comp_replaceColumnRadio);
+        bg.add(comp_appendColumnRadio);
+        
+        comp_replaceColumnPanel = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), DataValue.class);
+        comp_newColumnName = new JTextField(20);
+        comp_newColumnName.setText(CreateIntervalNodeSettings.CFG_OUT_COLUMN_NAME_DFT);
+  
+        // usage of lambda expressions
+        /*comp_replaceColumnRadio.addItemListener(e -> comp_replaceColumnPanel.setEnabled(comp_replaceColumnRadio.isSelected()));
+        
+        comp_appendColumnRadio.addItemListener(e -> comp_newColumnName.setEnabled(comp_appendColumnRadio.isSelected()));*/
+        comp_replaceColumnRadio.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				comp_replaceColumnPanel.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+        
+        comp_appendColumnRadio.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				comp_newColumnName.setEnabled(e.getStateChange() == ItemEvent.SELECTED);				
+			}
+		});
+        
+        bg.setSelected(comp_appendColumnRadio.getModel(), true);
+        comp_appendColumnRadio.setSelected(true);
+        // initial selection / deselection (as no event is fired for first set selected)
+        comp_replaceColumnPanel.setEnabled(false);
+        comp_newColumnName.setEnabled(true);
+
 		
 		/** LAYOUT COMPONENTS **/
 		
@@ -192,13 +239,36 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		c.gridx = 1;
 		centerPanel.add(flexibleModesPanel, c);
 		
+		// south panel
+		c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		
+		southPanel.add(comp_replaceColumnRadio, c);
+		
+		c.gridx = 1;
+		southPanel.add(comp_replaceColumnPanel, c);
+		
+		c.gridx = 0;
+		c.gridy = 1;
+		southPanel.add(comp_appendColumnRadio,c);
+		
+		c.gridx = 1;
+		southPanel.add(comp_newColumnName, c);
+		
 		comp_mainPanel.add(centerPanel, BorderLayout.CENTER);
 		comp_mainPanel.add(northPanel, BorderLayout.NORTH);
+		comp_mainPanel.add(southPanel, BorderLayout.SOUTH);
 				
 		this.addTab("General Settings", comp_mainPanel);
 		
-		group.setSelected(comp_useFixedModes.getModel(), true);
+		comp_useFixedModes.setSelected(true);
+		// initial selection / deselection (as no event is fired for first set selected)
 		enablePanel(flexibleModesPanel, false);
+		enablePanel(fixedModesPanel, true);
 	}
 	
 	private void enablePanel(JPanel panel, boolean enable) {
@@ -228,16 +298,21 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 				throw new InvalidSettingsException("No mode columns selected.\nEnable fixed mode usage if no mode columns are available, otherwise select valid columns");
 		}
 		
-	
-		// might besave settings for model?
+		boolean appendColumn = comp_newColumnName.isEnabled();
+		m_settings.setCreateColumnFlag(appendColumn);
+		if(appendColumn)
+			m_settings.setOutColumnName(comp_newColumnName.getText());
+		else
+			m_settings.setOutColumnName(comp_replaceColumnPanel.getSelectedColumn());
+		
+			
+		// might be save settings for model?
 		m_settings.saveSettingsTo(settings);
 	}
 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs) throws NotConfigurableException {
-		
-		// check configurability
-		
+	
 		m_settings.loadSettingsForDialog(settings, specs);
 				
 		// update components
@@ -272,7 +347,26 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		comp_rightBoundColumn.update(spec, rightBoundSelected);;
 		comp_leftModeColumn.update(spec, leftModeColumnSelected);
 		comp_rightModeColumn.update(spec, rightModeColumnSelected);
-
+		
+		boolean appendColumn = m_settings.createNewColumn();
+		String appendColumnName = appendColumn ? m_settings.getOutColumnName() : "";
+		comp_newColumnName.setText(appendColumnName);
+		String replaceColumnName = appendColumn ? null : m_settings.getOutColumnName();
+		comp_replaceColumnPanel.update(spec, replaceColumnName, false, true);
+		
+		if(appendColumn)
+			comp_appendColumnRadio.setSelected(true);
+		else
+			comp_replaceColumnRadio.setSelected(true);
+		
+		boolean useModeColumns = m_settings.useModeColumns();
+		
+		if(useModeColumns)
+			comp_useFlexibleModes.setSelected(true);
+		else
+			comp_useFixedModes.setSelected(true);
 	}
+
+
 
 }

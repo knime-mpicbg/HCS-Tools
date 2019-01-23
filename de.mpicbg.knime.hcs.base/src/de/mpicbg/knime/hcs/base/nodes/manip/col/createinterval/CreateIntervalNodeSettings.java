@@ -16,20 +16,34 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 	private final String m_configName;
 	private static final String SM_ID = "SMID_NODE_CREATE_INTERVAL";
 	
+	// settings 1 and 2
 	private final String CFG_LEFTBOUND = "left.bound";
 	private final String CFG_RIGHTBOUND = "right.bound";
 	private String m_leftBoundSM;
 	private String m_rightBoundSM;
 	
+	// settings 3 and 4
 	private final String CFG_LEFTMODE = "left.mode.column";
 	private final String CFG_RIGHTMODE = "right.mode.column";
 	private String m_leftModeColumnSM;
 	private String m_rightModeColumnSM;
 	
+	// setting 5
 	private final String CFG_USE_MODECOLUMN = "use.mode.columns";	
-	private final boolean CFG_USE_MODECOLUMN_DFT = false;
+	public final static boolean CFG_USE_MODECOLUMN_DFT = false;
 	private boolean m_useModeColumnsSM;
 	
+	// setting 6
+	private final String CFG_CREATE_NEW_COLUMN = "create.new.column";	
+	public final static boolean CFG_CREATE_NEW_COLUMN_DFT = true;
+	private boolean m_createNewColumnSM;
+	
+	// setting 7
+	private final String CFG_OUT_COLUMN_NAME = "out.column.name";
+	public final static String CFG_OUT_COLUMN_NAME_DFT = "Interval";
+	private String m_outColumnSM;
+	
+	// setting 8
 	private final String CFG_FIXED_MODE = "fixed.mode";
 	private final Mode CFG_FIXED_MODE_DFT = Interval.Mode.INCL_LEFT;
 	private String m_fixedModeSM;
@@ -48,7 +62,10 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 		m_leftModeColumnSM = null;
 		m_rightModeColumnSM = null;
 		
+		m_outColumnSM = CFG_OUT_COLUMN_NAME_DFT;
+		
 		m_useModeColumnsSM = CFG_USE_MODECOLUMN_DFT;
+		m_createNewColumnSM = CFG_CREATE_NEW_COLUMN_DFT;
 		
 		m_fixedModeSM = CFG_FIXED_MODE_DFT.toString();
 	}
@@ -57,8 +74,15 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 	@Override
 	protected CreateIntervalNodeSettings createClone() {
 		CreateIntervalNodeSettings clonedSM = new CreateIntervalNodeSettings(m_configName);
+		
 		clonedSM.setLeftBoundColumn(m_leftBoundSM);
 		clonedSM.setRightBoundColumn(m_rightBoundSM);
+		clonedSM.setLeftModeColumn(m_leftModeColumnSM);
+		clonedSM.setRightModeColumn(m_rightModeColumnSM);
+		clonedSM.setCreateColumnFlag(m_createNewColumnSM);
+		clonedSM.setModeColumnsFlag(m_useModeColumnsSM);
+		clonedSM.setFixedMode(m_fixedModeSM);
+		clonedSM.setOutColumnName(m_outColumnSM);
 		
 		return clonedSM;
 	}
@@ -90,6 +114,23 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 	public void setFixedMode(Mode mode) {
 		m_fixedModeSM = mode.toString();
 	}
+	
+	/**
+	 * set flag whether mode columns are used
+	 * 
+	 * @param enabled	true, if mode columns are required
+	 */
+	public void setModeColumnsFlag(boolean enabled) {
+		m_useModeColumnsSM = enabled;
+	}
+	
+	public void setCreateColumnFlag(boolean create) {
+		m_createNewColumnSM = create;
+	}
+	
+	public void setOutColumnName(String columnName) {
+		m_outColumnSM = columnName;
+	}
 
 	@Override
 	protected String getModelTypeID() {
@@ -112,6 +153,8 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 			m_leftModeColumnSM = mySettings.getString(CFG_LEFTMODE);
 			m_rightModeColumnSM = mySettings.getString(CFG_RIGHTMODE);
 			m_useModeColumnsSM = mySettings.getBoolean(CFG_USE_MODECOLUMN);
+			m_createNewColumnSM = mySettings.getBoolean(CFG_CREATE_NEW_COLUMN);
+			m_outColumnSM = mySettings.getString(CFG_OUT_COLUMN_NAME);
 			setFixedMode(mySettings.getString(CFG_FIXED_MODE));
 		} catch (InvalidSettingsException e) {
 			// ignore
@@ -135,6 +178,8 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 			mySettings.getString(CFG_LEFTMODE);
 			mySettings.getString(CFG_RIGHTMODE);
 			mySettings.getBoolean(CFG_USE_MODECOLUMN);
+			mySettings.getBoolean(CFG_CREATE_NEW_COLUMN);
+			mySettings.getString(CFG_OUT_COLUMN_NAME);
 			mode = mySettings.getString(CFG_FIXED_MODE);
 		} catch (InvalidSettingsException ise) {
 			throw new InvalidSettingsException(getClass().getSimpleName()
@@ -156,6 +201,8 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 			m_rightModeColumnSM = mySettings.getString(CFG_RIGHTMODE);
 			m_useModeColumnsSM = mySettings.getBoolean(CFG_USE_MODECOLUMN);
 			setFixedMode(mySettings.getString(CFG_FIXED_MODE));
+			m_createNewColumnSM = mySettings.getBoolean(CFG_CREATE_NEW_COLUMN);
+			m_outColumnSM = mySettings.getString(CFG_OUT_COLUMN_NAME);
 		} catch (InvalidSettingsException ise) {
 			throw new InvalidSettingsException(getClass().getSimpleName()
                     + " - " + m_configName + ": " + ise.getMessage());
@@ -176,6 +223,8 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 		mySettings.addString(CFG_RIGHTMODE, m_rightModeColumnSM);
 		mySettings.addBoolean(CFG_USE_MODECOLUMN, m_useModeColumnsSM);
 		mySettings.addString(CFG_FIXED_MODE, m_fixedModeSM);
+		mySettings.addBoolean(CFG_CREATE_NEW_COLUMN, m_createNewColumnSM);
+		mySettings.addString(CFG_OUT_COLUMN_NAME, m_outColumnSM);
 	}
 
 	@Override
@@ -226,14 +275,7 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 		return m_useModeColumnsSM;
 	}
 	
-	/**
-	 * set flag whether mode columns are used
-	 * 
-	 * @param enabled	true, if mode columns are required
-	 */
-	public void setModeColumnsFlag(boolean enabled) {
-		m_useModeColumnsSM = enabled;
-	}
+
 	
 	/**
 	 * @return Mode for interval bounds; string representation of {@link Interval.Mode}
@@ -241,4 +283,21 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 	public String getFixedMode() {
 		return m_fixedModeSM;
 	}
+	
+	/**
+	 * @return true, if a new column should be created
+	 * false in case of replacement of an old column
+	 */
+	public boolean createNewColumn() {
+		return m_createNewColumnSM;
+	}
+	
+	/**
+	 * @return name of the interval column <br/>
+	 * It's either the name for the new column or the name of the column to be replaced
+	 */
+	public String getOutColumnName() {
+		return m_outColumnSM;
+	}
+	
 }
