@@ -14,8 +14,6 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
-import de.mpicbg.knime.hcs.base.nodes.manip.col.splitinterval.SplitIntervalCellFactory;
-import de.mpicbg.knime.hcs.core.math.Interval;
 import de.mpicbg.knime.hcs.core.math.Interval.Mode;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
@@ -136,14 +134,17 @@ public class CreateIntervalNodeModel extends AbstractNodeModel {
 		String outColumnName = settings.getOutColumnName();
 		
 		// make sure the newly appended column is unique
-		if(appendColumn)
+		if(appendColumn) {
 			outColumnName = DataTableSpec.getUniqueColumnName(spec, outColumnName);
+			settings.setOutColumnName(outColumnName);
+		}
 		
 		ColumnRearranger cRearrange = new ColumnRearranger(spec);
+		
 		if(appendColumn)
-			cRearrange.append(new CreateIntervalCellFactory(outColumnName));
+			cRearrange.append(new CreateIntervalCellFactory(settings, spec));
 		else
-			cRearrange.replace(new CreateIntervalCellFactory(outColumnName), outColumnName);
+			cRearrange.replace(new CreateIntervalCellFactory(settings, spec), outColumnName);
 		
 		return cRearrange;
 	}

@@ -4,22 +4,61 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.AbstractCellFactory;
+import org.knime.core.data.def.BooleanCell;
+import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntervalCell;
+
+import de.mpicbg.knime.hcs.core.math.Interval.Mode;
 
 public class CreateIntervalCellFactory extends AbstractCellFactory {
 	
-	private final String m_outColumnName;
+	private final CreateIntervalNodeSettings m_settings;
+	private final DataTableSpec m_spec;
 
-	public CreateIntervalCellFactory(String m_outColumnName) {
+	public CreateIntervalCellFactory(CreateIntervalNodeSettings settings, DataTableSpec spec) {
 		super();
-		this.m_outColumnName = m_outColumnName;
+		this.m_settings = settings;
+		this.m_spec = spec;
 	}
 
 	@Override
 	public DataCell[] getCells(DataRow row) {
-		// TODO Auto-generated method stub
-		return null;
+		DataCell leftBound = row.getCell(m_spec.findColumnIndex(m_settings.getLeftBoundColumn()));
+		DataCell rightBound = row.getCell(m_spec.findColumnIndex(m_settings.getRightBoundColumn()));
+		
+		boolean inclLeft = false;
+		boolean inclRight = false;
+		
+		if(m_settings.useModeColumns()) {
+			DataCell leftMode = row.getCell(m_spec.findColumnIndex(m_settings.getLeftModeColumn()));
+			DataCell rightMode = row.getCell(m_spec.findColumnIndex(m_settings.getRightModeColumn()));
+			
+			inclLeft = ((BooleanCell) leftMode).getBooleanValue();
+			inclRight = ((BooleanCell) rightMode).getBooleanValue();
+		} else {
+			String modeString = m_settings.getFixedMode();
+			if(modeString.equals(Mode.INCL_BOTH.toString())) {
+				inclLeft = inclRight = true;
+			}
+			if(modeString.equals(Mode.INCL_LEFT.toString())) {
+				inclLeft = true;
+				inclRight = false;
+			}
+			if(modeString.equals(Mode.INCL_NONE.toString())) {
+				inclLeft = inclRight = false;
+			}
+			if(modeString.equals(Mode.INCL_RIGHT.toString())) {
+				inclLeft = false;
+				inclRight = true;
+			}
+		}
+		
+		double left = ((DoubleCell) leftBound).getDoubleValue();
+		double right = ((DoubleCell) rightBound).getDoubleValue();
+		
+		return new DataCell[] {new IntervalCell(left, right, inclLeft, inclRight)};
 	}
 
 	/**
@@ -27,7 +66,7 @@ public class CreateIntervalCellFactory extends AbstractCellFactory {
 	 */
 	@Override
 	public DataColumnSpec[] getColumnSpecs() {
-		DataColumnSpecCreator colCreator = new DataColumnSpecCreator(m_outColumnName, IntervalCell.TYPE);
+		DataColumnSpecCreator colCreator = new DataColumnSpecCreator(m_settings.getOutColumnName(), IntervalCell.TYPE);
 
 		return new DataColumnSpec[] {colCreator.createSpec()};
 	}
