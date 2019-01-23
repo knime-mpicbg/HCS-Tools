@@ -5,13 +5,16 @@ import org.knime.core.data.BooleanValue;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
+import org.knime.core.data.DataValue;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.data.container.ColumnRearranger;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
+import de.mpicbg.knime.hcs.base.nodes.manip.col.splitinterval.SplitIntervalCellFactory;
 import de.mpicbg.knime.hcs.core.math.Interval;
 import de.mpicbg.knime.hcs.core.math.Interval.Mode;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
@@ -40,7 +43,7 @@ public class CreateIntervalNodeModel extends AbstractNodeModel {
 		String autoRightBound = null;
 		// mode columns should have no need of autoguessing as by default they are not required
 		
-		/* for autoguessing, prefer double or int columns for the bounds */
+		/* for autoguessing bounds, prefer double or int columns for the bounds */
 		for(DataColumnSpec cSpec : inSpec) {
 			DataType dType = cSpec.getType();
 			if(dType.equals(DoubleCell.TYPE) || dType.equals(IntCell.TYPE)) {
@@ -54,10 +57,6 @@ public class CreateIntervalNodeModel extends AbstractNodeModel {
 		// with any other numeric type
 		for(DataColumnSpec cSpec : inSpec) {
 			DataType dType = cSpec.getType();
-			/*if(dType.isCompatible(BooleanValue.class)) {
-				if(autoLeftMode == null) autoLeftMode = cSpec.getName();
-				if(autoRightMode == null) autoRightMode = cSpec.getName();
-			}*/
 			if(autoLeftBound == null&& dType.isCompatible(DoubleValue.class) ) {
 				if(autoLeftBound == null) autoLeftBound = cSpec.getName();
 				if(autoRightBound == null) autoRightBound = cSpec.getName();
@@ -91,6 +90,7 @@ public class CreateIntervalNodeModel extends AbstractNodeModel {
 		String leftModeColumn = settings.getLeftModeColumn();
 		String rightModeColumn = settings.getRightModeColumn();
 		String fixedMode = settings.getFixedMode();
+		String outColumnName = settings.getOutColumnName();
 		
 		// check availability and data type for bound and mode ciolumns (if required)
 		checkColumnsForAvailability(inSpec, new String[] {leftBoundColumn},
@@ -115,12 +115,37 @@ public class CreateIntervalNodeModel extends AbstractNodeModel {
 						+ fixedMode + "\" which is not a value of {" + Mode.values() + "}");
 		}
 		
+		// check availability of column which should be replaced
+		if(!settings.createNewColumn()) {
+			if(outColumnName == null)
+				throw new InvalidSettingsException("Settings mismatch: Column name of column to be replaced cannot be null");
+			checkColumnsForAvailability(inSpec, outColumnName, DataValue.class, false, true);
+		}
+		
 		if(leftBoundColumn.equals(rightBoundColumn))
 			setWarningMessage("Left bound column equals right bound column. This will result in a single value set or an empty set");
 		
+		ColumnRearranger cRearrange = createColumnRearranger(inSpecs[0], settings);
 		
-		// TODO Auto-generated method stub
-		return super.configure(inSpecs);
+		return new DataTableSpec[] {cRearrange.createSpec()};
+	}
+
+	private ColumnRearranger createColumnRearranger(DataTableSpec spec, CreateIntervalNodeSettings settings) {
+		
+		boolean appendColumn = settings.createNewColumn();
+		String outColumnName = settings.getOutColumnName();
+		
+		// make sure the newly appended column is unique
+		if(appendColumn)
+			outColumnName = DataTableSpec.getUniqueColumnName(spec, outColumnName);
+		
+		ColumnRearranger cRearrange = new ColumnRearranger(spec);
+		if(appendColumn)
+			cRearrange.append(new CreateIntervalCellFactory(outColumnName));
+		else
+			cRearrange.replace(new CreateIntervalCellFactory(outColumnName), outColumnName);
+		
+		return cRearrange;
 	}
 
 	@Override
