@@ -82,7 +82,7 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		// init right bound column combobox
 		comp_rightBoundColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), DoubleValue.class);
 		
-		DataValueColumnFilter columnFilter = new DataValueColumnFilter(BooleanValue.class, IntValue.class);
+		DataValueColumnFilter columnFilter = new DataValueColumnFilter(BooleanValue.class);
 		
 		// init left mode column combobox
 		comp_leftModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), columnFilter, true);
@@ -335,7 +335,7 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
             	if(columnName.equals(m_settings.getRightBoundColumn()))
             		rightBoundSelected = columnName;
 			}
-			if(dType.isCompatible(BooleanValue.class) || dType.isCompatible(IntValue.class)) {
+			if(dType.isCompatible(BooleanValue.class)) {
 				if(columnName.equals(m_settings.getLeftModeColumn()))
             		leftModeColumnSelected = columnName;
             	if(columnName.equals(m_settings.getRightModeColumn()))
