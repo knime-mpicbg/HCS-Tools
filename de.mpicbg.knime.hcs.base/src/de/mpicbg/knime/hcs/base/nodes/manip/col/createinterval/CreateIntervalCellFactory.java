@@ -5,9 +5,10 @@ import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.data.DataType;
+import org.knime.core.data.DoubleValue;
 import org.knime.core.data.container.AbstractCellFactory;
 import org.knime.core.data.def.BooleanCell;
-import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntervalCell;
 
 import de.mpicbg.knime.hcs.core.math.Interval.Mode;
@@ -28,12 +29,18 @@ public class CreateIntervalCellFactory extends AbstractCellFactory {
 		DataCell leftBound = row.getCell(m_spec.findColumnIndex(m_settings.getLeftBoundColumn()));
 		DataCell rightBound = row.getCell(m_spec.findColumnIndex(m_settings.getRightBoundColumn()));
 		
+		if(leftBound.isMissing() || rightBound.isMissing())
+			return new DataCell[] {DataType.getMissingCell()};
+		
 		boolean inclLeft = false;
 		boolean inclRight = false;
 		
 		if(m_settings.useModeColumns()) {
 			DataCell leftMode = row.getCell(m_spec.findColumnIndex(m_settings.getLeftModeColumn()));
 			DataCell rightMode = row.getCell(m_spec.findColumnIndex(m_settings.getRightModeColumn()));
+			
+			if(leftMode.isMissing() || rightMode.isMissing())
+				return new DataCell[] {DataType.getMissingCell()};
 			
 			inclLeft = ((BooleanCell) leftMode).getBooleanValue();
 			inclRight = ((BooleanCell) rightMode).getBooleanValue();
@@ -55,8 +62,8 @@ public class CreateIntervalCellFactory extends AbstractCellFactory {
 			}
 		}
 		
-		double left = ((DoubleCell) leftBound).getDoubleValue();
-		double right = ((DoubleCell) rightBound).getDoubleValue();
+		double left = ((DoubleValue) leftBound).getDoubleValue();
+		double right = ((DoubleValue) rightBound).getDoubleValue();
 		
 		return new DataCell[] {new IntervalCell(left, right, inclLeft, inclRight)};
 	}

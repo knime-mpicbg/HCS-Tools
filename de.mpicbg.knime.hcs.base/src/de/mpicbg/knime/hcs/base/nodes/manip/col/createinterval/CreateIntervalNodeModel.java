@@ -13,10 +13,7 @@ import org.knime.core.data.def.IntCell;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import de.mpicbg.knime.hcs.base.nodes.manip.col.splitinterval.SplitIntervalCellFactory;
 import de.mpicbg.knime.hcs.core.math.Interval.Mode;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
