@@ -13,38 +13,62 @@ import org.knime.core.data.def.IntervalCell;
 
 import de.mpicbg.knime.hcs.core.math.Interval.Mode;
 
+/**
+ * cell factory for Create Interval node
+ * creates a new interval cell
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class CreateIntervalCellFactory extends AbstractCellFactory {
 	
+	// node settings
 	private final CreateIntervalNodeSettings m_settings;
+	// input spec
 	private final DataTableSpec m_spec;
 
+	/**
+	 * constructor
+	 * @param settings		node settings
+	 * @param spec			input specs
+	 */
 	public CreateIntervalCellFactory(CreateIntervalNodeSettings settings, DataTableSpec spec) {
 		super();
 		this.m_settings = settings;
 		this.m_spec = spec;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public DataCell[] getCells(DataRow row) {
+		
+		// get left and right bound cells
 		DataCell leftBound = row.getCell(m_spec.findColumnIndex(m_settings.getLeftBoundColumn()));
 		DataCell rightBound = row.getCell(m_spec.findColumnIndex(m_settings.getRightBoundColumn()));
 		
+		// if one is missing => return missing cell
 		if(leftBound.isMissing() || rightBound.isMissing())
 			return new DataCell[] {DataType.getMissingCell()};
 		
 		boolean inclLeft = false;
 		boolean inclRight = false;
 		
+		// get left and right modes if set
 		if(m_settings.useModeColumns()) {
 			DataCell leftMode = row.getCell(m_spec.findColumnIndex(m_settings.getLeftModeColumn()));
 			DataCell rightMode = row.getCell(m_spec.findColumnIndex(m_settings.getRightModeColumn()));
 			
+			// if one is missing => return missing cell
 			if(leftMode.isMissing() || rightMode.isMissing())
 				return new DataCell[] {DataType.getMissingCell()};
 			
 			inclLeft = ((BooleanCell) leftMode).getBooleanValue();
 			inclRight = ((BooleanCell) rightMode).getBooleanValue();
 		} else {
+			// fixed mode is given
+			// figure out which include/exclude mode is set
 			String modeString = m_settings.getFixedMode();
 			if(modeString.equals(Mode.INCL_BOTH.toString())) {
 				inclLeft = inclRight = true;
@@ -62,6 +86,7 @@ public class CreateIntervalCellFactory extends AbstractCellFactory {
 			}
 		}
 		
+		// create Interval cell with the values and incl/excl flags
 		double left = ((DoubleValue) leftBound).getDoubleValue();
 		double right = ((DoubleValue) rightBound).getDoubleValue();
 		

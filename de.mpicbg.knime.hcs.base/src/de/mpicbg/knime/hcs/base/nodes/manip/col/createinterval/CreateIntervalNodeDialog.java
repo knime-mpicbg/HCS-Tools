@@ -31,29 +31,44 @@ import org.knime.core.node.util.DataValueColumnFilter;
 
 import de.mpicbg.knime.hcs.core.math.Interval.Mode;
 
+/**
+ * node dialog of Create Interval node
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class CreateIntervalNodeDialog extends NodeDialogPane {
 	
-	// panel for "General Settings" tab
-	private final JPanel comp_mainPanel;
-	
+
+	// node settings
 	private CreateIntervalNodeSettings m_settings = null;
 	
+	/**
+	 * Dialog components which are important to set and get node settings
+	 */
+	
+	// selection of left/right bound (comboboxes)
 	private final ColumnSelectionPanel comp_leftBoundColumn;
 	private final ColumnSelectionPanel comp_rightBoundColumn;
 	
+	// selection of left/right mode (comboboxes)
 	private final ColumnSelectionPanel comp_leftModeColumn;
 	private final ColumnSelectionPanel comp_rightModeColumn;
 	
+	// selection of column to bereplaced (combobox)
 	private final ColumnSelectionPanel comp_replaceColumnPanel;
+	// new column name
 	private final JTextField comp_newColumnName;
 	
+	// radio buttons to decide beween fixed modes and modes by column
 	private JRadioButton comp_useFixedModes;
 	private JRadioButton comp_useFlexibleModes;
 	
+	// radio buttons to decide whether to replace a column or append a new one
 	private final JRadioButton comp_replaceColumnRadio;
 	private final JRadioButton comp_appendColumnRadio;
 	
-	private ButtonGroup comp_fixedModesSelection;
+	// radio buttons for fixed incl/excl modes
 	private JRadioButton comp_inclBoth = new JRadioButton("[a;b]");
 	private JRadioButton comp_inclLeft = new JRadioButton("[a;b)");
 	private JRadioButton comp_inclRight = new JRadioButton("(a;b]");
@@ -73,7 +88,11 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		/** INIT COMPONENTS **/
 		
 		// main panel
-		comp_mainPanel = new JPanel(new BorderLayout());
+		JPanel mainPanel = new JPanel(new BorderLayout());
+		
+		JPanel northPanel = new JPanel(new GridBagLayout());
+		JPanel southPanel = new JPanel(new GridBagLayout());
+		JPanel centerPanel = new JPanel(new GridBagLayout());
 		
 		// init left bound column combobox
 		comp_leftBoundColumn =new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), DoubleValue.class);
@@ -89,13 +108,7 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		// init right mode column combobox
 		comp_rightModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), columnFilter, true);
        		
-		//JPanel northPanel = new JPanel();
-		//northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
-				
-		JPanel northPanel = new JPanel(new GridBagLayout());
-		JPanel southPanel = new JPanel(new GridBagLayout());
-		JPanel centerPanel = new JPanel(new GridBagLayout());
-			
+		
 		comp_useFixedModes = new JRadioButton("set fixed include/exclude flags");			
 		comp_useFlexibleModes = new JRadioButton("use columns for include/exclude flags");
 				
@@ -111,7 +124,7 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		fixedModesPanel.setLayout(new BoxLayout(fixedModesPanel, BoxLayout.Y_AXIS));
 		fixedModesPanel.setBorder(BorderFactory.createTitledBorder(""));
 		
-		comp_fixedModesSelection = new ButtonGroup();
+		ButtonGroup comp_fixedModesSelection = new ButtonGroup();
 		comp_fixedModesSelection.add(comp_inclBoth);
 		comp_fixedModesSelection.add(comp_inclLeft);
 		comp_fixedModesSelection.add(comp_inclRight);
@@ -161,6 +174,7 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		});
 		
 		comp_fixedModesSelection.setSelected(comp_inclLeft.getModel(), true);
+		comp_useFixedModes.setSelected(true);
 		
 		// components for south panel
 		
@@ -175,10 +189,6 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
         comp_newColumnName.setPreferredSize(comp_replaceColumnPanel.getPreferredSize());
         comp_newColumnName.setText(CreateIntervalNodeSettings.CFG_OUT_COLUMN_NAME_DFT);
   
-        // usage of lambda expressions
-        /*comp_replaceColumnRadio.addItemListener(e -> comp_replaceColumnPanel.setEnabled(comp_replaceColumnRadio.isSelected()));
-        
-        comp_appendColumnRadio.addItemListener(e -> comp_newColumnName.setEnabled(comp_appendColumnRadio.isSelected()));*/
         comp_replaceColumnRadio.addItemListener(new ItemListener() {
 			
 			@Override
@@ -227,9 +237,6 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
         c.gridx = 1;
         c.weightx = 3;
         northPanel.add(comp_rightBoundColumn, c);
-		
-		//northPanel.add(comp_leftBoundColumn);
-		//northPanel.add(comp_rightBoundColumn);
 		
 		// center panel
 		c = new GridBagConstraints();
@@ -288,18 +295,23 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		c.weightx = 3;
 		southPanel.add(comp_newColumnName, c);
 		
-		comp_mainPanel.add(northPanel, BorderLayout.NORTH);
-		comp_mainPanel.add(centerPanel, BorderLayout.CENTER);	
-		comp_mainPanel.add(southPanel, BorderLayout.SOUTH);
+		mainPanel.add(northPanel, BorderLayout.NORTH);
+		mainPanel.add(centerPanel, BorderLayout.CENTER);	
+		mainPanel.add(southPanel, BorderLayout.SOUTH);
 				
-		this.addTab("General Settings", comp_mainPanel);
-		
-		comp_useFixedModes.setSelected(true);
+		this.addTab("General Settings", mainPanel);
+			
 		// initial selection / deselection (as no event is fired for first set selected)
 		enablePanel(flexibleModesPanel, false);
 		enablePanel(fixedModesPanel, true);
 	}
 	
+	/**
+	 * enables or disables the panel and all subcomponents (not for sub-panels)
+	 * 
+	 * @param panel
+	 * @param enable
+	 */
 	private void enablePanel(JPanel panel, boolean enable) {
         panel.setEnabled(enable);
         for (Component cp : panel.getComponents() ){
@@ -307,6 +319,9 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
         }
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings) throws InvalidSettingsException {
 		
@@ -333,12 +348,14 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 			m_settings.setOutColumnName(comp_newColumnName.getText());
 		else
 			m_settings.setOutColumnName(comp_replaceColumnPanel.getSelectedColumn());
-		
-			
+				
 		// might be save settings for model?
 		m_settings.saveSettingsTo(settings);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs) throws NotConfigurableException {
 	
@@ -348,6 +365,12 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		updateComponents(specs[0]);
 	}
 
+	/**
+	 * update components with loaded settings
+	 * 
+	 * @param spec							input table specs
+	 * @throws NotConfigurableException
+	 */
 	private void updateComponents(DataTableSpec spec) throws NotConfigurableException {
 		// update left/right bound column combobox	
 		String leftBoundSelected = null;

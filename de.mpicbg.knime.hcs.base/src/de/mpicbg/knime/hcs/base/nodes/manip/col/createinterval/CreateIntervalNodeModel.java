@@ -24,13 +24,20 @@ import de.mpicbg.knime.knutils.AbstractNodeModel;
  */
 public class CreateIntervalNodeModel extends AbstractNodeModel {
 
+	// settings key
 	public static final String CFG_KEY = "create.interval.settings";
 	
+	/**
+	 * constructor
+	 */
 	public CreateIntervalNodeModel() {	
 		super(1,1,true);
 		this.addModelSetting(CFG_KEY, new CreateIntervalNodeSettings(CFG_KEY));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
 		
@@ -127,6 +134,12 @@ public class CreateIntervalNodeModel extends AbstractNodeModel {
 		return new DataTableSpec[] {cRearrange.createSpec()};
 	}
 
+	/**
+	 * creates a collumn rearranger based on input specs and node settings
+	 * @param spec			input specs
+	 * @param settings		node settings
+	 * @return	new {@link ColumnRearranger}
+	 */
 	private ColumnRearranger createColumnRearranger(DataTableSpec spec, CreateIntervalNodeSettings settings) {
 		
 		boolean appendColumn = settings.createNewColumn();
@@ -148,6 +161,9 @@ public class CreateIntervalNodeModel extends AbstractNodeModel {
 		return cRearrange;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 		CreateIntervalNodeSettings settings = (CreateIntervalNodeSettings)this.getModelSetting(CFG_KEY);

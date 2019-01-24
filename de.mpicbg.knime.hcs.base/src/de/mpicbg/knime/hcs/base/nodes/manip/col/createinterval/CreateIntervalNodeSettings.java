@@ -11,8 +11,15 @@ import org.knime.core.node.port.PortObjectSpec;
 import de.mpicbg.knime.hcs.core.math.Interval;
 import de.mpicbg.knime.hcs.core.math.Interval.Mode;
 
+/**
+ * node settings for Create Interval node
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class CreateIntervalNodeSettings extends SettingsModel {
 	
+	// configuration key and ID
 	private final String m_configName;
 	private static final String SM_ID = "SMID_NODE_CREATE_INTERVAL";
 	
@@ -48,13 +55,20 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 	private final Mode CFG_FIXED_MODE_DFT = Interval.Mode.INCL_LEFT;
 	private String m_fixedModeSM;
 	
-	
+	/**
+	 * constructor, with default initialization
+	 * 
+	 * @param configName
+	 */
 	public CreateIntervalNodeSettings(String configName) {
 		m_configName = configName;
 		
 		initDefaultSettings();
 	}
 
+	/**
+	 * default initialization of settings
+	 */
 	private void initDefaultSettings() {
 		m_leftBoundSM = null;
 		m_rightBoundSM = null;
@@ -70,6 +84,9 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 		m_fixedModeSM = CFG_FIXED_MODE_DFT.toString();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	protected CreateIntervalNodeSettings createClone() {
@@ -87,22 +104,43 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 		return clonedSM;
 	}
 
+	/**
+	 * set the right bound column name
+	 * @param rightBoundColumnName
+	 */
 	public void setRightBoundColumn(String rightBoundColumnName) {
 		m_rightBoundSM = rightBoundColumnName;
 	}
 
+	/**
+	 * set the left bound column name
+	 * @param leftBoundColumnName
+	 */
 	public void setLeftBoundColumn(String leftBoundColumnName) {
 		m_leftBoundSM = leftBoundColumnName;
 	}
 	
+	/**
+	 * set the left mode column name
+	 * @param leftModeColumnName
+	 */
 	public void setLeftModeColumn(String leftModeColumnName) {
 		m_leftModeColumnSM = leftModeColumnName;
 	}
 	
+	/**
+	 * set the right mode column name
+	 * @param rightModeColumnName
+	 */
 	public void setRightModeColumn(String rightModeColumnName) {
 		m_rightModeColumnSM = rightModeColumnName;
 	}
 	
+	/**
+	 * set fixed mode as string and check if given string is valid
+	 * @param mode			string representation of {@link Mode}
+	 * @throws IllegalArgumentException		thrown, if string does not represent a valid mode
+	 */
 	public void setFixedMode(String mode) 
 			throws IllegalArgumentException {
 		if(!EnumUtils.isValidEnum(Mode.class, mode))
@@ -111,6 +149,10 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 		m_fixedModeSM = mode;
 	}
 	
+	/**
+	 * set fixed mode
+	 * @param mode
+	 */
 	public void setFixedMode(Mode mode) {
 		m_fixedModeSM = mode.toString();
 	}
@@ -124,24 +166,41 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 		m_useModeColumnsSM = enabled;
 	}
 	
+	/**
+	 * set flag whether a new column should be appended (true), otherwise a column will be replaced
+	 * @param create
+	 */
 	public void setCreateColumnFlag(boolean create) {
 		m_createNewColumnSM = create;
 	}
 	
+	/**
+	 * name of the column which should be appended or replaced depending on the 'create column' flag
+	 * @param columnName
+	 */
 	public void setOutColumnName(String columnName) {
 		m_outColumnSM = columnName;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected String getModelTypeID() {
 		return SM_ID;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected String getConfigName() {
 		return m_configName;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void loadSettingsForDialog(NodeSettingsRO settings, PortObjectSpec[] specs)
 			throws NotConfigurableException {
@@ -163,11 +222,18 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 		}	
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * not used?, not clear if there is a difference to save settings for model...
+	 */
 	@Override
 	protected void saveSettingsForDialog(NodeSettingsWO settings) throws InvalidSettingsException {
-		saveSettingsForDialog(settings);
+		saveSettingsForModel(settings);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void validateSettingsForModel(NodeSettingsRO settings) throws InvalidSettingsException {
 		String mode;
@@ -191,6 +257,9 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 					+ mode + "\" which is not a value of {" + Mode.values() + "}");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void loadSettingsForModel(NodeSettingsRO settings) throws InvalidSettingsException {
 		try {
@@ -212,6 +281,9 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void saveSettingsForModel(NodeSettingsWO settings) {
 		
@@ -227,6 +299,9 @@ public class CreateIntervalNodeSettings extends SettingsModel {
 		mySettings.addString(CFG_OUT_COLUMN_NAME, m_outColumnSM);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {		
 		return this.getClass().getSimpleName()  + " ('" + m_configName + "')";
