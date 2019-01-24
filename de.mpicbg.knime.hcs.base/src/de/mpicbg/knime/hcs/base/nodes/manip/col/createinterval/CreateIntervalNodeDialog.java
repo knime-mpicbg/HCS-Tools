@@ -96,7 +96,7 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		JPanel southPanel = new JPanel(new GridBagLayout());
 		JPanel centerPanel = new JPanel(new GridBagLayout());
 			
-		comp_useFixedModes = new JRadioButton("set include/exclude flags manually");			
+		comp_useFixedModes = new JRadioButton("set fixed include/exclude flags");			
 		comp_useFlexibleModes = new JRadioButton("use columns for include/exclude flags");
 				
 		ButtonGroup group = new ButtonGroup();
