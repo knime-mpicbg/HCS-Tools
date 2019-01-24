@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="createinterval.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>Create Interval</name>
+    
+    <shortDescription>
+    	This node creates a column of type Interval from given bounds and optionally given modes). 
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>
+        	This node creates a column of type Interval from given lower (left) and upper (right) bounds. 
+        	Additionally, columns indicating whether the endpoints are included or excluded can be provided.<br/>
+        	As bounds any numeric column will serve.
+        	The left/Lower bound value need to be smaller or equal compared to its right/upper bound value.<br/>
+        	Whether a bound is included or excluded can be chosen either by a fixed setting:<br/>
+        	<ul>
+        		<li>including both bounds "[a;b]"</li>
+        		<li>including left bound only "[a;b)"</li>
+        		<li>including right bound only "(a;b]"</li>
+        		<li>excluding both bounds "(a;b)"</li>
+        	</ul>
+        	Otherwise boolean columns can be provided given that "true" results in including the bound or
+        	"false" in excluding the bound.<br/>
+        	Empty Intervals are allowed to be created (like "(1;1)").
+        </intro>
+        
+        <option name="Left Bound">A numeric column providing left/lower bound values</option>
+        <option name="Right Bound">A numeric column providing right/upper bound values</option>
+        <option name="set fixed include/exclude flags">If checked, the intervals will be created with the selected mode </option>
+        <option name="use columns for include/exclude flags">If checked, boolean columns have to be provided as include/exclude flags </option>
+		<option name="Replace column">If checked, the values of the selected column will be replaced by the newly created intervals </option>
+		<option name="Append column">If checked, a new interval column with the given name will be appended </option>
+        
+        <!-- possibly more options that can also be grouped by tabs -->
+        <!--
+        <tab name="Standard Options">
+            <option name="short name of first option (like in the dialog)">description of first option</option>
+            <option name="short name of second option (like in the dialog)">description of second option</option>
+        </tab>
+        <tab name="Advanced Options">
+            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
+        </tab>
+        -->
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Input Table">Input table containing at least one numeric column</inPort>
+        <outPort index="0" name="Input Table with interval columns">Input Table with newly appended or replaced interval column</outPort>
+    </ports>    
+</knimeNode>

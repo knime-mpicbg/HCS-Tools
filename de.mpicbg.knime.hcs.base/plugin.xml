@@ -133,6 +133,11 @@
       deprecated="false"
       factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.splitinterval.SplitIntervalNodeFactory">
 </node>
+<node
+      category-path="/community/hcstools/manipulation/column/"
+      deprecated="false"
+      factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.createinterval.CreateIntervalNodeFactory">
+</node>
 </extension>
 
     <extension point="org.knime.workbench.repository.categories">
