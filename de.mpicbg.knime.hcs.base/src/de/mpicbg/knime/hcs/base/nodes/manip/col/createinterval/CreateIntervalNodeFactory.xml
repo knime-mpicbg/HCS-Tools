@@ -3,26 +3,33 @@
     <name>Create Interval</name>
     
     <shortDescription>
-    	This node splits a column of type Interval into its lower (left) and upper (right) bounds. 
+    	This node creates a column of type Interval from given bounds and optionally given modes). 
     </shortDescription>
     
     <fullDescription>
         <intro>
-        	This node splits a column of type Interval into its lower (left) and upper (right) bounds. 
-        	Additionally, columns indicating whether the endpoints are included or excluded can be created.
-        	The newly created columns will be:<br/>
+        	This node creates a column of type Interval from given lower (left) and upper (right) bounds. 
+        	Additionally, columns indicating whether the endpoints are included or excluded can be provided.<br/>
+        	As bounds any numeric column will serve.
+        	The left/Lower bound value need to be smaller or equal compared to its right/upper bound value.<br/>
+        	Whether a bound is included or excluded can be chosen either by a fixed setting:<br/>
         	<ul>
-        		<li>include left bound (boolean / optional)</li>
-        		<li>left bound (numeric)</li>
-        		<li>right bound (numeric)</li>
-        		<li>include right bound (boolean / optional)</li>
+        		<li>including both bounds "[a;b]"</li>
+        		<li>including left bound only "[a;b)"</li>
+        		<li>including right bound only "(a;b]"</li>
+        		<li>excluding both bounds "(a;b)"</li>
         	</ul>
+        	Otherwise boolean columns can be provided given that "true" results in including the bound or
+        	"false" in excluding the bound.<br/>
+        	Empty Intervals are allowed to be created (like "(1;1)").
         </intro>
         
-        <option name="Select Interval Column">A column of type Interval to be splitted
-        </option>
-        <option name="Include Mode">If checked, columns, indicating whether endpoints are included or excluded, are created.
-		</option>
+        <option name="Left Bound">A numeric column providing left/lower bound values</option>
+        <option name="Right Bound">A numeric column providing right/upper bound values</option>
+        <option name="set fixed include/exclude flags">If checked, the intervals will be created with the selected mode </option>
+        <option name="use columns for include/exclude flags">If checked, boolean columns have to be provided as include/exclude flags </option>
+		<option name="Replace column">If checked, the values of the selected column will be replaced by the newly created intervals </option>
+		<option name="Append column">If checked, a new interval column with the given name will be appended </option>
         
         <!-- possibly more options that can also be grouped by tabs -->
         <!--
@@ -37,7 +44,7 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Input Table">Input table containing at least one interval column</inPort>
-        <outPort index="0" name="Input Table with newly appended columns">Input Table with newly appended columns</outPort>
+        <inPort index="0" name="Input Table">Input table containing at least one numeric column</inPort>
+        <outPort index="0" name="Input Table with interval columns">Input Table with newly appended or replaced interval column</outPort>
     </ports>    
 </knimeNode>
