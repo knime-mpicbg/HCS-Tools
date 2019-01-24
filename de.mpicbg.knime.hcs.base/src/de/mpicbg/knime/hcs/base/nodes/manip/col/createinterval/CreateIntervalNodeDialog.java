@@ -100,14 +100,13 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 		// init right bound column combobox
 		comp_rightBoundColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), DoubleValue.class);
 		
-		DataValueColumnFilter columnFilter = new DataValueColumnFilter(BooleanValue.class);
-		
 		// init left mode column combobox
-		comp_leftModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), columnFilter, true);
-
+		comp_leftModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), BooleanValue.class);
+		comp_leftModeColumn.setRequired(false);
+		
 		// init right mode column combobox
-		comp_rightModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), columnFilter, true);
-       		
+		comp_rightModeColumn = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), BooleanValue.class);
+		comp_rightModeColumn.setRequired(false);	
 		
 		comp_useFixedModes = new JRadioButton("set fixed include/exclude flags");			
 		comp_useFlexibleModes = new JRadioButton("use columns for include/exclude flags");
@@ -185,6 +184,7 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
         bg.add(comp_appendColumnRadio);
         
         comp_replaceColumnPanel = new ColumnSelectionPanel(BorderFactory.createEmptyBorder(), DataValue.class);
+        comp_replaceColumnPanel.setRequired(false);
         comp_newColumnName = new JTextField();
         comp_newColumnName.setPreferredSize(comp_replaceColumnPanel.getPreferredSize());
         comp_newColumnName.setText(CreateIntervalNodeSettings.CFG_OUT_COLUMN_NAME_DFT);
@@ -372,33 +372,11 @@ public class CreateIntervalNodeDialog extends NodeDialogPane {
 	 * @throws NotConfigurableException
 	 */
 	private void updateComponents(DataTableSpec spec) throws NotConfigurableException {
-		// update left/right bound column combobox	
-		String leftBoundSelected = null;
-		String rightBoundSelected = null;
-		String leftModeColumnSelected = null;
-		String rightModeColumnSelected = null;
-		
-		for (DataColumnSpec colSpec : spec) {
-			DataType dType = colSpec.getType();
-			String columnName = colSpec.getName();
-			if (dType.isCompatible(DoubleValue.class)) {          	
-            	if(columnName.equals(m_settings.getLeftBoundColumn()))
-            		leftBoundSelected = columnName;
-            	if(columnName.equals(m_settings.getRightBoundColumn()))
-            		rightBoundSelected = columnName;
-			}
-			if(dType.isCompatible(BooleanValue.class)) {
-				if(columnName.equals(m_settings.getLeftModeColumn()))
-            		leftModeColumnSelected = columnName;
-            	if(columnName.equals(m_settings.getRightModeColumn()))
-            		rightModeColumnSelected = columnName;
-			}
-		}
-		
-		comp_leftBoundColumn.update(spec, leftBoundSelected);
-		comp_rightBoundColumn.update(spec, rightBoundSelected);;
-		comp_leftModeColumn.update(spec, leftModeColumnSelected);
-		comp_rightModeColumn.update(spec, rightModeColumnSelected);
+		// update left/right bound column combobox			
+		comp_leftBoundColumn.update(spec, m_settings.getLeftBoundColumn(), false, true);
+		comp_rightBoundColumn.update(spec, m_settings.getRightBoundColumn(), false, true);
+		comp_leftModeColumn.update(spec, m_settings.getLeftModeColumn(), false, true);
+		comp_rightModeColumn.update(spec, m_settings.getRightModeColumn(), false, true);
 		
 		boolean appendColumn = m_settings.createNewColumn();
 		String appendColumnName = appendColumn ? 
