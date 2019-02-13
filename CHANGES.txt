@@ -1,5 +1,25 @@
 ======================================================================================================
-2019-01-10
+2019-02-13
+VERSION		v3.3.0
+
+ISSUES
+
+* Nodes using R (e.g. Dose Response Node) will use Rserve library 1.8-6 to avoid communication problems with R 3.5+
+
+NEW NODE
+
+* CV (new improved version)
+* Binning Calculate
+* Binning Apply
+* Create Interval
+* Split Interval
+
+NEW FEATURES / IMPROVEMENTS
+
+* two additional cell renderers for IntervalCells (human readable + scientific)
+
+======================================================================================================
+2019-01-10 (develop only)
 VERSION		v3.2.1
 
 NEW NODE
@@ -7,7 +27,7 @@ NEW NODE
 * CV (new improved version)
 
 ======================================================================================================
-2018-11-27
+2018-11-27 (develop only)
 VERSION		v3.2.0
 
 ISSUES
