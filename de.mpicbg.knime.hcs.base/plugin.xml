@@ -1,24 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?eclipse version="3.0"?><!--
-  ~ Module Name: hcstools
-  ~ This module is a plugin for the KNIME platform <http://www.knime.org/>
-  ~
-  ~ Copyright (c) 2011.
-  ~ Max Planck Institute of Molecular Cell Biology and Genetics, Dresden
-  ~
-  ~     This program is free software: you can redistribute it and/or modify
-  ~     it under the terms of the GNU Affero General Public License as
-  ~     published by the Free Software Foundation, either version 3 of the
-  ~     License, or (at your option) any later version.
-  ~
-  ~     This program is distributed in the hope that it will be useful,
-  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~     GNU Affero General Public License for more details.
-  ~
-  ~     Detailed terms and conditions are described in the license.txt.
-  ~     also see <http://www.gnu.org/licenses/>.
-  --><plugin>
+<?eclipse version="3.0"?>
+<plugin>
 
     <extension point="org.knime.workbench.repository.nodes">
 
@@ -120,8 +102,7 @@
 <node
       category-path="/community/hcstools/populationanalysis"
       deprecated="false"
-      factory-class="de.mpicbg.knime.hcs.base.nodes.mine.binningapply.BinningApplyNodeFactory"
-      id="de.mpicbg.knime.hcs.base.nodes.mine.binningapply.BinningApplyNodeFactory">
+      factory-class="de.mpicbg.knime.hcs.base.nodes.mine.binningapply.BinningApplyNodeFactory">
 </node>
 <node
       category-path="/community/hcstools/qc"
