@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./CVCalculator.png" type="Manipulator">
+    <name>CV</name>
+
+    <shortDescription>
+        The node calculates coefficient of variation (CV) for all selected controls.
+    </shortDescription>
+
+    <fullDescription>
+        <intro>
+            <p>
+                The coefficient of variation (CV), also known as relative standard deviation (RSD), 
+                is a standardized measure of dispersion of a probability distribution.
+            </p>
+            <p>
+                For each group of data (e.g per plate), CVs are calculated for each selected subset (e.g. control
+                wells of a plate).
+            </p>
+            
+            	<table>
+            		<tr>
+            		<td>Original</td>            		
+                	<td>CV = sd(x[subset] / mean(x[subset]) * 100</td>
+                	</tr>
+                	<tr>
+                	<td>Robust</td>
+                	<td>CV = mad(x[subset] / median(x[subset]) * 100</td>
+                	</tr>
+                </table>
+           
+            <p>
+                
+                <br/>
+                <a href="http://en.wikipedia.org/wiki/Coefficient_of_variation">Wikipedia: Coefficient of variation</a>
+            </p>
+        </intro>
+
+		<tab name="General Settings">
+	        <option name="Group wells by">Select the column to define the main groups (e.g. "barcode" for plate-wise CVs).
+	        </option>
+	        <option name="Select subset column / well annotation column">Select the column to define and select subsets  (e.g. "treatment" for controls ) <br/>
+	        	Subset selection available in tab "Subset Filter".
+	        </option>
+	        <option name="Use robust statistics">If checked median and MAD will be calculated instead of mean and standard deviation.
+	        </option>
+	        <option name="Calculate coefficient of variation for">Select the numeric columns for which CVs will be calculated.
+	        </option>
+	        <option name="Column suffix">By default result column names will get the suffix ".cv". If checked, this suffix can be changed or removed.
+	        </option>
+        </tab>
+        <tab name="Subset Filter">
+        	<option name="">Include subsets the CV shall be calculated for. Missing values can be included via checkbox.</option>
+        </tab>
+    </fullDescription>
+
+    <ports>
+        <!-- input -->
+        <inPort index="0" name="Input Data">Input Data</inPort>
+        <!-- output -->
+        <outPort index="0" name="CV Data">Table with CVs</outPort>
+    </ports>
+
+</knimeNode>

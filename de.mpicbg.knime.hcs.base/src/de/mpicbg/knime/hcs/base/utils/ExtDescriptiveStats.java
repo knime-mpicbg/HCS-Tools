@@ -1,10 +1,10 @@
 package de.mpicbg.knime.hcs.base.utils;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.apache.commons.math.stat.descriptive.UnivariateStatistic;
-import org.apache.commons.math.util.ResizableDoubleArray;
-
 import java.lang.reflect.InvocationTargetException;
+
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.UnivariateStatistic;
+import org.apache.commons.math3.util.ResizableDoubleArray;
 
 /**
  * The class provides further statistics
@@ -41,7 +41,8 @@ public class ExtDescriptiveStats extends DescriptiveStatistics {
      * @param data
      */
     public ExtDescriptiveStats(ResizableDoubleArray data) {
-        super.eDA = data;
+        //super.eDA = data;
+        super(data.getElements());
     }
 
     /**

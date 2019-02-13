@@ -16,6 +16,8 @@ public class Interval {
 
     // upper Bound
     double upperBound;
+    
+    Mode mode = Mode.INCL_BOTH;
 
     // Label
     String label;
@@ -40,7 +42,26 @@ public class Interval {
         this.upperBound = upperBound;
         this.label = label;
     }
+    
+    public Interval(double lowerBound, double upperBound, String label, Mode mode) {
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+        this.label = label;
+        this.mode = mode;
+    }
 
+    /**
+     * helper method to get the mode from boolean values for right and left
+     * @param inclLeft
+     * @param inclRight
+     * @return Mode
+     */
+    public static Mode getMode(boolean inclLeft, boolean inclRight) {
+    	if(inclLeft && inclRight) return Mode.INCL_BOTH;
+    	if(inclLeft && !inclRight) return Mode.INCL_LEFT;
+    	if(!inclLeft && inclRight) return Mode.INCL_RIGHT;
+    	return Mode.INCL_NONE;
+    }
 
     /**
      * @param x        value to test
@@ -65,6 +86,26 @@ public class Interval {
 
         return checkLowerBound && checkUpperBound;
     }
+    
+    /**
+     * 
+     * @param x		value to test
+     * @return		true, if x falls withing the interval, false otherwise
+     */
+    public boolean contains(double x) {
+    	return contains(x, this.mode);
+    }
+    
+    public boolean isBelowLowerBound(double x) {
+    	boolean isBelowLowerBound = false;
+    	int compareLowerBound = Double.compare(x, lowerBound);
+    	
+        if (compareLowerBound < 0) isBelowLowerBound = true;
+        else if (compareLowerBound == 0 && this.mode == Mode.INCL_RIGHT)
+            isBelowLowerBound = true;
+        
+        return isBelowLowerBound;
+    }
 
     public double getLowerBound() {
         return lowerBound;
@@ -72,6 +113,20 @@ public class Interval {
 
     public void setLowerBound(double lowerBound) {
         this.lowerBound = lowerBound;
+    }
+    
+    public boolean checkModeLowerBound(){
+    	if(this.mode == Mode.INCL_LEFT || this.mode == Mode.INCL_BOTH){
+    		return true;
+    	}
+    	else{return false;}
+    }
+    
+    public boolean checkModeUpperBound(){
+    	if(this.mode == Mode.INCL_RIGHT || this.mode == Mode.INCL_BOTH){
+    		return true;
+    	}
+    	else{return false;}
     }
 
     public double getUpperBound() {

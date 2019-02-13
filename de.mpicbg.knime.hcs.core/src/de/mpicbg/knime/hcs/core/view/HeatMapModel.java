@@ -1,17 +1,27 @@
 package de.mpicbg.knime.hcs.core.view;
 
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.math3.stat.Frequency;
+
 import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.hcs.core.model.Plate;
 import de.mpicbg.knime.hcs.core.model.Well;
-import de.mpicbg.knime.hcs.core.view.color.*;
+import de.mpicbg.knime.hcs.core.view.color.BlackGreenColorScale;
+import de.mpicbg.knime.hcs.core.view.color.ColorScale;
+import de.mpicbg.knime.hcs.core.view.color.GlobalMinMaxStrategy;
+import de.mpicbg.knime.hcs.core.view.color.ReadoutRescaleStrategy;
+import de.mpicbg.knime.hcs.core.view.color.ScreenColorScheme;
 import de.mpicbg.knime.hcs.core.view.model.PlateSortByDate;
 import de.mpicbg.knime.hcs.core.view.model.PlateSortByPlateNumber;
-
-import org.apache.commons.math.stat.Frequency;
-
-import java.awt.*;
-import java.util.*;
-import java.util.List;
 
 
 /**

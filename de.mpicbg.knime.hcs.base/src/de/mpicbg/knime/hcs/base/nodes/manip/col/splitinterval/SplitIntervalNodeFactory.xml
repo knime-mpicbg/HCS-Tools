@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="SplitInterval.png" type="Manipulator" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+    <name>Split Interval</name>
+    
+    <shortDescription>
+    	This node splits a column of type Interval into its lower (left) and upper (right) bounds. 
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>
+        	This node splits a column of type Interval into its lower (left) and upper (right) bounds. 
+        	Additionally, columns indicating whether the endpoints are included or excluded can be created.
+        	The newly created columns will be:<br/>
+        	<ul>
+        		<li>include left bound (boolean / optional)</li>
+        		<li>left bound (numeric)</li>
+        		<li>right bound (numeric)</li>
+        		<li>include right bound (boolean / optional)</li>
+        	</ul>
+        </intro>
+        
+        <option name="Select Interval Column">A column of type Interval to be splitted
+        </option>
+        <option name="Include Mode">If checked, columns, indicating whether endpoints are included or excluded, are created.
+		</option>
+        
+        <!-- possibly more options that can also be grouped by tabs -->
+        <!--
+        <tab name="Standard Options">
+            <option name="short name of first option (like in the dialog)">description of first option</option>
+            <option name="short name of second option (like in the dialog)">description of second option</option>
+        </tab>
+        <tab name="Advanced Options">
+            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
+        </tab>
+        -->
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Input Table">Input table containing at least one interval column</inPort>
+        <outPort index="0" name="Input Table with newly appended columns">Input Table with newly appended columns</outPort>
+    </ports>    
+</knimeNode>

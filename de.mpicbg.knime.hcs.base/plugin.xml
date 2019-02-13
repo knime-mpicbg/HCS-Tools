@@ -1,24 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?eclipse version="3.0"?><!--
-  ~ Module Name: hcstools
-  ~ This module is a plugin for the KNIME platform <http://www.knime.org/>
-  ~
-  ~ Copyright (c) 2011.
-  ~ Max Planck Institute of Molecular Cell Biology and Genetics, Dresden
-  ~
-  ~     This program is free software: you can redistribute it and/or modify
-  ~     it under the terms of the GNU Affero General Public License as
-  ~     published by the Free Software Foundation, either version 3 of the
-  ~     License, or (at your option) any later version.
-  ~
-  ~     This program is distributed in the hope that it will be useful,
-  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~     GNU Affero General Public License for more details.
-  ~
-  ~     Detailed terms and conditions are described in the license.txt.
-  ~     also see <http://www.gnu.org/licenses/>.
-  --><plugin>
+<?eclipse version="3.0"?>
+<plugin>
 
     <extension point="org.knime.workbench.repository.nodes">
 
@@ -43,7 +25,11 @@
         <!--quality control-->
         <node category-path="/community/hcstools/qc" factory-class="de.mpicbg.knime.hcs.base.nodes.qc.ZPrimesNxMFactory" id="de.mpicbg.tds.knime.hcstools.qualitycontrol.ZPrimesNxMFactory"/>
 
-        <node category-path="/community/hcstools/qc" factory-class="de.mpicbg.knime.hcs.base.nodes.qc.CVCalculatorFactory" id="de.mpicbg.tds.knime.hcstools.qualitycontrol.CVCalculatorFactory"/>
+        <node
+              category-path="/community/hcstools/qc"
+              deprecated="true"
+              factory-class="de.mpicbg.knime.hcs.base.nodes.qc.CVCalculatorFactory"
+              id="de.mpicbg.tds.knime.hcstools.qualitycontrol.CVCalculatorFactory"/>
 
         <node category-path="/community/hcstools/qc" factory-class="de.mpicbg.knime.hcs.base.nodes.qc.SSMD_NxMFactory" id="de.mpicbg.tds.knime.hcstools.qualitycontrol.SSMD_NxMFactory"/>
 
@@ -106,11 +92,33 @@
         <node category-path="/community/hcstools/prepro" factory-class="de.mpicbg.knime.hcs.base.nodes.preproc.GroupMutualInformationFactory" id="de.mpicbg.tds.knime.hcstools.preprocessing.GroupMutualInformationFactory"/>
 
         <node category-path="/community/hcstools/populationanalysis" factory-class="de.mpicbg.knime.hcs.base.nodes.mine.BinningAnalysisNodeFactory" id="de.mpicbg.tds.knime.hcstools.populationanalysis.BinningAnalysisNodeFactory"/>
+        
+         <node category-path="/community/hcstools/populationanalysis" factory-class="de.mpicbg.knime.hcs.base.nodes.mine.binningcalculate.BinningCalculateNodeFactory" id="de.mpicbg.knime.hcs.base.nodes.mine.binningcalculate.BinningCalculateNodeFactory"/>
 
     <node category-path="/community/hcstools/manipulation/column" factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.numformat.NumberFormatterNodeFactory" id="de.mpicbg.knime.hcs.base.nodes.manip.col.numformat.NumberFormatterNodeFactory"/>
 
     <node category-path="/community/hcstools/util" factory-class="de.mpicbg.knime.hcs.base.nodes.layout.createwellposition.CreateWellPositionNodeFactory" id="de.mpicbg.knime.hcs.base.nodes.layout.createwellposition.CreateWellPositionNodeFactory"/>
 
+<node
+      category-path="/community/hcstools/populationanalysis"
+      deprecated="false"
+      factory-class="de.mpicbg.knime.hcs.base.nodes.mine.binningapply.BinningApplyNodeFactory">
+</node>
+<node
+      category-path="/community/hcstools/qc"
+      deprecated="false"
+      factory-class="de.mpicbg.knime.hcs.base.nodes.qc.cv.CVCalculatorNodeFactory">
+</node>
+<node
+      category-path="/community/hcstools/manipulation/column/"
+      deprecated="false"
+      factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.splitinterval.SplitIntervalNodeFactory">
+</node>
+<node
+      category-path="/community/hcstools/manipulation/column/"
+      deprecated="false"
+      factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.createinterval.CreateIntervalNodeFactory">
+</node>
 </extension>
 
     <extension point="org.knime.workbench.repository.categories">
@@ -155,6 +163,32 @@
        </AggregationOperator>
        <AggregationOperator AggregationOperator="de.mpicbg.knime.hcs.base.aggregation.HCSMadOperator" deprecated="false">
        </AggregationOperator>
+    </extension>
+    <extension
+          point="org.knime.core.DataValueRenderer">
+       <dataValue
+             valueClass="org.knime.core.data.IntervalValue">
+          <renderer
+                rendererFactoryClass="de.mpicbg.knime.hcs.base.IntervalValueRenderer$IntervalValueRendererFactory"
+                suggestAsDefault="true">
+          </renderer>
+          <renderer
+                rendererFactoryClass="de.mpicbg.knime.hcs.base.IntervalValueScientificRenderer$IntervalValueScientificRendererFactory"
+                suggestAsDefault="false">
+          </renderer>
+       </dataValue>
+    </extension>
+    <extension
+          point="org.knime.core.PortType">
+       <portType
+             color="#99ff33"
+             hidden="false"
+             name="Binning Port Object"
+             objectClass="de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObject"
+             objectSerializer="de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObjectSerializer"
+             specClass="de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObjectSpec"
+             specSerializer="de.mpicbg.knime.hcs.base.node.port.binning.BinningPortObjectSpec$Serializer">
+       </portType>
     </extension>
 
 </plugin>

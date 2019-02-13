@@ -1,5 +1,29 @@
 package de.mpicbg.knime.hcs.core;
 
+import java.awt.Component;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+
 import au.com.bytecode.opencsv.CSVReader;
 import de.mpicbg.knime.hcs.core.model.Plate;
 import de.mpicbg.knime.hcs.core.model.Well;
@@ -9,14 +33,6 @@ import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
-import org.apache.commons.math.linear.Array2DRowRealMatrix;
-import org.apache.commons.math.linear.RealMatrix;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import java.util.List;
 
 
 /**

@@ -22,15 +22,16 @@
 package de.mpicbg.knime.hcs.base.nodes.preproc;
 
 
-import de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel;
-import de.mpicbg.knime.knutils.Attribute;
-import de.mpicbg.knime.knutils.AttributeUtils;
-import de.mpicbg.knime.knutils.BufTableUtils;
-import de.mpicbg.knime.knutils.InputTableAttribute;
-import org.apache.commons.math.linear.RealMatrix;
-import org.apache.commons.math.linear.RealVector;
-import org.apache.commons.math.stat.StatUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import static de.mpicbg.knime.hcs.base.utils.Table2Matrix.extractMatrix;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
@@ -44,11 +45,11 @@ import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelFilterString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static de.mpicbg.knime.hcs.base.utils.Table2Matrix.extractMatrix;
+import de.mpicbg.knime.hcs.base.nodes.norm.AbstractScreenTrafoModel;
+import de.mpicbg.knime.knutils.Attribute;
+import de.mpicbg.knime.knutils.AttributeUtils;
+import de.mpicbg.knime.knutils.BufTableUtils;
+import de.mpicbg.knime.knutils.InputTableAttribute;
 
 
 /**
@@ -133,7 +134,7 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
                     for (int c = 0; c < N; ++c) {
                         RealVector vect = data.getColumnVector(c);
                         DescriptiveStatistics stats = new DescriptiveStatistics();
-                        for (double value : vect.getData()) {
+                        for (double value : vect.toArray()) {
                             stats.addValue(value);
                         }
                         double lowerQuantile = stats.getPercentile(25);
@@ -145,8 +146,8 @@ public class OutlierRemoval extends AbstractScreenTrafoModel {
                 } else {
                     for (int c = 0; c < N; ++c) {
                         RealVector vect = data.getColumnVector(c);
-                        double mean = StatUtils.mean(vect.getData());
-                        double sd = Math.sqrt(StatUtils.variance(vect.getData()));
+                        double mean = StatUtils.mean(vect.toArray());
+                        double sd = Math.sqrt(StatUtils.variance(vect.toArray()));
                         lowerBound[c] = mean - factor.getDoubleValue() * sd;
                         upperBound[c] = mean + factor.getDoubleValue() * sd;
                     }

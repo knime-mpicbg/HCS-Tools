@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core functionality for the HCS Tools
 Bundle-SymbolicName: de.mpicbg.knime.hcs.core;singleton:=true
-Bundle-Version: 3.1.100.qualifier
+Bundle-Version: 3.1.200.qualifier
 Export-Package: de.mpicbg.knime.hcs.core,
  de.mpicbg.knime.hcs.core.barcodes,
  de.mpicbg.knime.hcs.core.barcodes.namedregexp,
@@ -23,7 +23,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: de.mpicbg.knime.hcs.core.HcsCoreBundleActivator
 Require-Bundle: org.eclipse.ui;bundle-version="[3.107.0,4.0.0)",
- org.apache.commons.math;bundle-version="2.1.0",
+ org.apache.commons.math3;bundle-version="3.4.1",
  org.apache.commons.logging;bundle-version="1.1.1",
  org.apache.commons.lang3;bundle-version="3.2.1",
  org.junit;bundle-version="4.12.0",

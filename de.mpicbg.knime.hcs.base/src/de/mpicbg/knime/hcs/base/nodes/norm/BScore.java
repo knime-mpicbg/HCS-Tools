@@ -1,10 +1,10 @@
 package de.mpicbg.knime.hcs.base.nodes.norm;
 
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+
 import de.mpicbg.knime.hcs.base.utils.ExtDescriptiveStats;
 import de.mpicbg.knime.hcs.base.utils.MadStatistic;
-
-import org.apache.commons.math.linear.Array2DRowRealMatrix;
-import org.apache.commons.math.linear.RealMatrix;
 
 
 /**
