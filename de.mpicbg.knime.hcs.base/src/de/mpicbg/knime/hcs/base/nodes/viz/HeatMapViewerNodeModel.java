@@ -589,8 +589,14 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
         double iterations = splitScreen.keySet().size();
         double iteration = 1;
         for (String barcode : splitScreen.keySet()) {
+        	
             exec.checkCanceled();
             exec.setProgress(iteration++/iterations);
+            
+            // ignore data with barcode = missing value
+            if(barcode == null)
+            	continue;
+            
             Plate curPlate = new Plate();
             curPlate.setBarcode(barcode);
 
@@ -622,6 +628,14 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
             // Fill plate with wells.
             for (DataRow tableRow : wellRows) {
                 Well well = new Well();
+                
+                Integer r = rowAttribute.getIntAttribute(tableRow);
+                Integer c = colAttribute.getIntAttribute(tableRow);
+                
+                // ignore row if plate positionis incomplete fue to missing values
+                if(r == null || c == null)
+                	continue;
+                
                 curPlate.getWells().add(well);
 
                 well.setPlate(curPlate);
@@ -634,9 +648,9 @@ public class HeatMapViewerNodeModel extends AbstractNodeModel {
                 for (Attribute attribute : attributes) {
                     String attributeName = attribute.getName();
 
-                    if (StringUtils.equalsIgnoreCase(PlateUtils.SCREEN_MODEL_TREATMENT, attributeName)) {
+/*                    if (StringUtils.equalsIgnoreCase(PlateUtils.SCREEN_MODEL_TREATMENT, attributeName)) {
                         well.setTreatment(attribute.getNominalAttribute(tableRow));
-                    }
+                    }*/
 
                     if (readouts.contains(attributeName) && attribute.isNumerical()) {
                         Double readoutValue = attribute.getDoubleAttribute(tableRow);
