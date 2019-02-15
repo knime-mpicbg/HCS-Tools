@@ -80,7 +80,9 @@ public class ExpandWellPosition extends AbstractNodeModel {
 //                updateCache.add(dataRow, plateRowAttribute, DataType.getMissingCell());
                 continue;
             }
-
+            
+            // remove leading whitespaces
+            wellPosition = StringUtils.strip(wellPosition);
 
             // split it
             String regex = "([a-zA-Z]{1,2})[.,:_]{0,2}([\\d]{1,2})";
