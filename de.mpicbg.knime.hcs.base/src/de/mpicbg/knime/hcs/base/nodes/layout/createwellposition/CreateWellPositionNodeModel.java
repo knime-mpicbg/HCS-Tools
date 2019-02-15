@@ -12,6 +12,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.IntValue;
+import org.knime.core.data.RowKey;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.CellFactory;
 import org.knime.core.data.container.ColumnRearranger;
@@ -136,11 +137,32 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		if(getModelSetting(CFG_PlateRow) != null) plateRow = ((SettingsModelString) getModelSetting(CFG_PlateRow)).getStringValue();
 
 		// Saving index of column "plateRow" into variable idCol
-		int idRow = tSpec.findColumnIndex(plateRow);  
+		int idRow = tSpec.findColumnIndex(plateRow); 
+		DataType type = tSpec.getColumnSpec(idRow).getType();
+		
+		double maxPlateRow= 0;
+		for(DataRow row : inData[0]) {
+			DataCell cell = row.getCell(idRow);
+			if(cell.isMissing())
+				continue;
+			if(type.isCompatible(StringValue.class)) {
+				String val = ((StringValue) cell).getStringValue();
+				int rNum = TdsUtils.mapPlateRowStringToNumber(val);
+				if(rNum > maxPlateRow)
+					maxPlateRow = (double) rNum;
+			}
+			if(type.isCompatible(DoubleValue.class)) {
+				double val = ((DoubleValue) cell).getDoubleValue();
+				if(val > maxPlateRow)
+					maxPlateRow = val;
+			}
+		}
+		
+		boolean needsSpace = maxPlateRow > 26;
 
 
 		// Rearrange and creating new table wit information of id's of the columns to rearrange.
-		ColumnRearranger rearranged_table = createColumnRearranger(inData[0].getDataTableSpec(),idCol ,idRow);
+		ColumnRearranger rearranged_table = createColumnRearranger(inData[0].getDataTableSpec(),idCol ,idRow, needsSpace);
 
 
 		// Checking for option to delete all source columns
@@ -197,7 +219,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		int idRow = tSpec.findColumnIndex(plateRow);
 
 		// Rearrange and creating new table wit information of id's of the columns to rearrange.
-		ColumnRearranger rearranged_table = createColumnRearranger(in[0], idCol , idRow);
+		ColumnRearranger rearranged_table = createColumnRearranger(in[0], idCol , idRow, false);
 
 		// Checking for option to delete all source columns
 		if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) 
@@ -214,7 +236,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	/**
 	 * ColumnRearranger to create output table
 	 */
-	private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow) {
+	private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow, final boolean needsSpace) {
 
 		// Creating new ColumRearranger instance
 		ColumnRearranger rearranged_table = new ColumnRearranger(inSpec);
@@ -223,106 +245,125 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		// column specification of the appended column
 		DataColumnSpec newColSpec = new DataColumnSpecCreator("Well Position", StringCell.TYPE).createSpec();
 
-		final String[] ColumnNames = inSpec.getColumnNames();
+		//final String[] ColumnNames = inSpec.getColumnNames();
+		String columnName = inSpec.getColumnSpec(idCol).getName();
+		String rowName = inSpec.getColumnSpec(idRow).getName();
+		
+		DataType rowDataType = inSpec.getColumnSpec(idRow.intValue()).getType();
+		DataType columnDataType = inSpec.getColumnSpec(idCol.intValue()).getType();
+		
+		boolean sortable = ((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue();
 
 		// utility object that performs the calculation
 		CellFactory factory = new SingleCellFactory(newColSpec) {
 
 			// iterating over every row of input table
 			public DataCell getCell(DataRow row) {
-
 				
-				DataCell dcell0 = row.getCell(idCol);
-				DataCell dcell1 = row.getCell(idRow);
+				DataCell rowCell = row.getCell(idRow);
+				DataCell columnCell = row.getCell(idCol);
 
-				String ConvData0 = null;
-				String ConvData1 = null;
+				String rowString = null;
+				String columnString = null;
 				
-				String RowId = row.getKey().getString();
-
+				RowKey rowKey = row.getKey();
 
 				// checking for missing cell, if so then returning missing cell
-				if (dcell0.isMissing() || dcell1.isMissing()) 
+				if (rowCell.isMissing() || columnCell.isMissing()) 
 				{
 					return DataType.getMissingCell();
 				} 
 
-
 				//=========== Checking and Converting Column ===========//
 
 				// checking the value for the column position on the well is supported
-				if(dcell0.getType() == DoubleCell.TYPE || dcell0.getType() == IntCell.TYPE )
+				int colVal = -1;
+				if(columnDataType.isCompatible(DoubleValue.class))
 				{
-					Integer ConvDataInt0 = null;
-					if(dcell0.getType() == DoubleCell.TYPE)
-					{
-						Double ConvDataDouble = ((DoubleValue) dcell0).getDoubleValue();
-						ConvDataInt0 = (int)ConvDataDouble.doubleValue();
-					}
-					else
-					{
-						ConvDataInt0 = ((IntValue) dcell0).getIntValue();
-					}
+					Double colValDouble = ((DoubleValue) columnCell).getDoubleValue();
 					
-
-					if(ConvDataInt0 > TdsUtils.MAX_PLATE_COLUMN)
-					{
-						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
-						return DataType.getMissingCell();
+					if(colValDouble % 1 != 0) {
+						throw new IllegalArgumentException(
+								createValueErrorMessage(
+										rowKey, 
+										colValDouble.toString(), 
+										columnName, 
+										"is not integer."));
 					}
-
-					ConvData0 = ConvDataInt0.toString();
-				}
-				// now its have to be a alphabetical format - checking compatibility of supported wells
-				else
-				{
-					SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
-					return DataType.getMissingCell();
+										
+					colVal = colValDouble.intValue();
 					
 				}
+				if(columnDataType.isCompatible(StringValue.class)) {
+					String colValString = ((StringValue) columnCell).getStringValue();
+										
+					try {
+						colVal = Integer.parseInt(colValString);
+					} catch(NumberFormatException nfe) {
+						throw new IllegalArgumentException(
+								createValueErrorMessage(
+										rowKey, 
+										colValString, 
+										columnName, 
+										"does not represent an integer."));
+					}
+					
+				}
+				if(colVal < 1 || colVal > TdsUtils.MAX_PLATE_COLUMN)
+					throw new IllegalArgumentException(
+							createValueErrorMessage(
+									rowKey, 
+									Integer.toString(colVal), 
+									columnName, 
+									" is not within the expected range [1;" + TdsUtils.MAX_PLATE_COLUMN + "]"));
+				columnString = Integer.toString(colVal);
+				
+				if(sortable && columnString.length() == 1)
+					columnString = "0" + columnString;
+				
 
 				//=========== Checking and Converting Row ===========//
 
-				if(dcell1.getType() == StringCell.TYPE)
+				if(rowCell.getType() == StringCell.TYPE)
 				{
-					ConvData1 = ((StringValue) dcell1).getStringValue();
+					rowString = ((StringValue) rowCell).getStringValue();
 
 					
 					// Checking if the alphabetical input values are compatible to well plates
 					// IMPORTANT: if the supported well plates is gonna change - its necessary to change the regex
-					if(ConvData1.matches("^[aA]{0,1}[aA-fF]{1}$"))
+					if(rowString.matches("^[aA]{0,1}[aA-fF]{1}$"))
 					{
 						// Converts lower case input to upper case - better looking
-						ConvData1 = ConvData1.toUpperCase();
+						rowString = rowString.toUpperCase();
 					}
 
 					else
 					{
-						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idRow]);
+						//SendWarning(1, rowCell.toString(), RowId, ColumnNames[idRow]);
 						return DataType.getMissingCell();
 					}
 				}
 
-				if(dcell1.getType() == DoubleCell.TYPE || dcell1.getType() == IntCell.TYPE )
+				if(rowCell.getType() == DoubleCell.TYPE ||rowCell.getType() == IntCell.TYPE )
 				{
-					Double ConvDataDouble = ((DoubleValue) dcell1).getDoubleValue();
+					Double ConvDataDouble = ((DoubleValue) rowCell).getDoubleValue();
 
 					if(ConvDataDouble > TdsUtils.MAX_PLATE_ROW)
 					{
-						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idRow]);
+						//SendWarning(1, rowCell.toString(), RowId, ColumnNames[idRow]);
 						return DataType.getMissingCell();
 					}
 
 					try
 					{
 						Integer ConvDataInt = (int)ConvDataDouble.doubleValue();
-						ConvData1 = TdsUtils.mapPlateRowNumberToString(ConvDataInt);
+						columnString = TdsUtils.mapPlateRowNumberToString(ConvDataInt);
 
 						//check for row numbers compatible to supported well formats (up to 1536 well plate)
-						if(ConvData1 == null)
+						if(rowString == null)
 						{
 							// give a Warning message and returning a missing cell
-							SendWarning(1, dcell0.toString(), RowId, ColumnNames[idRow]);
+							//SendWarning(1, rowCell.toString(), RowId, ColumnNames[idRow]);
 							
 							return DataType.getMissingCell();
 						}
@@ -332,42 +373,40 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 					// catches number format exception while converting the values to alphabetical format
 					catch (NumberFormatException e)
 					{
-						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
+						//SendWarning(1, rowCell.toString(), RowId, ColumnNames[idCol]);
 						return DataType.getMissingCell();
 					}
 					// catches Null pointer exception while converting the values to alphabetical format
 					catch (NullPointerException e)
 					{
-						setWarningMessage("Null Pointer Exception please check your input table");
+						//setWarningMessage("Null Pointer Exception please check your input table");
 						return DataType.getMissingCell();
 					}
 					//  catches missing entries in the auto guessing array
 					catch (IndexOutOfBoundsException e)
 					{
 						//setWarningMessage("ValueError - can not use cell value for creating row position in row " + dcell1.toString() + " - it's out of range of the supported well formats");
-						SendWarning(1, dcell0.toString(), RowId, ColumnNames[idCol]);
+						//SendWarning(1, rowCell.toString(), RowId, ColumnNames[idCol]);
 						return DataType.getMissingCell();
 					}
 				}
-				
-				
-				
 
 				// checking current setting for formating columns for better sorting
 				if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) 
 				{
-					if(ConvData1.length() == 1 )
+					if(rowString.length() == 1 && needsSpace)
 					{
-						ConvData1 = " " + ConvData1;
-					}
-					if(ConvData0.length() == 1)
-					{
-						
-						return new StringCell(ConvData1.concat("0").concat(ConvData0));
+						rowString = " " + rowString;
 					}
 				}
 				
-				return new StringCell(ConvData1.concat(ConvData0));
+				return new StringCell(rowString.concat(columnString));
+			}
+
+			private String createValueErrorMessage(RowKey rowKey, String valueString, String columnName, String reason) {
+				return rowKey.getString() + ": Value \"" 
+						+ valueString + "\" in column \"" 
+						+ columnName + "\" " + reason;
 			}
 		};
 		rearranged_table.append(factory);
