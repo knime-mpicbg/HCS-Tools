@@ -123,7 +123,7 @@ public class TdsUtils {
         //assert rowString.length() == 1;
         //return rowString.toUpperCase().charAt(0) - 64;
         if (!rowLabels.contains(rowString.toUpperCase())) return -1;
-        return rowLabels.indexOf(rowString) + 1;
+        return rowLabels.indexOf(rowString.toUpperCase()) + 1;
     }
 
 

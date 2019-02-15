@@ -323,82 +323,54 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 				
 
 				//=========== Checking and Converting Row ===========//
-
-				if(rowCell.getType() == StringCell.TYPE)
+				
+				int rowVal = -1;
+				if(rowDataType.isCompatible(DoubleValue.class))
 				{
-					rowString = ((StringValue) rowCell).getStringValue();
-
+					Double rowValDouble = ((DoubleValue) rowCell).getDoubleValue();
 					
-					// Checking if the alphabetical input values are compatible to well plates
-					// IMPORTANT: if the supported well plates is gonna change - its necessary to change the regex
-					if(rowString.matches("^[aA]{0,1}[aA-fF]{1}$"))
-					{
-						// Converts lower case input to upper case - better looking
-						rowString = rowString.toUpperCase();
+					if(rowValDouble % 1 != 0) {
+						throw new IllegalArgumentException(
+								createValueErrorMessage(
+										rowKey, 
+										rowValDouble.toString(), 
+										rowName, 
+										"is not integer."));
 					}
-
-					else
-					{
-						//SendWarning(1, rowCell.toString(), RowId, ColumnNames[idRow]);
-						return DataType.getMissingCell();
-					}
+										
+					rowVal = rowValDouble.intValue();
+					
 				}
-
-				if(rowCell.getType() == DoubleCell.TYPE ||rowCell.getType() == IntCell.TYPE )
-				{
-					Double ConvDataDouble = ((DoubleValue) rowCell).getDoubleValue();
-
-					if(ConvDataDouble > TdsUtils.MAX_PLATE_ROW)
-					{
-						//SendWarning(1, rowCell.toString(), RowId, ColumnNames[idRow]);
-						return DataType.getMissingCell();
-					}
-
-					try
-					{
-						Integer ConvDataInt = (int)ConvDataDouble.doubleValue();
-						columnString = TdsUtils.mapPlateRowNumberToString(ConvDataInt);
-
-						//check for row numbers compatible to supported well formats (up to 1536 well plate)
-						if(rowString == null)
-						{
-							// give a Warning message and returning a missing cell
-							//SendWarning(1, rowCell.toString(), RowId, ColumnNames[idRow]);
-							
-							return DataType.getMissingCell();
+				if(rowDataType.isCompatible(StringValue.class)) {
+					String rowValString = ((StringValue) rowCell).getStringValue();
+					
+					rowVal = TdsUtils.mapPlateRowStringToNumber(rowValString);
+					
+					if(rowVal == -1)
+					{				
+						try {
+							rowVal = Integer.parseInt(rowValString);
+						} catch(NumberFormatException nfe) {
+							throw new IllegalArgumentException(
+									createValueErrorMessage(
+											rowKey, 
+											rowValString, 
+											rowName, 
+											"does not represent an integer, nor a valid row letter"));
 						}
-
-					}
-
-					// catches number format exception while converting the values to alphabetical format
-					catch (NumberFormatException e)
-					{
-						//SendWarning(1, rowCell.toString(), RowId, ColumnNames[idCol]);
-						return DataType.getMissingCell();
-					}
-					// catches Null pointer exception while converting the values to alphabetical format
-					catch (NullPointerException e)
-					{
-						//setWarningMessage("Null Pointer Exception please check your input table");
-						return DataType.getMissingCell();
-					}
-					//  catches missing entries in the auto guessing array
-					catch (IndexOutOfBoundsException e)
-					{
-						//setWarningMessage("ValueError - can not use cell value for creating row position in row " + dcell1.toString() + " - it's out of range of the supported well formats");
-						//SendWarning(1, rowCell.toString(), RowId, ColumnNames[idCol]);
-						return DataType.getMissingCell();
 					}
 				}
-
-				// checking current setting for formating columns for better sorting
-				if(((SettingsModelBoolean) getModelSetting(CFG_formateColumn)).getBooleanValue() == true) 
-				{
-					if(rowString.length() == 1 && needsSpace)
-					{
-						rowString = " " + rowString;
-					}
-				}
+				if(rowVal < 1 || rowVal > TdsUtils.MAX_PLATE_ROW)
+					throw new IllegalArgumentException(
+							createValueErrorMessage(
+									rowKey, 
+									Integer.toString(rowVal), 
+									rowName, 
+									" is not within the expected range [1;" + TdsUtils.MAX_PLATE_ROW + "]"));
+				rowString = TdsUtils.mapPlateRowNumberToString(rowVal);
+				
+				if(sortable && rowString.length() == 1)
+					rowString = " " + rowString;
 				
 				return new StringCell(rowString.concat(columnString));
 			}
@@ -409,6 +381,8 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 						+ columnName + "\" " + reason;
 			}
 		};
+		
+		
 		rearranged_table.append(factory);
 		return rearranged_table;
 	}
