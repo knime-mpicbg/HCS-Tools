@@ -96,20 +96,6 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 	static final SettingsModelBoolean createFormateColumn() {
 		return new SettingsModelBoolean(CFG_formateColumn, false);
 	}
-	
-	
-	private void SendWarning(Integer WarnNum, String CellValue, String RowNum, String ColumnName) {
-		String[] ValueErrorRange = new String[20];
-		
-		// Value Error - the column value for the well position is not supported or in a wrong type
-		ValueErrorRange[0] = "Error in RowID \"" + RowNum + "\" in column " + ColumnName + " - the cell value " + CellValue + " seems to be not supported or in a wrong format";
-		
-		// Value Error - the column value for the well position is not supported or in a wrong type
-		ValueErrorRange[1] = "Error in RowID \"" + RowNum + "\" in column \"" + ColumnName +"\" - the cell value " + CellValue + " seems to be not supported or in a wrong format";
-		
-		
-		setWarningMessage(ValueErrorRange[WarnNum]);
-	}
 
 	/**
 	 * Execution class of the Node
@@ -159,17 +145,11 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		}
 		
 		boolean needsSpace = maxPlateRow > 26;
-
+		boolean deleteSourceColumns = ((SettingsModelBoolean) this.getModelSetting(CFG_deleteSouceCol)).getBooleanValue();
 
 		// Rearrange and creating new table wit information of id's of the columns to rearrange.
-		ColumnRearranger rearranged_table = createColumnRearranger(inData[0].getDataTableSpec(),idCol ,idRow, needsSpace);
+		ColumnRearranger rearranged_table = createColumnRearranger(inData[0].getDataTableSpec(),idCol ,idRow, needsSpace, deleteSourceColumns);
 
-
-		// Checking for option to delete all source columns
-		if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) 
-		{
-			rearranged_table.remove(idCol, idRow);
-		}
 
 		// Creating new table
 		BufferedDataTable output_table = exec.createColumnRearrangeTable(inData[0], rearranged_table, exec);
@@ -186,20 +166,11 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		// Reading in input table over port "Table Input"	
 		DataTableSpec tSpec = in[0];
 
-		// Reading in Settings of the node, if available 
+		// Reading in Settings of the node
 		// =====================================================================================
-		String plateColumn = null;
-		if(getModelSetting(CFG_PlateColumn) != null) {
-			plateColumn = ((SettingsModelString) getModelSetting(CFG_PlateColumn)).getStringValue();
-		}
-
-		String plateRow = null;
-		if(getModelSetting(CFG_PlateRow) != null) {
-			plateRow = ((SettingsModelString) getModelSetting(CFG_PlateRow)).getStringValue();
-		}
-		// =====================================================================================
-
-
+		String plateColumn = ((SettingsModelString) getModelSetting(CFG_PlateColumn)).getStringValue();
+		String plateRow = ((SettingsModelString) getModelSetting(CFG_PlateRow)).getStringValue();
+		
 		// if plateColumn and plateRow column is not set in the settings, try auto guessing
 		if(plateColumn == null) {
 			List<String> guessedColums = tryAutoGuessingPlateColumns(tSpec);
@@ -213,20 +184,29 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 			((SettingsModelString)this.getModelSetting(CFG_PlateRow)).setStringValue(plateRow);
 
 		} 
+		
+		// check for availability
+		if(!tSpec.containsName(plateColumn))
+			throw new InvalidSettingsException("Input table does not contain the expected columns: " + plateColumn);
+		if(!tSpec.containsName(plateRow))
+			throw new InvalidSettingsException("Input table does not contain the expected columns: " + plateRow);
 
 		// Saving index of column and row into variable idCol and idRow
 		int idCol = tSpec.findColumnIndex(plateColumn);
 		int idRow = tSpec.findColumnIndex(plateRow);
+		
+		// check data type
+		DataType t = tSpec.getColumnSpec(idCol).getType();
+		if(!(t.isCompatible(StringValue.class) || t.isCompatible(DoubleValue.class)))
+			throw new InvalidSettingsException("Column \"" + plateColumn + "\" must not be of type \"" + t.getName() +"\".");
+		t = tSpec.getColumnSpec(idRow).getType();
+		if(!(t.isCompatible(StringValue.class) || t.isCompatible(DoubleValue.class)))
+			throw new InvalidSettingsException("Column \"" + plateRow + "\" must not be of type \"" + t.getName() +"\".");
+		
+		boolean deleteSourceColumns = ((SettingsModelBoolean) this.getModelSetting(CFG_deleteSouceCol)).getBooleanValue();
 
 		// Rearrange and creating new table wit information of id's of the columns to rearrange.
-		ColumnRearranger rearranged_table = createColumnRearranger(in[0], idCol , idRow, false);
-
-		// Checking for option to delete all source columns
-		if(((SettingsModelBoolean) getModelSetting(CFG_deleteSouceCol)).getBooleanValue() == true) 
-		{
-			rearranged_table.remove(idCol, idRow);
-		}
-
+		ColumnRearranger rearranged_table = createColumnRearranger(in[0], idCol , idRow, false, deleteSourceColumns);
 		DataTableSpec output_table = rearranged_table.createSpec();
 
 		return new DataTableSpec[]{output_table};
@@ -235,11 +215,12 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 
 	/**
 	 * ColumnRearranger to create output table
+	 * @param deleteSourceColumns 
 	 */
-	private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow, final boolean needsSpace) {
+	private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, final Integer idCol, final Integer idRow, final boolean needsSpace, boolean deleteSourceColumns) {
 
 		// Creating new ColumRearranger instance
-		ColumnRearranger rearranged_table = new ColumnRearranger(inSpec);
+		ColumnRearranger rearranger = new ColumnRearranger(inSpec);
 		
 
 		// column specification of the appended column
@@ -383,8 +364,18 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 		};
 		
 		
-		rearranged_table.append(factory);
-		return rearranged_table;
+		// Checking for option to delete all source columns
+		if(deleteSourceColumns) 
+		{
+			if(idRow == idCol)
+				rearranger.remove(idCol);
+			else
+				rearranger.remove(idCol, idRow);
+		}
+		
+		
+		rearranger.append(factory);
+		return rearranger;
 	}
 
 	/**
