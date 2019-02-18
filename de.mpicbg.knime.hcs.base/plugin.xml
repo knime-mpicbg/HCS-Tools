@@ -119,6 +119,11 @@
       deprecated="false"
       factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.createinterval.CreateIntervalNodeFactory">
 </node>
+<node
+      category-path="/community/hcstools/util"
+      deprecated="false"
+      factory-class="de.mpicbg.knime.hcs.base.nodes.layout.expandwellposition.ExpandWellPositionV2NodeFactory">
+</node>
 </extension>
 
     <extension point="org.knime.workbench.repository.categories">
