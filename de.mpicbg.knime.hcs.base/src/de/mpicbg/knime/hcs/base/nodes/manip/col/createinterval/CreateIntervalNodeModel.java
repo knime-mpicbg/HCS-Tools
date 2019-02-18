@@ -123,7 +123,7 @@ public class CreateIntervalNodeModel extends AbstractNodeModel {
 		if(!settings.createNewColumn()) {
 			if(outColumnName == null)
 				throw new InvalidSettingsException("Settings mismatch: Column name of column to be replaced cannot be null");
-			checkColumnsForAvailability(inSpec, outColumnName, DataValue.class, false, true);
+			checkColumnsForAvailability(inSpec, outColumnName, DataValue.class, false);
 		}
 		
 		if(leftBoundColumn.equals(rightBoundColumn))
