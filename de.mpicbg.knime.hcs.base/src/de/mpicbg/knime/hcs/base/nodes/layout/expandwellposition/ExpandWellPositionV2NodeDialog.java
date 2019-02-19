@@ -5,6 +5,12 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 
+/**
+ * node dialog for Expand Well Position (V2)
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class ExpandWellPositionV2NodeDialog extends DefaultNodeSettingsPane {
 
 	@SuppressWarnings("unchecked")

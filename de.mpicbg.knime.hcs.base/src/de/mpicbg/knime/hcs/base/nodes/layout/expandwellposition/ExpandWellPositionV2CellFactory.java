@@ -9,7 +9,6 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
-import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.AbstractCellFactory;
@@ -19,24 +18,41 @@ import org.knime.core.util.MutableInteger;
 
 import de.mpicbg.knime.hcs.core.TdsUtils;
 
+/**
+ * cell factory for Expand Well Position (V2)
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class ExpandWellPositionV2CellFactory extends AbstractCellFactory {
 	
+	// column index of well column
 	private final int m_colIdx;
+	// true, if row letters shall be translated into numeric representation
 	private final boolean m_convertRowValues;
 	
+	// name of new column for plate row 
 	private final String m_plateRowName;
+	// name of new column for plate column
 	private final String m_plateColumnName;
 	
-	private final DataTableSpec m_inSpec;
-	
+	// well pattern
 	private final Pattern m_pattern = Pattern.compile(TdsUtils.WELL_PATTERN);
 	
+	// counts mismatches for final warning message
 	private MutableInteger m_countMismatches;
 
-	public ExpandWellPositionV2CellFactory(DataTableSpec inSpec, int colIdx, boolean convertRowValues, String plateRowName, String plateColumnName, MutableInteger countMismatches) {
+	/**
+	 * constructor
+	 * 
+	 * @param colIdx				index of column with well position
+	 * @param convertRowValues		if true, row values will become integer
+	 * @param plateRowName			name of new column for plate row 
+	 * @param plateColumnName		name of new column for plate column
+	 * @param countMismatches		count mismatches
+	 */
+	public ExpandWellPositionV2CellFactory(int colIdx, boolean convertRowValues, String plateRowName, String plateColumnName, MutableInteger countMismatches) {
 		super();
-		
-		m_inSpec = inSpec;
 		
 		m_colIdx = colIdx;
 		m_convertRowValues = convertRowValues;
@@ -47,6 +63,9 @@ public class ExpandWellPositionV2CellFactory extends AbstractCellFactory {
 		m_countMismatches= countMismatches;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public DataColumnSpec[] getColumnSpecs() {
 		
@@ -65,6 +84,9 @@ public class ExpandWellPositionV2CellFactory extends AbstractCellFactory {
 		return columnsToAdd.toArray(new DataColumnSpec[columnsToAdd.size()]);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public DataCell[] getCells(DataRow row) {
 		
@@ -79,6 +101,7 @@ public class ExpandWellPositionV2CellFactory extends AbstractCellFactory {
 		
 		Matcher matcher = m_pattern.matcher(wellString);
 
+		// if string does not match, return missing
         if (!matcher.matches()) {
             m_countMismatches.inc();
             return missingResult;
@@ -89,12 +112,14 @@ public class ExpandWellPositionV2CellFactory extends AbstractCellFactory {
         
         // test, whether plate row string is valid
         int plateRow = TdsUtils.mapPlateRowStringToNumber(plateRowString);
+        // if plate row is not valid for supported plate formats
         if(plateRow == -1) {
         	m_countMismatches.inc();
         	return missingResult;
         }
         	
         int plateColumn = Integer.parseInt(plateColumnString);
+        // if plate column is not valid for supported plate formats
         if(plateColumn < 1 || plateColumn > TdsUtils.MAX_PLATE_COLUMN) {
         	m_countMismatches.inc();
         	return missingResult;
@@ -102,6 +127,7 @@ public class ExpandWellPositionV2CellFactory extends AbstractCellFactory {
         
         DataCell rowCell = null;
         
+        // create new cells
         if(m_convertRowValues) {
         	rowCell = new IntCell(plateRow);
         } else

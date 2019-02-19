@@ -4,6 +4,12 @@ import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeFactory;
 import org.knime.core.node.NodeView;
 
+/**
+ * node factory for Expand Well Position (V2)
+ * 
+ * @author Antje Janosch
+ *
+ */
 public class ExpandWellPositionV2NodeFactory extends NodeFactory<ExpandWellPositionV2NodeModel> {
 
 	@Override
