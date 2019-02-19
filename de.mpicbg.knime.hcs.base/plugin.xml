@@ -46,7 +46,11 @@
         <!--utilities-->
         <node category-path="/community/hcstools/util" factory-class="de.mpicbg.knime.hcs.base.nodes.layout.ConvertPlateRowsFactory" id="de.mpicbg.tds.knime.hcstools.utils.ConvertPlateRowsFactory"/>
 
-        <node category-path="/community/hcstools/util" factory-class="de.mpicbg.knime.hcs.base.nodes.layout.ExpandWellPositionFactory" id="de.mpicbg.tds.knime.hcstools.utils.ExpandWellPositionFactory"/>
+        <node
+              category-path="/community/hcstools/util"
+              deprecated="true"
+              factory-class="de.mpicbg.knime.hcs.base.nodes.layout.ExpandWellPositionFactory"
+              id="de.mpicbg.tds.knime.hcstools.utils.ExpandWellPositionFactory"/>
 
         <node category-path="/community/hcstools/util" factory-class="de.mpicbg.knime.hcs.base.nodes.layout.LoadLayoutV2NodeFactory" id="de.mpicbg.tds.knime.hcstools.utils.node_loadlayout.LoadLayoutV2NodeFactory"/>
 
@@ -118,6 +122,11 @@
       category-path="/community/hcstools/manipulation/column/"
       deprecated="false"
       factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.createinterval.CreateIntervalNodeFactory">
+</node>
+<node
+      category-path="/community/hcstools/util"
+      deprecated="false"
+      factory-class="de.mpicbg.knime.hcs.base.nodes.layout.expandwellposition.ExpandWellPositionV2NodeFactory">
 </node>
 </extension>
 

@@ -52,10 +52,14 @@ public class TdsUtils {
     public static final String SCREEN_MODEL_CONCENTRATION = "concentration";
     public static final String SCREEN_MODEL_CONCENTRATION_UNIT = "unit of concentration";
     public static final String SCREEN_MODEL_COMPOUND_ID = "compound id";
+    
     public static final String TREATMENT_LIBRARY = "library";
     public static final String TREATMENT_UNTREATED = "untreated";
+    
     public static final int MAX_PLATE_COLUMN = 48;
     public static final int MAX_PLATE_ROW = 32;
+    
+    public static final String WELL_PATTERN = "([a-zA-Z]{1,2})([\\d]+)";
     
 
     // row labels up to 1536 well plate ('A','B',...'Z','AA','AB',...)
@@ -68,7 +72,7 @@ public class TdsUtils {
         int j = 0;
         int offset = 'Z' - 'A' + 1;   // to restart the alphabet with i > 26
 
-        for (int i = 1; i <= 32; i++) {
+        for (int i = 1; i <= MAX_PLATE_ROW; i++) {
             if (j == 0) {
                 char c = (char) ('A' + (i - 1));
                 list.add(String.valueOf(c));

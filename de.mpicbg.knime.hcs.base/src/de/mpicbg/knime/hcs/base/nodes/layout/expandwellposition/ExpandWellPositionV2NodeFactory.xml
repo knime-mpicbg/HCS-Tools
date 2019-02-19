@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 
-<knimeNode icon="./ExpandWellPosition.png" type="Manipulator" deprecated="true">
+<knimeNode icon="./ExpandWellPosition.png" type="Manipulator">
     <name>Expand Well Position</name>
 
     <shortDescription>
@@ -12,18 +12,17 @@
     <fullDescription>
         <intro>
             <p>
-                This node takes a string column containing well positions (like B3 or C14) and appends two integer
-                columns named 'plateRow' and
-                'plateColumn' containing two integer coordinates of the wells (link 2 and 3 or 3 and 14). It handles
-                well positions up to 1536 plate format.
+                This node takes a string column containing well positions (like B3 or C14) and appends two 
+                columns named 'plateRow' and 'plateColumn'. 
+                It handles well positions up to 1536 plate format.
             </p>
             <p>
-                Additional splitting characters (comma, colons, semicolons, underscore) between the row letter and the
-                column number will be ignored.
+                The output column 'plateRow' will either contain the letter or the numeric representation (depending on the node settings).
+                The output column 'plateColumn' will contain the number of the plate column.
             </p>
         </intro>
 
-        <option name="Well Position">The column which contains well positions encoded as B3 oc C14
+        <option name="Well Position">The column which contains well positions encoded as B3 or C14
         </option>
         <option name="Convert Row Characters">If enabled, the row character (e.g. B or C) will be converted
             automatically
@@ -35,9 +34,9 @@
     </fullDescription>
 
     <ports>
-        <inPort index="0" name="In-Port name">Input table with well column
+        <inPort index="0" name="Input table">Input table with well column
         </inPort>
-        <outPort index="0" name="Out-Port name">Input table with expanded well position.
+        <outPort index="0" name="Input table with appended well position columns">Input table with expanded well position.
         </outPort>
     </ports>
 
