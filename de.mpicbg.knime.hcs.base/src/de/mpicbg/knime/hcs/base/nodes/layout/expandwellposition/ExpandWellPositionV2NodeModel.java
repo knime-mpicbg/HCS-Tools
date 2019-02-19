@@ -11,7 +11,10 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.util.MutableInteger;
 
+import de.mpicbg.knime.hcs.base.nodes.manip.col.createinterval.CreateIntervalCellFactory;
+import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.knutils.AbstractNodeModel;
 
 public class ExpandWellPositionV2NodeModel extends AbstractNodeModel {
@@ -23,6 +26,8 @@ public class ExpandWellPositionV2NodeModel extends AbstractNodeModel {
 	
 	public static final String CFG_CONVERT_ROWVALS = "convert.row.characters";
 	public static final boolean CFG_CONVERT_ROWVALS_DFT = true;
+	
+	private MutableInteger m_mismatchCount;
 	
 	public ExpandWellPositionV2NodeModel() {
 		super(1,1,true);		
@@ -76,23 +81,45 @@ public class ExpandWellPositionV2NodeModel extends AbstractNodeModel {
 			throw new InvalidSettingsException("Column \"" + selectedColumn + "\" must not be of type \"" + t.getName() +"\".");
 	
 		
-		ColumnRearranger rearranged_table = createColumnRearranger(inSpec, colIdx, deleteSource, convertRowValues);
-		DataTableSpec outSpec = rearranged_table.createSpec();
+		ColumnRearranger rearranged_table = createColumnRearranger(inSpec, colIdx, deleteSource, convertRowValues, null);
 
-		return new DataTableSpec[]{outSpec};	
+		return new DataTableSpec[]{rearranged_table.createSpec()};	
 	}
 
 	private ColumnRearranger createColumnRearranger(DataTableSpec inSpec, int colIdx, boolean deleteSource,
-			boolean convertRowValues) {
-		ColumnRearranger rearranger = new ColumnRearranger(inSpec);
+			boolean convertRowValues, MutableInteger mismatchCount) {
+		ColumnRearranger cRearranger = new ColumnRearranger(inSpec);
 		
-		return rearranger;
+		if(deleteSource)
+			cRearranger.remove(colIdx);
+		
+		String plateRowName = DataTableSpec.getUniqueColumnName(cRearranger.createSpec(), TdsUtils.SCREEN_MODEL_WELL_ROW);
+		String plateColumnName = DataTableSpec.getUniqueColumnName(cRearranger.createSpec(), TdsUtils.SCREEN_MODEL_WELL_COLUMN);
+		
+		cRearranger.append(new ExpandWellPositionV2CellFactory(inSpec, colIdx, convertRowValues, plateRowName, plateColumnName, mismatchCount));			
+		
+		return cRearranger;
 	}
 
 	@Override
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
-		// TODO Auto-generated method stub
-		return super.execute(inData, exec);
+		DataTableSpec inSpec = inData[0].getDataTableSpec();
+		
+		String selectedColumn = ((SettingsModelString) this.getModelSetting(CFG_WELL_COLUMN)).getStringValue();
+		boolean deleteSource = ((SettingsModelBoolean) this.getModelSetting(CFG_DELETE_SOURCE)).getBooleanValue();
+		boolean convertRowValues = ((SettingsModelBoolean) this.getModelSetting(CFG_CONVERT_ROWVALS)).getBooleanValue();
+		
+		int colIdx = inSpec.findColumnIndex(selectedColumn);
+		m_mismatchCount = new MutableInteger(0);
+		
+		ColumnRearranger cRearrange = createColumnRearranger(inSpec, colIdx, deleteSource, convertRowValues, m_mismatchCount);
+		
+		BufferedDataTable out = exec.createColumnRearrangeTable(inData[0], cRearrange, exec);
+		
+		if(m_mismatchCount.intValue() > 0)
+			this.setWarningMessage(m_mismatchCount.intValue() + " input string(s) did not match the pattern or are not in the expected range");
+		
+		return new BufferedDataTable[]{out};
 	}
 
 }
