@@ -350,7 +350,7 @@ public class CreateWellPositionNodeModel extends AbstractNodeModel {
 									" is not within the expected range [1;" + TdsUtils.MAX_PLATE_ROW + "]"));
 				rowString = TdsUtils.mapPlateRowNumberToString(rowVal);
 				
-				if(sortable && rowString.length() == 1)
+				if(needsSpace && sortable && rowString.length() == 1)
 					rowString = " " + rowString;
 				
 				return new StringCell(rowString.concat(columnString));
