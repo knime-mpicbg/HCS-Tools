@@ -79,9 +79,9 @@
 		<node category-path="/community/hcstools/io" factory-class="de.mpicbg.knime.hcs.base.nodes.io.echoreader.EchoFileReaderNodeFactory" id="de.mpicbg.knime.hcs.base.echofilereader.EchoFileReaderNodeFactory"/>
 
         <!--Data manipulators-->
-        <node category-path="/community/hcstools/manipulation/column/split+combine" factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.BetterCellSplitterFactory" id="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterCellSplitterFactory"/>
+        <node category-path="/community/hcstools/manipulation/column/split_combine" factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.BetterCellSplitterFactory" id="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterCellSplitterFactory"/>
 
-        <node category-path="/community/hcstools/manipulation/column/split+combine" factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.BetterColumnCombinerFactory" id="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterColumnCombinerFactory"/>
+        <node category-path="/community/hcstools/manipulation/column/split_combine" factory-class="de.mpicbg.knime.hcs.base.nodes.manip.col.BetterColumnCombinerFactory" id="de.mpicbg.tds.knime.hcstools.datamanip.column.BetterColumnCombinerFactory"/>
 
         <node category-path="/community/hcstools/manipulation/row/filter" factory-class="de.mpicbg.knime.hcs.base.nodes.manip.row.RangeFilterV2Factory" id="de.mpicbg.tds.knime.hcstools.datamanip.row.RangeFilterV2Factory"/>
 
@@ -143,7 +143,7 @@
         <category icon="resources/category_column.png" level-id="column" name="Column" path="/community/hcstools/manipulation"/>
         <category icon="resources/category_row.png" level-id="row" name="Row" path="/community/hcstools/manipulation"/>
         <category icon="resources/category_filter.png" level-id="filter" name="Filter" path="/community/hcstools/manipulation/row"/>
-        <category icon="resources/category_Split_combine.png" level-id="split+combine" name="Split &amp; Combine" path="/community/hcstools/manipulation/column"/>
+        <category icon="resources/category_Split_combine.png" level-id="split_combine" name="Split &amp; Combine" path="/community/hcstools/manipulation/column"/>
         <category icon="resources/category_preprocessing.png" level-id="prepro" name="Pre-Processing" path="/community/hcstools/"/>
         <category icon="resources/category_population_analysis.png" level-id="populationanalysis" name="Population analysis" path="/community/hcstools/"/>
 
