@@ -1,6 +1,6 @@
 package de.mpicbg.knime.hcs.core.tools.resconverter;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
