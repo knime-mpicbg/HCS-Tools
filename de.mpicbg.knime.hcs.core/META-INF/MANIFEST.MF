@@ -6,7 +6,6 @@ Bundle-Version: 4.0.000.qualifier
 Export-Package: de.mpicbg.knime.hcs.core,
  de.mpicbg.knime.hcs.core.barcodes,
  de.mpicbg.knime.hcs.core.barcodes.namedregexp,
- de.mpicbg.knime.hcs.core.chemoinfo,
  de.mpicbg.knime.hcs.core.experimental.screenmodel,
  de.mpicbg.knime.hcs.core.experimental.view,
  de.mpicbg.knime.hcs.core.math,
