@@ -3,14 +3,14 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/jtds-1.2.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/GradientSlider.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/TableLayout-20050920.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/opencsv-2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jxl-2.6.10.jar"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/AdoptOpenJDK (OpenJ9) 11 [11.0.11]">
+	<classpathentry exported="true" kind="lib" path="lib/TableLayout-20050920.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

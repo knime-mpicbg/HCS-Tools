@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HCS-Libraries
 Bundle-SymbolicName: de.mpicbg.knime.hcs.libs
-Bundle-Version: 3.1.000.qualifier
+Bundle-Version: 4.2.000.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.ui;bundle-version="3.108.0",
  nu.xom;bundle-version="1.2.10",
@@ -10,9 +10,9 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.108.0",
  org.apache.poi;bundle-version="3.9.0",
  org.apache.poi.ooxml;bundle-version="3.9.0"
 Bundle-ClassPath: .,
+ lib/TableLayout-20050920.jar,
  lib/jxl-2.6.10.jar,
  lib/opencsv-2.1.jar,
- lib/TableLayout-20050920.jar,
  lib/GradientSlider.jar,
  lib/jtds-1.2.4.jar
 Export-Package: au.com.bytecode.opencsv,
