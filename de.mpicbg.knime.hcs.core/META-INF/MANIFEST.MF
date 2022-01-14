@@ -2,11 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core functionality for the HCS Tools
 Bundle-SymbolicName: de.mpicbg.knime.hcs.core;singleton:=true
-Bundle-Version: 4.0.000.qualifier
+Bundle-Version: 4.2.000.qualifier
 Export-Package: de.mpicbg.knime.hcs.core,
  de.mpicbg.knime.hcs.core.barcodes,
  de.mpicbg.knime.hcs.core.barcodes.namedregexp,
- de.mpicbg.knime.hcs.core.chemoinfo,
  de.mpicbg.knime.hcs.core.experimental.screenmodel,
  de.mpicbg.knime.hcs.core.experimental.view,
  de.mpicbg.knime.hcs.core.math,
@@ -20,15 +19,15 @@ Export-Package: de.mpicbg.knime.hcs.core,
 Bundle-ClassPath: hcscore.jar
 Bundle-Vendor: Max Planck Institute of Molecular Cell Biology and Genetics (MPI-CBG)
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Activator: de.mpicbg.knime.hcs.core.HcsCoreBundleActivator
 Require-Bundle: org.eclipse.ui;bundle-version="[3.107.0,4.0.0)",
  org.apache.commons.math3;bundle-version="3.4.1",
  org.apache.commons.logging;bundle-version="1.1.1",
  org.apache.commons.lang3;bundle-version="3.2.1",
  org.junit;bundle-version="4.12.0",
- org.knime.core;bundle-version="[3.5.0,5.0.0)",
- de.mpicbg.knime.hcs.libs;bundle-version="3.1.0",
+ org.knime.core;bundle-version="[4.4.0,5.0.0)",
+ de.mpicbg.knime.hcs.libs;bundle-version="[4.2.0,5.0.0)",
  org.apache.poi;bundle-version="3.9.0",
  org.apache.poi.ooxml;bundle-version="3.9.0",
  nu.xom;bundle-version="1.2.10"
