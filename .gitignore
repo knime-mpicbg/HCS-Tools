@@ -2,11 +2,17 @@
 *.DS_Store
 
 # Eclipse production
-*/bin/*
 /.metadata
-*/.settings
+.settings
 
-# Eclipse plugin files
-*/.checkstyle
-
+# UML diagrams
 *.ucls
+
+*.jar
+!**/lib/*.jar
+
+# build
+**/bin/
+**/target/
+**/build/
+**/.flattened-pom.xml
