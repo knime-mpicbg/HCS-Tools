@@ -37,7 +37,7 @@
 		<repository>
 			<id>p2-knime-update-site-community</id>
 			<layout>p2</layout>
-			<url>https://update.knime.com/community-contributions/trusted/${knime.version}</url>
+			<url>file:${project.basedir}/../../knime-scripting/de.mpicbg.tds.knime.scripting.update/target/repository</url>
 		</repository>
 	</repositories>
 
