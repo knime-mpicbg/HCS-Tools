@@ -21,10 +21,11 @@
 
 	<!-- List the modules of your project here -->
 	<modules>
-		<module>de.mpicbg.knime.hcs.base</module>
-		<module>de.mpicbg.knime.hcs.core</module>
 		<module>de.mpicbg.knime.hcs.libs</module>
+		<module>de.mpicbg.knime.hcs.core</module>
+		<module>de.mpicbg.knime.hcs.base</module>
 		<module>de.mpicbg.tds.knime.hcstools.feature</module>
+		<module>de.mpicbg.tds.knime.hcstools.update</module>
 	</modules>
 
 	<!-- List the update sites providing dependencies for your projects here -->
