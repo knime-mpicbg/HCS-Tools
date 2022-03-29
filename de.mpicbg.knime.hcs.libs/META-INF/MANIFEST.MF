@@ -4,17 +4,11 @@ Bundle-Name: HCS-Libraries
 Bundle-SymbolicName: de.mpicbg.knime.hcs.libs
 Bundle-Version: 4.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.eclipse.ui;bundle-version="3.108.0",
- nu.xom;bundle-version="1.2.10",
- org.apache.commons.collections;bundle-version="3.2.2",
- org.apache.poi;bundle-version="3.9.0",
- org.apache.poi.ooxml;bundle-version="3.9.0"
 Bundle-ClassPath: .,
  lib/TableLayout-20050920.jar,
  lib/jxl-2.6.10.jar,
  lib/opencsv-2.1.jar,
- lib/GradientSlider.jar,
- lib/jtds-1.2.4.jar
+ lib/GradientSlider.jar
 Export-Package: au.com.bytecode.opencsv,
  com.bric.swing,
  info.clearthought.layout,
@@ -22,5 +16,5 @@ Export-Package: au.com.bytecode.opencsv,
  jxl.format,
  jxl.read.biff,
  jxl.write,
- jxl.write.biff,
- net.sourceforge.jtds.jdbc
+ jxl.write.biff
+Require-Bundle: org.eclipse.ui;bundle-version="3.119.0"

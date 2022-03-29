@@ -5,7 +5,6 @@ import de.mpicbg.knime.knutils.AttributeUtils;
 import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.hcs.core.model.Plate;
 import de.mpicbg.knime.hcs.core.model.Well;
-import net.sourceforge.jtds.jdbc.Driver;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataType;
@@ -97,7 +96,8 @@ public class ArrayScanKnimeUtils {
 
 
     public static Connection connectToASDB(String url) throws SQLException {
-        DriverManager.registerDriver(new Driver());
-        return DriverManager.getConnection(url, "tdsuser-ro", "opera.2");
+        //DriverManager.registerDriver(new Driver());
+        //return DriverManager.getConnection(url, "tdsuser-ro", "opera.2");
+    	return null;
     }
 }
