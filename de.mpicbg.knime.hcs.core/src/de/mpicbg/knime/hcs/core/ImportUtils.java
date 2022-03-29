@@ -1,6 +1,7 @@
 package de.mpicbg.knime.hcs.core;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.text.DecimalFormat;
@@ -88,7 +89,7 @@ public class ImportUtils {
             return null;
         }
 
-        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+        if (cell.getCellType() == CellType.NUMERIC) {
             return cell.getNumericCellValue();
         } else {
             return parseDouble(cell.getStringCellValue());
@@ -117,7 +118,7 @@ public class ImportUtils {
         if (cell == null) {
             return null;
 
-        } else if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+        } else if (cell.getCellType() == CellType.NUMERIC) {
             // return int if it is an integer
             double numericCellValue = cell.getNumericCellValue();
             if ((numericCellValue - (int) numericCellValue) < 1E-15)

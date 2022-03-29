@@ -2,6 +2,7 @@ package de.mpicbg.knime.hcs.core.util;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -58,7 +59,7 @@ public class StringArrayDummyRow implements Row {
             return null;
         }
 
-        if (cell.getStringCellValue().trim().isEmpty() && missingCellPolicy.equals(Row.RETURN_BLANK_AS_NULL)) {
+        if (cell.getStringCellValue().trim().isEmpty() && missingCellPolicy.equals(Row.MissingCellPolicy.RETURN_BLANK_AS_NULL)) {
             return null;
         }
 
@@ -137,5 +138,27 @@ public class StringArrayDummyRow implements Row {
 
 		@Override
 		public void setRowStyle(CellStyle style) {
+		}
+
+
+		@Override
+		public Cell createCell(int column, CellType type) {
+			return null;
+		}
+
+
+		@Override
+		public int getOutlineLevel() {
+			return 0;
+		}
+
+
+		@Override
+		public void shiftCellsRight(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
+		}
+
+
+		@Override
+		public void shiftCellsLeft(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
 		}
 }

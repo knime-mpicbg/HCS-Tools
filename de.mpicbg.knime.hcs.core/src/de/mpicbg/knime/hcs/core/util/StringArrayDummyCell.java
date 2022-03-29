@@ -2,8 +2,10 @@ package de.mpicbg.knime.hcs.core.util;
 
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -47,13 +49,13 @@ public class StringArrayDummyCell implements Cell {
     }
 
 
-    public int getCellType() {
-        return Cell.CELL_TYPE_STRING;
+    public CellType getCellType() {
+        return CellType.STRING;
     }
 
 
-    public int getCachedFormulaResultType() {
-        return 0;
+    public CellType getCachedFormulaResultType() {
+        return CellType.STRING;
     }
 
 
@@ -173,4 +175,65 @@ public class StringArrayDummyCell implements Cell {
     public String toString() {
         return getStringCellValue();
     }
+
+
+	@Override
+	public void setCellType(CellType cellType) {
+		
+	}
+
+
+	@Override
+	public void setBlank() {
+		// TODO Auto-generated method stub
+	}
+
+
+	@Override
+	public CellType getCellTypeEnum() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public CellType getCachedFormulaResultTypeEnum() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void setCellValue(LocalDateTime value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void removeFormula() throws IllegalStateException {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public LocalDateTime getLocalDateTimeCellValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public CellAddress getAddress() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void removeHyperlink() {
+		// TODO Auto-generated method stub
+		
+	}
 }

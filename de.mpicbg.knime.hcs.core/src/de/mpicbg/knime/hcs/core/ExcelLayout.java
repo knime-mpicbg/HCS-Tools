@@ -3,6 +3,7 @@ package de.mpicbg.knime.hcs.core;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -182,7 +183,7 @@ public class ExcelLayout implements Serializable {
 
         // iterate columnwise over the row which should contain the column labels (1,2,...,m)
         // checks only for some content at the moment
-        Cell curCell = columnLabels.getCell((sCol + 1), Row.RETURN_BLANK_AS_NULL);
+        Cell curCell = columnLabels.getCell((sCol + 1), Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 
         while (curCell != null) {
             numCols++;
@@ -195,12 +196,12 @@ public class ExcelLayout implements Serializable {
             if (col != (double) numCols)
                 throw new ExcelLayoutException("Layout " + curLayoutlabel + ": Column label '" + colLabel + "' does not fit to column " + numCols);
 
-            curCell = columnLabels.getCell(curCell.getColumnIndex() + 1, Row.RETURN_BLANK_AS_NULL);
+            curCell = columnLabels.getCell(curCell.getColumnIndex() + 1, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
         }
 
         // iterate rowwise over the column which should contain the row labels (A,B,C,...)
         Row curRow = sheet.getRow(sRow + 2);
-        if (curRow != null) curCell = curRow.getCell(sCol, Row.RETURN_BLANK_AS_NULL);
+        if (curRow != null) curCell = curRow.getCell(sCol, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 
         while (curRow != null && curCell != null) {
             numRows++;
@@ -214,7 +215,7 @@ public class ExcelLayout implements Serializable {
                 throw new ExcelLayoutException("Layout " + curLayoutlabel + ": Row label '" + rowLabel + "' does not fit to row " + expectedLabel + " or " + numRows);
 
             curRow = sheet.getRow(curRow.getRowNum() + 1);
-            if (curRow != null) curCell = curRow.getCell(sCol, Row.RETURN_BLANK_AS_NULL);
+            if (curRow != null) curCell = curRow.getCell(sCol, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
         }
         
        
@@ -245,7 +246,7 @@ public class ExcelLayout implements Serializable {
         // check whether the line has some content at all
         if (sheet.getRow(sRow) == null) return null;
         // check wether the cell contains any data
-        if (sheet.getRow(sRow).getCell(sCol, Row.RETURN_BLANK_AS_NULL) == null) return null;
+        if (sheet.getRow(sRow).getCell(sCol, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL) == null) return null;
 
         return getCellContent(sheet.getRow((int) cellIdx.getX()).getCell((int) cellIdx.getY()));
     }
@@ -283,7 +284,7 @@ public class ExcelLayout implements Serializable {
             for (int r = 1; r <= nRows; r++) {
                 Row curRow = sheet.getRow(sRow + 1 + r);
                 for (int c = 1; c <= nCols; c++) {
-                    curCell = curRow.getCell(sCol + c, Row.RETURN_BLANK_AS_NULL);
+                    curCell = curRow.getCell(sCol + c, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                     String cellContent = null;
                     if (curCell != null) cellContent = getCellContent(curCell);
 
@@ -353,14 +354,14 @@ public class ExcelLayout implements Serializable {
      * @return string representation of cell content
      */
     private String getCellContent(Cell cell) {
-        int type = cell.getCellType();
+        CellType type = cell.getCellType();
 
-        if (type == Cell.CELL_TYPE_FORMULA) type = cell.getCachedFormulaResultType();
+        if (type == CellType.FORMULA) type = cell.getCachedFormulaResultType();
 
-        if (type == Cell.CELL_TYPE_BOOLEAN) return Boolean.toString(cell.getBooleanCellValue());
-        if (type == Cell.CELL_TYPE_ERROR) return "ERROR";
-        if (type == Cell.CELL_TYPE_NUMERIC) return Double.toString(cell.getNumericCellValue());
-        if (type == Cell.CELL_TYPE_STRING) return cell.getStringCellValue();
+        if (type == CellType.BOOLEAN) return Boolean.toString(cell.getBooleanCellValue());
+        if (type == CellType.ERROR) return "ERROR";
+        if (type == CellType.NUMERIC) return Double.toString(cell.getNumericCellValue());
+        if (type == CellType.STRING) return cell.getStringCellValue();
 
         return null;
     }
