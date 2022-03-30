@@ -10,6 +10,7 @@ import de.mpicbg.knime.knutils.ui.FileSelectPanel;
 import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.hcs.core.util.StringTable;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.knime.core.data.DataCell;
@@ -190,7 +191,7 @@ public class GeniusProFileReader extends AbstractNodeModel {
 
             for (Row row : sheet) {
                 Cell cell = row.getCell(0);
-                if (cell != null && cell.getCellType() == Cell.CELL_TYPE_STRING && cell.getStringCellValue().startsWith(measModePrefix)) {
+                if (cell != null && cell.getCellType() == CellType.STRING && cell.getStringCellValue().startsWith(measModePrefix)) {
                     acModes.add(cell.getStringCellValue().replace(measModePrefix, ""));
                 }
             }
