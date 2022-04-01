@@ -11,9 +11,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import de.mpicbg.knime.hcs.core.TdsUtils;
 import de.mpicbg.knime.hcs.core.model.Plate;
+import de.mpicbg.knime.hcs.core.model.Well;
 
 
 /**
@@ -50,7 +53,7 @@ public class OperaResFileReader {
         	DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(new File(resFile));
         	
-/*
+
             //Element rootElement = doc.getDocumentElement();
             //rootElement.getAttribute("Barcode");
 
@@ -99,7 +102,7 @@ public class OperaResFileReader {
             			well.getWellStatistics().put(readoutName, readout);
             		}
             	}
-            }*/
+            }
 
         } catch (Throwable t) {
             throw new RuntimeException("Parsing of opera-file failed: ", t);
