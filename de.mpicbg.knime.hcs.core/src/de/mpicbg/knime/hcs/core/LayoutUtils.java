@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -182,7 +183,7 @@ public class LayoutUtils {
         }
 
         Cell cell = sheet.getRow(rowIndex).getCell(colIndex);
-        return cell.getCellType() == Cell.CELL_TYPE_NUMERIC ? "" + (int) cell.getNumericCellValue() : cell.toString().trim();
+        return cell.getCellType() == CellType.NUMERIC ? "" + (int) cell.getNumericCellValue() : cell.toString().trim();
     }
 
 

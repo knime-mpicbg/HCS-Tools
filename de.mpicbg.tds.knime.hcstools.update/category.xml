@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+	<feature id="de.mpicbg.tds.knime.hcstools.feature" version="0.0.0">
+		<category name="community-hcs" />
+	</feature>
+	
+	<category-def name="community-hcs" label="Build artifacts from community-hcs">
+		<description>Build artifacts from community-hcs</description>
+	</category-def>
+
+</site>

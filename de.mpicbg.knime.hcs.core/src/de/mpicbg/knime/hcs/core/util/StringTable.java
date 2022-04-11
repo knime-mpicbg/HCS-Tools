@@ -4,6 +4,7 @@ import de.mpicbg.knime.hcs.core.LayoutUtils;
 import de.mpicbg.knime.hcs.core.TdsUtils;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -199,16 +200,16 @@ public class StringTable {
                 }
 
 
-                Cell cell = sheet.getRow(row).getCell(column, Row.RETURN_BLANK_AS_NULL);
+                Cell cell = sheet.getRow(row).getCell(column, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
                 if (cell == null) {
                     newRow.add(null);
                     continue;
                 }
 
-                if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
-                    if (cell.getCachedFormulaResultType() == Cell.CELL_TYPE_NUMERIC) {
+                if (cell.getCellType() == CellType.FORMULA) {
+                    if (cell.getCachedFormulaResultType() == CellType.NUMERIC) {
                         newRow.add("" + cell.getNumericCellValue());
-                    } else if (cell.getCachedFormulaResultType() == Cell.CELL_TYPE_STRING) {
+                    } else if (cell.getCachedFormulaResultType() == CellType.STRING) {
                         newRow.add("" + cell.getStringCellValue());
                     } else {
                         newRow.add("ERROR");
@@ -295,7 +296,7 @@ public class StringTable {
             if (row == null)
                 break;
 
-            String cellContent = row.getCell(colOffset, Row.CREATE_NULL_AS_BLANK).toString().trim();
+            String cellContent = row.getCell(colOffset, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).toString().trim();
             if (!cellContent.equals(TdsUtils.mapPlateRowNumberToString(rowCounter + 1))) {
                 break;
             }
@@ -306,12 +307,12 @@ public class StringTable {
 
         int colCounter = 0;
         while (sheet.getRow(rowOffset).getLastCellNum() > (colOffset + colCounter + 1)) {
-            Cell cell = sheet.getRow(rowOffset).getCell(colOffset + colCounter + 1, Row.RETURN_NULL_AND_BLANK);
+            Cell cell = sheet.getRow(rowOffset).getCell(colOffset + colCounter + 1, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK);
             if (cell == null) {
                 break;
             }
 
-            String cellContent = cell.getCellType() == Cell.CELL_TYPE_NUMERIC ? "" + (int) cell.getNumericCellValue() : cell.toString().trim();
+            String cellContent = cell.getCellType() == CellType.NUMERIC ? "" + (int) cell.getNumericCellValue() : cell.toString().trim();
             if (!cellContent.equals(colCounter + 1 + "")) {
                 break;
             }
@@ -406,7 +407,7 @@ public class StringTable {
 
         while (rowIndex + 3 < sheet.getLastRowNum()) { //3 because its the upper left position
             Cell A = sheet.getRow(rowIndex + 1) == null ? null : sheet.getRow(rowIndex + 1).getCell(colIndex);
-            Cell one = sheet.getRow(rowIndex) == null ? null : sheet.getRow(rowIndex).getCell(colIndex + 1, Row.RETURN_BLANK_AS_NULL);
+            Cell one = sheet.getRow(rowIndex) == null ? null : sheet.getRow(rowIndex).getCell(colIndex + 1, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 
             rowIndex++;
 
