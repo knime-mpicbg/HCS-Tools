@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HCS-Tools for KNIME
 Bundle-SymbolicName: de.mpicbg.knime.hcs.base;singleton:=true
-Bundle-Version: 4.3.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: hcstools.jar
 Bundle-Activator: de.mpicbg.knime.hcs.base.HCSToolsBundleActivator
@@ -16,15 +16,15 @@ Require-Bundle: org.eclipse.ui;bundle-version="[3.107.0,4.0.0)",
  nu.xom;bundle-version="1.2.10",
  org.apache.poi;bundle-version="[4.1.1,5.0.0)",
  org.apache.poi.ooxml;bundle-version="[4.1.1,5.0.0)",
- org.knime.core.pmml;bundle-version="[4.6.0,5.0.0)",
- org.knime.product;bundle-version="[4.6.0,5.0.0)",
- org.knime.base;bundle-version="[4.6.0,5.0.0)",
- de.mpicbg.knime.knutils;bundle-version="[4.3.0,5.0.0)",
+ org.knime.core.pmml;bundle-version="[5.1.0,6.0.0)",
+ org.knime.product;bundle-version="[5.1.0,6.0.0)",
+ org.knime.base;bundle-version="[5.1.0,6.0.0)",
+ de.mpicbg.knime.knutils;bundle-version="[5.0.0,6.0.0)",
  de.mpicbg.knime.scripting.libs;bundle-version="[4.3.0,5.0.0)",
- de.mpicbg.knime.scripting.core;bundle-version="[4.3.0,5.0.0)",
- de.mpicbg.knime.scripting.r;bundle-version="[4.3.0,5.0.0)",
+ de.mpicbg.knime.scripting.core;bundle-version="[5.0.0,6.0.0)",
+ de.mpicbg.knime.scripting.r;bundle-version="[5.0.0,6.0.0)",
  de.mpicbg.knime.hcs.libs;bundle-version="[4.3.0,5.0.0)",
- de.mpicbg.knime.hcs.core;bundle-version="[4.3.0,5.0.0)"
+ de.mpicbg.knime.hcs.core;bundle-version="[5.0.0,6.0.0)"
 Import-Package: org.apache.commons.collections.map
 
 

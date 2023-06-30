@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core functionality for the HCS Tools
 Bundle-SymbolicName: de.mpicbg.knime.hcs.core;singleton:=true
-Bundle-Version: 4.3.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Export-Package: de.mpicbg.knime.hcs.core,
  de.mpicbg.knime.hcs.core.barcodes,
  de.mpicbg.knime.hcs.core.barcodes.namedregexp,
@@ -26,7 +26,7 @@ Require-Bundle: org.eclipse.ui;bundle-version="[3.107.0,4.0.0)",
  org.apache.commons.logging;bundle-version="1.1.1",
  org.apache.commons.lang3;bundle-version="3.2.1",
  org.junit;bundle-version="4.12.0",
- org.knime.core;bundle-version="[4.6.0,5.0.0)",
+ org.knime.core;bundle-version="[5.1.0,6.0.0)",
  org.apache.poi;bundle-version="4.1.1",
  org.apache.poi.ooxml;bundle-version="4.1.1",
  de.mpicbg.knime.hcs.libs;bundle-version="[4.3.0,5.0.0)"
