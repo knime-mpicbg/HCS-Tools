@@ -29,7 +29,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&
    </license>
 
    <requires>
-      <import feature="de.mpicbg.tds.knime.scripting.r.feature" version="4.2.000.qualifier"/>
+      <import feature="de.mpicbg.tds.knime.scripting.r.feature" version="5.0.000.qualifier"/>
    </requires>
 
    <plugin
