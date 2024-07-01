@@ -647,4 +647,24 @@ public class StringArrayDummySheet implements Sheet {
 			// TODO Auto-generated method stub
 			
 		}
+
+
+		@Override
+		public double getMargin(PageMargin margin) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+
+		@Override
+		public void setMargin(PageMargin margin, double size) {
+			// TODO Auto-generated method stub
+			
+		}
+
+
+		@Override
+		public void createSplitPane(int xSplitPos, int ySplitPos, int leftmostColumn, int topRow, PaneType activePane) {
+			// TODO Auto-generated method stub
+		}
 }

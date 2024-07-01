@@ -188,21 +188,6 @@ public class StringArrayDummyCell implements Cell {
 		// TODO Auto-generated method stub
 	}
 
-
-	@Override
-	public CellType getCellTypeEnum() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public CellType getCachedFormulaResultTypeEnum() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
 	@Override
 	public void setCellValue(LocalDateTime value) {
 		// TODO Auto-generated method stub
