@@ -12,7 +12,7 @@
 	<properties>
 		<revision>1.0.0</revision>
 		<changelist>-SNAPSHOT</changelist>
-		<knime.version>5.5</knime.version>
+		<knime.version>5.6</knime.version>
 		<tycho.version>2.7.5</tycho.version>
 		<tycho.extras.version>${tycho.version}</tycho.extras.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,6 +24,8 @@
 		<module>de.mpicbg.knime.hcs.libs</module>
 		<module>de.mpicbg.knime.hcs.core</module>
 		<module>de.mpicbg.knime.hcs.base</module>
+		<module>de.mpicbg.knime.hcs2.core</module>
+		<module>de.mpicbg.knime.hcs2.base</module>
 		<module>de.mpicbg.tds.knime.hcstools.feature</module>
 		<module>de.mpicbg.tds.knime.hcstools.update</module>
 	</modules>

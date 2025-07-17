@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: HCS-Tools 2 for KNIME
+Bundle-SymbolicName: de.mpicbg.knime.hcs2.base;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ClassPath: hcstools2.jar
+Bundle-Activator: de.mpicbg.knime.hcs2.base.HCSToolsBundleActivator
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Max Planck Institute of Molecular Cell Biology and Genetics (MPI-CBG)
+Bundle-Localization: plugin
+Require-Bundle: org.knime.core.ui,
+ org.knime.node,
+ org.knime.core,
+ de.mpicbg.knime.hcs2.core;bundle-version="1.0.0",
+ org.apache.commons.lang3
+
+
