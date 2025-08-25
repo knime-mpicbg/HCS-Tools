@@ -102,13 +102,13 @@ final class ExpandWellPositionNodeSettings implements DefaultNodeSettings {
 
 	@Widget(title = "Column name (plate row index)", description = "...")
 	@Effect(predicate = OutputColumnIsRename.class, type = EffectType.SHOW)
-	@Persist(configKey = "PlateRowName")
+	//@Persist(configKey = "PlateRowName")
 	/** setting - column name for plate row */
 	String m_plateRowName = "plateRow";
 
 	@Widget(title = "Column name (plate column index)", description = "...")
 	@Effect(predicate = OutputColumnIsRename.class, type = EffectType.SHOW)
-	@Persist(configKey = "PlateColumnName")
+	//@Persist(configKey = "PlateColumnName")
 	/** setting - column name for plate column */
 	String m_plateColumnName = "plateColumn";
 
@@ -177,7 +177,7 @@ final class ExpandWellPositionNodeSettings implements DefaultNodeSettings {
         List<DataColumnSpec> filteredList = columnList.stream()
         .filter(str -> str.getName().matches(WELLCOLUMN_PATTERN)).toList();
         
-        if(columnList.isEmpty())
+        if(filteredList.isEmpty())
         	return;
     
         m_wellPositionColumn = filteredList.get(0).getName();
