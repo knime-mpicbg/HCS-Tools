@@ -47,8 +47,6 @@
 package de.mpicbg.knime.hcs2.base.node.layout.expandwellposition;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
@@ -56,27 +54,26 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.webui.node.dialog.defaultdialog.DefaultNodeSettings;
-import org.knime.core.webui.node.dialog.defaultdialog.persistence.api.Persist;
-import org.knime.core.webui.node.dialog.defaultdialog.util.column.ColumnSelectionUtil;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.Label;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.ValueSwitchWidget;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.Widget;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.choices.ChoicesProvider;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.choices.column.CompatibleColumnsProvider.StringColumnsProvider;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.updates.Effect;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.updates.Effect.EffectType;
+import org.knime.node.parameters.NodeParameters;
+import org.knime.node.parameters.NodeParametersInput;
+import org.knime.node.parameters.Widget;
+import org.knime.node.parameters.updates.Effect;
+import org.knime.node.parameters.updates.Effect.EffectType;
+import org.knime.node.parameters.updates.EffectPredicate;
+import org.knime.node.parameters.updates.EffectPredicateProvider;
+import org.knime.node.parameters.updates.ParameterReference;
+import org.knime.node.parameters.updates.ValueReference;
+import org.knime.node.parameters.widget.choices.ChoicesProvider;
+import org.knime.node.parameters.widget.choices.Label;
+import org.knime.node.parameters.widget.choices.ValueSwitchWidget;
+import org.knime.node.parameters.widget.choices.util.ColumnSelectionUtil;
+import org.knime.node.parameters.widget.choices.util.CompatibleColumnsProvider.StringColumnsProvider;
 
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
-import org.knime.core.webui.node.dialog.defaultdialog.widget.updates.Predicate;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.updates.PredicateProvider;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.updates.Reference;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.updates.ValueReference;
-
 
 /** Settings for the "Unit Converter" node. */
-final class ExpandWellPositionNodeSettings implements DefaultNodeSettings {
+final class ExpandWellPositionNodeSettings implements NodeParameters {
 	
 	protected static final String WELLCOLUMN_PATTERN = ".*[Ww]ell.*";
 
@@ -112,12 +109,12 @@ final class ExpandWellPositionNodeSettings implements DefaultNodeSettings {
 	/** setting - column name for plate column */
 	String m_plateColumnName = "plateColumn";
 
-	interface StandardRef extends Reference<OutputColumn> {
+	interface StandardRef extends ParameterReference<OutputColumn> {
 	}
 
-	static final class OutputColumnIsRename implements PredicateProvider {
+	static final class OutputColumnIsRename implements EffectPredicateProvider {
 		@Override
-		public Predicate init(final PredicateInitializer i) {
+		public EffectPredicate init(final PredicateInitializer i) {
 			return i.getEnum(StandardRef.class).isOneOf(OutputColumn.RENAME);
 		}
 	}
@@ -160,8 +157,8 @@ final class ExpandWellPositionNodeSettings implements DefaultNodeSettings {
     	this((DataTableSpec)null);
 	}
     
-    ExpandWellPositionNodeSettings(final DefaultNodeSettingsContext context) {
-        this(context.getDataTableSpec(0).orElse(null));
+    ExpandWellPositionNodeSettings(final NodeParametersInput context) {
+        this(context.getInTableSpec(0).orElse(null));
     }
 	
 	ExpandWellPositionNodeSettings(final DataTableSpec spec) {
@@ -169,18 +166,17 @@ final class ExpandWellPositionNodeSettings implements DefaultNodeSettings {
             return;
         }
 
+        // get all string columns
         List<DataColumnSpec> columnList = ColumnSelectionUtil.getStringColumns(spec);
         
         if(columnList.isEmpty())
         	return;
         
-        List<DataColumnSpec> filteredList = columnList.stream()
-        .filter(str -> str.getName().matches(WELLCOLUMN_PATTERN)).toList();
-        
-        if(filteredList.isEmpty())
-        	return;
-    
-        m_wellPositionColumn = filteredList.get(0).getName();
+        m_wellPositionColumn = columnList.stream()
+        	    .filter(str -> str.getName().matches(WELLCOLUMN_PATTERN))
+        	    .findFirst()
+        	    .map(DataColumnSpec::getName)
+        	    .orElseGet(() -> columnList.get(0).getName());
     }
 
 

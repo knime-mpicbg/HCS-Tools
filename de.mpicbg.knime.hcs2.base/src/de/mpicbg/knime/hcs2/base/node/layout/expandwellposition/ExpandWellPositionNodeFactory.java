@@ -57,20 +57,28 @@ public final class ExpandWellPositionNodeFactory extends DefaultNodeFactory {
     private static final DefaultNode NODE = DefaultNode.create() 
         .name("Expand Well Position") 
         .icon("ExpandWellPosition.png") 
-        .shortDescription("Convert units of measure") 
+        .shortDescription("Splits an input column containing plate well positions into two columns (plate row position, plate column position)") 
         .fullDescription("""
-                Convert between common metric / imperial units.
-
-                   Extend the ParameterArray to support further conversions
-                   by simply adding new items in the dialog.
+        		<p>
+        		This node expects a string input column containing well positions. Expected well position format:
+        		<ul>
+        		<li>row position may be one or two letters</li>
+        		<li>column position may be one or two numbers</li>
+        		<li>supports plate formats up to 1536 well plates</li> 
+        		</ul>
+        		Examples: E01, c7, AE12    
+        		</p>   
+        		<p>
+        		Two new columns will be created containing the plate row identifier and plate column identifier respectively.
+        		</p>        
                    """) //
         .ports(p -> p
-            .addInputTable("Input table", "Table with column(s) to convert") 
-            .addOutputTable("Output table", "Table with converted columns") 
+            .addInputTable("Input table", "Table with column containing well position to split") 
+            .addOutputTable("Output table", "Table with columns for plate row and plate column") 
         )
         .model(m -> m 
-            .settingsClass(ExpandWellPositionNodeSettings.class)
-            .rearrangeColumns(ExpandWellPositionNodeModel::rearrangeColumns));
+            .parametersClass(ExpandWellPositionNodeSettings.class)
+            .rearrangeColumns(ExpandWellPositionNodeModel::rearrangeColumns) );
 
     /**
      * Default constructor for the node factory.

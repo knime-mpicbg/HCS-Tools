@@ -47,6 +47,7 @@
 package de.mpicbg.knime.hcs2.base.node.layout.expandwellposition;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,19 +70,23 @@ import de.mpicbg.knime.hcs2.base.node.layout.expandwellposition.ExpandWellPositi
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
 /** Model for the "Unit Converter" node. */
-final class ExpandWellPositionNodeModel {
+final class ExpandWellPositionNodeModel{
 	
 	private static final NodeLogger LOGGER = NodeLogger.getLogger(ExpandWellPositionNodeModel.class);
 
     static void rearrangeColumns(final RearrangeColumnsInput in, final RearrangeColumnsOutput out)
         throws InvalidSettingsException {
         final var spec = in.getDataTableSpec();
-        final var settings = in.<ExpandWellPositionNodeSettings> getSettings();
+        final var settings = in.<ExpandWellPositionNodeSettings> getParameters();
         final var rearranger = new ColumnRearranger(spec);
         final var uniqueNameGenerator = new UniqueNameGenerator(spec);
         
         // get input column and check if it's available
-        final var wellPositionIndex = spec.findColumnIndex(settings.m_wellPositionColumn);
+        //final var wellPositionIndex = spec.findColumnIndex(settings.m_wellPositionColumn);
+        
+        final var wellPositionIndex = Optional.ofNullable(settings.m_wellPositionColumn)
+        		.map(columnName -> spec.findColumnIndex(columnName))
+        		.orElseThrow(() -> new InvalidSettingsException("No compatible input column available"));
         
         if (wellPositionIndex < 0) {
             throw new InvalidSettingsException(
@@ -109,7 +114,7 @@ final class ExpandWellPositionNodeModel {
         
         final DataColumnSpec[] specs ={plateRowSpec, plateColumnSpec}; 
         
-        rearranger.append(new ExpandWellPositionCellFactory(wellPositionIndex, specs, rowConversion));
+        rearranger.append(new ExpandWellPositionCellFactory(wellPositionIndex, specs, rowConversion ));
        
         out.setColumnRearranger(rearranger);
     }
@@ -121,18 +126,21 @@ final class ExpandWellPositionNodeModel {
     static final class ExpandWellPositionCellFactory extends AbstractCellFactory {
 
         private final int m_columnIndex;
+        
         private final StringOrNumber m_rowConversion;
+        
         private final Pattern m_pattern = Pattern.compile(TDSUtils.WELL_PATTERN);
-        //private final MessageBuilder m_messageBuilder;
+        
+        //private final Consumer<Message> m_warningConsumer;
 
-        ExpandWellPositionCellFactory(final int columnIndex, DataColumnSpec[] specs, StringOrNumber rowConversion) {
+        ExpandWellPositionCellFactory(final int columnIndex, DataColumnSpec[] specs, StringOrNumber rowConversion/*, final Consumer<Message> warningConsumer*/) {
         	
         	super(specs);
         	
             m_columnIndex = columnIndex;
             m_rowConversion = rowConversion;
             
-            //m_messageBuilder = createMessageBuilder();
+            //m_warningConsumer = warningConsumer;
         }
 
 		@Override
