@@ -46,12 +46,13 @@
  */
 package de.mpicbg.knime.hcs2.base.node.unitconverter;
 
-import org.knime.core.webui.node.dialog.defaultdialog.DefaultNodeSettings;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.ArrayWidget;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.Widget;
+import org.knime.node.parameters.NodeParameters;
+import org.knime.node.parameters.NodeParametersInput;
+import org.knime.node.parameters.Widget;
+import org.knime.node.parameters.array.ArrayWidget;
 
 /** Settings for the "Unit Converter" node. */
-final class UnitConverterNodeSettings implements DefaultNodeSettings {
+final class UnitConverterNodeSettings implements NodeParameters {
 
 	@Widget(title = "Conversions", description = "The conversions to apply to the input")
 	@ArrayWidget(elementTitle = "Conversion")
@@ -61,7 +62,7 @@ final class UnitConverterNodeSettings implements DefaultNodeSettings {
 		m_conversions = new ConversionSettings[0];
 	}
 
-	UnitConverterNodeSettings(final DefaultNodeSettingsContext context) {
+	UnitConverterNodeSettings(final NodeParametersInput context) {
 		m_conversions = new ConversionSettings[] { new ConversionSettings(context) };
 	}
 }

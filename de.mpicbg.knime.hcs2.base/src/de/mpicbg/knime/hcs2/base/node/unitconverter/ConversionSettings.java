@@ -1,21 +1,23 @@
 package de.mpicbg.knime.hcs2.base.node.unitconverter;
 
-import static org.knime.core.webui.node.dialog.defaultdialog.util.column.ColumnSelectionUtil.getFirstDoubleColumn;
-
 import java.util.function.UnaryOperator;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
+import org.knime.core.data.DoubleValue;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.webui.node.dialog.defaultdialog.DefaultNodeSettings;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.Label;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.ValueSwitchWidget;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.Widget;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.choices.ChoicesProvider;
-import org.knime.core.webui.node.dialog.defaultdialog.widget.choices.column.CompatibleColumnsProvider.DoubleColumnsProvider;
+import org.knime.node.parameters.NodeParameters;
+import org.knime.node.parameters.NodeParametersInput;
+import org.knime.node.parameters.Widget;
+import org.knime.node.parameters.widget.choices.ChoicesProvider;
+import org.knime.node.parameters.widget.choices.Label;
+import org.knime.node.parameters.widget.choices.ValueSwitchWidget;
+import org.knime.node.parameters.widget.choices.util.ColumnSelectionUtil;
+import org.knime.node.parameters.widget.choices.util.CompatibleColumnsProvider.DoubleColumnsProvider;
 
-final class ConversionSettings implements DefaultNodeSettings {
+
+final class ConversionSettings implements NodeParameters {
 
 	@Widget(title = "Input column", description = "Numeric column to convert")
 	@ChoicesProvider(DoubleColumnsProvider.class)
@@ -96,8 +98,10 @@ final class ConversionSettings implements DefaultNodeSettings {
 		m_inputColumn = "";
 	}
 
-	ConversionSettings(final DefaultNodeSettingsContext context) {
-		context.getDataTableSpec(0)
-				.ifPresent(spec -> getFirstDoubleColumn(spec).ifPresent(column -> m_inputColumn = column.getName()));
+	ConversionSettings(final NodeParametersInput context) {
+		//context.getInTableSpec(0)
+		//		.ifPresent(spec -> getFirstDoubleColumn(spec).ifPresent(column -> m_inputColumn = column.getName()));
+		context.getInTableSpec(0)
+			.ifPresent(spec -> ColumnSelectionUtil.getFirstCompatibleColumn(spec, DoubleValue.class).ifPresent(column -> m_inputColumn = column.getName()));
 	}
 }
