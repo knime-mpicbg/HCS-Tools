@@ -115,6 +115,7 @@ final class ExpandWellPositionNodeModel{
         final DataColumnSpec[] specs ={plateRowSpec, plateColumnSpec}; 
         
         rearranger.append(new ExpandWellPositionCellFactory(wellPositionIndex, specs, rowConversion ));
+        //rearranger.insertAt(0, null);
        
         out.setColumnRearranger(rearranger);
     }

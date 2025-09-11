@@ -77,7 +77,7 @@ final class ExpandWellPositionNodeSettings implements NodeParameters {
 	
 	protected static final String WELLCOLUMN_PATTERN = ".*[Ww]ell.*";
 
-	@Widget(title = "Well Position", description = "...")
+	@Widget(title = "Well Position", description = "Choose the column containing the well position to split")
 	@ChoicesProvider(StringColumnsProvider.class)
 	/** setting - choice of column */
 	String m_wellPositionColumn;

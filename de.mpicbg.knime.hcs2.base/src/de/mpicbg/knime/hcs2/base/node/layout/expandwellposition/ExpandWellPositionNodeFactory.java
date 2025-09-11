@@ -74,7 +74,7 @@ public final class ExpandWellPositionNodeFactory extends DefaultNodeFactory {
                    """) //
         .ports(p -> p
             .addInputTable("Input table", "Table with column containing well position to split") 
-            .addOutputTable("Output table", "Table with columns for plate row and plate column") 
+            .addOutputTable("Output table", "Table with additional columns for plate row and plate column") 
         )
         .model(m -> m 
             .parametersClass(ExpandWellPositionNodeSettings.class)
