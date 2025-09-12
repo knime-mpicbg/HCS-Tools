@@ -114,9 +114,14 @@ final class ExpandWellPositionNodeModel{
         
         final DataColumnSpec[] specs ={plateRowSpec, plateColumnSpec}; 
         
-        rearranger.append(new ExpandWellPositionCellFactory(wellPositionIndex, specs, rowConversion ));
-        //rearranger.insertAt(0, null);
-       
+        if(settings.m_columnPosition == ExpandWellPositionNodeSettings.OutputColumnPosition.BEHIND_WELL_POSITION) {
+        	var offset = 0;
+    		if (settings.m_deleteSourceColumn) offset = -1;
+        	rearranger.insertAt(wellPositionIndex + 1 + offset, new ExpandWellPositionCellFactory(wellPositionIndex, specs, rowConversion ));
+        }
+        else 
+        	rearranger.append(new ExpandWellPositionCellFactory(wellPositionIndex, specs, rowConversion ));
+        
         out.setColumnRearranger(rearranger);
     }
 
