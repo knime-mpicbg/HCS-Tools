@@ -131,7 +131,7 @@
 </extension>
 
     <extension point="org.knime.workbench.repository.categories">
-        <category icon="resources/hcstoolsicon.png" level-id="hcstools" name="HCS Tools" path="/community"/>
+        <category icon="resources/hcstoolsicon.png" level-id="hcstools" name="HCS Tools (legacy)" path="/community"/>
         <category icon="resources/category_qc.png" level-id="qc" name="Quality Control" path="/community/hcstools"/>
         <category icon="resources/category_normalization.png" level-id="normalization" name="Normalization" path="/community/hcstools"/>
         <category level-id="experimental" name="Experimental" path="/community/hcstools"/>

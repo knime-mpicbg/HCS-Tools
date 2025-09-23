@@ -9,12 +9,23 @@
         <!--normalization-->
         <node factory-class="de.mpicbg.knime.hcs2.base.node.unitconverter.UnitConverterNodeFactory" />
         <node
+              category-path="/community/hcstools2/layout"
               deprecated="false"
               factory-class="de.mpicbg.knime.hcs2.base.node.layout.expandwellposition.ExpandWellPositionNodeFactory"
               hidden="false">
         </node>
 
+
         
+    </extension>
+    
+        <extension point="org.knime.workbench.repository.categories">
+        <category level-id="hcstools2" name="HCS Tools" path="/community"/>
+        <category level-id="layout" name="Plate Layout" path="/community/hcstools2"/>
+        
+
+        <!--add the view components directly to the view-category -->
+        <!--<category level-id="screening" name="Screening" path="/view"/>-->
     </extension>
 
 </plugin>

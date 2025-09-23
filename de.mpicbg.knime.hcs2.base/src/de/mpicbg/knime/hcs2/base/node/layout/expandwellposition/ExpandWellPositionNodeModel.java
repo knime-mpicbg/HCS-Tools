@@ -96,8 +96,8 @@ final class ExpandWellPositionNodeModel{
         if (settings.m_deleteSourceColumn)
         	rearranger.remove(wellPositionIndex);
         
-        String plateColumnName = "plateColumn";
-        String plateRowName = "plateRow";
+        String plateColumnName = TDSUtils.SCREEN_MODEL_WELL_COLUMN;
+        String plateRowName = TDSUtils.SCREEN_MODEL_WELL_ROW;
         
         if (settings.m_rename == ExpandWellPositionNodeSettings.OutputColumn.RENAME) {
         	plateColumnName = settings.m_plateColumnName;
