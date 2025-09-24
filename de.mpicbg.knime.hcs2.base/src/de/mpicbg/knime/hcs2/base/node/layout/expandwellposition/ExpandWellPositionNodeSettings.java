@@ -68,6 +68,8 @@ import org.knime.node.parameters.widget.choices.Label;
 import org.knime.node.parameters.widget.choices.ValueSwitchWidget;
 import org.knime.node.parameters.widget.choices.util.ColumnSelectionUtil;
 import org.knime.node.parameters.widget.choices.util.CompatibleColumnsProvider.StringColumnsProvider;
+import org.knime.node.parameters.widget.text.TextInputWidget;
+import org.knime.node.parameters.widget.text.util.ColumnNameValidationUtils;
 
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
@@ -104,12 +106,14 @@ final class ExpandWellPositionNodeSettings implements NodeParameters {
 
 	@Widget(title = "Column name (plate row index)", description = "Choose a name for the column containing the plate row identifier")
 	@Effect(predicate = OutputColumnIsRename.class, type = EffectType.SHOW)
+	@TextInputWidget(patternValidation = ColumnNameValidationUtils.ColumnNameValidation.class)
 	//@Persist(configKey = "PlateRowName")
 	/** setting - column name for plate row */
 	String m_plateRowName = "plateRow";
 
 	@Widget(title = "Column name (plate column index)", description = "Choose a name for the column containing the plate column identifier")
 	@Effect(predicate = OutputColumnIsRename.class, type = EffectType.SHOW)
+	@TextInputWidget(patternValidation = ColumnNameValidationUtils.ColumnNameValidation.class)
 	//@Persist(configKey = "PlateColumnName")
 	/** setting - column name for plate column */
 	String m_plateColumnName = "plateColumn";
