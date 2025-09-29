@@ -44,38 +44,66 @@
  * ---------------------------------------------------------------------
  *
  */
-package de.mpicbg.knime.hcs2.base.node.unitconverter;
+package de.mpicbg.knime.hcs2.base.node.layout.createwellposition;
 
 import org.knime.node.DefaultNode;
 import org.knime.node.DefaultNodeFactory;
 
-/** Node Factory for the "Unit Converter" node. */
-public final class UnitConverterNodeFactory extends DefaultNodeFactory {
+/** 
+ * Node Factory for the "Expand Well Position" node. 
+ **/
+public final class CreateWellPositionNodeFactory extends DefaultNodeFactory {
 
-    private static final DefaultNode NODE = DefaultNode.create() //
-        .name("Unit Converter 2") //
-        .icon("node-cog.png") //
-        .shortDescription("Convert units of measure") //
+    private static final DefaultNode NODE = DefaultNode.create() 
+        .name("Create Well Position") 
+        .icon("") 
+        .shortDescription("Creates a well position based on two input columns providing identifiers for plate row and plate column") 
         .fullDescription("""
-                Convert between common metric / imperial units.
-
-                   Extend the ParameterArray to support further conversions
-                   by simply adding new items in the dialog.
-                   """)
+        		<p>
+        		The node creates a new string column with the well position, given two input columns with the plate row and plate column identifier, respectively.     
+        		</p>
+        		<ul>
+        		<li>row position may be numeric or up to two letters</li>
+        		<li>column position has to be numeric </li>
+        		<li>supports plate formats up to 1536 well plates </li>
+        		</ul>
+        		Examples:
+        		<table>
+        			<tr>
+        			<th>plateRow (input)</th>
+        			<th>plateColumn (input)</th>
+        			<th>Well Position (output)</th>
+        			</tr>
+        			<tr>
+        			<td>1</td>
+        			<td>1</td>
+        			<td>A1</td>
+        			</tr>			
+        			<tr>
+        			<td>27</td>
+        			<td>27</td>
+        			<td>AA27</td>
+        			</tr>
+        			<tr>
+        			<td>a</td>
+        			<td>1</td>
+        			<td>A1</td>
+        			</tr>
+        		</table>
+                   """) //
         .sinceVersion(5, 8, 0)
-        .ports(p -> p//
-            .addInputTable("Input table", "Table with column(s) to convert") //
-            .addOutputTable("Output table", "Table with converted columns") //
-        ).model(m -> m //
-            .parametersClass(UnitConverterNodeSettings.class)//
-            .rearrangeColumns(UnitConverterNodeModel::rearrangeColumns));
-    
-   
+        .ports(p -> p
+            .addInputTable("Input table", "Table with columns containing plate row and plate column identifier") 
+            .addOutputTable("Output table", "Table with additional column containing the well position") 
+        )
+        .model(m -> m 
+            .parametersClass(CreateWellPositionNodeSettings.class)
+            .rearrangeColumns(CreateWellPositionNodeModel::rearrangeColumns) );
 
     /**
      * Default constructor for the node factory.
      */
-    public UnitConverterNodeFactory() {
+    public CreateWellPositionNodeFactory() {
         super(NODE);
     }
 }

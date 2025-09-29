@@ -48,4 +48,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&
          id="de.mpicbg.knime.hcs2.base"
          version="0.0.0"/>
 
+   <plugin
+         id="de.mpicbg.knime.hcs2.core"
+         version="0.0.0"/>
+
 </feature>

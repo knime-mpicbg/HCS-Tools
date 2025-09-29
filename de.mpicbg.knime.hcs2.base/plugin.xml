@@ -14,7 +14,12 @@
               factory-class="de.mpicbg.knime.hcs2.base.node.layout.expandwellposition.ExpandWellPositionNodeFactory"
               hidden="false">
         </node>
-
+        <node
+              category-path="/community/hcstools2/layout"
+              deprecated="false"
+              factory-class="de.mpicbg.knime.hcs2.base.node.layout.createwellposition.CreateWellPositionNodeFactory"
+              hidden="false">
+        </node>
 
         
     </extension>

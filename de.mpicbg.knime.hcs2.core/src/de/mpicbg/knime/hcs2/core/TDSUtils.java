@@ -50,7 +50,13 @@ public final class TDSUtils {
         rowLabels = Collections.unmodifiableList(list);
     }
 
-
+    public static boolean isValidPlateRow(int rowNumber) {
+    	return rowNumber > 0 && rowNumber <= TDSUtils.MAX_PLATE_ROW;
+    }
+    
+    public static boolean isValidPlateColumn(int colNumber) {
+    	return colNumber > 0 && colNumber <= TDSUtils.MAX_PLATE_COLUMN;
+    }
 
     /**
      * Converts 1 to A, 2 to B and so on.  

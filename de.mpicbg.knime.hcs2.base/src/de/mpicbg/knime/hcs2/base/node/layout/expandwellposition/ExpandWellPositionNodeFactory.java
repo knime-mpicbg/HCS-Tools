@@ -72,6 +72,7 @@ public final class ExpandWellPositionNodeFactory extends DefaultNodeFactory {
         		Two new columns will be created containing the plate row identifier and plate column identifier respectively.
         		</p>        
                    """) //
+        .sinceVersion(5, 8, 0)
         .ports(p -> p
             .addInputTable("Input table", "Table with column containing well position to split") 
             .addOutputTable("Output table", "Table with additional columns for plate row and plate column") 
