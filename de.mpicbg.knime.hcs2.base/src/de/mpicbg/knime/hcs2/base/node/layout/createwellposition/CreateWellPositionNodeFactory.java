@@ -91,6 +91,7 @@ public final class CreateWellPositionNodeFactory extends DefaultNodeFactory {
         			</tr>
         		</table>
                    """) //
+        .sinceVersion(5, 8, 0)
         .ports(p -> p
             .addInputTable("Input table", "Table with columns containing plate row and plate column identifier") 
             .addOutputTable("Output table", "Table with additional column containing the well position") 
