@@ -104,7 +104,7 @@ final class CreateWellPositionNodeSettings implements NodeParameters {
 	@Widget(title = "Position of output column", description = "New columns can be either appended to the end of the table or inserted after the input columns (default)")
 	@ValueSwitchWidget
 	/** setting - where to put the new columns */
-	OutputColumnPosition m_columnPosition = OutputColumnPosition.BEHIND_WELL_POSITION;
+	OutputColumnPosition m_columnPosition = OutputColumnPosition.APPEND;
 	
 	enum OutputColumnPosition {
 		@Label(value = "End of the table", description = "Appends the new columns")

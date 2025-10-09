@@ -56,7 +56,7 @@ public final class CreateWellPositionNodeFactory extends DefaultNodeFactory {
 
     private static final DefaultNode NODE = DefaultNode.create() 
         .name("Create Well Position") 
-        .icon("") 
+        .icon("CreateWellPosition.png") 
         .shortDescription("Creates a well position based on two input columns providing identifiers for plate row and plate column") 
         .fullDescription("""
         		<p>
