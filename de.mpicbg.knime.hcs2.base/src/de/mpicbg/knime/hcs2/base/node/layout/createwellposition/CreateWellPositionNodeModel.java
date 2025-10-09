@@ -63,9 +63,11 @@ import org.knime.core.util.UniqueNameGenerator;
 import org.knime.node.DefaultModel.RearrangeColumnsInput;
 import org.knime.node.DefaultModel.RearrangeColumnsOutput;
 
+import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnNotFoundException;
+import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsMissingSettingException;
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
-/** Model for the "Unit Converter" node. */
+
 final class CreateWellPositionNodeModel{
 
 	static void rearrangeColumns(final RearrangeColumnsInput in, final RearrangeColumnsOutput out)
@@ -77,19 +79,17 @@ final class CreateWellPositionNodeModel{
         
         final var plateRowIdx = Optional.ofNullable(settings.m_plateRowColumn)
         		.map(columnName -> spec.findColumnIndex(columnName))
-        		.orElseThrow(() -> new InvalidSettingsException("No compatible input column for plate row index available"));
+        		.orElseThrow(() -> new InvalidSettingsMissingSettingException("Plate Row Identifier"));
         
         final var plateColumnIdx = Optional.ofNullable(settings.m_plateColumnColumn)
         		.map(columnName -> spec.findColumnIndex(columnName))
-        		.orElseThrow(() -> new InvalidSettingsException("No compatible input column for plate column index available"));
+        		.orElseThrow(() -> new InvalidSettingsMissingSettingException("Plate Column Identifier"));
         
         if ( plateRowIdx < 0 ) {
-            throw new InvalidSettingsException(
-                "Input column '" + settings.m_plateRowColumn + "' not found in input table specification.");
+        	throw new InvalidSettingsColumnNotFoundException(settings.m_plateRowColumn);
         }
         if ( plateColumnIdx < 0 ) {
-            throw new InvalidSettingsException(
-                "Input column '" + settings.m_plateColumnColumn + "' not found in input table specification.");
+        	throw new InvalidSettingsColumnNotFoundException(settings.m_plateColumnColumn);
         }
         
         // get flag based on input specs

@@ -67,6 +67,8 @@ import org.knime.node.DefaultModel.RearrangeColumnsInput;
 import org.knime.node.DefaultModel.RearrangeColumnsOutput;
 
 import de.mpicbg.knime.hcs2.base.node.layout.expandwellposition.ExpandWellPositionNodeSettings.StringOrNumber;
+import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnNotFoundException;
+import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsMissingSettingException;
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
 /** Model for the "Unit Converter" node. */
@@ -86,11 +88,10 @@ final class ExpandWellPositionNodeModel{
         
         final var wellPositionIndex = Optional.ofNullable(settings.m_wellPositionColumn)
         		.map(columnName -> spec.findColumnIndex(columnName))
-        		.orElseThrow(() -> new InvalidSettingsException("No compatible input column available"));
+        		.orElseThrow(() -> new InvalidSettingsMissingSettingException("Well Position"));
         
         if (wellPositionIndex < 0) {
-            throw new InvalidSettingsException(
-                "Input column '" + settings.m_wellPositionColumn + "' not found in input table specification.");
+        	throw new InvalidSettingsColumnNotFoundException(settings.m_wellPositionColumn);
         }
         
         if (settings.m_deleteSourceColumn)

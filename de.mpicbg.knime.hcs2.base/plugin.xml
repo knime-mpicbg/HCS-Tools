@@ -9,15 +9,21 @@
         <!--normalization-->
         <node factory-class="de.mpicbg.knime.hcs2.base.node.unitconverter.UnitConverterNodeFactory" />
         <node
-              category-path="/community/hcstools2/layout"
+              category-path="/community/hcstools2/manipulation/column/splitcombine"
               deprecated="false"
               factory-class="de.mpicbg.knime.hcs2.base.node.layout.expandwellposition.ExpandWellPositionNodeFactory"
               hidden="false">
         </node>
         <node
-              category-path="/community/hcstools2/layout"
+              category-path="/community/hcstools2/manipulation/column/splitcombine"
               deprecated="false"
               factory-class="de.mpicbg.knime.hcs2.base.node.layout.createwellposition.CreateWellPositionNodeFactory"
+              hidden="false">
+        </node>
+        <node
+              category-path="/community/hcstools2/manipulation/column/convertreplace"
+              deprecated="false"
+              factory-class="de.mpicbg.knime.hcs2.base.node.layout.platerowconverter.PlateRowConverterNodeFactory"
               hidden="false">
         </node>
 
@@ -26,7 +32,22 @@
     
         <extension point="org.knime.workbench.repository.categories">
         <category level-id="hcstools2" name="HCS Tools" path="/community"/>
-        <category level-id="layout" name="Plate Layout" path="/community/hcstools2"/>
+        <category level-id="manipulation" name="Manipulation" path="/community/hcstools2"/>
+        <category
+              level-id="column"
+              name="Column"
+              path="/community/hcstools2/manipulation">
+        </category>
+        <category
+              level-id="splitcombine"
+              name="Split &amp; Combine"
+              path="/community/hcstools2/manipulation/column">
+        </category>
+        <category
+              level-id="convertreplace"
+              name="Convert &amp; Replace"
+              path="/community/hcstools2/manipulation/column">
+        </category>
         
 
         <!--add the view components directly to the view-category -->

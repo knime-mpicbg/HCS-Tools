@@ -51,9 +51,7 @@ import java.util.stream.Stream;
 
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.DataValue;
 import org.knime.core.data.DoubleValue;
-import org.knime.core.data.StringValue;
 import org.knime.node.parameters.Advanced;
 import org.knime.node.parameters.NodeParameters;
 import org.knime.node.parameters.NodeParametersInput;
@@ -64,11 +62,11 @@ import org.knime.node.parameters.widget.choices.ChoicesProvider;
 import org.knime.node.parameters.widget.choices.Label;
 import org.knime.node.parameters.widget.choices.ValueSwitchWidget;
 import org.knime.node.parameters.widget.choices.util.ColumnSelectionUtil;
-import org.knime.node.parameters.widget.choices.util.CompatibleColumnsProvider;
 import org.knime.node.parameters.widget.choices.util.CompatibleColumnsProvider.DoubleColumnsProvider;
 import org.knime.node.parameters.widget.text.TextInputWidget;
 import org.knime.node.parameters.widget.text.util.ColumnNameValidationUtils;
 
+import de.mpicbg.knime.hcs2.base.node.layout.PlateRowColumnsProvider;
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
 
@@ -124,27 +122,6 @@ final class CreateWellPositionNodeSettings implements NodeParameters {
 	@Widget(title = "Delete source columns", description = "If checked, the input columns will be removed from the table")
 	boolean m_deleteSourceColumns = false;
 	
-	/* ============================================================================================== */
-	
-	static final class PlateRowColumnsProvider extends CompatibleColumnsProvider {
-		
-		static final List<Class<? extends DataValue>> COMPATIBLE_TYPES =
-                List.of(DoubleValue.class, StringValue.class);
-
-		PlateRowColumnsProvider() {
-			super(COMPATIBLE_TYPES);
-		}
-		
-		static boolean isCompatible(final DataColumnSpec colSpec) {
-            return COMPATIBLE_TYPES.stream().anyMatch(colSpec.getType()::isCompatible);
-        }
-
-		public static List<Class<? extends DataValue>> getValueClassesList() {
-			// TODO Auto-generated method stub
-			return COMPATIBLE_TYPES;
-		}
-		
-	}
 		
 	/* ============================================================================================== */
 	
