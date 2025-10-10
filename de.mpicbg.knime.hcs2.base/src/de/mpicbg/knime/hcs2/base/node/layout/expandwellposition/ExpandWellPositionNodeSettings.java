@@ -54,9 +54,13 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.util.UniqueNameGenerator;
+import org.knime.node.parameters.Advanced;
 import org.knime.node.parameters.NodeParameters;
 import org.knime.node.parameters.NodeParametersInput;
 import org.knime.node.parameters.Widget;
+import org.knime.node.parameters.layout.Layout;
+import org.knime.node.parameters.layout.Section;
 import org.knime.node.parameters.updates.Effect;
 import org.knime.node.parameters.updates.Effect.EffectType;
 import org.knime.node.parameters.updates.EffectPredicate;
@@ -78,78 +82,39 @@ import de.mpicbg.knime.hcs2.core.TDSUtils;
 final class ExpandWellPositionNodeSettings implements NodeParameters {
 	
 	protected static final String WELLCOLUMN_PATTERN = ".*[Ww]ell.*";
+	
+	/*
+	 * ============================================ Sections ==================================================
+	 */
+
+	interface DialogSections {
+		@Section(title = "Output")
+		@Advanced
+		interface Output {
+		}
+	}
+	
+	/*
+	 * ============================================ UI Elements ==================================================
+	 */
 
 	@Widget(title = "Well Position", description = "Choose the column containing the well position to split")
 	@ChoicesProvider(StringColumnsProvider.class)
 	/** setting - choice of column */
 	String m_wellPositionColumn;
 	
-	@Widget(title = "Delete source column", description = "If checked, the well position column will be removed from the table")
-	/** setting - delete source column */
-	boolean m_deleteSourceColumn = false; 
-	
-	@Widget(title = "Position of output columns", description = "New columns can be either appended to the end of the table or inserted after the well position column (default)")
-	@ValueSwitchWidget
-	/** setting - where to put the new columns */
-	OutputColumnPosition m_columnPosition = OutputColumnPosition.BEHIND_WELL_POSITION;
-
 	@Widget(title = "Conversion settings (plate row index)", description = "If unchecked, the row index will be numeric")
 	@ValueSwitchWidget
 	/** setting - convert plate row to number? */
 	StringOrNumber m_rowConversion = StringOrNumber.NUMERIC;
-
-	@Widget(title = "Output columns", description = "New columns may get default names or custom names may be set")
-	@ValueSwitchWidget
-	@ValueReference(StandardRef.class)
-	/** setting - rename columns? */
-	OutputColumn m_rename = OutputColumn.DEFAULT_NAMES;
-
-	@Widget(title = "Column name (plate row index)", description = "Choose a name for the column containing the plate row identifier")
-	@Effect(predicate = OutputColumnIsRename.class, type = EffectType.SHOW)
-	@TextInputWidget(patternValidation = ColumnNameValidationUtils.ColumnNameValidation.class)
-	//@Persist(configKey = "PlateRowName")
-	/** setting - column name for plate row */
-	String m_plateRowName = "plateRow";
-
-	@Widget(title = "Column name (plate column index)", description = "Choose a name for the column containing the plate column identifier")
-	@Effect(predicate = OutputColumnIsRename.class, type = EffectType.SHOW)
-	@TextInputWidget(patternValidation = ColumnNameValidationUtils.ColumnNameValidation.class)
-	//@Persist(configKey = "PlateColumnName")
-	/** setting - column name for plate column */
-	String m_plateColumnName = "plateColumn";
-
-	interface StandardRef extends ParameterReference<OutputColumn> {
-	}
-
-	static final class OutputColumnIsRename implements EffectPredicateProvider {
-		@Override
-		public EffectPredicate init(final PredicateInitializer i) {
-			return i.getEnum(StandardRef.class).isOneOf(OutputColumn.RENAME);
-		}
-	}
 	
-	enum OutputColumnPosition {
-		@Label(value = "End of the table", description = "Appends the new columns")
-		APPEND,
-
-		@Label(value = "Behind well position column", description = "New columns will be placed next to the well position column")
-		BEHIND_WELL_POSITION;
-	}
-
-	enum OutputColumn {
-		@Label(value = "Keep default", description = "Output columns will be named 'plateRow' and 'plateColumn' respectively")
-		DEFAULT_NAMES,
-
-		@Label(value = "Rename", description = "Give custom names to outputput columns")
-		RENAME;
-	}
-
 	enum StringOrNumber {
-		@Label(value = "Keep row letter", description = "Returns the row index as letter")
-		LETTER(StringCell.TYPE),
 
 		@Label(value = "Convert row letter to number", description = "Return the row index as number")
-		NUMERIC(IntCell.TYPE);
+		NUMERIC(IntCell.TYPE),
+		
+		@Label(value = "Keep row letter", description = "Returns the row index as letter")
+		LETTER(StringCell.TYPE);
 
 		private final DataType m_dataType;
 
@@ -169,6 +134,66 @@ final class ExpandWellPositionNodeSettings implements NodeParameters {
 			}
 		}
 	}
+	
+	@Layout(DialogSections.Output.class)
+	@Widget(title = "Position of output columns", description = "New columns can be either appended to the end of the table or inserted after the well position column (default)")
+	@ValueSwitchWidget
+	/** setting - where to put the new columns */
+	OutputColumnPosition m_columnPosition = OutputColumnPosition.APPEND;
+	
+	enum OutputColumnPosition {
+		@Label(value = "End of the table", description = "Appends the new columns")
+		APPEND,
+
+		@Label(value = "Behind well position column", description = "New columns will be placed next to the well position column")
+		BEHIND_WELL_POSITION;
+	}
+
+	@Layout(DialogSections.Output.class)
+	@Widget(title = "Output columns", description = "New columns may get default names or custom names may be set")
+	@ValueSwitchWidget
+	@ValueReference(StandardRef.class)
+	/** setting - rename columns? */
+	OutputColumn m_rename = OutputColumn.DEFAULT_NAMES;
+	
+	enum OutputColumn {
+		@Label(value = "Keep default", description = "Output columns will be named 'plateRow' and 'plateColumn' respectively")
+		DEFAULT_NAMES,
+
+		@Label(value = "Rename", description = "Give custom names to outputput columns")
+		RENAME;
+	}
+
+	@Layout(DialogSections.Output.class)
+	@Widget(title = "Column name (plate row index)", description = "Choose a name for the column containing the plate row identifier")
+	@Effect(predicate = OutputColumnIsRename.class, type = EffectType.SHOW)
+	@TextInputWidget(patternValidation = ColumnNameValidationUtils.ColumnNameValidation.class)
+	/** setting - column name for plate row */
+	String m_plateRowName = "plateRow";
+
+	@Layout(DialogSections.Output.class)
+	@Widget(title = "Column name (plate column index)", description = "Choose a name for the column containing the plate column identifier")
+	@Effect(predicate = OutputColumnIsRename.class, type = EffectType.SHOW)
+	@TextInputWidget(patternValidation = ColumnNameValidationUtils.ColumnNameValidation.class)
+	/** setting - column name for plate column */
+	String m_plateColumnName = "plateColumn";
+	
+	interface StandardRef extends ParameterReference<OutputColumn> {
+	}
+
+	static final class OutputColumnIsRename implements EffectPredicateProvider {
+		@Override
+		public EffectPredicate init(final PredicateInitializer i) {
+			return i.getEnum(StandardRef.class).isOneOf(OutputColumn.RENAME);
+		}
+	}
+	
+	@Layout(DialogSections.Output.class)
+	@Widget(title = "Delete source column", description = "If checked, the well position column will be removed from the table")
+	/** setting - delete source column */
+	boolean m_deleteSourceColumn = false;
+
+	/* ============================================================================================== */
 	
     public ExpandWellPositionNodeSettings() {
     	this((DataTableSpec)null);
@@ -194,6 +219,13 @@ final class ExpandWellPositionNodeSettings implements NodeParameters {
         	    .findFirst()
         	    .map(DataColumnSpec::getName)
         	    .orElseGet(() -> columnList.get(0).getName());
+        
+        /* 
+         * suggest new column names
+         */
+        final var uniqueNameGenerator = new UniqueNameGenerator(spec);
+    	m_plateColumnName = uniqueNameGenerator.newName(TDSUtils.SCREEN_MODEL_WELL_COLUMN);
+    	m_plateRowName = uniqueNameGenerator.newName(TDSUtils.SCREEN_MODEL_WELL_ROW);
     }
 
 
