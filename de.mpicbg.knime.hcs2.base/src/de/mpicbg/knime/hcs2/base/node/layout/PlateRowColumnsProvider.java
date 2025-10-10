@@ -17,7 +17,7 @@ public final class PlateRowColumnsProvider extends CompatibleColumnsProvider {
 		super(COMPATIBLE_TYPES);
 	}
 	
-	static boolean isCompatible(final DataColumnSpec colSpec) {
+	public static boolean isCompatible(final DataColumnSpec colSpec) {
         return COMPATIBLE_TYPES.stream().anyMatch(colSpec.getType()::isCompatible);
     }
 

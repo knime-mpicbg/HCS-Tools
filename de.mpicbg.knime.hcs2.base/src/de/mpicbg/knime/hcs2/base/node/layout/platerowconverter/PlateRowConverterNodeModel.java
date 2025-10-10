@@ -19,6 +19,7 @@ import org.knime.core.util.UniqueNameGenerator;
 import org.knime.node.DefaultModel.RearrangeColumnsInput;
 import org.knime.node.DefaultModel.RearrangeColumnsOutput;
 
+import de.mpicbg.knime.hcs2.base.node.layout.PlateRowColumnsProvider;
 import de.mpicbg.knime.hcs2.base.node.layout.platerowconverter.PlateRowConverterNodeSettings.OutputColumnMode;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnAlreadyExists;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnNotFoundException;
@@ -27,7 +28,7 @@ import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsWrongDataTypeEx
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
 
-public class PlateRowConverterNodeModel {
+final class PlateRowConverterNodeModel {
 
 	static void rearrangeColumns(final RearrangeColumnsInput in, final RearrangeColumnsOutput out)
 	        throws InvalidSettingsException {
@@ -49,9 +50,7 @@ public class PlateRowConverterNodeModel {
         	cspecCreator.setType(outType);
         	rearranger.replace(new PlateRowConverterCellFactory(cspecCreator.createSpec(), plateRowIdx, isNumericPlateRow), settings.m_plateRowColumn);
         }
-        if( replaceInputColumn == OutputColumnMode.APPEND ) {
-        	
-        	
+        if( replaceInputColumn == OutputColumnMode.APPEND ) {        	
         	final var uniqueNameGenerator = new UniqueNameGenerator(spec);
         	DataColumnSpec cspec = uniqueNameGenerator.newColumn(settings.m_outputColumnName, outType);
         	rearranger.append(new PlateRowConverterCellFactory(cspec, plateRowIdx, isNumericPlateRow));
@@ -74,13 +73,12 @@ public class PlateRowConverterNodeModel {
         }
         
         // check if data type of input column is compatible
-        final var type = spec.getColumnSpec(plateRowIdx).getType();
-        if ( !(type.isCompatible(DoubleValue.class) || type.isCompatible(StringValue.class)) )
+        if ( !PlateRowColumnsProvider.isCompatible(spec.getColumnSpec(plateRowIdx)) )
         	throw new InvalidSettingsWrongDataTypeException(settings.m_plateRowColumn);
         
         
         if ( settings.m_columnMode == OutputColumnMode.APPEND) {
-        	// check if output column name is sett
+        	// check if output column name is set
         	final String outputColumnName = Optional.ofNullable(settings.m_outputColumnName)
             		.orElseThrow(() -> new InvalidSettingsException("Output column name missing"));   	
         	// check if output column name already exists in input table

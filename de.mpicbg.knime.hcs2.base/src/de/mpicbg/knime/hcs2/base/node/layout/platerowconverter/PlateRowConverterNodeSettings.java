@@ -28,7 +28,7 @@ import org.knime.node.parameters.widget.text.util.ColumnNameValidationUtils;
 import de.mpicbg.knime.hcs2.base.node.layout.PlateRowColumnsProvider;
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
-public class PlateRowConverterNodeSettings implements NodeParameters {
+final class PlateRowConverterNodeSettings implements NodeParameters {
 
 	/*
 	 * ============================================ Sections ==================================================

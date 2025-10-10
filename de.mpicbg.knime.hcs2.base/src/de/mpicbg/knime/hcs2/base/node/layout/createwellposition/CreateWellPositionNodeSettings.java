@@ -52,6 +52,7 @@ import java.util.stream.Stream;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DoubleValue;
+import org.knime.core.util.UniqueNameGenerator;
 import org.knime.node.parameters.Advanced;
 import org.knime.node.parameters.NodeParameters;
 import org.knime.node.parameters.NodeParametersInput;
@@ -179,6 +180,12 @@ final class CreateWellPositionNodeSettings implements NodeParameters {
 	        .orElseGet(() -> filteredColumnList.get(0))
 	        .getName();
         
+        
+        /* 
+         * suggest new column name
+         */
+        final var uniqueNameGenerator = new UniqueNameGenerator(spec);
+    	m_outputColumnName = uniqueNameGenerator.newName(TDSUtils.SCREEN_MODEL_WELL);
         
     }
 

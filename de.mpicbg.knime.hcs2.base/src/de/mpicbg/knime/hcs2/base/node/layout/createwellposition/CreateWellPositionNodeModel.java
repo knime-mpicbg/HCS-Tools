@@ -51,6 +51,7 @@ import java.util.Optional;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
@@ -63,12 +64,14 @@ import org.knime.core.util.UniqueNameGenerator;
 import org.knime.node.DefaultModel.RearrangeColumnsInput;
 import org.knime.node.DefaultModel.RearrangeColumnsOutput;
 
+import de.mpicbg.knime.hcs2.base.node.layout.PlateRowColumnsProvider;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnNotFoundException;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsMissingSettingException;
+import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsWrongDataTypeException;
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
 
-final class CreateWellPositionNodeModel{
+final class CreateWellPositionNodeModel {
 
 	static void rearrangeColumns(final RearrangeColumnsInput in, final RearrangeColumnsOutput out)
         throws InvalidSettingsException {
@@ -77,46 +80,30 @@ final class CreateWellPositionNodeModel{
         final var rearranger = new ColumnRearranger(spec);
         final var uniqueNameGenerator = new UniqueNameGenerator(spec);
         
-        final var plateRowIdx = Optional.ofNullable(settings.m_plateRowColumn)
-        		.map(columnName -> spec.findColumnIndex(columnName))
-        		.orElseThrow(() -> new InvalidSettingsMissingSettingException("Plate Row Identifier"));
-        
-        final var plateColumnIdx = Optional.ofNullable(settings.m_plateColumnColumn)
-        		.map(columnName -> spec.findColumnIndex(columnName))
-        		.orElseThrow(() -> new InvalidSettingsMissingSettingException("Plate Column Identifier"));
-        
-        if ( plateRowIdx < 0 ) {
-        	throw new InvalidSettingsColumnNotFoundException(settings.m_plateRowColumn);
-        }
-        if ( plateColumnIdx < 0 ) {
-        	throw new InvalidSettingsColumnNotFoundException(settings.m_plateColumnColumn);
-        }
+        CreateWellPositionNodeModel.validateSettings(settings, spec);
+               
+        final var plateRowIdx = spec.findColumnIndex(settings.m_plateRowColumn); 
+        final var plateColumnIdx = spec.findColumnIndex(settings.m_plateColumnColumn); 
         
         // get flag based on input specs
         var isNumericPlateRow = spec.getColumnSpec(plateRowIdx).getType().isCompatible(DoubleValue.class);
         var exceedsAlphabet = false;
         if(settings.m_useSortableFormat) {
 	        if( isNumericPlateRow ) {
-	        	exceedsAlphabet = Optional.ofNullable(spec.getColumnSpec(plateRowIdx).getDomain().getUpperBound())
-	        			.map( cell -> ((DoubleValue) cell).getDoubleValue() > TDSUtils.MAX_PLATE_ROW)
-	        			.orElseThrow(() -> new InvalidSettingsException("No domain values available. Cannot provide sortable format"));
+	        	exceedsAlphabet = ((DoubleValue) spec.getColumnSpec(plateRowIdx).getDomain().getUpperBound()).getDoubleValue() > TDSUtils.MAX_PLATE_ROW;
 	        } else {
-	        	exceedsAlphabet = Optional.ofNullable(spec.getColumnSpec(plateRowIdx).getDomain().getValues())
-	        			.map(set -> set.stream()
-	        					.map(cell -> ((StringCell) cell).getStringValue().length())
-	                            .max(Integer::compare)
-	                            .get() > 1).orElseThrow(() -> new InvalidSettingsException("No domain values available. Cannot provide sortable format"));
-	        			//.get();
+	        	exceedsAlphabet = spec.getColumnSpec(plateRowIdx).getDomain().getValues()
+	        			.stream()
+	        			.map(cell -> ((StringCell) cell).getStringValue().length())
+                        .max(Integer::compare)
+                        .get() > 1;
 	        }
         }
         
         if (settings.m_deleteSourceColumns)
         	rearranger.remove(plateRowIdx, plateColumnIdx);
         
-        String wellColumnName = Optional.ofNullable(settings.m_outputColumnName)
-        		.orElseThrow(() -> new InvalidSettingsException("Output column name missing"));
-        
-        DataColumnSpec wellColumnSpec = uniqueNameGenerator.newColumn(wellColumnName, StringCell.TYPE);
+        DataColumnSpec wellColumnSpec = uniqueNameGenerator.newColumn(settings.m_outputColumnName, StringCell.TYPE);
         
         if(settings.m_columnPosition == CreateWellPositionNodeSettings.OutputColumnPosition.BEHIND_WELL_POSITION) {
         	var offset = 0;
@@ -130,6 +117,55 @@ final class CreateWellPositionNodeModel{
         
         out.setColumnRearranger(rearranger);
     }
+	
+	static void validateSettings(CreateWellPositionNodeSettings settings, DataTableSpec spec) 
+			throws InvalidSettingsException {
+		// check if input column is set at all
+		final var plateRowIdx = Optional.ofNullable(settings.m_plateRowColumn)
+				.map(columnName -> spec.findColumnIndex(columnName))
+				.orElseThrow(() -> new InvalidSettingsMissingSettingException("Plate Row Identifier"));
+
+		final var plateColumnIdx = Optional.ofNullable(settings.m_plateColumnColumn)
+				.map(columnName -> spec.findColumnIndex(columnName))
+				.orElseThrow(() -> new InvalidSettingsMissingSettingException("Plate Column Identifier"));
+
+		// check if input column exists in input table
+		if ( plateRowIdx < 0 ) {
+			throw new InvalidSettingsColumnNotFoundException(settings.m_plateRowColumn);
+		}
+		if ( plateColumnIdx < 0 ) {
+			throw new InvalidSettingsColumnNotFoundException(settings.m_plateColumnColumn);
+		}
+
+		// check if data type of input column is compatible
+		if ( !PlateRowColumnsProvider.isCompatible(spec.getColumnSpec(plateRowIdx)) )
+			throw new InvalidSettingsWrongDataTypeException(settings.m_plateRowColumn);
+		if ( !spec.getColumnSpec(plateColumnIdx).getType().isCompatible(DoubleValue.class) )
+			throw new InvalidSettingsWrongDataTypeException(settings.m_plateColumnColumn);
+		
+		var isNumericPlateRow = spec.getColumnSpec(plateRowIdx).getType().isCompatible(DoubleValue.class);
+        if(settings.m_useSortableFormat) {
+	        if( isNumericPlateRow ) {
+	        	// test if numeric domain is available
+	        	if ( Optional.ofNullable(spec.getColumnSpec(plateRowIdx).getDomain().getUpperBound()).isEmpty())
+	        			throw new InvalidSettingsException("No domain values available. Cannot provide sortable format. Please reconfigure");
+	        } else {
+	        	// test if nominal domain values are available and do contain at least one value
+	        	if (Optional.ofNullable(spec.getColumnSpec(plateRowIdx).getDomain().getValues())
+	        		    .filter(set -> set != null && !set.isEmpty())
+	        		    .isEmpty())
+	        			throw new InvalidSettingsException("No domain values available. Cannot provide sortable format. Please reconfigure");
+	        }
+        }
+		
+		// check if output column name is set
+		if( Optional.ofNullable(settings.m_outputColumnName).isEmpty())
+				throw new InvalidSettingsException("Output column name missing");   	
+				
+        // check if output column name already exists in input table
+        //if ( spec.containsName(outputColumnName))
+        //	throw new InvalidSettingsColumnAlreadyExists(outputColumnName);       			
+	}
 
     /* NOTE: At the moment it's not possible to use the messageBuilder to gather error messages like it was possible with 
      * class inheriting from NodeModel
