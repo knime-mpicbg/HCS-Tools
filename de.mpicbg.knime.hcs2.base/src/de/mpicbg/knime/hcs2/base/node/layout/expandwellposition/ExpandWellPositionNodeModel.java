@@ -54,6 +54,7 @@ import java.util.regex.Pattern;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.StringValue;
 import org.knime.core.data.container.AbstractCellFactory;
@@ -69,6 +70,7 @@ import org.knime.node.DefaultModel.RearrangeColumnsOutput;
 import de.mpicbg.knime.hcs2.base.node.layout.expandwellposition.ExpandWellPositionNodeSettings.StringOrNumber;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnNotFoundException;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsMissingSettingException;
+import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsWrongDataTypeException;
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
 /** Model for the "Unit Converter" node. */
@@ -86,14 +88,10 @@ final class ExpandWellPositionNodeModel{
         // get input column and check if it's available
         //final var wellPositionIndex = spec.findColumnIndex(settings.m_wellPositionColumn);
         
-        final var wellPositionIndex = Optional.ofNullable(settings.m_wellPositionColumn)
-        		.map(columnName -> spec.findColumnIndex(columnName))
-        		.orElseThrow(() -> new InvalidSettingsMissingSettingException("Well Position"));
+        ExpandWellPositionNodeModel.validateSettings(settings, spec);
         
-        if (wellPositionIndex < 0) {
-        	throw new InvalidSettingsColumnNotFoundException(settings.m_wellPositionColumn);
-        }
-        
+        final var wellPositionIndex = spec.findColumnIndex(settings.m_wellPositionColumn);
+    
         if (settings.m_deleteSourceColumn)
         	rearranger.remove(wellPositionIndex);
         
@@ -103,10 +101,6 @@ final class ExpandWellPositionNodeModel{
         if (settings.m_rename == ExpandWellPositionNodeSettings.OutputColumn.RENAME) {
         	plateColumnName = settings.m_plateColumnName;
         	plateRowName = settings.m_plateRowName;
-        }
-        
-        if(plateRowName.equals(plateColumnName)) {
-        	throw new InvalidSettingsException("New column names for plate row index and plate column index cannot be the same.");
         }
         
         final var rowConversion = settings.m_rowConversion;
@@ -124,6 +118,36 @@ final class ExpandWellPositionNodeModel{
         	rearranger.append(new ExpandWellPositionCellFactory(wellPositionIndex, specs, rowConversion ));
         
         out.setColumnRearranger(rearranger);
+    }
+    
+    static void validateSettings(ExpandWellPositionNodeSettings settings, DataTableSpec spec) 
+			throws InvalidSettingsException {
+    	
+    	// check if input column is set at all
+        final var wellPositionColumnIdx = Optional.ofNullable(settings.m_wellPositionColumn)
+        		.map(columnName -> spec.findColumnIndex(columnName))
+        		.orElseThrow(() -> new InvalidSettingsMissingSettingException("Well Position"));
+        
+        // check if input column exists in input table
+        if ( wellPositionColumnIdx < 0 ) {
+        	throw new InvalidSettingsColumnNotFoundException(settings.m_wellPositionColumn);
+        }
+        
+        // check if data type of input column is compatible
+        if ( !spec.getColumnSpec(wellPositionColumnIdx).getType().isCompatible(StringValue.class) )
+        	throw new InvalidSettingsWrongDataTypeException(settings.m_wellPositionColumn);
+        
+        // check if output column name is set
+        if( Optional.ofNullable(settings.m_plateRowName).isEmpty())
+        	throw new InvalidSettingsException("Output column name for plate row identifier is missing");   	
+        // check if output column name is set
+        if( Optional.ofNullable(settings.m_plateColumnName).isEmpty())
+        	throw new InvalidSettingsException("Output column name for plate column identifier is missing");   	
+
+        if(settings.m_plateRowName.equals(settings.m_plateColumnName)) {
+        	throw new InvalidSettingsException("New column names for plate row index and plate column index cannot be the same.");
+        }
+    	
     }
 
     /* NOTE: At the moment it's not possible to use the messageBuilder to gather error messages like it was possible with 
