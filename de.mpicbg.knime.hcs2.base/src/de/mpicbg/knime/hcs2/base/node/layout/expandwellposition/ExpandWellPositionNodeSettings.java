@@ -136,7 +136,7 @@ final class ExpandWellPositionNodeSettings implements NodeParameters {
 	}
 	
 	@Layout(DialogSections.Output.class)
-	@Widget(title = "Position of output columns", description = "New columns can be either appended to the end of the table or inserted after the well position column (default)")
+	@Widget(title = "Position of output columns", description = "New columns can be either appended to the end of the table or inserted after the well position column")
 	@ValueSwitchWidget
 	/** setting - where to put the new columns */
 	OutputColumnPosition m_columnPosition = OutputColumnPosition.APPEND;

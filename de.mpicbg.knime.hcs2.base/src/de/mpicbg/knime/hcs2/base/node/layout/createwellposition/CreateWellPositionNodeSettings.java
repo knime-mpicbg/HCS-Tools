@@ -102,7 +102,7 @@ final class CreateWellPositionNodeSettings implements NodeParameters {
 	String m_outputColumnName = TDSUtils.SCREEN_MODEL_WELL;
 	
 	@Layout(DialogSections.Output.class)
-	@Widget(title = "Position of output column", description = "New columns can be either appended to the end of the table or inserted after the input columns (default)")
+	@Widget(title = "Position of output column", description = "New columns can be either appended to the end of the table or inserted after the input columns")
 	@ValueSwitchWidget
 	/** setting - where to put the new columns */
 	OutputColumnPosition m_columnPosition = OutputColumnPosition.APPEND;
