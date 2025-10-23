@@ -4,9 +4,7 @@
 
     <extension point="org.knime.workbench.repository.nodes">
 
-        <!-- experimental -->
 
-        <!--normalization-->
         <node factory-class="de.mpicbg.knime.hcs2.base.node.unitconverter.UnitConverterNodeFactory" />
         <node
               category-path="/community/hcstools2/manipulation/column/splitcombine"
@@ -24,6 +22,12 @@
               category-path="/community/hcstools2/manipulation/column/convertreplace"
               deprecated="false"
               factory-class="de.mpicbg.knime.hcs2.base.node.layout.platerowconverter.PlateRowConverterNodeFactory"
+              hidden="false">
+        </node>
+        <node
+              category-path="/community/hcstools2/manipulation/column/convertreplace"
+              deprecated="false"
+              factory-class="de.mpicbg.knime.hcs2.base.node.preproc.numberformatter.NumberFormatterNodeFactory"
               hidden="false">
         </node>
 
