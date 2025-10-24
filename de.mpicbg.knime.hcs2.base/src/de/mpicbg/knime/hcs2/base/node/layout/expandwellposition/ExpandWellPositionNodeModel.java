@@ -64,8 +64,10 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.KNIMEException.KNIMERuntimeException;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.util.UniqueNameGenerator;
+import org.knime.core.webui.node.dialog.defaultdialog.widget.validation.ColumnNameValidationMessageBuilder;
 import org.knime.node.DefaultModel.RearrangeColumnsInput;
 import org.knime.node.DefaultModel.RearrangeColumnsOutput;
+import org.knime.node.parameters.widget.text.util.ColumnNameValidationUtils;
 
 import de.mpicbg.knime.hcs2.base.node.layout.expandwellposition.ExpandWellPositionNodeSettings.StringOrNumber;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnNotFoundException;
@@ -137,12 +139,11 @@ final class ExpandWellPositionNodeModel{
         if ( !spec.getColumnSpec(wellPositionColumnIdx).getType().isCompatible(StringValue.class) )
         	throw new InvalidSettingsWrongDataTypeException(settings.m_wellPositionColumn);
         
-        // check if output column name is set
-        if( Optional.ofNullable(settings.m_plateRowName).isEmpty())
-        	throw new InvalidSettingsException("Output column name for plate row identifier is missing");   	
-        // check if output column name is set
-        if( Optional.ofNullable(settings.m_plateColumnName).isEmpty())
-        	throw new InvalidSettingsException("Output column name for plate column identifier is missing");   	
+        
+        // check if output column name for plate row is valid
+     	ColumnNameValidationUtils.validateColumnName(settings.m_plateRowName, new ColumnNameValidationMessageBuilder("output column name").build()); 	 	
+     	// check if output column name for plate column is valid
+     	ColumnNameValidationUtils.validateColumnName(settings.m_plateColumnName, new ColumnNameValidationMessageBuilder("output column name").build()); 	
 
         if(settings.m_plateRowName.equals(settings.m_plateColumnName)) {
         	throw new InvalidSettingsException("New column names for plate row index and plate column index cannot be the same.");
