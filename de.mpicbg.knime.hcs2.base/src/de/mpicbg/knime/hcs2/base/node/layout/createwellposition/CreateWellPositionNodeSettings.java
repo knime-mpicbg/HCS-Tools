@@ -67,7 +67,7 @@ import org.knime.node.parameters.widget.choices.util.CompatibleColumnsProvider.D
 import org.knime.node.parameters.widget.text.TextInputWidget;
 import org.knime.node.parameters.widget.text.util.ColumnNameValidationUtils;
 
-import de.mpicbg.knime.hcs2.base.node.layout.PlateRowColumnsProvider;
+import de.mpicbg.knime.hcs2.base.utils.DoubleStringColumnsProvider;
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
 
@@ -86,7 +86,7 @@ final class CreateWellPositionNodeSettings implements NodeParameters {
 	/* ============================================ UI Elements ================================================== */
 
 	@Widget(title = "Plate Row Identifier", description = "Choose the column containing the plate row indentifier")
-	@ChoicesProvider(PlateRowColumnsProvider.class)
+	@ChoicesProvider(DoubleStringColumnsProvider.class)
 	/** setting - choice of plate row column */
 	String m_plateRowColumn;
 	
@@ -141,7 +141,7 @@ final class CreateWellPositionNodeSettings implements NodeParameters {
         }
 
         // get all compatible columns for plate row column
-        List<DataColumnSpec> columnList = ColumnSelectionUtil.getCompatibleColumns(spec, PlateRowColumnsProvider.getValueClassesList());
+        List<DataColumnSpec> columnList = ColumnSelectionUtil.getCompatibleColumns(spec, DoubleStringColumnsProvider.getValueClassesList());
         
         // no compatible columns 
         if(columnList.isEmpty())

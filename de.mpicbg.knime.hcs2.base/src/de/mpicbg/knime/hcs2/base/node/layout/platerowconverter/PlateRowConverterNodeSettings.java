@@ -25,7 +25,7 @@ import org.knime.node.parameters.widget.choices.util.ColumnSelectionUtil;
 import org.knime.node.parameters.widget.text.TextInputWidget;
 import org.knime.node.parameters.widget.text.util.ColumnNameValidationUtils;
 
-import de.mpicbg.knime.hcs2.base.node.layout.PlateRowColumnsProvider;
+import de.mpicbg.knime.hcs2.base.utils.DoubleStringColumnsProvider;
 import de.mpicbg.knime.hcs2.core.TDSUtils;
 
 final class PlateRowConverterNodeSettings implements NodeParameters {
@@ -56,7 +56,7 @@ final class PlateRowConverterNodeSettings implements NodeParameters {
 	 * Note: can be null (no compatible column available or settings applied without input) 	 
 	 **/
 	@Widget(title = "Plate Row Identifier", description = "Choose the column containing the plate row identifier")
-	@ChoicesProvider(PlateRowColumnsProvider.class)
+	@ChoicesProvider(DoubleStringColumnsProvider.class)
 	/** setting - choice of plate row column */
 	String m_plateRowColumn;
 
@@ -108,7 +108,7 @@ final class PlateRowConverterNodeSettings implements NodeParameters {
         }
 
         // get all compatible columns for plate row column
-        List<DataColumnSpec> columnList = ColumnSelectionUtil.getCompatibleColumns(spec, PlateRowColumnsProvider.getValueClassesList());
+        List<DataColumnSpec> columnList = ColumnSelectionUtil.getCompatibleColumns(spec, DoubleStringColumnsProvider.getValueClassesList());
         
         // no compatible columns 
         if(columnList.isEmpty())

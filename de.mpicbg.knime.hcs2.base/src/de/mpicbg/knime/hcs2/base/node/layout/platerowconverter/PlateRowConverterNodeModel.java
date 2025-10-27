@@ -21,8 +21,8 @@ import org.knime.node.DefaultModel.RearrangeColumnsInput;
 import org.knime.node.DefaultModel.RearrangeColumnsOutput;
 import org.knime.node.parameters.widget.text.util.ColumnNameValidationUtils;
 
-import de.mpicbg.knime.hcs2.base.node.layout.PlateRowColumnsProvider;
 import de.mpicbg.knime.hcs2.base.node.layout.platerowconverter.PlateRowConverterNodeSettings.OutputColumnMode;
+import de.mpicbg.knime.hcs2.base.utils.DoubleStringColumnsProvider;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnAlreadyExists;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnNotFoundException;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsMissingSettingException;
@@ -75,7 +75,7 @@ final class PlateRowConverterNodeModel {
         }
         
         // check if data type of input column is compatible
-        if ( !PlateRowColumnsProvider.isCompatible(spec.getColumnSpec(plateRowIdx)) )
+        if ( !DoubleStringColumnsProvider.isCompatible(spec.getColumnSpec(plateRowIdx)) )
         	throw new InvalidSettingsWrongDataTypeException(settings.m_plateRowColumn);
         
         

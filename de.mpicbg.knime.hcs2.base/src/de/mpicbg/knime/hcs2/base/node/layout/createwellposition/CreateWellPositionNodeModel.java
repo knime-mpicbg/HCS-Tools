@@ -66,7 +66,7 @@ import org.knime.node.DefaultModel.RearrangeColumnsInput;
 import org.knime.node.DefaultModel.RearrangeColumnsOutput;
 import org.knime.node.parameters.widget.text.util.ColumnNameValidationUtils;
 
-import de.mpicbg.knime.hcs2.base.node.layout.PlateRowColumnsProvider;
+import de.mpicbg.knime.hcs2.base.utils.DoubleStringColumnsProvider;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnNotFoundException;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsMissingSettingException;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsWrongDataTypeException;
@@ -140,7 +140,7 @@ final class CreateWellPositionNodeModel {
 		}
 
 		// check if data type of input column is compatible
-		if ( !PlateRowColumnsProvider.isCompatible(spec.getColumnSpec(plateRowIdx)) )
+		if ( !DoubleStringColumnsProvider.isCompatible(spec.getColumnSpec(plateRowIdx)) )
 			throw new InvalidSettingsWrongDataTypeException(settings.m_plateRowColumn);
 		if ( !spec.getColumnSpec(plateColumnIdx).getType().isCompatible(DoubleValue.class) )
 			throw new InvalidSettingsWrongDataTypeException(settings.m_plateColumnColumn);

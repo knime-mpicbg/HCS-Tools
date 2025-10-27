@@ -1,4 +1,4 @@
-package de.mpicbg.knime.hcs2.base.node.layout;
+package de.mpicbg.knime.hcs2.base.utils;
 
 import java.util.List;
 
@@ -8,12 +8,12 @@ import org.knime.core.data.DoubleValue;
 import org.knime.core.data.StringValue;
 import org.knime.node.parameters.widget.choices.util.CompatibleColumnsProvider;
 
-public final class PlateRowColumnsProvider extends CompatibleColumnsProvider {
+public final class DoubleStringColumnsProvider extends CompatibleColumnsProvider {
 	
 	static final List<Class<? extends DataValue>> COMPATIBLE_TYPES =
             List.of(DoubleValue.class, StringValue.class);
 
-	PlateRowColumnsProvider() {
+	DoubleStringColumnsProvider() {
 		super(COMPATIBLE_TYPES);
 	}
 	
