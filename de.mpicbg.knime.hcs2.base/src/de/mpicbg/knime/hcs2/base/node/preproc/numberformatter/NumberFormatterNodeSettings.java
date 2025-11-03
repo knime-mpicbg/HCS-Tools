@@ -1,16 +1,17 @@
 package de.mpicbg.knime.hcs2.base.node.preproc.numberformatter;
 
 import java.util.List;
-import java.util.Optional;
 
+import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataValue;
-import org.knime.core.data.DoubleValue;
-import org.knime.core.data.StringValue;
-import org.knime.core.webui.node.dialog.defaultdialog.util.updates.StateComputationFailureException;
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.util.UniqueNameGenerator;
+import org.knime.node.parameters.Advanced;
 import org.knime.node.parameters.NodeParameters;
 import org.knime.node.parameters.NodeParametersInput;
 import org.knime.node.parameters.Widget;
+import org.knime.node.parameters.layout.After;
+import org.knime.node.parameters.layout.HorizontalLayout;
 import org.knime.node.parameters.layout.Layout;
 import org.knime.node.parameters.layout.Section;
 import org.knime.node.parameters.updates.Effect;
@@ -18,12 +19,20 @@ import org.knime.node.parameters.updates.Effect.EffectType;
 import org.knime.node.parameters.updates.EffectPredicate;
 import org.knime.node.parameters.updates.EffectPredicateProvider;
 import org.knime.node.parameters.updates.ParameterReference;
-import org.knime.node.parameters.widget.OptionalWidget;
-import org.knime.node.parameters.widget.OptionalWidget.DefaultValueProvider;
+import org.knime.node.parameters.updates.ValueReference;
+import org.knime.node.parameters.updates.util.BooleanReference;
 import org.knime.node.parameters.widget.choices.ChoicesProvider;
 import org.knime.node.parameters.widget.choices.Label;
 import org.knime.node.parameters.widget.choices.ValueSwitchWidget;
-import org.knime.node.parameters.widget.choices.util.CompatibleColumnsProvider;
+import org.knime.node.parameters.widget.choices.util.ColumnSelectionUtil;
+import org.knime.node.parameters.widget.number.NumberInputWidget;
+import org.knime.node.parameters.widget.number.NumberInputWidgetValidation.MinValidation.IsNonNegativeValidation;
+import org.knime.node.parameters.widget.text.TextInputWidget;
+import org.knime.node.parameters.widget.text.util.ColumnNameValidationUtils;
+
+import de.mpicbg.knime.hcs2.base.utils.DoubleStringColumnsProvider;
+import de.mpicbg.knime.hcs2.core.TDSUtils;
+
 
 final class NumberFormatterNodeSettings implements NodeParameters {
 	
@@ -32,8 +41,33 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 	 */
 
 	interface DialogSections {
+		
 		@Section(title = "Notation")
 		interface Notation {
+			
+			@HorizontalLayout
+		    interface SeparatorsLayout {
+		    }
+			
+			@HorizontalLayout
+			@After(SeparatorsLayout.class)
+		    interface LeadingCharsLayout {
+		    }
+		}
+		
+		@Section(title = "Unit")
+		@After(Notation.class)
+		interface Unit {
+			
+			@HorizontalLayout
+		    interface UnitSettingsLayout {
+		    }
+		}
+		
+		@Section(title = "Output")
+		@After(Unit.class)
+		@Advanced
+		interface Output {
 		}
 	}
 	
@@ -52,58 +86,54 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 	 * Note: can be null (no compatible column available or settings applied without input) 	 
 	 **/
 	@Widget(title = "Column to format", description = "...")
-	@ChoicesProvider(NumberFormatterColumnsProvider.class)
+	@ValueReference(value = ColumnNameRef.class)
+	@ChoicesProvider(DoubleStringColumnsProvider.class)
 	/** setting - choice of input column */
 	String m_inputColumn;
 	
-	static final class NumberFormatterColumnsProvider extends CompatibleColumnsProvider {
-		
-		static final List<Class<? extends DataValue>> COMPATIBLE_TYPES =
-	            List.of(DoubleValue.class, StringValue.class);
-
-		public NumberFormatterColumnsProvider() {
-			super(COMPATIBLE_TYPES);
-		}
-		
-		public static boolean isCompatible(final DataColumnSpec colSpec) {
-	        return COMPATIBLE_TYPES.stream().anyMatch(colSpec.getType()::isCompatible);
-	    }
-
-		public static List<Class<? extends DataValue>> getValueClassesList() {
-			// TODO Auto-generated method stub
-			return COMPATIBLE_TYPES;
-		}
-		
-	}
+	interface ColumnNameRef extends ParameterReference<String> {
+    }
 	
-	/* --- */
+	/*
+	 * ### Notation - Section ###
+	 */
 	
 	@Layout(DialogSections.Notation.class)
+	@Widget(title = "Format", description = "...")
+	NumberFormat m_Format = NumberFormat.STANDARD;
+	
+	enum NumberFormat {
+		@Label("standard (0.01)")
+        STANDARD,
+
+        @Label("scientific (1.0 × 10\u207b\u00b2)")
+        SCIENTIFIC,
+        
+        @Label("e (1.0E-2)")
+		E_FORMAT2,
+        
+        @Label("E (1.0e-2)")
+		E_FORMAT1;
+	}
+	
+	/* --DOES NOT WORK - */
+	
+	@Layout(DialogSections.Notation.SeparatorsLayout.class)
 	@Widget(title = "Thousands Separator", description = "...")
-	@OptionalWidget(defaultProvider = ThousandsSeparatorDefaultProvider.class)
-	@Effect(predicate = UseThousandsSeparator.class, type = EffectType.ENABLE)
-	Optional<ThousandsSeparator> m_thousandsSeparator = Optional.of(ThousandsSeparator.COMMA);
+	//@OptionalWidget(defaultProvider = ThousandsSeparatorDefaultProvider.class)
+	//Optional<ThousandsSeparator> m_thousandsSeparator;
+	ThousandsSeparator m_thousandsSeparator = ThousandsSeparator.COMMA;
 	
-	static final class ThousandsSeparatorDefaultProvider implements DefaultValueProvider<ThousandsSeparator> {
-
-        @Override
-        public ThousandsSeparator computeState(final NodeParametersInput context) throws StateComputationFailureException {
-            return ThousandsSeparator.COMMA;
-        }
-
-    }
-	
-	static final class UseThousandsSeparator implements EffectPredicateProvider {
-
-        @Override
-        public EffectPredicate init(final PredicateInitializer i) {
-            return i.getBoolean(EnabledRef.class).isTrue();
-        }
-
-    }
-	
-	static final class EnabledRef implements ParameterReference<Boolean> {
-    }
+	/*
+	 * static final class ThousandsSeparatorDefaultProvider implements
+	 * DefaultValueProvider<ThousandsSeparator> {
+	 * 
+	 * @Override public ThousandsSeparator computeState(final NodeParametersInput
+	 * context) throws StateComputationFailureException { return
+	 * ThousandsSeparator.COMMA; }
+	 * 
+	 * }
+	 */
 	
 	enum ThousandsSeparator {
         @Label(". (full stop)")
@@ -121,7 +151,7 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 	
 	/* --- */
 	
-	@Layout(DialogSections.Notation.class)
+	@Layout(DialogSections.Notation.SeparatorsLayout.class)
 	@Widget(title = "Decimal Separator", description = "...")
 	//@ValueSwitchWidget
 	DecimalSeparator m_decimalSeparator = DecimalSeparator.FULL_STOP;
@@ -133,5 +163,194 @@ final class NumberFormatterNodeSettings implements NodeParameters {
         @Label(", (comma)")
         COMMA;
 	}
+	
+	/* --- */
+	
+	@Layout(DialogSections.Notation.LeadingCharsLayout.class)
+	@Widget(title = "Leading character", description = "...")
+	//@OptionalWidget(defaultProvider = ThousandsSeparatorDefaultProvider.class)
+	//Optional<ThousandsSeparator> m_thousandsSeparator;
+	LeadingCharacter m_leadingCharacter = LeadingCharacter.ZERO;
+	
+	enum LeadingCharacter {
+		@Label("0 (zero)")
+        ZERO,
 
+        @Label("_ (underscore)")
+        UNDERSCORE,
+        
+        @Label(" (space)")
+		SPACE;
+	}
+	
+	/* --- */
+	
+	
+	
+	@Layout(DialogSections.Notation.LeadingCharsLayout.class)
+	@Widget(title = "from domain values", description = "...")
+	@ValueReference(value = AutosetLeadingCharsReference.class)
+	//@Effect(predicate = HasDomainValues.class, type = EffectType.ENABLE)
+	boolean m_getNLeadingCharsFromDomain = false;
+	
+	interface AutosetLeadingCharsReference extends ParameterReference<Boolean> {	
+	}
+	
+	static final class HasDomainValues implements EffectPredicateProvider {
+
+		@Override
+		public EffectPredicate init(PredicateInitializer i) {
+			return i.getConstant(
+	                (NodeParametersInput context) -> {
+	                	String selectedColumn = i.getString(ColumnNameRef.class).toString();
+	                	DataColumnDomain domain = context.getInTableSpec(0).map(tSpec -> tSpec.getColumnSpec(selectedColumn).getDomain()).get();
+	                	return domain.hasValues() || domain.hasBounds();
+	                });
+		}
+		
+	}
+	
+	/* --- */
+	
+	@Layout(DialogSections.Notation.LeadingCharsLayout.class)
+	@Widget(title = "Number of leading characters", description = "...")
+	@NumberInputWidget(minValidation = IsNonNegativeValidation.class)
+	@Effect(predicate = HasAutosetLeadingChars.class, type = EffectType.HIDE)
+	int m_numberLeadingCharacters = 0;
+	
+	static final class HasAutosetLeadingChars implements EffectPredicateProvider {
+
+		@Override
+		public EffectPredicate init(PredicateInitializer i) {
+			// TODO Auto-generated method stub
+			return i.getBoolean(AutosetLeadingCharsReference.class).isTrue();
+		}
+		
+	}
+	
+	/*
+	 * ### Unit - Section ###
+	 */
+	
+	/*DOES NOT WORK NICELY
+	@Layout(DialogSections.Unit.class)	
+	@Widget(title = "Append Unit", description = "...")
+	@TextInputWidget()
+	@OptionalWidget(defaultProvider = DefaultUnitProvider.class)
+	Optional<String> m_unit = Optional.empty();
+	
+	static final class DefaultUnitProvider implements DefaultValueProvider<String> {
+
+		@Override
+		public String computeState(NodeParametersInput parametersInput) throws StateComputationFailureException {
+			return " µM";
+		}	
+		
+		
+	}
+	*/
+	
+	@Layout(DialogSections.Unit.class)	
+	@Widget(title = "Add unit", description = "...")
+	@ValueReference(SetUnit.class)
+	boolean m_useUnit = false;
+	
+	static final class SetUnit implements BooleanReference {
+    }
+
+	/* --- */
+	
+	@Layout(DialogSections.Unit.UnitSettingsLayout.class)
+	@Widget(title = "Location", description = "...")
+	@ValueSwitchWidget
+	@Effect(predicate = SetUnit.class, type = EffectType.ENABLE)
+	UnitMode m_unitMode = UnitMode.AFTER;
+
+	enum UnitMode {
+		@Label(value = "Before", description = "...")
+		BEFORE,
+
+		@Label(value = "After", description = "...")
+		AFTER;
+	}
+	
+	/* --- */
+	
+	@Layout(DialogSections.Unit.UnitSettingsLayout.class)
+	@Widget(title = "Unit", description = "...")
+	@TextInputWidget()
+	@Effect(predicate = SetUnit.class, type = EffectType.ENABLE)
+	String m_unit = " µM";
+	
+	/*
+	 * ### Output - Section ###
+	 */
+	
+	/** setting - new column or replace input column */
+	@Layout(DialogSections.Output.class)
+	@Widget(title = "Output Mode", description = "Node output can either replace the input column or a new column is appended")
+	@ValueSwitchWidget
+	@ValueReference(StandardRef.class)
+	OutputColumnMode m_columnMode = OutputColumnMode.REPLACE;
+
+	enum OutputColumnMode {
+		@Label(value = "Replace", description = "Replace the input columns with node output (column data type will change)")
+		REPLACE,
+
+		@Label(value = "Append", description = "Append a new column with node output")
+		APPEND;
+	}
+	
+	interface StandardRef extends ParameterReference<OutputColumnMode> { }
+
+	/** setting - output column name **/
+	@Layout(DialogSections.Output.class)
+	@Widget(title = "Output Column Name", description = "Name of the created output column. Only available if output mode is `Append`.")
+	@Effect(predicate = OutputColumnIsAppend.class, type = EffectType.SHOW)
+	@TextInputWidget(patternValidation = ColumnNameValidationUtils.ColumnNameValidation.class )
+	String m_outputColumnName = TDSUtils.SCREEN_MODEL_WELL_ROW;
+
+	static final class OutputColumnIsAppend implements EffectPredicateProvider {
+
+		@Override public EffectPredicate init(final PredicateInitializer i) { 
+			return i.getEnum(StandardRef.class).isOneOf(OutputColumnMode.APPEND); }
+	}													 
+	
+	/* ============================================================================================== */
+
+	
+    public NumberFormatterNodeSettings() {
+    	this((DataTableSpec)null);
+	}
+    
+	NumberFormatterNodeSettings(final NodeParametersInput context) {
+        this(context.getInTableSpec(0).orElse(null));
+    }
+	
+	NumberFormatterNodeSettings(final DataTableSpec spec) {
+		// empty (no columns) table
+        if (spec == null) {
+            return;
+        }
+
+        // get all compatible columns for plate row column
+        List<DataColumnSpec> columnList = ColumnSelectionUtil.getCompatibleColumns(spec, DoubleStringColumnsProvider.getValueClassesList());
+        
+        // no compatible columns 
+        if(columnList.isEmpty())
+        	return;
+        
+        /* 
+         * from compatible columns:
+         * use first column in list
+         */
+        m_inputColumn = columnList.get(0).getName();
+
+        /* 
+         * suggest new column name
+         */
+        final var uniqueNameGenerator = new UniqueNameGenerator(spec);
+    	m_outputColumnName = uniqueNameGenerator.newName(m_inputColumn + " (formatted)");
+        
+    }
 }
