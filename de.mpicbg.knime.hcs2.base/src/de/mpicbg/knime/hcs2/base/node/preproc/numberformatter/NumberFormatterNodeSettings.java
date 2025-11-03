@@ -1,11 +1,14 @@
 package de.mpicbg.knime.hcs2.base.node.preproc.numberformatter;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.util.UniqueNameGenerator;
+import org.knime.core.webui.node.dialog.defaultdialog.util.updates.StateComputationFailureException;
 import org.knime.node.parameters.Advanced;
 import org.knime.node.parameters.NodeParameters;
 import org.knime.node.parameters.NodeParametersInput;
@@ -21,7 +24,10 @@ import org.knime.node.parameters.updates.EffectPredicateProvider;
 import org.knime.node.parameters.updates.ParameterReference;
 import org.knime.node.parameters.updates.ValueReference;
 import org.knime.node.parameters.updates.util.BooleanReference;
+import org.knime.node.parameters.widget.OptionalWidget;
+import org.knime.node.parameters.widget.OptionalWidget.DefaultValueProvider;
 import org.knime.node.parameters.widget.choices.ChoicesProvider;
+import org.knime.node.parameters.widget.choices.EnumChoicesProvider;
 import org.knime.node.parameters.widget.choices.Label;
 import org.knime.node.parameters.widget.choices.ValueSwitchWidget;
 import org.knime.node.parameters.widget.choices.util.ColumnSelectionUtil;
@@ -120,20 +126,28 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 	
 	@Layout(DialogSections.Notation.SeparatorsLayout.class)
 	@Widget(title = "Thousands Separator", description = "...")
-	//@OptionalWidget(defaultProvider = ThousandsSeparatorDefaultProvider.class)
-	//Optional<ThousandsSeparator> m_thousandsSeparator;
-	ThousandsSeparator m_thousandsSeparator = ThousandsSeparator.COMMA;
+	@OptionalWidget(defaultProvider = ThousandsSeparatorDefaultProvider.class)
+	@ChoicesProvider(AvailableSeparatorsProvider.class)
+	Optional<ThousandsSeparator> m_thousandsSeparator = Optional.empty();
+	//ThousandsSeparator m_thousandsSeparator = ThousandsSeparator.COMMA;
+
+
+	static final class ThousandsSeparatorDefaultProvider implements DefaultValueProvider<ThousandsSeparator> {
+
+		@Override public ThousandsSeparator computeState(final NodeParametersInput
+				context) throws StateComputationFailureException { return
+						ThousandsSeparator.COMMA; }
+
+	}
 	
-	/*
-	 * static final class ThousandsSeparatorDefaultProvider implements
-	 * DefaultValueProvider<ThousandsSeparator> {
-	 * 
-	 * @Override public ThousandsSeparator computeState(final NodeParametersInput
-	 * context) throws StateComputationFailureException { return
-	 * ThousandsSeparator.COMMA; }
-	 * 
-	 * }
-	 */
+	static final class AvailableSeparatorsProvider implements EnumChoicesProvider<ThousandsSeparator> {
+	    @Override
+	    public List<ThousandsSeparator> choices(final NodeParametersInput context) {
+	        return Arrays.asList(ThousandsSeparator.values());
+	    }
+	}
+
+	 
 	
 	enum ThousandsSeparator {
         @Label(". (full stop)")
@@ -168,8 +182,6 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 	
 	@Layout(DialogSections.Notation.LeadingCharsLayout.class)
 	@Widget(title = "Leading character", description = "...")
-	//@OptionalWidget(defaultProvider = ThousandsSeparatorDefaultProvider.class)
-	//Optional<ThousandsSeparator> m_thousandsSeparator;
 	LeadingCharacter m_leadingCharacter = LeadingCharacter.ZERO;
 	
 	enum LeadingCharacter {
