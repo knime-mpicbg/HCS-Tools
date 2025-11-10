@@ -3,10 +3,13 @@ package de.mpicbg.knime.hcs2.base.node.preproc.numberformatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
-import org.knime.core.data.DataColumnDomain;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.util.UniqueNameGenerator;
 import org.knime.core.webui.node.dialog.defaultdialog.util.updates.StateComputationFailureException;
 import org.knime.node.parameters.Advanced;
@@ -17,11 +20,15 @@ import org.knime.node.parameters.layout.After;
 import org.knime.node.parameters.layout.HorizontalLayout;
 import org.knime.node.parameters.layout.Layout;
 import org.knime.node.parameters.layout.Section;
+import org.knime.node.parameters.persistence.NodeParametersPersistor;
+import org.knime.node.parameters.persistence.Persistor;
 import org.knime.node.parameters.updates.Effect;
 import org.knime.node.parameters.updates.Effect.EffectType;
 import org.knime.node.parameters.updates.EffectPredicate;
 import org.knime.node.parameters.updates.EffectPredicateProvider;
 import org.knime.node.parameters.updates.ParameterReference;
+import org.knime.node.parameters.updates.StateProvider;
+import org.knime.node.parameters.updates.ValueProvider;
 import org.knime.node.parameters.updates.ValueReference;
 import org.knime.node.parameters.updates.util.BooleanReference;
 import org.knime.node.parameters.widget.OptionalWidget;
@@ -53,16 +60,19 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 			
 			@HorizontalLayout
 		    interface SeparatorsLayout {
-		    }
-			
+		    }	
+		}
+		
+		@Section(title = "Leading Characters")
+		@After(Notation.class)
+		interface LeadingCharacters {
 			@HorizontalLayout
-			@After(SeparatorsLayout.class)
-		    interface LeadingCharsLayout {
-		    }
+			interface SetNumberOf {
+			}
 		}
 		
 		@Section(title = "Unit")
-		@After(Notation.class)
+		@After(LeadingCharacters.class)
 		interface Unit {
 			
 			@HorizontalLayout
@@ -92,12 +102,12 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 	 * Note: can be null (no compatible column available or settings applied without input) 	 
 	 **/
 	@Widget(title = "Column to format", description = "...")
-	@ValueReference(value = ColumnNameRef.class)
+	@ValueReference(value = ColumnNameReference.class)
 	@ChoicesProvider(DoubleStringColumnsProvider.class)
 	/** setting - choice of input column */
 	String m_inputColumn;
 	
-	interface ColumnNameRef extends ParameterReference<String> {
+	interface ColumnNameReference extends ParameterReference<String> {
     }
 	
 	/*
@@ -122,15 +132,13 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 		E_FORMAT1;
 	}
 	
-	/* --DOES NOT WORK - */
+	/* --- */
 	
 	@Layout(DialogSections.Notation.SeparatorsLayout.class)
 	@Widget(title = "Thousands Separator", description = "...")
 	@OptionalWidget(defaultProvider = ThousandsSeparatorDefaultProvider.class)
 	@ChoicesProvider(AvailableSeparatorsProvider.class)
 	Optional<ThousandsSeparator> m_thousandsSeparator = Optional.empty();
-	//ThousandsSeparator m_thousandsSeparator = ThousandsSeparator.COMMA;
-
 
 	static final class ThousandsSeparatorDefaultProvider implements DefaultValueProvider<ThousandsSeparator> {
 
@@ -178,89 +186,140 @@ final class NumberFormatterNodeSettings implements NodeParameters {
         COMMA;
 	}
 	
-	/* --- */
+	/*
+	 * ### Leading Characters - Section ###
+	 */
 	
-	@Layout(DialogSections.Notation.LeadingCharsLayout.class)
-	@Widget(title = "Leading character", description = "...")
-	LeadingCharacter m_leadingCharacter = LeadingCharacter.ZERO;
+	@Layout(DialogSections.LeadingCharacters.class)	
+	@Widget(title = "Add leading characters", description = "...")
+	@ValueReference(SetLeadingCharacters.class)
+	boolean m_useleadingCharacters = false;
 	
-	enum LeadingCharacter {
-		@Label("0 (zero)")
-        ZERO,
+	static final class SetLeadingCharacters implements BooleanReference {
+    }
+	
+	//@Persistor(TestPersistor.class)
+	LeadingCharacterGroup tg = new LeadingCharacterGroup();
+	
+	@Layout(DialogSections.LeadingCharacters.class)
+	@Effect(predicate = SetLeadingCharacters.class, type = EffectType.ENABLE)
+	static class LeadingCharacterGroup implements NodeParameters {
+		
+		@Layout(DialogSections.LeadingCharacters.class)
+		@Widget(title = "Leading character", description = "...")
+		LeadingCharacter m_leadingCharacter = LeadingCharacter.ZERO;
+		
+		enum LeadingCharacter {
+			
+			@Label("0 (zero)")
+			ZERO,
+			
+			@Label("  (space)")
+	        SPACE,
 
-        @Label("_ (underscore)")
-        UNDERSCORE,
-        
-        @Label(" (space)")
-		SPACE;
-	}
-	
-	/* --- */
-	
-	
-	
-	@Layout(DialogSections.Notation.LeadingCharsLayout.class)
-	@Widget(title = "from domain values", description = "...")
-	@ValueReference(value = AutosetLeadingCharsReference.class)
-	//@Effect(predicate = HasDomainValues.class, type = EffectType.ENABLE)
-	boolean m_getNLeadingCharsFromDomain = false;
-	
-	interface AutosetLeadingCharsReference extends ParameterReference<Boolean> {	
-	}
-	
-	static final class HasDomainValues implements EffectPredicateProvider {
-
-		@Override
-		public EffectPredicate init(PredicateInitializer i) {
-			return i.getConstant(
-	                (NodeParametersInput context) -> {
-	                	String selectedColumn = i.getString(ColumnNameRef.class).toString();
-	                	DataColumnDomain domain = context.getInTableSpec(0).map(tSpec -> tSpec.getColumnSpec(selectedColumn).getDomain()).get();
-	                	return domain.hasValues() || domain.hasBounds();
-	                });
+	        @Label("_ (underscore)")
+	        UNDERSCORE;
 		}
 		
-	}
-	
-	/* --- */
-	
-	@Layout(DialogSections.Notation.LeadingCharsLayout.class)
-	@Widget(title = "Number of leading characters", description = "...")
-	@NumberInputWidget(minValidation = IsNonNegativeValidation.class)
-	@Effect(predicate = HasAutosetLeadingChars.class, type = EffectType.HIDE)
-	int m_numberLeadingCharacters = 0;
-	
-	static final class HasAutosetLeadingChars implements EffectPredicateProvider {
-
-		@Override
-		public EffectPredicate init(PredicateInitializer i) {
-			// TODO Auto-generated method stub
-			return i.getBoolean(AutosetLeadingCharsReference.class).isTrue();
+		/* --- */
+		
+		@ValueProvider(InputColumnHasDomainValuesProvider.class)
+		@ValueReference(InputColumnHasDomainValuesReference.class)
+		@Persistor(InputColumnHasDomainValuesPersistor.class)
+		boolean m_inputColumnHasDomainValues;
+		
+		interface InputColumnHasDomainValuesReference extends BooleanReference {			
 		}
 		
+		static final class InputColumnHasDomainValuesProvider implements StateProvider<Boolean> {
+			
+			private Supplier<String> m_selectedColumnSupplier;
+
+
+			@Override
+			public void init(StateProviderInitializer initializer) {
+				initializer.computeAfterOpenDialog();
+	            m_selectedColumnSupplier = initializer.getValueSupplier(ColumnNameReference.class);
+			}
+
+			@Override
+			public Boolean computeState(NodeParametersInput parametersInput) throws StateComputationFailureException {
+				if (m_selectedColumnSupplier.get() == null || m_selectedColumnSupplier.get().isEmpty()) {
+				
+				} else {
+					boolean hasBounds = parametersInput.getInTableSpec(0).get().getColumnSpec(m_selectedColumnSupplier.get()).getDomain().hasBounds();
+					boolean hasDomainValues = parametersInput.getInTableSpec(0).get().getColumnSpec(m_selectedColumnSupplier.get()).getDomain().hasValues();
+					
+					return Boolean.valueOf(hasBounds || hasDomainValues);
+				}
+				return Boolean.FALSE;
+			}
+			
+		}
+		
+		static final class InputColumnHasDomainValuesPersistor implements NodeParametersPersistor<Boolean> {
+
+			@Override
+			public Boolean load(NodeSettingsRO settings) throws InvalidSettingsException {
+				return false;
+			}
+
+			@Override
+			public void save(Boolean param, NodeSettingsWO settings) {
+			}
+
+			@Override
+			public String[][] getConfigPaths() {
+				return new String[0][];
+			}	
+		}
+		
+		/* --- */
+		
+		@Layout(DialogSections.LeadingCharacters.SetNumberOf.class)
+		@Widget(title = "autoguess from domain values", description = "...")
+		@ValueReference(value = AutosetLeadingCharsReference.class)
+		//@Effect(predicate = InputColumnHasDomainValuesPredicate.class, type = EffectType.ENABLE)
+		boolean m_getNLeadingCharsFromDomain = false;
+		
+		static final class InputColumnHasDomainValuesPredicate implements EffectPredicateProvider {
+
+			@Override
+			public EffectPredicate init(PredicateInitializer i) {
+				return i.getBoolean(InputColumnHasDomainValuesReference.class).isTrue();
+			}
+			
+		}
+		
+		interface AutosetLeadingCharsReference extends BooleanReference {	
+		}
+		
+		/* --- */
+		
+		@Layout(DialogSections.LeadingCharacters.SetNumberOf.class)
+		@Widget(title = "Number of leading characters", description = "...")
+		@NumberInputWidget(minValidation = IsNonNegativeValidation.class)
+		//@Effect(predicate = AutosetLeadingCharsPredicate.class, type = EffectType.HIDE)
+		int m_numberLeadingCharacters = 0;
+		
+		static final class AutosetLeadingCharsPredicate implements EffectPredicateProvider {
+
+			@Override
+			public EffectPredicate init(PredicateInitializer i) {
+				return i.getBoolean(AutosetLeadingCharsReference.class).isTrue();
+			}
+			
+		}		
 	}
+	
+
+	
+
+
 	
 	/*
 	 * ### Unit - Section ###
 	 */
-	
-	/*DOES NOT WORK NICELY
-	@Layout(DialogSections.Unit.class)	
-	@Widget(title = "Append Unit", description = "...")
-	@TextInputWidget()
-	@OptionalWidget(defaultProvider = DefaultUnitProvider.class)
-	Optional<String> m_unit = Optional.empty();
-	
-	static final class DefaultUnitProvider implements DefaultValueProvider<String> {
-
-		@Override
-		public String computeState(NodeParametersInput parametersInput) throws StateComputationFailureException {
-			return " µM";
-		}	
-		
-		
-	}
-	*/
 	
 	@Layout(DialogSections.Unit.class)	
 	@Widget(title = "Add unit", description = "...")
