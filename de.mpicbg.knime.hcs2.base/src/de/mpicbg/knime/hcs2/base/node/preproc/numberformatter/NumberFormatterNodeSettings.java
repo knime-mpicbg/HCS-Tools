@@ -199,7 +199,7 @@ final class NumberFormatterNodeSettings implements NodeParameters {
     }
 	
 	//@Persistor(TestPersistor.class)
-	LeadingCharacterGroup tg = new LeadingCharacterGroup();
+	LeadingCharacterGroup m_leadingCharacterSettings = new LeadingCharacterGroup();
 	
 	@Layout(DialogSections.LeadingCharacters.class)
 	@Effect(predicate = SetLeadingCharacters.class, type = EffectType.ENABLE)
