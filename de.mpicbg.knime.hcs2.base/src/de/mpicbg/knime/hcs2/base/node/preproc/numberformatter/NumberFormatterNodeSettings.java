@@ -20,6 +20,7 @@ import org.knime.node.parameters.layout.After;
 import org.knime.node.parameters.layout.HorizontalLayout;
 import org.knime.node.parameters.layout.Layout;
 import org.knime.node.parameters.layout.Section;
+import org.knime.node.parameters.layout.VerticalLayout;
 import org.knime.node.parameters.persistence.NodeParametersPersistor;
 import org.knime.node.parameters.persistence.Persistor;
 import org.knime.node.parameters.updates.Effect;
@@ -58,9 +59,14 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 		@Section(title = "Notation")
 		interface Notation {
 			
-			@HorizontalLayout
+			/*@HorizontalLayout
 		    interface SeparatorsLayout {
-		    }	
+				
+				@VerticalLayout
+				interface DecimalsLayout {
+					
+				}
+		    }	*/
 		}
 		
 		@Section(title = "Leading Characters")
@@ -134,7 +140,7 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 	
 	/* --- */
 	
-	@Layout(DialogSections.Notation.SeparatorsLayout.class)
+	@Layout(DialogSections.Notation.class)
 	@Widget(title = "Thousands Separator", description = "...")
 	@OptionalWidget(defaultProvider = ThousandsSeparatorDefaultProvider.class)
 	@ChoicesProvider(AvailableSeparatorsProvider.class)
@@ -173,7 +179,7 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 	
 	/* --- */
 	
-	@Layout(DialogSections.Notation.SeparatorsLayout.class)
+	@Layout(DialogSections.Notation.class)
 	@Widget(title = "Decimal Separator", description = "...")
 	//@ValueSwitchWidget
 	DecimalSeparator m_decimalSeparator = DecimalSeparator.FULL_STOP;
@@ -184,6 +190,23 @@ final class NumberFormatterNodeSettings implements NodeParameters {
 
         @Label(", (comma)")
         COMMA;
+	}
+	
+	/* --- */
+	
+	@Layout(DialogSections.Notation.class)
+	@Widget(title = "Number of decimal places", description = "...")
+	@OptionalWidget(defaultProvider = DecimalPlacesDefaultProvider.class)
+	@NumberInputWidget(minValidation = IsNonNegativeValidation.class)
+	Optional<Integer> m_numberDecimalPlaces = Optional.empty();
+	
+	static final class DecimalPlacesDefaultProvider implements DefaultValueProvider<Integer> {
+
+		@Override
+		public Integer computeState(NodeParametersInput parametersInput) throws StateComputationFailureException {
+			// TODO Auto-generated method stub
+			return 1;
+		}	
 	}
 	
 	/*
