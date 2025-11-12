@@ -205,7 +205,7 @@ public class BarcodeParser {
 
 
     public List<String> getAvailableGroups() {
-        return new ArrayList<String>(barcodeMatcher.namedGroups().keySet());
+        return new ArrayList<String>(barcodeMatcher.groupValues().keySet());
     }
 
 
