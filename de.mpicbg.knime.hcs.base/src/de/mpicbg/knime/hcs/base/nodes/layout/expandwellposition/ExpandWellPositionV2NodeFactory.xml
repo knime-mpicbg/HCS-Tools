@@ -2,7 +2,7 @@
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 
 <knimeNode icon="./ExpandWellPosition.png" type="Manipulator">
-    <name>Expand Well Position</name>
+    <name>Expand Well Position (legacy)</name>
 
     <shortDescription>
         Expands a well position column (containing entries like B3 or C14) into two columns named 'plateRow' and

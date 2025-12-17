@@ -16,11 +16,13 @@ import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.util.UniqueNameGenerator;
+import org.knime.core.webui.node.dialog.defaultdialog.widget.validation.ColumnNameValidationMessageBuilder;
 import org.knime.node.DefaultModel.RearrangeColumnsInput;
 import org.knime.node.DefaultModel.RearrangeColumnsOutput;
+import org.knime.node.parameters.widget.text.util.ColumnNameValidationUtils;
 
-import de.mpicbg.knime.hcs2.base.node.layout.PlateRowColumnsProvider;
 import de.mpicbg.knime.hcs2.base.node.layout.platerowconverter.PlateRowConverterNodeSettings.OutputColumnMode;
+import de.mpicbg.knime.hcs2.base.utils.DoubleStringColumnsProvider;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnAlreadyExists;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsColumnNotFoundException;
 import de.mpicbg.knime.hcs2.base.utils.exceptions.InvalidSettingsMissingSettingException;
@@ -73,17 +75,13 @@ final class PlateRowConverterNodeModel {
         }
         
         // check if data type of input column is compatible
-        if ( !PlateRowColumnsProvider.isCompatible(spec.getColumnSpec(plateRowIdx)) )
+        if ( !DoubleStringColumnsProvider.isCompatible(spec.getColumnSpec(plateRowIdx)) )
         	throw new InvalidSettingsWrongDataTypeException(settings.m_plateRowColumn);
         
         
         if ( settings.m_columnMode == OutputColumnMode.APPEND) {
-        	// check if output column name is set
-        	final String outputColumnName = Optional.ofNullable(settings.m_outputColumnName)
-            		.orElseThrow(() -> new InvalidSettingsException("Output column name missing"));   	
-        	// check if output column name already exists in input table
-        	if ( spec.containsName(outputColumnName))
-        		throw new InvalidSettingsColumnAlreadyExists(outputColumnName);       			
+        	// check if output column name is valid
+    		ColumnNameValidationUtils.validateColumnName(settings.m_outputColumnName, new ColumnNameValidationMessageBuilder("output column name").build()); 	    			
         }
 	}
 	

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <knimeNode icon="./NumberFormatterIcon.png" type="Manipulator">
-	<name>Number Formatter</name>
+	<name>Number Formatter (legacy)</name>
 
 	<shortDescription>
 		The node is formatting numbers in the table by adding leading and
