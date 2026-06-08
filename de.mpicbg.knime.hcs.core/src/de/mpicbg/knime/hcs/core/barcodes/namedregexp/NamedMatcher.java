@@ -125,7 +125,7 @@ public class NamedMatcher implements NamedMatchResult {
     }
 
 
-    public Map<String, String> namedGroups() {
+    public Map<String, String> groupValues() {
         Map<String, String> result = new LinkedHashMap<String, String>();
         
         matches();
