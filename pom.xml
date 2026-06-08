@@ -188,6 +188,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
+					<executionEnvironment>JavaSE-21</executionEnvironment>
 					<environments>
 						<!-- These can be removed once we shut down the Buckminster build -->
 						<environment>
